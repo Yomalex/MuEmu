@@ -23,11 +23,11 @@ namespace WebZen.Network
 
         public int Decode(MemoryStream rawPacket, out short serial, List<object> messages)
         {
-            using (var tempMS = new MemoryStream())
+            using (var decPacket = new MemoryStream())
+            using (var posPacket = new MemoryStream())
             {
                 //var type = rawPacket[0];
-                MemoryStream decPacket = rawPacket;
-                var type = rawPacket.ReadByte();
+                var type = (byte)rawPacket.ReadByte();
                 ushort size = 0;
                 serial = -1;
 
@@ -36,73 +36,230 @@ namespace WebZen.Network
                 else if (type == 0xC2 || type == 0xC4)
                     size = (ushort)((rawPacket.ReadByte() << 8) | rawPacket.ReadByte());
                 else
-                    throw new InvalidProgramException($"Invalid packet type {type}");
+                    throw new InvalidProgramException($"Invalid packet type {type:X2}");
 
                 // Packet Encrypted
-                if (type == 0xC3)
+                byte[] tmp;
+                byte[] dec;
+                switch(type)
                 {
-                    decPacket = tempMS;
-                    var temp = new byte[size - 2];
-
-                    //Array.Copy(rawPacket, 2, temp, 0, temp.Length);
-                    rawPacket.Read(temp, 0, temp.Length);
-
-                    var dec = SimpleModulus.Decoder(temp);
-
-                    serial = dec[0];
-                    decPacket.WriteByte(0xC1);
-                    decPacket.WriteByte((byte)(dec.Length + 1));
-                    decPacket.Write(dec, 1, dec.Length - 1);
-
-                    //Array.Copy(dec, 1, rawPacket, 2, dec.Length - 1);
-
-                    //rawPacket[0] = 0xC1;
-                    //rawPacket[1] = (byte)(dec.Length + 1);
+                    case 0xC1:
+                        decPacket.WriteByte(type);
+                        decPacket.WriteByte((byte)size);
+                        tmp = new byte[size - 2];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        decPacket.Write(tmp, 0, tmp.Length);
+                        break;
+                    case 0xC2:
+                        decPacket.WriteByte(type);
+                        decPacket.WriteByte((byte)((size >> 8) & 0xff));
+                        decPacket.WriteByte((byte)(size & 0xff));
+                        tmp = new byte[size - 3];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        decPacket.Write(tmp, 0, tmp.Length);
+                        break;
+                    case 0xC3:
+                        tmp = new byte[size - 2];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        dec = SimpleModulus.Decoder(tmp);
+                        serial = dec[0];
+                        decPacket.WriteByte(0xC1);
+                        decPacket.WriteByte((byte)(dec.Length + 1));
+                        decPacket.Write(dec, 1, dec.Length - 1);
+                        break;
+                    case 0xC4:
+                        tmp = new byte[size - 3];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        dec = SimpleModulus.Decoder(tmp);
+                        serial = dec[0];
+                        decPacket.WriteByte(0xC2);
+                        decPacket.WriteByte((byte)((dec.Length + 2) >> 8));
+                        decPacket.WriteByte((byte)((dec.Length + 2) & 255));
+                        decPacket.Write(dec, 1, dec.Length - 1);
+                        break;
                 }
-                else if (type == 0xC4)
-                {
-                    decPacket = tempMS;
-                    var temp = new byte[size - 3];
-
-                    //Array.Copy(rawPacket, 3, temp, 0, temp.Length);
-                    rawPacket.Read(temp, 0, temp.Length);
-
-                    var dec = SimpleModulus.Decoder(temp);
-
-                    serial = dec[0];
-                    decPacket.WriteByte(0xC2);
-                    decPacket.WriteByte((byte)((dec.Length + 2) >> 8));
-                    decPacket.WriteByte((byte)((dec.Length + 2) & 255));
-                    decPacket.Write(dec, 1, dec.Length - 1);
-
-                    //Array.Copy(dec, 1, rawPacket, 3, dec.Length - 1);
-
-                    //rawPacket[0] = 0xC2;
-                    //rawPacket[1] = (byte)((dec.Length + 2) >> 8);
-                    //rawPacket[2] = (byte)((dec.Length + 2) & 255);
-                }
-
+                
                 using (var spe = new StreamPacketEngine())
                 {
                     spe.AddData(decPacket.ToArray());
-                    decPacket.Dispose();
-                    decPacket = new MemoryStream(spe.ExtractPacket());
+                    var posProcess = spe.ExtractPacket();
+                    posPacket.Write(posProcess, 0, posProcess.Length);
                 }
 
+                posPacket.Seek(0, SeekOrigin.Begin);
+
                 ushort opCode;
+                ushort pkSize;
+
+                if(posPacket.Length < 3)
+                {
+                    //Logger.Error("Invalid Size {0}", posPacket.Length);
+                    throw new Exception("Invalid Packet size " + posPacket.Length);
+                }
+
                 if (type == 0xC1 || type == 0xC3)
-                    opCode = Serializer.Deserialize<WZBPacket>(decPacket).Operation;
+                {
+                    var tmph = Serializer.Deserialize<WZBPacket>(posPacket);
+                    opCode = tmph.Operation;
+                    pkSize = tmph.Size;
+                }
                 else
-                    opCode = Serializer.Deserialize<WZWPacket>(decPacket).Operation;
+                {
+                    var tmph = Serializer.Deserialize<WZWPacket>(posPacket);
+                    opCode = tmph.Operation;
+                    pkSize = tmph.Size;
+                }
+
+                //posPacket.Seek(0, SeekOrigin.Begin);
 
                 var factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
                 if (factory != null)
                 {
-                    messages.Add(factory.GetMessage(opCode, decPacket));
+                    messages.Add(factory.GetMessage(opCode, posPacket));
                 }
                 else
                 {
-                    Logger.Error("Invalid OpCoder {opCode}", opCode);
+                    var orgOpCode = opCode;
+                    opCode |= 0xFF00;
+                    factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
+                    if (factory != null)
+                    {
+                        posPacket.Position--;
+                        messages.Add(factory.GetMessage(opCode, posPacket));
+                    }
+                    else
+                    {
+                        Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X4}", orgOpCode, opCode);
+                    }
+                }
+
+                return size;
+            }
+        }
+    }
+
+    public class WZPacketDecoderSimple
+    {
+        public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZPacketDecoder));
+        private readonly MessageFactory[] _factories;
+
+        public WZPacketDecoderSimple(MessageFactory[] factories)
+        {
+            _factories = factories;
+        }
+
+        public int Decode(MemoryStream rawPacket, out short serial, List<object> messages)
+        {
+            using (var decPacket = new MemoryStream())
+            using (var posPacket = new MemoryStream())
+            {
+                //var type = rawPacket[0];
+                var type = (byte)rawPacket.ReadByte();
+                ushort size = 0;
+                serial = -1;
+
+                if (type == 0xC1 || type == 0xC3)
+                    size = (ushort)rawPacket.ReadByte();
+                else if (type == 0xC2 || type == 0xC4)
+                    size = (ushort)((rawPacket.ReadByte() << 8) | rawPacket.ReadByte());
+                else
+                    throw new InvalidProgramException($"Invalid packet type {type:X2}");
+
+                // Packet Encrypted
+                byte[] tmp;
+                byte[] dec;
+                switch (type)
+                {
+                    case 0xC1:
+                        decPacket.WriteByte(type);
+                        decPacket.WriteByte((byte)size);
+                        tmp = new byte[size - 2];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        decPacket.Write(tmp, 0, tmp.Length);
+                        break;
+                    case 0xC2:
+                        decPacket.WriteByte(type);
+                        decPacket.WriteByte((byte)((size >> 8) & 0xff));
+                        decPacket.WriteByte((byte)(size & 0xff));
+                        tmp = new byte[size - 3];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        decPacket.Write(tmp, 0, tmp.Length);
+                        break;
+                    case 0xC3:
+                        tmp = new byte[size - 2];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        dec = SimpleModulus.Decoder(tmp);
+                        serial = dec[0];
+                        decPacket.WriteByte(0xC1);
+                        decPacket.WriteByte((byte)(dec.Length + 1));
+                        decPacket.Write(dec, 1, dec.Length - 1);
+                        break;
+                    case 0xC4:
+                        tmp = new byte[size - 3];
+                        rawPacket.Read(tmp, 0, tmp.Length);
+                        dec = SimpleModulus.Decoder(tmp);
+                        serial = dec[0];
+                        decPacket.WriteByte(0xC2);
+                        decPacket.WriteByte((byte)((dec.Length + 2) >> 8));
+                        decPacket.WriteByte((byte)((dec.Length + 2) & 255));
+                        decPacket.Write(dec, 1, dec.Length - 1);
+                        break;
+                }
+
+                //using (var spe = new StreamPacketEngine())
+                //{
+                //    spe.AddData(decPacket.ToArray());
+                //    var posProcess = spe.ExtractPacket();
+                //    posPacket.Write(posProcess, 0, posProcess.Length);
+                //}
+
+                var posProcess = decPacket.ToArray();
+                posPacket.Write(posProcess, 0, posProcess.Length);
+                posPacket.Seek(0, SeekOrigin.Begin);
+
+                ushort opCode;
+                ushort pkSize;
+
+                if (posPacket.Length < 3)
+                {
+                    //Logger.Error("Invalid Size {0}", posPacket.Length);
+                    throw new Exception("Invalid Packet size " + posPacket.Length);
+                }
+
+                if (type == 0xC1 || type == 0xC3)
+                {
+                    var tmph = Serializer.Deserialize<WZBPacket>(posPacket);
+                    opCode = tmph.Operation;
+                    pkSize = tmph.Size;
+                }
+                else
+                {
+                    var tmph = Serializer.Deserialize<WZWPacket>(posPacket);
+                    opCode = tmph.Operation;
+                    pkSize = tmph.Size;
+                }
+
+                //posPacket.Seek(0, SeekOrigin.Begin);
+
+                var factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
+                if (factory != null)
+                {
+                    messages.Add(factory.GetMessage(opCode, posPacket));
+                }
+                else
+                {
+                    var orgOpCode = opCode;
+                    opCode |= 0xFF00;
+                    factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
+                    if (factory != null)
+                    {
+                        posPacket.Position--;
+                        messages.Add(factory.GetMessage(opCode, posPacket));
+                    }
+                    else
+                    {
+                        Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X4}", orgOpCode, opCode);
+                    }
                 }
 
                 return size;
@@ -148,26 +305,123 @@ namespace WebZen.Network
                 Serializer.Serialize(b, message);
                 var body = b.ToArray();
                 var length = body.Length;
-                
+                var sizeFix = (((opCode & 0xFF00) == 0xFF00) ? 1 : 0);
+                var sizeFix2 = 0;
+
                 if (att.LongMessage)
                 {
                     var header = new WZWPacket
                     {
                         Type = (byte)0xC2,
-                        Size = (ushort)(length+5),
+                        Size = (ushort)(length + 5 - sizeFix),
+                        Operation = opCode
+                    };
+                    Serializer.Serialize(h, header);
+
+                    sizeFix2 = 2;
+                }
+                else
+                {
+                    var header = new WZBPacket
+                    {
+                        Type = (byte)0xC1,
+                        Size = (byte)(length + 4 - sizeFix),
+                        Operation = opCode
+                    };
+                    Serializer.Serialize(h, header);
+
+                    sizeFix2 = 1;
+                }
+
+                var head = h.ToArray();
+                var headLen = head.Length - sizeFix;
+                result = new byte[headLen + body.Length];
+                Array.Copy(head, result, headLen);
+                Array.Copy(body, 0, result, headLen, body.Length);
+
+                if (att.Serialized)
+                {
+                    result[0] += 2;
+                    var temp = new byte[result.Length - sizeFix2];
+
+                    temp[0] = (byte)(serial);
+
+                    Array.Copy(result, sizeFix2, temp, 1, temp.Length-1);
+
+                    var enc = SimpleModulus.Encoder(temp);
+
+                    var resultTemp = new byte[sizeFix2 + enc.Length];
+                    Array.Copy(result, resultTemp, sizeFix2);
+                    Array.Copy(enc, 0, resultTemp, sizeFix2, enc.Length);
+                    serial++;
+
+                    return resultTemp;
+                }
+            }
+
+            return result;
+        }
+    }
+
+    public class WZPacketEncoderClient
+    {
+        private readonly MessageFactory[] _factories;
+
+        public WZPacketEncoderClient(MessageFactory[] factories)
+        {
+            _factories = factories;
+        }
+
+        public byte[] Encode(object message, ref short serial)
+        {
+            var factory = _factories.FirstOrDefault(f => f.ContainsType(message.GetType()));
+            byte[] result = null;
+
+            if (factory == null)
+                throw new InvalidProgramException($"Invalid message type {message.GetType()}");
+
+            ushort opCode = factory.GetOpCode(message.GetType());
+
+            WZContractAttribute att = null;
+
+            foreach (var a in message.GetType().GetCustomAttributes(false))
+            {
+                if (a.GetType() == typeof(WZContractAttribute))
+                {
+                    att = a as WZContractAttribute;
+                }
+            }
+
+            if (att == null)
+                throw new InvalidOperationException("Invalid message format");
+
+            using (var h = new MemoryStream())
+            using (var b = new MemoryStream())
+            {
+                Serializer.Serialize(b, message);
+                var body = b.ToArray();
+                var length = body.Length;
+                var sizeFix = (((opCode & 0xFF00) == 0xFF00) ? 1 : 0);
+
+                if (att.LongMessage)
+                {
+                    var header = new WZWPacket
+                    {
+                        Type = (byte)0xC2,
+                        Size = (ushort)(length + 5 - sizeFix),
                         Operation = opCode
                     };
 
-                    if(att.Serialized)
+                    if (att.Serialized)
                     {
                         var temp = new byte[header.Size - 2];
 
                         temp[0] = (byte)serial;
 
-                        Array.Copy(body, 0, temp, 1, temp.Length - 1);
+                        Array.Copy(body, 0, temp, 1, body.Length);
 
                         body = SimpleModulus.Encoder(temp);
-                        header.Type = 0xC4;
+                        header.Type += 2;
 
                         serial++;
                     }
@@ -179,7 +433,7 @@ namespace WebZen.Network
                     var header = new WZBPacket
                     {
                         Type = (byte)0xC1,
-                        Size = (byte)(length+4),
+                        Size = (byte)(length + 4 - sizeFix),
                         Operation = opCode
                     };
 
@@ -189,10 +443,10 @@ namespace WebZen.Network
 
                         temp[0] = (byte)serial;
 
-                        Array.Copy(body, 0, temp, 1, temp.Length - 1);
+                        Array.Copy(body, 0, temp, 1, body.Length);
 
                         body = SimpleModulus.Encoder(temp);
-                        header.Type = 0xC4;
+                        header.Type += 2;
 
                         serial++;
                     }
@@ -201,10 +455,17 @@ namespace WebZen.Network
                 }
 
                 var head = h.ToArray();
+                var headLen = head.Length - sizeFix;
 
-                result = new byte[head.Length+body.Length];
-                Array.Copy(head, result, head.Length);
-                Array.Copy(body, 0, result, head.Length, body.Length);
+                result = new byte[headLen + body.Length];
+                Array.Copy(head, result, headLen);
+                Array.Copy(body, 0, result, headLen, body.Length);
+
+                using (var spe = new StreamPacketEngine())
+                {
+                    spe.AddData(result);
+                    result = spe.ExtractData();
+                }
             }
 
             return result;
@@ -238,9 +499,21 @@ namespace WebZen.Network
         public byte Type { get; set; }
 
         [BlubMember(1)]
-        public ushort Size { get; set; }
+        public byte SizeH { get; set; }
 
         [BlubMember(2)]
+        public byte SizeL { get; set; }
+
+        [BlubMember(3)]
         public ushort Operation { get; set; }
+
+        public ushort Size {
+            get => (byte)(SizeH << 8 | SizeL);
+            set
+            {
+                SizeH = (byte)(value >> 8);
+                SizeL = (byte)(value & 0xff);
+            }
+        }
     }
 }

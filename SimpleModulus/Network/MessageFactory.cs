@@ -17,7 +17,9 @@ namespace WebZen.Network
         {
             var type = typeof(T);
             _opCodeLookup.Add(type, opCode);
-            _typeLookup.Add(opCode, type);
+
+            if(!_typeLookup.ContainsKey(opCode))
+                _typeLookup.Add(opCode, type);
         }
 
         public ushort GetOpCode(Type type)

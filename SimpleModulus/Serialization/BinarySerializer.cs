@@ -53,6 +53,8 @@ namespace WebZen.Serialization
 
                 var loop = emiter.DefineLabel();
                 var loopCheck = emiter.DefineLabel();
+                var loopFill = emiter.DefineLabel();
+                var loopFillCheck = emiter.DefineLabel();
 
                 using (var element = emiter.DeclareLocal(elementType, "element"))
                 using (var i = emiter.DeclareLocal<int>("i"))
@@ -79,6 +81,24 @@ namespace WebZen.Serialization
                     emiter.LoadLocal(i);
                     emiter.LoadLocal(length);
                     emiter.BranchIfLess(loop);
+
+                    emiter.Branch(loopFillCheck);
+                    emiter.MarkLabel(loopFill);
+                    // element = 0
+                    emiter.LoadConstant(0);
+                    emiter.StoreLocal(element);
+
+                    emiter.CallSerializerForType(elementType, element);
+                    // ++i
+                    emiter.LoadLocal(i);
+                    emiter.LoadConstant(1);
+                    emiter.Add();
+                    emiter.StoreLocal(i);
+
+                    emiter.MarkLabel(loopFillCheck);
+                    emiter.LoadLocal(i);
+                    emiter.LoadConstant(_size);
+                    emiter.BranchIfLess(loopFill);
                 }
             }
         }

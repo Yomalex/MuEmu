@@ -4,13 +4,11 @@ using System.Net.Sockets;
 using System.Text;
 using WebZen.Network;
 
-namespace MuEmu.Network
+namespace CSEmu.Network
 {
-    public class GSSession : WZClient
+    public class CSSession : WZClient
     {
-        public Player Player { get; set; }
-
-        public GSSession(WZServer server, Socket socket, AsyncCallback onRecv)
+        public CSSession(WZServer server, Socket socket, AsyncCallback onRecv)
             : base(server, socket, onRecv)
         { }
 
@@ -20,11 +18,11 @@ namespace MuEmu.Network
         }
     }
 
-    public class GSSessionFactory : ISessionFactory
+    public class CSSessionFactory : ISessionFactory
     {
         public WZClient Create(WZServer server, Socket socket, AsyncCallback onRecv)
         {
-            return new GSSession(server, socket, onRecv);
+            return new CSSession(server, socket, onRecv);
         }
     }
 }

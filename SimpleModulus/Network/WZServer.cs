@@ -17,22 +17,35 @@ namespace WebZen.Network
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZServer));
         private TcpListener _listener;
         private WZPacketDecoder _decoder;
+        private WZPacketDecoderSimple _decoderSimple;
         private ISessionFactory _factory;
         private MessageHandler[] _handler;
         private Dictionary<int, WZClient> _clients;
         private WZPacketEncoder _encoder;
+
+        public IPAddress IPAddress => ((IPEndPoint)_listener.LocalEndpoint).Address;
+
+        public ushort Port => (ushort)((IPEndPoint)_listener.LocalEndpoint).Port;
+
+        public int MaxUsers { get; set; }
+
+        public float Load => _clients.Count / MaxUsers * 100.0f;
+
+        public bool SimpleStream { get; set; }
 
         public byte[] Encode(object message, ref short serial) => _encoder.Encode(message, ref serial);
         
         public WZServer()
         {
             _clients = new Dictionary<int, WZClient>();
+            MaxUsers = 300;
         }
 
         public void Initialize(IPEndPoint address, MessageHandler[] handler, ISessionFactory factory, MessageFactory[] message)
         {
             _listener = new TcpListener(address);
             _decoder = new WZPacketDecoder(message);
+            _decoderSimple = new WZPacketDecoderSimple(message);
             _encoder = new WZPacketEncoder(message);
             _listener.Start();
             _factory = factory;
@@ -77,11 +90,13 @@ namespace WebZen.Network
             var sender = (WZClient)result.AsyncState;
             var messages = new List<object>();
             short serial = 0;
+            long TotalRecv = 0;
 
             try
             {
                 using (var received = new MemoryStream(sender.Received(result)))
                 {
+                    TotalRecv = received.Length;
                     int readed = 0;
 
                     if (received.Length == 0)
@@ -92,14 +107,22 @@ namespace WebZen.Network
 
                     do
                     {
-                        readed += _decoder.Decode(received, out serial, messages);
-                    } while (readed < received.Length);
-                }
+                        if (SimpleStream)
+                        {
+                            readed += _decoderSimple.Decode(received, out serial, messages);
+                        }
+                        else
+                        {
+                            readed += _decoder.Decode(received, out serial, messages);
+                        }
 
-                if(serial != -1 && !sender.IsValidSerial(serial))
-                {
-                    sender.Disconnect();
-                    Logger.Error($"Serialized packet with invalid serial");
+                        if (serial != -1 && !sender.IsValidSerial(serial))
+                        {
+                            sender.Disconnect();
+                            Logger.Error($"Serialized packet with invalid serial {serial}");
+                            return;
+                        }
+                    } while (readed < received.Length);
                 }
 
                 foreach (var message in messages)
@@ -113,7 +136,7 @@ namespace WebZen.Network
                 sender.Recv();
             }catch(Exception e)
             {
-                Logger.Error(e, "packet decode");
+                Logger.Error(e, $"packet decode pSize:{TotalRecv}");
                 sender.Disconnect();
                 return;
             }
@@ -150,11 +173,11 @@ namespace WebZen.Network
             try
             {
                 recv = _sock.EndReceive(ar);
-            }catch(SocketException e)
+            }catch(SocketException)
             {
                 _sock.Close();
                 return Array.Empty<byte>();
-            }catch(ObjectDisposedException e)
+            }catch(ObjectDisposedException)
             {
                 return Array.Empty<byte>();
             }
@@ -204,7 +227,7 @@ namespace WebZen.Network
             try
             {
                 _sock.Disconnect(true);
-            }catch(Exception e)
+            }catch(Exception)
             {
 
             }

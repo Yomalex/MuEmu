@@ -8,15 +8,26 @@ namespace MuEmu.Network.Auth
     public interface IAuthMessage
     { }
 
-    public class AuthMessageFactory : MessageFactory<AuthOpCode, IAuthMessage>
+    public class AuthMessageFactory : MessageFactory<CSOpCode, IAuthMessage>
     {
         public AuthMessageFactory()
         {
             // C2S
-            Register<CIDAndPass>(AuthOpCode.Login);
+            Register<CIDAndPass>(CSOpCode.Login);
+            Register<CCharacterList>(CSOpCode.CharacterList);
+            Register<CCharacterCreate>(CSOpCode.CharacterCreate);
+            Register<CCharacterDelete>(CSOpCode.CharacterDelete);
+            Register<CCharacterMapJoin>(CSOpCode.JoinMap);
+            Register<CCharacterMapJoin2>(CSOpCode.JoinMap2);
 
             // S2C
-            Register<SJoinResult>(AuthOpCode.JoinResult);
+            Register<SJoinResult>(CSOpCode.JoinResult);
+            Register<SLoginResult>(CSOpCode.Login);
+            Register<SCharacterList>(CSOpCode.CharacterList);
+            Register<SCharacterCreate>(CSOpCode.CharacterCreate);
+            Register<SCharacterDelete>(CSOpCode.CharacterDelete);
+            Register<SCharacterMapJoin>(CSOpCode.JoinMap);
+            Register<SCharacterMapJoin2>(CSOpCode.JoinMap2);
         }
     }
 }

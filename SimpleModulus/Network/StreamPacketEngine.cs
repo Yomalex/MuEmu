@@ -37,10 +37,31 @@ namespace WebZen.Network
                     size = (ushort)((_stream.ReadByte() << 8) | _stream.ReadByte());
                     break;
                 default:
-                    return Array.Empty<byte>();
+                    throw new Exception($"Invalid packet type 0x{type:X2}");
             }
 
             return XorData(size, type == 0xC1 ? 2 : 3);
+        }
+
+        public byte[] ExtractData()
+        {
+            _stream.Seek(0, SeekOrigin.Begin);
+
+            var type = _stream.ReadByte();
+            ushort size = 0;
+            switch (type)
+            {
+                case 0xC1:
+                    size = (ushort)_stream.ReadByte();
+                    break;
+                case 0xC2:
+                    size = (ushort)((_stream.ReadByte() << 8) | _stream.ReadByte());
+                    break;
+                default:
+                    throw new Exception($"Invalid packet type 0x{type:X2}");
+            }
+
+            return IXorData(size, type == 0xC1 ? 2 : 3);
         }
 
         private byte[] XorData(int Size, int Skip)
@@ -56,6 +77,24 @@ namespace WebZen.Network
             for (int i = Size - 1; i != Skip; i--)
             {
                 packet[i] ^= (byte)(packet[i - 1] ^ XORFilter[(i & (XORFilter.Length - 1))]);
+            }
+
+            return packet;
+        }
+
+        private byte[] IXorData(int Size, int Skip)
+        {
+            var packet = new byte[Size];
+            _stream.Seek(0, SeekOrigin.Begin);
+            _stream.Read(packet, 0, Size);
+            var tmpstream = new MemoryStream();
+            tmpstream.Write(_stream.ToArray(), Size, (int)(_stream.Length - Size));
+            _stream.Dispose();
+            _stream = tmpstream;
+
+            for (int i = Skip; i < Size - 1; i++)
+            {
+                packet[i+1] ^= (byte)(packet[i] ^ XORFilter[(i+1 & (XORFilter.Length - 1))]);
             }
 
             return packet;
