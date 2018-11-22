@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.DataBase;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,12 +13,10 @@ namespace MuEmu
         private Dictionary<byte, Item> _chaosBox;
         private Dictionary<byte, Item> _personalShop;
 
-        public Inventory()
+        public Inventory(Character @char, CharacterDto characterDto)
         {
             _equipament = new Dictionary<Equipament, Item>();
             _inventory = new Dictionary<byte, Item>();
-        }
-
-        
+        }        
     }
 }

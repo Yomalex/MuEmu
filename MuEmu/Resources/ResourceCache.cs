@@ -1,10 +1,12 @@
 ﻿using BlubLib.Caching;
+using MuEmu.Data;
 using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MuEmu.Resources.Map;
 
 namespace MuEmu.Resources
 {
@@ -30,6 +32,8 @@ namespace MuEmu.Resources
             Instance = new ResourceCache(root);
 
             Instance.GetItems();
+            Instance.GetSkills();
+            Instance.GetMaps();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -40,6 +44,32 @@ namespace MuEmu.Resources
                 Logger.Information("Items Caching...");
                 cache = _loader.LoadItems().ToDictionary(x => x.Number);
                 _cache.Set("Items", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<Spell, SpellInfo> GetSkills()
+        {
+            var cache = _cache.Get<IDictionary<Spell, SpellInfo>>("Spells");
+            if (cache == null)
+            {
+                Logger.Information("Spells Caching...");
+                cache = _loader.LoadSkills().ToDictionary(x => (Spell)x.Number);
+                _cache.Set("Spells", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<byte, MapInfo> GetMaps()
+        {
+            var cache = _cache.Get<IDictionary<byte, MapInfo>>("Maps");
+            if (cache == null)
+            {
+                Logger.Information("Maps Caching...");
+                cache = _loader.LoadMaps().ToDictionary(x => (byte)x.Map);
+                _cache.Set("Maps", cache);
             }
 
             return cache;

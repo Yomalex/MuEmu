@@ -1,4 +1,6 @@
-﻿using MuEmu.Resources.XML;
+﻿using MuEmu.Data;
+using MuEmu.Resources.Map;
+using MuEmu.Resources.XML;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,9 +22,7 @@ namespace MuEmu.Resources
         public IEnumerable<ItemInfo> LoadItems()
         {
             var xml = XmlLoader<ItemDbDto>(Path.Combine(_root, "Data\\Items.xml"));
-
-            var result = new List<ItemInfo>();
-
+            
             foreach(var i in xml.items)
             {
                 var Size = i.Size.Split(",").Select(x => int.Parse(x)).ToArray();
@@ -44,10 +44,38 @@ namespace MuEmu.Resources
                     Classes = i.ReqClass.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList()
                 };
 
-                result.Add(tmp);
+                yield return tmp;
             }
+        }
 
-            return result;
+        public IEnumerable<SpellInfo> LoadSkills()
+        {
+            var xml = XmlLoader<SpellDbDto>(Path.Combine(_root, "Data\\Skills.xml"));
+
+            foreach (var i in xml.skills)
+            {
+                var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
+                var tmp = new SpellInfo
+                {
+                    Number = (Spell)i.Number,
+                    Name = i.Name,
+                    Mana = i.Mana,
+                    Energy = i.Energy,
+                    Damage = new Point(Dmg[0], Dmg[1]),
+                    Classes = i.Classes.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList()
+                };
+
+                yield return tmp;
+            }
+        }
+
+        public IEnumerable<MapInfo> LoadMaps()
+        {
+            var xml = XmlLoader<MapsDbDto>(Path.Combine(_root, "Data\\Maps.xml"));
+            foreach(var m in xml.maps)
+            {
+                yield return new MapInfo(m.Map, m.AttributteFile);
+            }
         }
 
         private T XmlLoader<T>(string file)

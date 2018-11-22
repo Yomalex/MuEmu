@@ -22,7 +22,7 @@ namespace MuEmu
         {
             Session = session;
             Status = LoginStatus.NotLogged;
-            Account = new Account(this);
+            Account = new Account(this, new MU.DataBase.AccountDto { ID = 0, Account = "yomar1234", Character1 = 0, Password = "", Vault="" });
             CheckSum = new GameCheckSum(this);
         }
     }

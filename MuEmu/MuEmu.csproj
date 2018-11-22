@@ -14,10 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimpleModulus\WebZen.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\" />
+    <ProjectReference Include="..\WebZen.DataBase\MU.DataBase.csproj" />
   </ItemGroup>
 
 </Project>

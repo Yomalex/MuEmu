@@ -18,4 +18,8 @@ namespace MuEmu.Network.Game
         [WZMember(0)]
         public HackCheck Flag { get; set; }
     }
+
+    [WZContract]
+    public class CCloseWindow : IGameMessage
+    { }
 }

@@ -1,6 +1,7 @@
 ﻿using BlubLib.Serialization;
 using MuEmu.Network;
 using MuEmu.Network.Auth;
+using MuEmu.Network.CashShop;
 using MuEmu.Network.ConnectServer;
 using MuEmu.Network.Game;
 using MuEmu.Network.Global;
@@ -45,6 +46,7 @@ namespace MuEmu
                     .AddHandler(new AuthServices())
                     .AddHandler(new GlobalServices())
                     .AddHandler(new GameServices())
+                    .AddHandler(new CashShopServices())
                     .RegisterRule<CIDAndPass>(MustNotBeLoggedIn)
                     .RegisterRule<CCharacterList>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin>(MustBeLoggedIn)
@@ -56,6 +58,7 @@ namespace MuEmu
                 new AuthMessageFactory(),
                 new GlobalMessageFactory(),
                 new GameMessageFactory(),
+                new CashShopMessageFactory()
             };
 
             server = new WZGameServer(ip, mh, mf);
@@ -81,6 +84,8 @@ namespace MuEmu
             {
                 Log.Error("Connect Server Unavailable");
             }
+
+            Log.Information("Server Ready");
 
             while (true)
             {

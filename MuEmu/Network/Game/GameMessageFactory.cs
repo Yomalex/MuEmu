@@ -15,6 +15,7 @@ namespace MuEmu.Network.Game
             // C2S
             Register<CCheckSum>(GameOpCode.GameSecurity);
             Register<CClientMessage>(GameOpCode.ClientMessage);
+            Register<CCloseWindow>(GameOpCode.CloseWindow);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -30,6 +31,7 @@ namespace MuEmu.Network.Game
             Register<SViewPortMonCreate>(GameOpCode.ViewPortMCreate);
             Register<SNotice>(GameOpCode.Notice);
             Register<SEventState>(GameOpCode.EventState);
+            Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
         }
     }
 }

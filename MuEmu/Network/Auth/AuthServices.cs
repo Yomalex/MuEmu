@@ -1,4 +1,5 @@
-﻿using MuEmu.Network.Game;
+﻿using MuEmu.Network.CashShop;
+using MuEmu.Network.Game;
 using MuEmu.Network.Global;
 using Serilog;
 using Serilog.Core;
@@ -6,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using WebZen.Handlers;
 using WebZen.Util;
 
@@ -16,7 +19,7 @@ namespace MuEmu.Network.Auth
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(AuthServices));
 
         [MessageHandler(typeof(CIDAndPass))]
-        public void CIDAndPass(GSSession session, CIDAndPass message)
+        public async Task CIDAndPass(GSSession session, CIDAndPass message)
         {
             BuxDecode.Decode(message.btAccount);
             BuxDecode.Decode(message.btPassword);
@@ -35,11 +38,11 @@ namespace MuEmu.Network.Auth
             acc.Nickname = message.Account;
             session.Player.Status = LoginStatus.Logged;
 
-            session.SendAsync(new SLoginResult(LoginResult.Ok));
+            await session.SendAsync(new SLoginResult(LoginResult.Ok));
         }
 
         [MessageHandler(typeof(CCharacterList))]
-        public void CCharacterList(GSSession session, CCharacterList listReq)
+        public async Task CCharacterList(GSSession session, CCharacterList listReq)
         {
             var chars = new SCharacterList(5, 0, new CharacterPreviewDto[] {
                 new CharacterPreviewDto
@@ -52,28 +55,36 @@ namespace MuEmu.Network.Auth
                     GuildStatus = GuildStatus.NoMember
                 }
             });
-            session.SendAsync(chars);
+            await session.SendAsync(chars);
         }
 
         [MessageHandler(typeof(CCharacterMapJoin))]
-        public void CCharacterMapJoin(GSSession session, CCharacterMapJoin Character)
+        public async Task CCharacterMapJoin(GSSession session, CCharacterMapJoin Character)
         {
-            session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = 0 });
+            await session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = 0 });
         }
 
         [MessageHandler(typeof(CCharacterMapJoin2))]
-        public void CCharacterMapJoin2(GSSession session, CCharacterMapJoin2 Character)
+        public async Task CCharacterMapJoin2(GSSession session, CCharacterMapJoin2 Character)
         {
-            session.SendAsync(new SWeather { Weather = 0x10 });
+            // gObjSetCharacter
+            await session.SendAsync(new SWeather { Weather = 0x10 });
 
             // Event Map State
-            session.SendAsync(new SEventState(MapEvents.GoldenInvasion, false));
+            await session.SendAsync(new SEventState(MapEvents.GoldenInvasion, false));
 
-            session.SendAsync(new SCheckSum { Key = session.Player.CheckSum.GetKey() });
+            await session.SendAsync(new SCheckSum { Key = session.Player.CheckSum.GetKey() });
 
-            session.SendAsync(new SSpells(0, Array.Empty<Data.SpellDto>()));
+            await session.SendAsync(new SCashPoints { CashPoints = 0 });
 
-            session.SendAsync(new SCharacterMapJoin2
+            // CashItem Effects
+
+            // gObjSetCharacter END
+
+            //QuestInfoSave
+
+            // CharInfo Send
+            await session.SendAsync(new SCharacterMapJoin2
             {
                 Map = Maps.Lorencia,
                 MapX = 120,
@@ -90,9 +101,10 @@ namespace MuEmu.Network.Auth
                 Ene = 32,
             });
 
+            //GCItemListSend
             var it = new Item(0, 0, new { Luck = true });
 
-            session.SendAsync(new SInventory
+            await session.SendAsync(new SInventory
             {
                 Inventory = new Data.InventoryDto[]
                 {
@@ -104,33 +116,59 @@ namespace MuEmu.Network.Auth
                 }
             });
 
-            session.SendAsync(new SEquipament { Number = (ushort)session.ID.ShufleEnding() });
+            //GCMagicListMultiSend
+            await session.SendAsync(new SSpells(0, new Data.SpellDto[] { new Data.SpellDto { Index = 0, Spell = 17 } }));
 
-            session.SendAsync(new SQuestInfo { Count = 0, State = Array.Empty<byte>() });
+            //CGRequestQuestInfo
+            await session.SendAsync(new SQuestInfo { Count = 0, State = Array.Empty<byte>() });
 
-            session.SendAsync(new SFriends());
+            //DGGuildMemberInfoRequest?
 
+            //FriendListRequest
+            await session.SendAsync(new SFriends { MemoCount = 1, Friends = new Data.FriendDto[] { new Data.FriendDto { Name = "Yomalex2".GetBytes() } } });
 
-            // Skill Change Use
+            //GCMapEventStateSend?
 
-            session.SendAsync(new SViewPortCreate());
+            //SkillChangeUse
+            await session.SendAsync(new SViewPortCreate
+            {
+                ViewPort = new Data.VPCreateDto[]
+                {
+                    new Data.VPCreateDto
+                    {
+                        CharSet = Array.Empty<byte>(),
+                        DirAndPkLevel = 0,
+                        Name = "Yomalex",
+                        Number = session.Player.Account.ID,
+                        Position = new Point(120,120),
+                        TPosition = new Point(120,120),
+                        ViewSkillState = Array.Empty<byte>(),
+                    }
+                }
+            });
+            
+            await session.SendAsync(new SKillCount { KillCount = 1 });
+            //SkillChangeUse END
 
-            session.SendAsync(new SViewPortMonCreate());
+            //GCReFillSend
+            //GCManaSend
 
-            session.SendAsync(new SKillCount());
-
-            session.SendAsync(new SNotice
+            //GCServerMsgStringSend
+            await session.SendAsync(new SNotice
             {
                 Notice = "Welcome!"
             });
+
+            //SendTWindow
+            await session.SendAsync(new SNewQuestInfo { QuestList = new Data.NewQuestInfoDto[] { new Data.NewQuestInfoDto { Quest = 0, Number = 0 } } });
 
             session.Player.Status = LoginStatus.Playing;
         }
 
         [MessageHandler(typeof(CCharacterCreate))]
-        public void CCharacterCreate(GSSession session, CCharacterCreate message)
+        public async Task CCharacterCreate(GSSession session, CCharacterCreate message)
         {
-            session.SendAsync(new SCharacterCreate
+            await session.SendAsync(new SCharacterCreate
             {
                 Name = message.Name,
                 Level = 1,
@@ -141,9 +179,9 @@ namespace MuEmu.Network.Auth
         }
 
         [MessageHandler(typeof(CCharacterDelete))]
-        public void CCharacterDelete(GSSession session, CCharacterDelete message)
+        public async Task CCharacterDelete(GSSession session, CCharacterDelete message)
         {
-            session.SendAsync(new SCharacterDelete());
+            await session.SendAsync(new SCharacterDelete());
         }
     }
 }

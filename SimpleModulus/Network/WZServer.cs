@@ -125,6 +125,8 @@ namespace WebZen.Network
                     } while (readed < received.Length);
                 }
 
+                sender.Recv();
+
                 foreach (var message in messages)
                 {
                     foreach (var handler in _handler)
@@ -132,8 +134,6 @@ namespace WebZen.Network
                         await handler.OnMessageReceived(sender, message);
                     }
                 }
-
-                sender.Recv();
             }catch(Exception e)
             {
                 Logger.Error(e, $"packet decode pSize:{TotalRecv}");
@@ -204,15 +204,15 @@ namespace WebZen.Network
             _sock.BeginReceive(_recvBuffer, 0, _recvBuffer.Length, SocketFlags.None, _onRecv, this);
         }
 
-        public void Send(byte[] data)
+        protected async void Send(byte[] data)
         {
-            _sock.BeginSend(data, 0, data.Length, SocketFlags.None, OnSend, this);
+            await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
         }
 
-        private void OnSend(IAsyncResult result)
-        {
+        //private void OnSend(IAsyncResult result)
+        //{
 
-        }
+        //}
 
         public bool IsValidSerial(short serial)
         {

@@ -42,10 +42,10 @@ namespace MuEmu.Network.Data
         public byte DirAndPkLevel { get; set; }
         //public ulong ViewSkillState;
 
-        [WZMember(4, 18)]
+        [WZMember(10, 18)]
         public byte[] CharSet { get; set; } //18
 
-        [WZMember(9, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        [WZMember(11, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
         //public byte SkillStateCount { get; set; }
         public byte[] ViewSkillState { get; set; } //Num_ViewSkillState
 

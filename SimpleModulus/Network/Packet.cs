@@ -91,20 +91,36 @@ namespace WebZen.Network
                 ushort opCode;
                 ushort pkSize;
 
-                if(posPacket.Length < 3)
-                {
-                    //Logger.Error("Invalid Size {0}", posPacket.Length);
-                    throw new Exception("Invalid Packet size " + posPacket.Length);
-                }
-
                 if (type == 0xC1 || type == 0xC3)
                 {
+                    if (posPacket.Length == 3)
+                    {
+                        posPacket.Seek(0, SeekOrigin.End);
+                        posPacket.WriteByte(0);
+                        posPacket.Seek(0, SeekOrigin.Begin);
+                    }
+                    else if (posPacket.Length < 3)
+                    {
+                        throw new Exception("Invalid Packet " + type + " size " + posPacket.Length + " -");
+                    }
+
                     var tmph = Serializer.Deserialize<WZBPacket>(posPacket);
                     opCode = tmph.Operation;
                     pkSize = tmph.Size;
                 }
                 else
                 {
+                    if (posPacket.Length == 4)
+                    {
+                        posPacket.Seek(0, SeekOrigin.End);
+                        posPacket.WriteByte(0);
+                        posPacket.Seek(0, SeekOrigin.Begin);
+                    }
+                    else if(posPacket.Length < 4)
+                    {
+                        throw new Exception("Invalid Packet " + type + " size " + posPacket.Length + " -");
+                    }
+
                     var tmph = Serializer.Deserialize<WZWPacket>(posPacket);
                     opCode = tmph.Operation;
                     pkSize = tmph.Size;

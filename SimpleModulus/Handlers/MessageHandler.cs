@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Network;
@@ -19,7 +22,24 @@ namespace WebZen.Handlers
                         var mh = a as MessageHandlerAttribute;
                         if (mh._type == message.GetType())
                         {
-                            m.Invoke(this, new object[] { session, message });
+                            var isAsync = m.GetCustomAttributes().Where(x => x.GetType() == typeof(AsyncStateMachineAttribute)).Count() > 0;
+                            var lArgs = new List<object>
+                            {
+                                session,
+                                message
+                            };
+                            var args = lArgs.Take(m.GetParameters().Length).ToArray();
+                            try
+                            {
+                                if (isAsync)
+                                    await (Task)m.Invoke(this, args);
+                                else
+                                    m.Invoke(this, args);
+                            }catch(Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                                return false;
+                            }
                             return true;
                         }
                     }

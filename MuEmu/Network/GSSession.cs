@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using WebZen.Network;
 
 namespace MuEmu.Network
@@ -14,7 +15,7 @@ namespace MuEmu.Network
             : base(server, socket, onRecv)
         { }
 
-        public void SendAsync(object message)
+        public async Task SendAsync(object message)
         {
             Send(_server.Encode(message, ref _outSerial));
         }

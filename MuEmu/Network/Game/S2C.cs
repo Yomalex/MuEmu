@@ -182,22 +182,25 @@ namespace MuEmu.Network.Game
     public class SNotice : IGameMessage
     {
         [WZMember(0)]
-        public byte type { get; set; }
+        public byte type { get; set; }//3
 
         [WZMember(1)]
-        public byte btCount { get; set; }
+        public byte btCount { get; set; }//4
 
         [WZMember(2)]
-        public ushort wDelay { get; set; }
+        public byte Padding { get; set; }//5
 
         [WZMember(3)]
-        public int dwColor { get; set; }
+        public ushort wDelay { get; set; }//6,7
 
         [WZMember(4)]
-        public byte btSpeed { get; set; }
+        public int dwColor { get; set; }//8,9,A,B
 
-        [WZMember(5, SerializerType = typeof(ArraySerializer))]
-        public byte[] btNotice { get; set; } // 256
+        [WZMember(5)]
+        public byte btSpeed { get; set; }//C
+
+        [WZMember(6, SerializerType = typeof(ArraySerializer))]
+        public byte[] btNotice { get; set; } // D,D+(1-256)
 
         public SNotice()
         {
@@ -227,6 +230,18 @@ namespace MuEmu.Network.Game
         {
             State = (byte)(running ? 0x01 : 0x00);
             Event = @event;
+        }
+    }
+
+    [WZContract]
+    public class SNewQuestInfo : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public NewQuestInfoDto[] QuestList { get; set; }
+
+        public SNewQuestInfo()
+        {
+            QuestList = Array.Empty<NewQuestInfoDto>();
         }
     }
 }

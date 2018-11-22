@@ -28,10 +28,10 @@ namespace MuEmu
 
     public enum Maps : byte
     {
+        Dugeon,
         Lorencia,
         Davias,
         Noria,
-        Dugeon
     }
 
     public enum MapEvents : byte

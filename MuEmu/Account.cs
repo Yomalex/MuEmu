@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.DataBase;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,9 +13,35 @@ namespace MuEmu
 
         public Player Player { get; set; }
 
-        public Account(Player player)
+        public Dictionary<int, string> Characters { get; set; }
+
+        public Account(Player player, AccountDto accountDto)
         {
             Player = player;
+            Characters = new Dictionary<int, string>();
+            Nickname = accountDto.Account;
+            ID = accountDto.ID;
+
+            if (accountDto.Character1 != null)
+            {
+
+            }
+            if (accountDto.Character2 != null)
+            {
+
+            }
+            if (accountDto.Character3 != null)
+            {
+
+            }
+            if (accountDto.Character4 != null)
+            {
+
+            }
+            if (accountDto.Character5 != null)
+            {
+
+            }
         }
     }
 }
