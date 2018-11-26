@@ -28,10 +28,70 @@ namespace MuEmu
 
     public enum Maps : byte
     {
-        Dugeon,
         Lorencia,
+        Dugeon,
         Davias,
         Noria,
+        LostTower,
+        Exile,
+        Stadium,
+        Atlans,
+        Tarkan,
+        DevilSquare,
+        Icarus,
+        BloodCastle1,
+        BloodCastle2,
+        BloodCastle3,
+        BloodCastle4,
+        BloodCastle5,
+        BloodCastle6,
+        BloodCastle7,
+        ChaosCastle1,
+        ChaosCastle2,
+        ChaosCastle3,
+        ChaosCastle4,
+        ChaosCastle5,
+        ChaosCastle6,
+        Kalima1,
+        Kalima2,
+        Kalima3,
+        Kalima4,
+        Kalima5,
+        Kalima6,
+        ValleyofLoren,
+        LandofTrial,
+        DevilSquare2,
+        Aida,
+        Crywolf,
+        // null
+        Kalima7 = 36,
+        Kantru1,
+        Kantru2,
+        Kantru3,
+        SilentSwamp,
+        T42,
+        T43,
+        // null
+        // null
+        IllusionTemple1 = 45,
+        IllusionTemple2,
+        IllusionTemple3,
+        IllusionTemple4,
+        IllusionTemple5,
+        IllusionTemple6,
+        Elbeland = 51,
+        BloodCastle8,
+        ChaosCastle7,
+        // null
+        // null
+        // null
+        Raklion = 57,
+        // null
+        // null
+        // null
+        Buhwajang,
+        SantaTown = 62,
+        Vulcan,
     }
 
     public enum MapEvents : byte
@@ -41,7 +101,7 @@ namespace MuEmu
 
     public enum HackCheck : ushort
     {
-        PacketProblem = 0x0006,
+        InvalidPacket = 0x0006,
         StrangePacket = 0xF300,
     }
 
@@ -73,8 +133,8 @@ namespace MuEmu
 
     public enum Equipament
     {
-        LeftHand,
         RightHand,
+        LeftHand,
         Helm,
         Armor,
         Pants,
@@ -106,5 +166,37 @@ namespace MuEmu
         Readed,
         UnReaded,
         New,
+    }
+
+    public enum RefillInfo : byte
+    {
+        Unk1 = 0xFD,
+        Unk2 = 0xFF,
+    }
+
+    public enum PointAdd : byte
+    {
+        Strength,
+        Agility,
+        Vitality,
+        Energy,
+        Command,
+    }
+
+    public enum ClientCloseType : byte
+    {
+        CloseGame,
+        SelectChar,
+        ServerList,
+    }
+
+    public enum MoveItemFlags : byte
+    {
+        Inventory,
+        Trade,
+        Warehouse,
+        ChaosBox,
+        PersonalShop,
+        DarkTrainer = 5,
     }
 }

@@ -94,9 +94,12 @@ namespace WebZen.Network
 
             try
             {
-                using (var received = new MemoryStream(sender.Received(result)))
+                var @in = sender.Received(result);
+                TotalRecv = @in.Length;
+                using (var received = new MemoryStream(2048))
                 {
-                    TotalRecv = received.Length;
+                    received.Write(@in, 0, (int)TotalRecv);
+                    received.Seek(0, SeekOrigin.Begin);
                     int readed = 0;
 
                     if (received.Length == 0)
@@ -104,6 +107,8 @@ namespace WebZen.Network
                         sender.Disconnect();
                         return;
                     }
+
+                    received.SetLength(1024);
 
                     do
                     {
@@ -122,7 +127,7 @@ namespace WebZen.Network
                             Logger.Error($"Serialized packet with invalid serial {serial}");
                             return;
                         }
-                    } while (readed < received.Length);
+                    } while (readed < TotalRecv);
                 }
 
                 sender.Recv();
@@ -164,7 +169,7 @@ namespace WebZen.Network
         protected Socket _sock;
         protected AsyncCallback _onRecv;
         protected short _inSerial;
-        protected short _outSerial;
+        public short _outSerial;
 
         public byte[] Data => _recvBuffer;
         public byte[] Received(IAsyncResult ar)
@@ -204,7 +209,7 @@ namespace WebZen.Network
             _sock.BeginReceive(_recvBuffer, 0, _recvBuffer.Length, SocketFlags.None, _onRecv, this);
         }
 
-        protected async void Send(byte[] data)
+        public async void Send(byte[] data)
         {
             await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
         }

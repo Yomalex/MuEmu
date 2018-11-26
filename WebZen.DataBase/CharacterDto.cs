@@ -26,6 +26,12 @@ namespace MU.DataBase
         // Stats Info
         public ushort Level { get; set; }
 
+        public ushort Life { get; set; }
+        public ushort MaxLife { get; set; }
+
+        public ushort Mana { get; set; }
+        public ushort MaxMana { get; set; }
+
         public long Experience { get; set; }
 
         public ushort LevelUpPoints { get; set; }

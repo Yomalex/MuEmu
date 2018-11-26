@@ -8,26 +8,94 @@ using System.Text;
 
 namespace MuEmu
 {
+    public struct ItemNumber
+    {
+        public ushort Number { get; set; } 
+        public byte Index { get; set; }
+        public byte Type { get; set; }
+        public const ushort Invalid = 0xFFFF;
+
+        public ItemNumber(ushort number)
+        {
+            Number = number;
+            Type = (byte)(number >> 8);
+            Index = (byte)(number & 0xff);
+        }
+
+        public ItemNumber(byte type, byte index)
+        {
+            Number = (ushort)(type << 8 | index);
+            Type = type;
+            Index = index;
+        }
+
+        public static implicit operator ItemNumber(ushort num)
+        {
+            return new ItemNumber(num);
+        }
+
+        public static bool operator ==(ItemNumber a, ItemNumber b)
+        {
+            return a.Number == b.Number;
+        }
+
+        public static bool operator !=(ItemNumber a, ItemNumber b)
+        {
+            return a.Number != b.Number;
+        }
+
+        public static bool operator ==(ItemNumber a, ushort b)
+        {
+            return a.Number == b;
+        }
+
+        public static bool operator !=(ItemNumber a, ushort b)
+        {
+            return a.Number != b;
+        }
+
+        public override int GetHashCode()
+        {
+            return Number.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override string ToString()
+        {
+            return $"T{Type}-I{Index}";
+        }
+    }
     public class Item
     {
-        public Player Player { get; set; }
+        public ItemNumber Number { get; set; }
+        public Character Player { get; set; }
         public int Serial { get; set; }
         public ItemInfo BasicInfo { get; set; }
         public byte Plus { get; set; }
+        public byte SmallPlus => (byte)(Plus > 0 ? (Plus - 1) / 2 : 0);
         public bool Luck { get; set; }
         public bool Skill { get; set; }
         public byte Durability { get; set; }
+        public byte Option28 { get; set; }
+        public byte OptionExe { get; set; }
+        public byte SetOption { get; set; }
         public HarmonyOption Harmony { get; set; }
         public SocketOption[] Slots { get; set; }
 
-        public Item(ushort Number, int Serial, object Options = null)
+        public Item(ushort number, int Serial, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();
-            BasicInfo = ItemDB[Number];
+            BasicInfo = ItemDB[number];
             Slots = new SocketOption[] { SocketOption.None, SocketOption.None, SocketOption.None, SocketOption.None, SocketOption.None };
 
             if (Options != null)
                 Extensions.AnonymousMap(this, Options);
+
+            Number = number;
         }
 
         public byte[] GetBytes()
@@ -36,12 +104,12 @@ namespace MuEmu
             {
                 ms.WriteByte((byte)(BasicInfo.Number&0xff));
 
-                var tmp = Plus << 3;
+                var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
                 ms.WriteByte((byte)tmp);
                 ms.WriteByte(Durability);
-                ms.WriteByte((byte)((BasicInfo.Number & 0x100) >> 1));
-                ms.WriteByte(0); // Acient Option
-                ms.WriteByte((byte)((BasicInfo.Number & 0x1E00) >> 5));
+                ms.WriteByte((byte)(((BasicInfo.Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
+                ms.WriteByte(SetOption); // Acient Option
+                ms.WriteByte((byte)(((BasicInfo.Number & 0x1E00) >> 5) | ((OptionExe & 0x80) >> 4)));
                 ms.WriteByte((byte)Harmony); // Harmony
                 foreach(var slot in Slots)
                 {

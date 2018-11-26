@@ -23,19 +23,29 @@ namespace WebZen.Util
             return BitConverter.ToUInt16(Shufle(BitConverter.GetBytes(number)), 0);
         }
 
-        public static uint ShufleEnding(this uint number)
-        {
-            return BitConverter.ToUInt32(Shufle(BitConverter.GetBytes(number)), 0);
-        }
-
         public static short ShufleEnding(this short number)
         {
             return BitConverter.ToInt16(Shufle(BitConverter.GetBytes(number)), 0);
         }
 
+        public static uint ShufleEnding(this uint number)
+        {
+            return BitConverter.ToUInt32(Shufle(BitConverter.GetBytes(number)), 0);
+        }
+
         public static int ShufleEnding(this int number)
         {
             return BitConverter.ToInt32(Shufle(BitConverter.GetBytes(number)), 0);
+        }
+
+        public static ulong ShufleEnding(this ulong number)
+        {
+            return BitConverter.ToUInt64(Shufle(BitConverter.GetBytes(number)), 0);
+        }
+
+        public static long ShufleEnding(this long number)
+        {
+            return BitConverter.ToInt64(Shufle(BitConverter.GetBytes(number)), 0);
         }
     }
 }

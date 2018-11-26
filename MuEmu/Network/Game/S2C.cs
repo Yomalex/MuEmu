@@ -18,6 +18,11 @@ namespace MuEmu.Network.Game
         {
             Inventory = Array.Empty<InventoryDto>();
         }
+
+        public SInventory(InventoryDto[] inv)
+        {
+            Inventory = inv;
+        }
     }
 
     [WZContract]
@@ -39,6 +44,9 @@ namespace MuEmu.Network.Game
     public class SCheckSum : IGameMessage
     {
         [WZMember(0)]
+        public byte Padding { get; set; }
+
+        [WZMember(1)]
         public ushort Key { get; set; }
     }
 
@@ -47,6 +55,12 @@ namespace MuEmu.Network.Game
     {
         [WZMember(0)]
         public byte Weather { get; set; }
+
+        public SWeather() { }
+        public SWeather(byte weather)
+        {
+            Weather = weather;
+        }
     }
 
     [WZContract]
@@ -202,6 +216,9 @@ namespace MuEmu.Network.Game
         [WZMember(6, SerializerType = typeof(ArraySerializer))]
         public byte[] btNotice { get; set; } // D,D+(1-256)
 
+        [WZMember(7)]
+        public byte nullTerm { get; set; }//C
+
         public SNotice()
         {
             btNotice = Array.Empty<byte>();
@@ -244,4 +261,222 @@ namespace MuEmu.Network.Game
             QuestList = Array.Empty<NewQuestInfoDto>();
         }
     }
+
+    [WZContract]
+    public class SHeatlUpdate : IGameMessage
+    {
+        [WZMember(0)] public RefillInfo Pos { get; set; }
+        
+        [WZMember(1)] public ushort HP { get; set; }
+
+        [WZMember(2)] public byte Flag { get; set; }
+
+        [WZMember(3)] public ushort SD { get; set; }
+
+        public ushort Health { get => HP.ShufleEnding(); set => HP = value.ShufleEnding(); }
+
+        public ushort Shield { get => SD.ShufleEnding(); set => SD = value.ShufleEnding(); }
+
+        public SHeatlUpdate()
+        { }
+
+        public SHeatlUpdate(RefillInfo pos, ushort hp, ushort sd, bool flag)
+        {
+            Pos = pos;
+            Health = hp;
+            Shield = sd;
+            Flag = (byte)(flag?1:0);
+        }
+    }
+
+    [WZContract]
+    public class SManaUpdate : IGameMessage
+    {
+        [WZMember(0)] public RefillInfo Pos { get; set; }
+
+        [WZMember(1)] public ushort MP { get; set; }
+
+        //[WZMember(2)] public byte Flag { get; set; }
+
+        [WZMember(3)] public ushort BP { get; set; }
+
+        public ushort Mana { get => MP.ShufleEnding(); set => MP = value.ShufleEnding(); }
+
+        public ushort Stamina { get => BP.ShufleEnding(); set => BP = value.ShufleEnding(); }
+
+        public SManaUpdate()
+        { }
+
+        public SManaUpdate(RefillInfo pos, ushort hp, ushort sd/*, bool flag*/)
+        {
+            Pos = pos;
+            Mana = hp;
+            Stamina = sd;
+            //Flag = (byte)(flag ? 1 : 0);
+        }
+    }
+
+    [WZContract]
+    public class SSkillKey : IGameMessage
+    {
+        [WZMember(0, 20)]
+        public byte[] SkillKey { get; set; }
+
+        [WZMember(1)]
+        public byte GameOption { get; set; }
+
+        [WZMember(2)]
+        public byte Q_Key { get; set; }
+
+        [WZMember(3)]
+        public byte W_Key { get; set; }
+
+        [WZMember(4)]
+        public byte E_Key { get; set; }
+
+        public SSkillKey()
+        {
+            SkillKey = new byte[20];
+            for (var i = 0; i < 20; i++)
+                SkillKey[i] = 0xFF;
+        }
+    }
+
+    [WZContract]
+    public class SAction : IGameMessage
+    {
+        [WZMember(0)]
+        ushort Number { get; set; }   // 3,4
+
+        [WZMember(1)]
+        byte Dir { get; set; }  // 5
+
+        [WZMember(2)]
+        byte ActionNumber { get; set; }  // 6
+
+        [WZMember(3)]
+        ushort Target { get; set; } // 7,8
+
+        public SAction()
+        { }
+
+        public SAction(ushort number, byte dir, byte action, ushort target)
+        {
+            Number = number.ShufleEnding();
+            Dir = dir;
+            ActionNumber = action;
+            Target = target.ShufleEnding();
+        }
+    }
+
+    [WZContract]
+    public class SMove : IGameMessage
+    {
+        [WZMember(0)]
+        ushort Number { get; set; }   // 3,4
+
+        [WZMember(0)]
+        byte X{ get; set; } // 5
+
+        [WZMember(0)]
+        byte Y { get; set; } // 6
+
+        [WZMember(0)]
+        byte Path { get; set; }	// 7
+
+        public SMove()
+        { }
+
+        public SMove(ushort number, byte x, byte y, byte path)
+        {
+            Number = number.ShufleEnding();
+            X = x;
+            Y = y;
+            Path = path;
+        }
+    }
+
+    [WZContract]
+    public class SPositionSet : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort Number { get; set; }
+
+        [WZMember(1)]
+        public byte X { get; set; }
+
+        [WZMember(2)]
+        public byte Y { get; set; }
+    }
+
+    [WZContract]
+    public class SPointAdd : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public ushort MaxLifeAndMana { get; set; }
+
+        [WZMember(2)]
+        public ushort MaxShield { get; set; }
+
+        [WZMember(3)]
+        public ushort MaxStamina { get; set; }
+    }
+
+    [WZContract]
+    public class SLevelUp : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort Level { get; set; }
+
+        [WZMember(1)]
+        public ushort LevelUpPoints { get; set; }
+
+        [WZMember(2)]
+        public ushort MaxLife { get; set; }
+
+        [WZMember(3)]
+        public ushort MaxMana { get; set; }
+
+        [WZMember(4)]
+        public ushort MaxShield { get; set; }
+
+        [WZMember(5)]
+        public ushort MaxBP { get; set; }
+
+        [WZMember(6)]
+        public ushort AddPoint { get; set; }
+
+        [WZMember(7)]
+        public ushort MaxAddPoint { get; set; }
+
+        [WZMember(8)]
+        public ushort MinusPoint { get; set; }
+
+        [WZMember(9)]
+        public ushort MaxMinusPoint { get; set; }
+    }
+
+    [WZContract]
+    public class SClinetClose : IGameMessage
+    {
+        [WZMember(0)]
+        public ClientCloseType Type { get; set; }
+    }
+
+    [WZContract(Serialized =true)]
+    public class SMoveItem : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public byte Position { get; set; }
+
+        [WZMember(2,12)]
+        public byte[] ItemInfo { get; set; }
+    }
 }
+

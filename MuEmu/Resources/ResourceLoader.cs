@@ -1,4 +1,5 @@
 ﻿using MuEmu.Data;
+using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Resources.XML;
 using System;
@@ -75,6 +76,50 @@ namespace MuEmu.Resources
             foreach(var m in xml.maps)
             {
                 yield return new MapInfo(m.Map, m.AttributteFile);
+            }
+        }
+
+        public IEnumerable<CharacterInfo> LoadDefCharacter()
+        {
+            var xml = XmlLoader<CharactersInfoDto>(Path.Combine(_root, "Data\\Characters.xml"));
+            foreach(var @char in xml.Character)
+            {
+                var eq = new Dictionary<ushort, Item>();
+                foreach(var e in @char.Equipament)
+                {
+                    eq.Add((ushort)e.Slot, new Item((ushort)(e.Type * 256 + e.Index), 0, new { e.Level }));
+                }
+
+                yield return new CharacterInfo
+                {
+                    Level = (ushort)@char.Level,
+                    Class = (HeroClass)Enum.Parse(typeof(HeroClass), @char.BaseClass),
+                    Map = (Maps)Enum.Parse(typeof(Maps), @char.Map),
+                    Spells = @char.Skill?.Select(x => (Spell)x).ToArray()??Array.Empty<Spell>(),
+                    Stats = new StatsInfo
+                    {
+                        Str = @char.Stats.Str,
+                        Agi = @char.Stats.Agi,
+                        Vit = @char.Stats.Vit,
+                        Ene = @char.Stats.Ene,
+                        Cmd = @char.Stats.Cmd,
+                    },
+                    Attributes = new AttriInfo
+                    {
+                        Life = @char.Attributes.Life,
+                        Mana = @char.Attributes.Mana,
+                        LevelLife = @char.Attributes.LevelLife,
+                        LevelMana = @char.Attributes.LevelMana,
+                        EnergyToMana = @char.Attributes.EnergyToMana,
+                        VitalityToLife = @char.Attributes.VitalityToLife,
+                        StrToBP = @char.Attributes.StrToBP,
+                        AgiToBP = @char.Attributes.AgiToBP,
+                        EneToBP = @char.Attributes.EneToBP,
+                        VitToBP = @char.Attributes.VitToBP,
+                        CmdToBP = @char.Attributes.CmdToBP,
+                    },
+                    Equipament = eq
+                };
             }
         }
 

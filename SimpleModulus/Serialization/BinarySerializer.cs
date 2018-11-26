@@ -33,7 +33,6 @@ namespace WebZen.Serialization
             emiter.LoadConstant(_size);
             emiter.NewArray(elementType);
             emiter.StoreLocal(value);
-
             emiter.LoadArgument(1);
             emiter.LoadConstant(_size);
             emiter.Call(ReflectionHelper.GetMethod((BinaryReader x) => x.ReadBytes(default(int))));

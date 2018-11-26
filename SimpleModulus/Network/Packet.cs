@@ -285,6 +285,8 @@ namespace WebZen.Network
 
     public class WZPacketEncoder
     {
+        public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZPacketEncoder));
+
         private readonly MessageFactory[] _factories;
 
         public WZPacketEncoder(MessageFactory[] factories)
@@ -294,6 +296,7 @@ namespace WebZen.Network
 
         public byte[] Encode(object message, ref short serial)
         {
+
             var factory = _factories.FirstOrDefault(f => f.ContainsType(message.GetType()));
             byte[] result = null;
 
@@ -314,6 +317,8 @@ namespace WebZen.Network
 
             if (att == null)
                 throw new InvalidOperationException("Invalid message format");
+
+            Console.WriteLine("[S->C] {0} {1} {2}", message.GetType().Name, att.Serialized, serial);
 
             using (var h = new MemoryStream())
             using (var b = new MemoryStream())
@@ -358,18 +363,35 @@ namespace WebZen.Network
                 if (att.Serialized)
                 {
                     result[0] += 2;
+
                     var temp = new byte[result.Length - sizeFix2];
+                    Array.Copy(result, sizeFix2, temp, 0, temp.Length);
 
-                    temp[0] = (byte)(serial);
+                    temp[0] = (byte)serial;
 
-                    Array.Copy(result, sizeFix2, temp, 1, temp.Length-1);
+                    byte[] enc;// = SimpleModulus.Encoder(temp);
+                    using (var ms = new MemoryStream())
+                    {
+                        SimpleModulus.Encrypt(ms, new MemoryStream(temp));
+                        enc = new byte[ms.Length];
+                        ms.Seek(0, SeekOrigin.Begin);
+                        ms.Read(enc, 0, (int)ms.Length);
+                    }
 
-                    var enc = SimpleModulus.Encoder(temp);
-
-                    var resultTemp = new byte[sizeFix2 + enc.Length];
-                    Array.Copy(result, resultTemp, sizeFix2);
-                    Array.Copy(enc, 0, resultTemp, sizeFix2, enc.Length);
+                    var resultTemp = new byte[sizeFix2 + enc.Length + 1];
+                    Array.Copy(result, resultTemp, sizeFix2 + 1);
+                    if(resultTemp[0] == 0xC3)
+                    {
+                        resultTemp[1] = (byte)(resultTemp.Length);
+                    }else
+                    {
+                        resultTemp[1] = (byte)(resultTemp.Length >>8);
+                        resultTemp[2] = (byte)(resultTemp.Length &0xff);
+                    }
+                    Array.Copy(enc, 0, resultTemp, sizeFix2 + 1, enc.Length);
                     serial++;
+
+                    Console.WriteLine(string.Join(" ", resultTemp.Select(x => x.ToString("X2")).ToArray()));
 
                     return resultTemp;
                 }

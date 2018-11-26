@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuEmu.Network.Game;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -10,17 +11,18 @@ namespace MuEmu.Resources.Map
     {
         Unk1 = 1,
         Stand = 2,
-        Unk3 = 4,
-        Unk4 = 8,
+        NoWalk = 4,
+        Hide = 8,
     }
     public class MapInfo
     {
         public int Width { get; }
         public int Height { get; }
-        public List<Player> Players { get; }
+        public List<Character> Players { get; }
         public List<Item> Items { get; }
         private byte[] Layer { get; }
         public int Map { get; }
+        public byte Weather { get; set; }
         
         public MapInfo(int map, string attFile)
         {
@@ -35,6 +37,8 @@ namespace MuEmu.Resources.Map
 
                 Map = map;
             }
+
+            Weather = 0x30;
         }
 
         public MapAttributes[] GetAttributes(int X, int Y)
@@ -63,6 +67,20 @@ namespace MuEmu.Resources.Map
         public void ClearAttribute(int X, int Y, MapAttributes att)
         {
             Layer[Y * 256 + X] &= (byte)(~((byte)att));
+        }
+
+        public async void AddPlayer(Character @char)
+        {
+            await @char.Player.Session.SendAsync(new SWeather(Weather));
+
+            var pos = @char.Position;
+            SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
+        }
+
+        public void PositionChanged(Point prev, Point current)
+        {
+            ClearAttribute(prev.X, prev.Y, MapAttributes.Stand);
+            SetAttribute(current.X, current.Y, MapAttributes.Stand);
         }
     }
 }

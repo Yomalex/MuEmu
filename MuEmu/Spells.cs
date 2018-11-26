@@ -1,4 +1,7 @@
-﻿using MuEmu.Data;
+﻿using MU.DataBase;
+using MuEmu.Data;
+using MuEmu.Network.Data;
+using MuEmu.Network.Game;
 using MuEmu.Resources;
 using Serilog;
 using Serilog.Core;
@@ -32,20 +35,20 @@ namespace MuEmu
     public class Spells
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceCache));
-        public Character Character { get; }
         private Dictionary<Spell, SpellInfo> _spellList;
 
-        public Spells(Character @char)
+        public Player Player { get; }
+        public Character Character { get; }
+
+        public Spells(Character @char, CharacterDto character)
         {
+            _spellList = new Dictionary<Spell, SpellInfo>();
+            Player = @char.Player;
             Character = @char;
 
-            switch(Character.Class)
+            foreach(var spell in Character.BaseInfo.Spells)
             {
-                case HeroClass.DarkWizard:
-                case HeroClass.SoulMaster:
-                case HeroClass.GranMaster:
-                    Add(Spell.EnergyBall);
-                    break;
+                Add(spell);
             }
         }
 
@@ -88,5 +91,20 @@ namespace MuEmu
         }
 
         public IEnumerable<SpellInfo> SpellList => _spellList.Select(x => x.Value);
+
+        public async void SendList()
+        {
+            var i = 0;
+            var list = new List<SpellDto>();
+            foreach(var magic in _spellList)
+            {
+                list.Add(new SpellDto
+                {
+                    Index = (byte)i,
+                    Spell = (ushort)magic.Key,
+                });
+            }
+            await Player.Session.SendAsync(new SSpells(0, list.ToArray()));
+        }
     }
 }

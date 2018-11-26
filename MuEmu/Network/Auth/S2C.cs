@@ -132,8 +132,8 @@ namespace MuEmu.Network.Auth
         [WZMember(3)]
         public ControlCode ControlCode { get; set; }
 
-        [WZMember(4)]
-        public CharsetDto CharSet { get; set; }
+        [WZMember(4, 18)]
+        public byte[] CharSet { get; set; }
 
         [WZMember(5)]
         public GuildStatus GuildStatus { get; set; }
@@ -153,98 +153,99 @@ namespace MuEmu.Network.Auth
     public class SCharacterMapJoin2 : IAuthMessage
     {
         [WZMember(0)]
-        public byte MapX { get; set; }
+        public byte MapX { get; set; }//0
 
         [WZMember(1)]
-        public byte MapY { get; set; }
+        public byte MapY { get; set; }//1
 
         [WZMember(2)]
-        public Maps Map { get; set; }
+        public Maps Map { get; set; }//2
 
         [WZMember(3)]
-        public byte Direccion { get; set; }
+        public byte Direccion { get; set; }//3
 
         [WZMember(4)]
-        public ulong Experience { get; set; }
+        public ulong Experience { get; set; }//4
 
         [WZMember(5)]
-        public ulong NextExperience { get; set; }
+        public ulong NextExperience { get; set; }//c
 
         [WZMember(6)]
-        public ushort LevelUpPoints { get; set; }
+        public ushort LevelUpPoints { get; set; }//14
 
         [WZMember(7)]
-        public ushort Str { get; set; }
+        public ushort Str { get; set; }//16
 
         [WZMember(8)]
-        public ushort Agi { get; set; }
+        public ushort Agi { get; set; }//18
 
         [WZMember(9)]
-        public ushort Vit { get; set; }
+        public ushort Vit { get; set; }//1a
 
         [WZMember(10)]
-        public ushort Ene { get; set; }
+        public ushort Ene { get; set; }//1c
 
         [WZMember(11)]
-        public ushort Life { get; set; }
+        public ushort Life { get; set; }//1e
 
         [WZMember(12)]
-        public ushort MaxLife { get; set; }
+        public ushort MaxLife { get; set; }//20
 
         [WZMember(13)]
-        public ushort Mana { get; set; }
+        public ushort Mana { get; set; }//22
 
         [WZMember(14)]
-        public ushort MaxMana { get; set; }
+        public ushort MaxMana { get; set; }//24
 
         [WZMember(15)]
-        public ushort Shield { get; set; }
+        public ushort Shield { get; set; }//26
 
         [WZMember(16)]
-        public ushort MaxShield { get; set; }
+        public ushort MaxShield { get; set; }//28
 
         [WZMember(17)]
-        public ushort Stamina { get; set; }
+        public ushort Stamina { get; set; }//2a
 
         [WZMember(18)]
-        public ushort MaxStamina { get; set; }
+        public ushort MaxStamina { get; set; }//2c
 
-        [WZMember(19)]
-        public ushort unk { get; set; }
+        //[WZMember(19)]
+        //public ushort unk { get; set; }
 
         [WZMember(20)]
-        public int Zen { get; set; }
+        public ulong Zen { get; set; }//2e
 
         [WZMember(21)]
-        public byte PKLevel { get; set; }
+        public byte PKLevel { get; set; }//36
 
         [WZMember(22)]
-        public byte ControlCode { get; set; }
+        public byte ControlCode { get; set; }//37
 
         [WZMember(23)]
-        public short AddPoints { get; set; }
+        public short AddPoints { get; set; }//38
 
         [WZMember(24)]
-        public short MaxAddPoints { get; set; }
+        public short MaxAddPoints { get; set; }//3a
 
         [WZMember(25)]
-        public ushort Cmd { get; set; }
+        public ushort Cmd { get; set; }//3c
 
         [WZMember(26)]
-        public short MinusPoints { get; set; }
+        public short MinusPoints { get; set; }//3e
 
         [WZMember(27)]
-        public short MaxMinusPoints { get; set; }
+        public short MaxMinusPoints { get; set; }//40
 
         [WZMember(28)]
-        public byte ExpandedInv { get; set; }
+        public byte ExpandedInv { get; set; }//41
 
-        [WZMember(29)]
-        public ushort Unk { get; set; }
+        //[WZMember(29)]
+        //public ushort Unk { get; set; }//42
 
-        [WZMember(30)]
-        public byte ExpandedVault { get; set; }
+        //[WZMember(30)]
+        //public byte ExpandedVault { get; set; }//44
 
+        //45
         public Point Position
         {
             get => new Point(MapX, MapY);

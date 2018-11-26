@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MU.DataBase", "WebZen.DataB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSEmu", "CSEmu\CSEmu.csproj", "{E4D29DEE-EF16-46DE-A2BE-29AE9D4519B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PacketHelper", "PacketHelper\PacketHelper.csproj", "{620A79E7-CCEC-40D0-8456-68842E33904F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{E4D29DEE-EF16-46DE-A2BE-29AE9D4519B6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E4D29DEE-EF16-46DE-A2BE-29AE9D4519B6}.Release|Win32.ActiveCfg = Release|Any CPU
 		{E4D29DEE-EF16-46DE-A2BE-29AE9D4519B6}.Release|Win32.Build.0 = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Debug|Win32.Build.0 = Debug|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.DebugRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.DebugRelease|Any CPU.Build.0 = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.DebugRelease|Win32.ActiveCfg = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.DebugRelease|Win32.Build.0 = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Release|Win32.ActiveCfg = Release|Any CPU
+		{620A79E7-CCEC-40D0-8456-68842E33904F}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

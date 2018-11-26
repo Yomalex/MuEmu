@@ -16,6 +16,14 @@ namespace MuEmu.Network.Game
             Register<CCheckSum>(GameOpCode.GameSecurity);
             Register<CClientMessage>(GameOpCode.ClientMessage);
             Register<CCloseWindow>(GameOpCode.CloseWindow);
+            Register<CAction>(GameOpCode.Rotation);
+            Register<CMove>(GameOpCode.Move);
+            Register<CChatNickname>(GameOpCode.GeneralChat0);
+            Register<CNewQuestInfo>(GameOpCode.QuestDetails);
+            Register<CPositionSet>(GameOpCode.Position);
+            Register<CPointAdd>(GameOpCode.PointAdd);
+            Register<CClinetClose>(GameOpCode.ClientClose);
+            Register<CMoveItem>(GameOpCode.MoveItem);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -32,6 +40,16 @@ namespace MuEmu.Network.Game
             Register<SNotice>(GameOpCode.Notice);
             Register<SEventState>(GameOpCode.EventState);
             Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
+            Register<SHeatlUpdate>(GameOpCode.HealthUpdate);
+            Register<SManaUpdate>(GameOpCode.ManaUpdate);
+            Register<SSkillKey>(GameOpCode.SkillKey);
+            Register<SAction>(GameOpCode.Rotation);
+            Register<SMove>(GameOpCode.Move);
+            Register<SPositionSet>(GameOpCode.PositionSet);
+            Register<SPointAdd>(GameOpCode.PointAdd);
+            Register<SLevelUp>(GameOpCode.LevelUp);
+            Register<SClinetClose>(GameOpCode.ClientClose);
+            Register<SMoveItem>(GameOpCode.MoveItem);
         }
     }
 }

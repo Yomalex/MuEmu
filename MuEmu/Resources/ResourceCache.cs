@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MuEmu.Resources.Map;
+using MuEmu.Resources.Game;
 
 namespace MuEmu.Resources
 {
@@ -34,6 +35,7 @@ namespace MuEmu.Resources
             Instance.GetItems();
             Instance.GetSkills();
             Instance.GetMaps();
+            Instance.GetDefChar();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -62,14 +64,27 @@ namespace MuEmu.Resources
             return cache;
         }
 
-        public IDictionary<byte, MapInfo> GetMaps()
+        public IDictionary<Maps, MapInfo> GetMaps()
         {
-            var cache = _cache.Get<IDictionary<byte, MapInfo>>("Maps");
+            var cache = _cache.Get<IDictionary<Maps, MapInfo>>("Maps");
             if (cache == null)
             {
                 Logger.Information("Maps Caching...");
-                cache = _loader.LoadMaps().ToDictionary(x => (byte)x.Map);
+                cache = _loader.LoadMaps().ToDictionary(x => (Maps)x.Map);
                 _cache.Set("Maps", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<HeroClass, CharacterInfo> GetDefChar()
+        {
+            var cache = _cache.Get<IDictionary<HeroClass, CharacterInfo>>("DefClass");
+            if (cache == null)
+            {
+                Logger.Information("DefClass Caching...");
+                cache = _loader.LoadDefCharacter().ToDictionary(x => x.Class);
+                _cache.Set("DefClass", cache);
             }
 
             return cache;
