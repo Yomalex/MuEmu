@@ -23,6 +23,7 @@ namespace MuEmu
             _inventory = new Dictionary<byte, Item>();
 
             _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (HarmonyOption)10 }));
+            _inventory.Add(0, new Item(new ItemNumber(14,0), 0, new { Durability = (byte)255 }));
         }
 
         public async void SendInventory()
@@ -42,7 +43,7 @@ namespace MuEmu
             {
                 list.Add(new Network.Data.InventoryDto
                 {
-                    Index = it.Key,
+                    Index = (byte)(it.Key+ (byte)Equipament.End),
                     Item = it.Value.GetBytes()
                 });
             }
@@ -117,7 +118,7 @@ namespace MuEmu
             {
                 CharSet[14] |= 0xF0;
                 CharSet[9] |= 0x40;
-                CharSet[3] |= 0xF0;
+                CharSet[3] |= 0x0F;
             }
 
             if (equip.ContainsKey(Equipament.Pants))
@@ -166,8 +167,8 @@ namespace MuEmu
             }
             else
             {
-                CharSet[15] |= 0xF0;
-                CharSet[9] |= 0x10;
+                CharSet[15] |= 0x0F;
+                CharSet[9] |= 0x08;
                 CharSet[5] |= 0xF0;
             }
 
@@ -198,7 +199,7 @@ namespace MuEmu
             return CharSet;
         }
 
-        public byte[] GetCharsert()
+        public byte[] GetCharset()
         {
             return GetCharset(Player.Character.Class, Player.Character.Inventory);
         }

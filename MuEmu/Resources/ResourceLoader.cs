@@ -87,7 +87,7 @@ namespace MuEmu.Resources
                 var eq = new Dictionary<ushort, Item>();
                 foreach(var e in @char.Equipament)
                 {
-                    eq.Add((ushort)e.Slot, new Item((ushort)(e.Type * 256 + e.Index), 0, new { e.Level }));
+                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), 0, new { e.Level }));
                 }
 
                 yield return new CharacterInfo

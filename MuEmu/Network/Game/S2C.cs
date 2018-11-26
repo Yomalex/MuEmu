@@ -196,7 +196,7 @@ namespace MuEmu.Network.Game
     public class SNotice : IGameMessage
     {
         [WZMember(0)]
-        public byte type { get; set; }//3
+        public NoticeType type { get; set; }//3
 
         [WZMember(1)]
         public byte btCount { get; set; }//4
@@ -477,6 +477,42 @@ namespace MuEmu.Network.Game
 
         [WZMember(2,12)]
         public byte[] ItemInfo { get; set; }
+    }
+
+    [WZContract]
+    public class SKill
+    {
+        [WZMember(0)]
+        public ushort Target { get; set; }
+
+        [WZMember(1)]
+        public ushort Experience { get; set; }
+
+        [WZMember(2)]
+        public ushort Damage { get; set; }
+    }
+
+    [WZContract]
+    public class SDie
+    {
+        [WZMember(0)]
+        public ushort Target { get; set; }
+
+        [WZMember(1)]
+        public ushort Spell { get; set; }
+
+        [WZMember(2)]
+        public ushort Killer { get; set; }
+    }
+
+    [WZContract]
+    public class SEventEnterCount :IGameMessage
+    {
+        [WZMember(0)]
+        public EventEnterType Type { get; set; }
+
+        [WZMember(1)]
+        public byte Left { get; set; }
     }
 }
 

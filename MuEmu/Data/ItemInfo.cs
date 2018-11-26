@@ -9,6 +9,7 @@ namespace MuEmu.Data
     {
         public ushort Number { get; set; }
         public Point Size { get; set; }
+        public byte Durability { get; set; }
         public bool Option { get; set; }
         public bool Drop { get; set; }
         public ushort Level { get; set; }

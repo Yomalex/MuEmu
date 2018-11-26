@@ -16,14 +16,28 @@ namespace MuEmu
     {
         private float _hp;
         private float _hpMax;
+        private float _hpAdd;
         private float _sd;
         private float _sdMax;
+        private float _sdAdd;
         private float _mp;
         private float _mpMax;
+        private float _mpAdd;
         private float _bp;
         private float _bpMax;
+        private float _bpAdd;
         private Point _position;
         private ulong _exp;
+        private ushort _str;
+        private ushort _strAdd;
+        private ushort _agi;
+        private ushort _agiAdd;
+        private ushort _vit;
+        private ushort _vitAdd;
+        private ushort _ene;
+        private ushort _eneAdd;
+        private ushort _cmd;
+        private ushort _cmdAdd;
 
         public Player Player { get; }
         public Account Account { get; }
@@ -54,6 +68,19 @@ namespace MuEmu
                 HPorSDChanged();
             }
         }
+        public float MaxHealth
+        {
+            get => _hpMax;
+            set
+            {
+                if (value == _hpMax)
+                    return;
+
+                _hpAdd = value - _hpMax;
+
+                HPorSDMaxChanged();
+            }
+        }
         public float Shield
         {
             get => _sd;
@@ -70,6 +97,19 @@ namespace MuEmu
                 _sd = value;
 
                 HPorSDChanged();
+            }
+        }
+        public float MaxShield
+        {
+            get => _sdMax + _sdAdd;
+            set
+            {
+                if (value == _sdMax)
+                    return;
+
+                _sdAdd = value - _hpMax;
+
+                HPorSDMaxChanged();
             }
         }
         public float Mana
@@ -90,6 +130,19 @@ namespace MuEmu
                 MPorBPChanged();
             }
         }
+        public float MaxMana
+        {
+            get => _mpMax + _mpAdd;
+            set
+            {
+                if (value == _mpMax)
+                    return;
+
+                _mpAdd = value - _mpMax;
+
+                MPorBPMaxChanged();
+            }
+        }
         public float Stamina
         {
             get => _bp;
@@ -106,6 +159,19 @@ namespace MuEmu
                 _bp = value;
 
                 MPorBPChanged();
+            }
+        }
+        public float MaxStamina
+        {
+            get => _bpMax - _bpAdd;
+            set
+            {
+                if (value == _bpMax)
+                    return;
+
+                _bpAdd = value - _bpMax;
+
+                MPorBPMaxChanged();
             }
         }
         public ulong Money { get; set; }
@@ -133,25 +199,69 @@ namespace MuEmu
                 if (value == _exp)
                     return;
 
-                if (value >= NextExperience)
-                    OnLevelUp();
-
                 _exp = value;
+
+                if (_exp >= NextExperience)
+                    OnLevelUp();
             }
         }
-
         public ulong NextExperience => (((Level + 9ul) * Level) * Level) * 10ul + ((Level > 255)? ((((ulong)(Level-255) + 9ul) * (Level - 255ul)) * (Level - 255ul)) * 1000ul : 0ul);
 
         // Points
         public ushort LevelUpPoints { get; set; }
-        public ushort Str { get; set; }
-        public ushort Agility { get; set; }
-        public ushort Vitality { get; set; }
-        public ushort Energy { get; set; }
-        public ushort Command { get; set; }
-        public int TotalPoints => Str + Agility + Vitality + Energy + Command;
+        public ushort Str
+        {
+            get => (ushort)(_str + _strAdd); set
+            {
+                if (value == _str + _strAdd)
+                    return;
 
-        public short AddPoints => 0;
+                _strAdd = (ushort)(value - _str);
+            }
+        }
+        public ushort Agility
+        {
+            get => (ushort)(_agi + _agiAdd); set
+            {
+                if (value == _agi + _agiAdd)
+                    return;
+
+                _agiAdd = (ushort)(value - _agi);
+            }
+        }
+        public ushort Vitality
+        {
+            get => (ushort)(_agi + _agiAdd); set
+            {
+                if (value == _agi + _agiAdd)
+                    return;
+
+                _agiAdd = (ushort)(value - _agi);
+            }
+        }
+        public ushort Energy
+        {
+            get => (ushort)(_ene + _eneAdd); set
+            {
+                if (value == _ene + _eneAdd)
+                    return;
+
+                _eneAdd = (ushort)(value - _ene);
+            }
+        }
+        public ushort Command
+        {
+            get => (ushort)(_cmd + _cmdAdd); set
+            {
+                if (value == _cmd + _cmdAdd)
+                    return;
+
+                _cmdAdd = (ushort)(value - _cmd);
+            }
+        }
+        public int TotalPoints => _str + _agi + _vit + _ene + _cmd + LevelUpPoints;
+
+        public short AddPoints => (short)(TotalPoints - (BaseInfo.Stats.Str+ BaseInfo.Stats.Agi+ BaseInfo.Stats.Vit+ BaseInfo.Stats.Ene+ BaseInfo.Stats.Cmd + (Level-1)*5));
         public short MaxAddPoints => 100;
         public short MinusPoints => 0;
         public short MaxMinusPoints => 100;
@@ -180,11 +290,11 @@ namespace MuEmu
             Map.AddPlayer(this);
 
             Experience = (ulong)characterDto.Experience;
-            Str = characterDto.Str;
-            Agility = characterDto.Agility;
-            Vitality = characterDto.Vitality;
-            Energy = characterDto.Energy;
-            Command = characterDto.Command;
+            _str = characterDto.Str;
+            _agi = characterDto.Agility;
+            _vit = characterDto.Vitality;
+            _ene = characterDto.Energy;
+            _cmd = characterDto.Command;
 
             CalcStats();
 
@@ -211,7 +321,7 @@ namespace MuEmu
                 Mana = (ushort)Mana,
                 MaxMana = (ushort)_mpMax,
                 Shield = (ushort)Shield,
-                MaxShield = (ushort)_sdMax,
+                MaxShield = (ushort)MaxShield,
                 Stamina = (ushort)Stamina,
                 MaxStamina = (ushort)_bpMax,
                 Zen = Money.ShufleEnding(),
@@ -229,17 +339,23 @@ namespace MuEmu
             Spells.SendList();
         }
 
-        private void HPorSDChanged()
+        private async void HPorSDChanged()
         {
-            Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Unk2, (ushort)_hp, (ushort)_sd, false));
+            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd, false));
         }
-
-        private void MPorBPChanged()
+        private async void HPorSDMaxChanged()
         {
-            Player.Session.SendAsync(new SManaUpdate(RefillInfo.Unk2, (ushort)_hp, (ushort)_sd));
+            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
         }
-
-        private void OnLevelUp()
+        private async void MPorBPChanged()
+        {
+            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd));
+        }
+        private async void MPorBPMaxChanged()
+        {
+            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.MaxChanged, (ushort)MaxMana, (ushort)MaxStamina));
+        }
+        private async void OnLevelUp()
         {
             if (Level >= 400)
                 return;
@@ -251,21 +367,20 @@ namespace MuEmu
             _hpMax = (att.Life + att.LevelLife * (Level - 1));
             _mpMax = (att.Mana + att.LevelMana * (Level - 1));
 
-            Player.Session.SendAsync(new SLevelUp
+            await Player.Session.SendAsync(new SLevelUp
             {
                 Level = Level,
                 LevelUpPoints = LevelUpPoints,
-                MaxLife = (ushort)_hpMax,
-                MaxMana = (ushort)_hpMax,
-                MaxShield = (ushort)_sdMax,
-                MaxBP = (ushort)_bpMax,
+                MaxLife = (ushort)MaxHealth,
+                MaxMana = (ushort)MaxMana,
+                MaxShield = (ushort)MaxShield,
+                MaxBP = (ushort)MaxStamina,
                 AddPoint = (ushort)AddPoints,
                 MaxAddPoint = (ushort)MaxAddPoints,
                 MinusPoint = (ushort)MinusPoints,
                 MaxMinusPoint = (ushort)MaxMinusPoints,
             });
         }
-
         private void CalcStats()
         {
             var att = BaseInfo.Attributes;

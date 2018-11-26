@@ -11,20 +11,20 @@ namespace MuEmu
     public struct ItemNumber
     {
         public ushort Number { get; set; } 
-        public byte Index { get; set; }
+        public ushort Index { get; set; }
         public byte Type { get; set; }
         public const ushort Invalid = 0xFFFF;
 
         public ItemNumber(ushort number)
         {
             Number = number;
-            Type = (byte)(number >> 8);
-            Index = (byte)(number & 0xff);
+            Type = (byte)(number >> 9);
+            Index = (ushort)(number & 0x3ff);
         }
 
-        public ItemNumber(byte type, byte index)
+        public ItemNumber(byte type, ushort index)
         {
-            Number = (ushort)(type << 8 | index);
+            Number = (ushort)(type << 9 | index);
             Type = type;
             Index = index;
         }
@@ -52,6 +52,11 @@ namespace MuEmu
         public static bool operator !=(ItemNumber a, ushort b)
         {
             return a.Number != b;
+        }
+
+        public static implicit operator ushort(ItemNumber a)
+        {
+            return a.Number;
         }
 
         public override int GetHashCode()
@@ -89,8 +94,14 @@ namespace MuEmu
         public Item(ushort number, int Serial, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();
+
+            if (!ItemDB.ContainsKey(number))
+                throw new Exception("Item don't exists " + number);
+
             BasicInfo = ItemDB[number];
-            Slots = new SocketOption[] { SocketOption.None, SocketOption.None, SocketOption.None, SocketOption.None, SocketOption.None };
+
+            Durability = BasicInfo.Durability;
+            Slots = Array.Empty<SocketOption>();
 
             if (Options != null)
                 Extensions.AnonymousMap(this, Options);

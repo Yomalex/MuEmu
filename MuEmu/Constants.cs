@@ -142,7 +142,10 @@ namespace MuEmu
         Boots,
         Wings,
         Pet,
-
+        Pendant,
+        RightRing,
+        LeftRing,
+        End
     }
 
     public enum HarmonyOption : byte
@@ -170,8 +173,9 @@ namespace MuEmu
 
     public enum RefillInfo : byte
     {
-        Unk1 = 0xFD,
-        Unk2 = 0xFF,
+        MaxChanged = 0xFE,
+        Update = 0xFD,
+        Drink = 0xFF,
     }
 
     public enum PointAdd : byte
@@ -198,5 +202,18 @@ namespace MuEmu
         ChaosBox,
         PersonalShop,
         DarkTrainer = 5,
+    }
+
+    public enum NoticeType : byte
+    {
+        Gold,
+        Blue,
+        Guild
+    }
+
+    public enum EventEnterType : byte
+    {
+        BloodCastle = 2,
+        DevilSquare,
     }
 }

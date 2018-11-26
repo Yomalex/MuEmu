@@ -44,13 +44,14 @@ namespace MuEmu.Network.Auth
         [MessageHandler(typeof(CCharacterList))]
         public async Task CCharacterList(GSSession session, CCharacterList listReq)
         {
+            var inv = new Inventory(null, null);
             var chars = new SCharacterList(5, 0, new CharacterPreviewDto[] {
                 new CharacterPreviewDto
                 {
                     ID = 0,
                     Level = 1,
                     Name = "Yomalex".GetBytes(),
-                    CharSet = new Data.CharsetDto{ Class = Character.GetClientClass(HeroClass.BlodySummoner), CharSet = Array.Empty<byte>() },
+                    CharSet = Inventory.GetCharset(HeroClass.Summoner, inv),
                     ControlCode = ControlCode.GameMaster,
                     GuildStatus = GuildStatus.NoMember
                 }
@@ -101,6 +102,16 @@ namespace MuEmu.Network.Auth
             await session.SendAsync(new SNotice
             {
                 Notice = $"Bienvenido {@char.Name} a mu desertor"
+            });
+            await session.SendAsync(new SNotice
+            {
+                Notice = $"System",
+                type = NoticeType.Blue,
+            });
+            await session.SendAsync(new SNotice
+            {
+                Notice = $"Guild",
+                type = NoticeType.Guild,
             });
 
             await session.SendAsync(new SSkillKey());

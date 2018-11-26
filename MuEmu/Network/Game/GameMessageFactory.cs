@@ -24,6 +24,8 @@ namespace MuEmu.Network.Game
             Register<CPointAdd>(GameOpCode.PointAdd);
             Register<CClinetClose>(GameOpCode.ClientClose);
             Register<CMoveItem>(GameOpCode.MoveItem);
+            Register<CUseItem>(GameOpCode.HealthUpdate); // Same OPCode
+            Register<CEventEnterCount>(GameOpCode.EventEnterCount);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -50,6 +52,7 @@ namespace MuEmu.Network.Game
             Register<SLevelUp>(GameOpCode.LevelUp);
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);
+            Register<SEventEnterCount>(GameOpCode.EventEnterCount);
         }
     }
 }

@@ -72,13 +72,13 @@ namespace MuEmu.Network.Game
                 solvedPath.Add(Cpos);
                 //Logger.Debug("Path solved [{0}] X:{1} Y:{2}", i, Cpos.X, Cpos.Y);
                 var att = @char.Map.GetAttributes(Cpos);
-                if(att.Where(y => y == Resources.Map.MapAttributes.NoWalk || y == Resources.Map.MapAttributes.Hide).Count() > 0)
+                if (att.Where(y => y == Resources.Map.MapAttributes.NoWalk || y == Resources.Map.MapAttributes.Hide).Count() > 0)
                 {
                     valid = false;
                 }
             }
 
-            if(!valid)
+            if (!valid)
             {
                 session.SendAsync(new SPositionSet { Number = (ushort)session.Player.Account.ID.ShufleEnding(), X = (byte)@char.Position.X, Y = (byte)@char.Position.Y });
                 Logger
@@ -97,7 +97,7 @@ namespace MuEmu.Network.Game
         {
             Logger
                 .ForAccount(session)
-                .Information("Chat ["+message.Character.MakeString() + "] {0}", message.Message.MakeString());
+                .Information("Chat [" + message.Character.MakeString() + "] {0}", message.Message.MakeString());
 
         }
 
@@ -129,6 +129,19 @@ namespace MuEmu.Network.Game
                 Position = message.Dest,
                 Result = (byte)message.tFlag
             });
+        }
+
+        // lacting
+        [MessageHandler(typeof(CUseItem))]
+        public void CUseItem(GSSession session, CUseItem message)
+        {
+
+        }
+
+        [MessageHandler(typeof(CEventEnterCount))]
+        public void CEventEnterCount(GSSession session, CEventEnterCount message)
+        {
+            session.SendAsync(new SEventEnterCount { Type = message.Type });
         }
     }
 }

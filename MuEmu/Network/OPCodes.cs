@@ -56,6 +56,7 @@ namespace MuEmu.Network
         ManaUpdate = 0xFF27,
         CloseWindow = 0xFF31,
         ViewPortChange = 0xFF45,
+        EventEnterCount = 0xFF9F,
         QuestInfo = 0xFFA0,
         FriendList = 0xFFC0,
         FriendRequest = 0xFFC2,

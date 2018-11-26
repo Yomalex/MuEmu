@@ -143,4 +143,24 @@ namespace MuEmu.Network.Game
         [WZMember(4)]
         public byte Dest { get; set; }
     }
+
+    [WZContract]
+    public class CUseItem : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Source { get; set; }
+
+        [WZMember(1)]
+        public byte Dest { get; set; }
+
+        [WZMember(2)]
+        public byte Type { get; set; }
+    }
+
+    [WZContract]
+    public class CEventEnterCount : IGameMessage
+    {
+        [WZMember(0)]
+        public EventEnterType Type { get; set; }
+    }
 }
