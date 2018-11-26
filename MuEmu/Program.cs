@@ -14,6 +14,7 @@ using System.Net;
 using WebZen.Handlers;
 using WebZen.Network;
 using WebZen.Serialization;
+using MuEmu.Resources.XML;
 
 namespace MuEmu
 {
@@ -27,6 +28,8 @@ namespace MuEmu
             Predicate<GSSession> MustBeLoggedIn = session => session.Player.Status == LoginStatus.Logged;
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
 
+            var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Data/Server.xml");
+
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
@@ -38,8 +41,8 @@ namespace MuEmu
             SimpleModulus.LoadDecryptionKey("Dec1.dat");
             SimpleModulus.LoadEncryptionKey("Enc2.dat");
 
-            var ip = new IPEndPoint(IPAddress.Parse("192.168.100.4"), 55901);
-            var csIP = new IPEndPoint(IPAddress.Parse("192.168.100.4"), 44405);
+            var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
+            var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<GSSession>()
@@ -62,6 +65,7 @@ namespace MuEmu
             };
 
             server = new WZGameServer(ip, mh, mf);
+            server.ClientVersion = xml.Version;
 
             var cmh = new MessageHandler[]
             {
@@ -79,7 +83,8 @@ namespace MuEmu
             try
             {
 
-                client = new CSClient(csIP, cmh, cmf, 0, server);
+                if(xml.Show != 0)
+                    client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server);
             }catch(Exception)
             {
                 Log.Error("Connect Server Unavailable");

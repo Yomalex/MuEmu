@@ -38,7 +38,7 @@ namespace MuEmu.Network.ConnectServer
 
             Index = index;
 
-            SendAsync(new CRegistryReq { Index = 0, Address = server.IPAddress.ToString(), Port = server.Port });
+            SendAsync(new CRegistryReq { Index = index, Address = server.IPAddress.ToString(), Port = server.Port });
 
             _GameServer = server;
         }

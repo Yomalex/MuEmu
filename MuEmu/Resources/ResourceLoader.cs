@@ -123,7 +123,7 @@ namespace MuEmu.Resources
             }
         }
 
-        private T XmlLoader<T>(string file)
+        public static T XmlLoader<T>(string file)
         {
             var s = new XmlSerializer(typeof(T));
             using (var ts = File.OpenText(file))

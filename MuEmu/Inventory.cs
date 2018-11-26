@@ -22,7 +22,7 @@ namespace MuEmu
             _equipament = new Dictionary<Equipament, Item>();
             _inventory = new Dictionary<byte, Item>();
 
-            _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (HarmonyOption)1 }));
+            _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (HarmonyOption)10 }));
         }
 
         public async void SendInventory()
