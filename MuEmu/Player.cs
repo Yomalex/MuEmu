@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MuEmu.Network;
 using MuEmu.Security;
+using MU.DataBase;
 
 namespace MuEmu
 {
@@ -18,12 +19,19 @@ namespace MuEmu
 
         public GSSession Session { get; set; }
 
+        public object Window { get; set; }
+
         public Player(GSSession session)
         {
             Session = session;
             Status = LoginStatus.NotLogged;
-            Account = new Account(this, new MU.DataBase.AccountDto { ID = 0, Account = "yomar1234", Character1 = 0, Password = "", Vault="" });
+        }
+
+        public void SetAccount(AccountDto acc)
+        {
+            Account = new Account(this, acc);
             CheckSum = new GameCheckSum(this);
+            Status = LoginStatus.Logged;
         }
     }
 }

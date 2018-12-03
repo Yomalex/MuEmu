@@ -214,6 +214,80 @@ namespace MuEmu
     public enum EventEnterType : byte
     {
         BloodCastle = 2,
-        DevilSquare,
+        IllusionTemple,
+    }
+
+    public enum ObjectType
+    {
+        NPC,
+        Monster,
+    }
+
+    public enum ObjectState
+    {
+        None,
+        Live,
+        Die = 4,
+    }
+
+    public enum NPCAttributeType
+    {
+        Warehouse,
+        Shop,
+        Quest,
+    }
+
+    public enum AttributeType
+    {
+        Ice,
+        Poison,
+        Light,
+        Fire,
+        Earth,
+        Wind,
+        Water,
+    }
+
+    public enum TaxType : byte
+    {
+        Warehouse = 1,
+        Shop,
+    }
+
+    public enum ServerCommandType : byte
+    {
+        EventMsg = 1,
+        DefaultMsg = 4,
+        ServerDivision = 6,
+        ShadowPhantom = 0x0D,
+        DevilSquarePK = 0x37,
+        BloodCastlePK,
+        ChaosCastlePK,
+    }
+
+    public enum EventMsg
+    {
+        YouNeedInvitationDS = 2,
+        DevilStarted, //???
+        DevilDisabled = 6, //???
+        RunningBC = 0x14,
+        YouNeedInvitationBC = 0x15,
+        SucceedBC = 0x17,
+        InvalidBC = 0x18,
+        CompletedBC = 0x2E,
+    }
+
+    public enum DefaultMsg
+    {
+        Guard,
+        DeviasMadam,
+        Lala,
+    }
+
+    public enum TalkResult : byte
+    {
+        Shop,
+        WareHouse = 2,
+        DevilSquare = 4,
     }
 }

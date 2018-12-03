@@ -1,4 +1,5 @@
-﻿using MuEmu.Network.Game;
+﻿using MuEmu.Monsters;
+using MuEmu.Network.Game;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,6 +19,7 @@ namespace MuEmu.Resources.Map
     {
         public int Width { get; }
         public int Height { get; }
+        public List<Monster> Monsters { get; }
         public List<Character> Players { get; }
         public List<Item> Items { get; }
         private byte[] Layer { get; }
@@ -39,6 +41,10 @@ namespace MuEmu.Resources.Map
             }
 
             Weather = 0x30;
+
+            Monsters = new List<Monster>();
+            Players = new List<Character>();
+            Items = new List<Item>();
         }
 
         public MapAttributes[] GetAttributes(int X, int Y)
@@ -75,6 +81,12 @@ namespace MuEmu.Resources.Map
 
             var pos = @char.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
+            Players.Add(@char);
+        }
+
+        public void DelPlayer(Character @char)
+        {
+            Players.Remove(@char);
         }
 
         public void PositionChanged(Point prev, Point current)

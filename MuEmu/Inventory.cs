@@ -3,6 +3,7 @@ using MuEmu.Network.Game;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MuEmu
@@ -11,19 +12,97 @@ namespace MuEmu
     {
         public Player Player { get; set; }
         private Dictionary<Equipament, Item> _equipament;
-        private Dictionary<byte, Item> _inventory;
-        private Dictionary<byte, Item> _vault;
-        private Dictionary<byte, Item> _chaosBox;
-        private Dictionary<byte, Item> _personalShop;
+        private Storage _inventory;
+        private Storage _chaosBox;
+        private Storage _personalShop;
+        private Storage _tradeBox;
 
         public Inventory(Character @char, CharacterDto characterDto)
         {
             Player = @char?.Player??null;
+            _inventory = new Storage(Storage.InventorySize);
+            _chaosBox = new Storage(Storage.ChaosBoxSize);
+            _tradeBox = new Storage(Storage.TradeSize);
+            _personalShop = new Storage(Storage.TradeSize);
+            _inventory.IndexTranslate = (int)Equipament.End;
+            _personalShop.IndexTranslate = _inventory.IndexTranslate + Storage.InventorySize;
+
             _equipament = new Dictionary<Equipament, Item>();
-            _inventory = new Dictionary<byte, Item>();
 
             _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (HarmonyOption)10 }));
-            _inventory.Add(0, new Item(new ItemNumber(14,0), 0, new { Durability = (byte)255 }));
+            _inventory.Add(new Item(new ItemNumber(14,0), 0, new { Durability = (byte)255 }));
+        }
+
+        public byte Add(Item it)
+        {
+            return _inventory.Add(it);
+        }
+
+        public bool Move(MoveItemFlags from, byte fromIndex, MoveItemFlags to, byte toIndex)
+        {
+            Storage sFrom = null, sTo = null;
+            switch(from)
+            {
+                case MoveItemFlags.Inventory:
+                    sFrom = _inventory;
+                    break;
+                case MoveItemFlags.Warehouse:
+                    sFrom = Player.Account.Vault;
+                    break;
+                case MoveItemFlags.PersonalShop:
+                    sFrom = _personalShop;
+                    break;
+                case MoveItemFlags.ChaosBox:
+                case MoveItemFlags.DarkTrainer:
+                    sFrom = _personalShop;
+                    break;
+                case MoveItemFlags.Trade:
+                    sFrom = _personalShop;
+                    break;
+            }
+            switch (to)
+            {
+                case MoveItemFlags.Inventory:
+                    sTo = _inventory;
+                    break;
+                case MoveItemFlags.Warehouse:
+                    sTo = Player.Account.Vault;
+                    break;
+                case MoveItemFlags.PersonalShop:
+                    sTo = _personalShop;
+                    break;
+                case MoveItemFlags.ChaosBox:
+                case MoveItemFlags.DarkTrainer:
+                    sTo = _personalShop;
+                    break;
+                case MoveItemFlags.Trade:
+                    sTo = _personalShop;
+                    break;
+            }
+
+            if (sFrom == null || sTo == null)
+                return false;
+
+            var it = sFrom.Get(fromIndex);
+            sTo.Add(toIndex, it);
+            sFrom.Remove(fromIndex);
+            return true;
+        }
+
+        public Item Get(byte from)
+        {
+            if (_inventory.IndexTranslate <= from)
+                return _inventory.Items.First(x => x.Key == from - _inventory.IndexTranslate).Value;
+
+            return _equipament.First(x => x.Key == (Equipament)from).Value;
+        }
+
+        public void Remove(byte from)
+        {
+            if (_inventory.IndexTranslate <= from)
+                _inventory.Remove(from);
+
+            _equipament.Remove((Equipament)from);
         }
 
         public async void SendInventory()
@@ -39,14 +118,8 @@ namespace MuEmu
                 });
             }
 
-            foreach (var it in _inventory)
-            {
-                list.Add(new Network.Data.InventoryDto
-                {
-                    Index = (byte)(it.Key+ (byte)Equipament.End),
-                    Item = it.Value.GetBytes()
-                });
-            }
+            list.AddRange(_inventory.GetInventory());
+            list.AddRange(_personalShop.GetInventory());
 
             await Player.Session.SendAsync(new SInventory(list.ToArray()));
         }

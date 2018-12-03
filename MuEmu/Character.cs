@@ -38,6 +38,7 @@ namespace MuEmu
         private ushort _eneAdd;
         private ushort _cmd;
         private ushort _cmdAdd;
+        private uint _zen;
 
         public Player Player { get; }
         public Account Account { get; }
@@ -45,6 +46,9 @@ namespace MuEmu
         public Guild Guild { get; set; }
         public Inventory Inventory { get; }
         public Spells Spells { get; }
+        
+        public IEnumerable<ushort> MonstersVP { get; set; }
+        public IEnumerable<Player> PlayersVP { get; set; }
 
         // Basic Info
         public HeroClass Class { get; set; }
@@ -55,13 +59,13 @@ namespace MuEmu
         public float Health {
             get => _hp;
             set {
-                if (_hp == value)
-                    return;
-
                 if(value > _hpMax)
                 {
                     value = _hpMax;
                 }
+
+                if (_hp == value)
+                    return;
 
                 _hp = value;
 
@@ -117,13 +121,13 @@ namespace MuEmu
             get => _mp;
             set
             {
-                if (_mp == value)
-                    return;
-
                 if (value > _mpMax)
                 {
                     value = _mpMax;
                 }
+
+                if (_mp == value)
+                    return;
 
                 _mp = value;
 
@@ -174,7 +178,18 @@ namespace MuEmu
                 MPorBPMaxChanged();
             }
         }
-        public ulong Money { get; set; }
+        public uint Money
+        {
+            get => _zen;
+            set
+            {
+                if (value == _zen)
+                    return;
+
+                _zen = value;
+                OnMoneyChange();
+            }
+        }
 
         // Map
         public Maps MapID { get; set; }
@@ -284,6 +299,8 @@ namespace MuEmu
             Inventory = new Inventory(this, characterDto);
             Quests = new Quests(this, characterDto);
             Spells = new Spells(this, characterDto);
+            MonstersVP = new List<ushort>();
+            PlayersVP = new List<Player>();
 
             MapID = (Maps)characterDto.Map;
             Position = new Point(characterDto.X, characterDto.Y);
@@ -302,6 +319,7 @@ namespace MuEmu
             Health = characterDto.Life;
             Stamina = _bpMax / 2;
             Mana = characterDto.Mana;
+            Money = 100000000;
 
             plr.Session.SendAsync(new SCharacterMapJoin2
             {
@@ -349,7 +367,7 @@ namespace MuEmu
         }
         private async void MPorBPChanged()
         {
-            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd));
+            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.Update, (ushort)_mp, (ushort)_bp));
         }
         private async void MPorBPMaxChanged()
         {
@@ -388,6 +406,10 @@ namespace MuEmu
             _mpMax = (att.Mana + att.LevelMana * (Level - 1));
             _bpMax = (att.StrToBP * Str) + (att.AgiToBP * Agility) + (att.VitToBP * Vitality) + (att.EneToBP * Energy);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
+        }
+        private async void OnMoneyChange()
+        {
+            await Player.Session.SendAsync(new SItemGet { Result = 0xFE, Money = Money });
         }
     }
 }

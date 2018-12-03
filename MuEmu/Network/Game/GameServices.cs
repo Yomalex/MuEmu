@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using MuEmu.Monsters;
+using MuEmu.Resources;
+using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
@@ -37,7 +39,11 @@ namespace MuEmu.Network.Game
         public void CAction(GSSession session, CAction message)
         {
             session.Player.Character.Direction = message.Dir;
-            session.SendAsync(new SAction((ushort)session.Player.Account.ID, message.Dir, message.ActionNumber, message.Target));
+            var ans = new SAction((ushort)session.Player.Account.ID, message.Dir, message.ActionNumber, message.Target);
+            session.SendAsync(ans);
+
+            foreach (var plr in session.Player.Character.PlayersVP)
+                plr.Session.SendAsync(ans);
         }
 
         [MessageHandler(typeof(CMove))]
@@ -110,25 +116,52 @@ namespace MuEmu.Network.Game
             session.SendAsync(message);
         }
 
+        [MessageHandler(typeof(CCloseWindow))]
+        public void CCloseWindow(GSSession session)
+        {
+
+        }
+
         [MessageHandler(typeof(CClinetClose))]
         public void CClinetClose(GSSession session, CClinetClose message)
         {
             Logger
                 .ForAccount(session)
                 .Information("User request {0}", message.Type);
-            session.SendAsync(message);
+
+            for(int i = 1; i <= 5; i++)
+            {
+                SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5-i), new SNotice(NoticeType.Blue, $"Saldras en {i} segundos"));
+            }
+
+            SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5), new SCloseMsg { Type = message.Type });
+
+            session.Player.Status = message.Type==ClientCloseType.SelectChar?LoginStatus.Logged:LoginStatus.NotLogged;
         }
 
         [MessageHandler(typeof(CMoveItem))]
         public void CMoveItem(GSSession session, CMoveItem message)
         {
-            Logger.Debug("Move item {0} {1} to {2} {3}", message.sFlag, message.Source, message.tFlag, message.Dest);
-            session.SendAsync(new SMoveItem
+            Logger.Debug("Move item {0}:{1} to {2}:{3}", message.sFlag, message.Source, message.tFlag, message.Dest);
+
+            if (session.Player.Character.Inventory.Move(message.sFlag, message.Source, message.tFlag, message.Dest))
             {
-                ItemInfo = message.ItemInfo,
-                Position = message.Dest,
-                Result = (byte)message.tFlag
-            });
+                session.SendAsync(new SMoveItem
+                {
+                    ItemInfo = message.ItemInfo,
+                    Position = message.Dest,
+                    Result = (byte)message.tFlag
+                });
+            }
+            else
+            {
+                session.SendAsync(new SMoveItem
+                {
+                    ItemInfo = message.ItemInfo,
+                    Position = 0xff,
+                    Result = (byte)message.tFlag
+                });
+            }
         }
 
         // lacting
@@ -142,6 +175,115 @@ namespace MuEmu.Network.Game
         public void CEventEnterCount(GSSession session, CEventEnterCount message)
         {
             session.SendAsync(new SEventEnterCount { Type = message.Type });
+        }
+
+        [MessageHandler(typeof(CTalk))]
+        public void CTalk(GSSession session, CTalk message)
+        {
+            var npcs = ResourceCache.Instance.GetNPCs();
+            var ObjectIndex = message.Number.ShufleEnding();
+            var obj = MonstersMng.Instance.GetMonster(ObjectIndex);
+            if (npcs.TryGetValue(obj.Info.Monster, out var npc))
+            {
+                if(npc.Shop != null)
+                {
+                    session.Player.Window = npc.Shop.Storage;
+                    session.SendAsync(new STalk { Result = 0 });
+                    session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
+                    session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
+                }
+                else if(npc.Warehouse)
+                {
+                    session.Player.Window = session.Player.Account.Vault;
+                    session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
+                    session.SendAsync(new STalk { Result = 2 });
+                    session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
+                    session.SendAsync(new SWarehouseMoney { wMoney = 0, iMoney = 0 });
+                }
+            }
+            else
+            {
+                //session.SendAsync(new STalk { Result = 0 });
+                //session.SendAsync(new STax { Type = TaxType.Warehouse, Rate = 4 });
+
+                //session.SendAsync(new SQuestWindow { Type = 0x01, SubType = 0x01 }); S6EP2
+            }
+        }
+
+        [MessageHandler(typeof(CBuy))]
+        public void CBuy(GSSession session, CBuy message)
+        {
+            var plr = session.Player;
+            var @char = plr.Character;
+
+            if (plr.Window == null)
+            {
+                throw new ArgumentException("Player isn't in buy/trade/box/Quest", nameof(session.Player.Window));
+            }
+
+            if(plr.Window.GetType() != typeof(Storage))
+            {
+                throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
+            }
+
+            var shop = plr.Window as Storage;
+            var item = shop.Items[message.Position];
+            var bResult = new SBuy
+            {
+                Result = 0xff,
+                ItemInfo = item.GetBytes()
+            };
+
+            if(item.BuyPrice > @char.Money)
+            {
+                Logger
+                    .ForAccount(session)
+                    .Information("Insuficient Money");
+                session.SendAsync(bResult);
+                return;
+            }
+
+            bResult.Result = @char.Inventory.Add(item);
+            if(bResult.Result == 0xff)
+            {
+                Logger
+                    .ForAccount(session)
+                    .Information("Insuficient Space");
+                session.SendAsync(bResult);
+                return;
+            }
+
+            @char.Money -= item.BuyPrice;
+
+            Logger
+                .ForAccount(session)
+                .Information("Buy {0} for {1}", item.BasicInfo.Number, item.BuyPrice);
+
+            session.SendAsync(bResult);
+        }
+
+        [MessageHandler(typeof(CSell))]
+        public void CSell(GSSession session, CSell message)
+        {
+            if (session.Player.Window == null)
+            {
+                throw new ArgumentException("Player isn't in buy/trade/box", nameof(session.Player.Window));
+            }
+
+            if (session.Player.Window.GetType() != typeof(Storage))
+            {
+                throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
+            }
+
+            var shop = session.Player.Window as Storage;
+            var inve = session.Player.Character.Inventory;
+            var item = inve.Get(message.Position);
+            inve.Remove(message.Position);
+
+            session.Player.Character.Money += item.SellPrice;
+            var result = new SSell { Result = 1, Money = session.Player.Character.Money };
+
+            session.SendAsync(result);
         }
     }
 }

@@ -26,5 +26,13 @@ namespace MuEmu.Network
 
             Session.SendAsync(new SJoinResult(1, Session.ID, ClientVersion));
         }
+
+        public override void OnDisconnect(WZClient session)
+        {
+            var Session = session as GSSession;
+            Session.Player.Status = LoginStatus.NotLogged;
+            Session.Player.Character.Map.DelPlayer(Session.Player.Character);
+            base.OnDisconnect(session);
+        }
     }
 }

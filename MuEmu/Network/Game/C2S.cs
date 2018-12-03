@@ -163,4 +163,29 @@ namespace MuEmu.Network.Game
         [WZMember(0)]
         public EventEnterType Type { get; set; }
     }
+
+    [WZContract]
+    public class CTalk : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort Number { get; set; }
+    }
+
+    [WZContract]
+    public class CWarehouseUseEnd : IGameMessage
+    { }
+
+    [WZContract]
+    public class CBuy:IGameMessage
+    {
+        [WZMember(0)]
+        public byte Position { get; set; }
+    }
+
+    [WZContract]
+    public class CSell : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Position { get; set; }
+    }
 }

@@ -13,7 +13,7 @@ namespace MuEmu.Resources
 {
     public class ResourceCache
     {
-        public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceCache));
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceCache));
 
         public static ResourceCache Instance { get; private set; }
         private ResourceLoader _loader;
@@ -36,6 +36,8 @@ namespace MuEmu.Resources
             Instance.GetSkills();
             Instance.GetMaps();
             Instance.GetDefChar();
+            Instance.GetShops();
+            Instance.GetNPCs();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -85,6 +87,32 @@ namespace MuEmu.Resources
                 Logger.Information("DefClass Caching...");
                 cache = _loader.LoadDefCharacter().ToDictionary(x => x.Class);
                 _cache.Set("DefClass", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<ushort, ShopInfo> GetShops()
+        {
+            var cache = _cache.Get<IDictionary<ushort, ShopInfo>>("Shops");
+            if (cache == null)
+            {
+                Logger.Information("Shops Caching...");
+                cache = _loader.LoadShops().ToDictionary(x => x.Shop);
+                _cache.Set("Shops", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<ushort, NPCInfo> GetNPCs()
+        {
+            var cache = _cache.Get<IDictionary<ushort, NPCInfo>>("NPCs");
+            if (cache == null)
+            {
+                Logger.Information("NPCs Caching...");
+                cache = _loader.LoadNPCs().ToDictionary(x => x.NPC);
+                _cache.Set("NPCs", cache);
             }
 
             return cache;

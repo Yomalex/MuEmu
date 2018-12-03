@@ -134,6 +134,7 @@ namespace WebZen.Network
 
                 foreach (var message in messages)
                 {
+                    Console.WriteLine("[C->S] " + message.GetType());
                     foreach (var handler in _handler)
                     {
                         await handler.OnMessageReceived(sender, message);

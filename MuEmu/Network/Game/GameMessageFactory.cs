@@ -26,6 +26,10 @@ namespace MuEmu.Network.Game
             Register<CMoveItem>(GameOpCode.MoveItem);
             Register<CUseItem>(GameOpCode.HealthUpdate); // Same OPCode
             Register<CEventEnterCount>(GameOpCode.EventEnterCount);
+            Register<CTalk>(GameOpCode.Talk);
+            Register<CWarehouseUseEnd>(GameOpCode.WarehouseUseEnd);
+            Register<CBuy>(GameOpCode.Buy);
+            Register<CSell>(GameOpCode.Sell);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -39,6 +43,8 @@ namespace MuEmu.Network.Game
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
             Register<SViewPortMonCreate>(GameOpCode.ViewPortMCreate);
+            Register<SViewPortDestroy>(GameOpCode.ViewPortDestroy);
+            Register<SViewPortItemDestroy>(GameOpCode.ViewPortItemDestroy);
             Register<SNotice>(GameOpCode.Notice);
             Register<SEventState>(GameOpCode.EventState);
             Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
@@ -53,6 +59,15 @@ namespace MuEmu.Network.Game
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);
             Register<SEventEnterCount>(GameOpCode.EventEnterCount);
+            Register<SCloseMsg>(GameOpCode.ClientClose);
+            Register<STalk>(GameOpCode.Talk);
+            Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
+            Register<STax>(GameOpCode.Tax);
+            Register<SWarehouseMoney>(GameOpCode.WarehouseMoney);
+            Register<SQuestWindow>(GameOpCode.QuestWindow);
+            Register<SBuy>(GameOpCode.Buy);
+            Register<SSell>(GameOpCode.Sell);
+            Register<SItemGet>(GameOpCode.ItemGet);
         }
     }
 }

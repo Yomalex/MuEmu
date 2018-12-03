@@ -318,12 +318,18 @@ namespace WebZen.Network
             if (att == null)
                 throw new InvalidOperationException("Invalid message format");
 
-            Console.WriteLine("[S->C] {0} {1} {2}", message.GetType().Name, att.Serialized, serial);
+            //Console.WriteLine("[S->C] {0} {1} {2}", message.GetType().Name, att.Serialized, serial);
 
             using (var h = new MemoryStream())
             using (var b = new MemoryStream())
             {
-                Serializer.Serialize(b, message);
+                try
+                {
+                    Serializer.Serialize(b, message);
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
                 var body = b.ToArray();
                 var length = body.Length;
                 var sizeFix = (((opCode & 0xFF00) == 0xFF00) ? 1 : 0);

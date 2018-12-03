@@ -33,10 +33,7 @@ namespace MuEmu.Network.Auth
                 return;
             }
 
-            var acc = session.Player.Account;
-            acc.ID = 1;
-            acc.Nickname = message.Account;
-            session.Player.Status = LoginStatus.Logged;
+            session.Player.SetAccount(new MU.DataBase.AccountDto { ID = 1, Account = message.Account });
 
             await session.SendAsync(new SLoginResult(LoginResult.Ok));
         }
@@ -92,7 +89,7 @@ namespace MuEmu.Network.Auth
                 MaxMana = 100,
                 Map = 51,
                 X = 53,
-                Y = 225
+                Y = 225,
             });
             var @char = session.Player.Character;
             //FriendListRequest

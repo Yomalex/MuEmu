@@ -15,6 +15,7 @@ using WebZen.Handlers;
 using WebZen.Network;
 using WebZen.Serialization;
 using MuEmu.Resources.XML;
+using MuEmu.Monsters;
 
 namespace MuEmu
 {
@@ -28,7 +29,7 @@ namespace MuEmu
             Predicate<GSSession> MustBeLoggedIn = session => session.Player.Status == LoginStatus.Logged;
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
 
-            var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Data/Server.xml");
+            var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
 
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
@@ -63,7 +64,6 @@ namespace MuEmu
                 new GameMessageFactory(),
                 new CashShopMessageFactory()
             };
-
             server = new WZGameServer(ip, mh, mf);
             server.ClientVersion = xml.Version;
 
@@ -78,7 +78,12 @@ namespace MuEmu
                 new CSMessageFactory()
             };
 
-            ResourceCache.Initialize(".\\");
+            ResourceCache.Initialize(".\\Data");
+            MonstersMng.Initialize();
+            MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
+            MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
+
+            SubSystem.Initialize();
 
             try
             {

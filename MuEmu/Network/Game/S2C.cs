@@ -193,6 +193,20 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class SViewPortDestroy : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPDestroyDto[] ViewPort { get; set; }
+    }
+
+    [WZContract]
+    public class SViewPortItemDestroy : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPDestroyDto[] ViewPort { get; set; }
+    }
+
+    [WZContract]
     public class SNotice : IGameMessage
     {
         [WZMember(0)]
@@ -222,6 +236,12 @@ namespace MuEmu.Network.Game
         public SNotice()
         {
             btNotice = Array.Empty<byte>();
+        }
+
+        public SNotice(NoticeType _type, string text)
+        {
+            type = _type;
+            Notice = text;
         }
 
         public string Notice
@@ -346,16 +366,16 @@ namespace MuEmu.Network.Game
     public class SAction : IGameMessage
     {
         [WZMember(0)]
-        ushort Number { get; set; }   // 3,4
+        public ushort Number { get; set; }   // 3,4
 
         [WZMember(1)]
-        byte Dir { get; set; }  // 5
+        public byte Dir { get; set; }  // 5
 
         [WZMember(2)]
-        byte ActionNumber { get; set; }  // 6
+        public byte ActionNumber { get; set; }  // 6
 
         [WZMember(3)]
-        ushort Target { get; set; } // 7,8
+        public ushort Target { get; set; } // 7,8
 
         public SAction()
         { }
@@ -373,16 +393,16 @@ namespace MuEmu.Network.Game
     public class SMove : IGameMessage
     {
         [WZMember(0)]
-        ushort Number { get; set; }   // 3,4
+        public ushort Number { get; set; }   // 3,4
 
-        [WZMember(0)]
-        byte X{ get; set; } // 5
+        [WZMember(1)]
+        public byte X { get; set; } // 5
 
-        [WZMember(0)]
-        byte Y { get; set; } // 6
+        [WZMember(2)]
+        public byte Y { get; set; } // 6
 
-        [WZMember(0)]
-        byte Path { get; set; }	// 7
+        [WZMember(3)]
+        public byte Path { get; set; }	// 7
 
         public SMove()
         { }
@@ -513,6 +533,158 @@ namespace MuEmu.Network.Game
 
         [WZMember(1)]
         public byte Left { get; set; }
+    }
+
+    [WZContract(Serialized =true)]
+    public class SCloseMsg : IGameMessage
+    {
+        [WZMember(0)]
+        public ClientCloseType Type { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SShopItemList:IGameMessage
+    {
+        [WZMember(0)]
+        public byte ListType { get; set; }
+
+        [WZMember(1, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryDto[] Inventory { get; set; }
+
+        public SShopItemList()
+        {
+            Inventory = Array.Empty<InventoryDto>();
+        }
+
+        public SShopItemList(InventoryDto[] inv)
+        {
+            Inventory = inv;
+        }
+    }
+
+    [WZContract(Serialized =true)]
+    public class STalk : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public byte Level1 { get; set; }
+
+        [WZMember(2)]
+        public byte Level2 { get; set; }
+
+        [WZMember(3)]
+        public byte Level3 { get; set; }
+
+        [WZMember(4)]
+        public byte Level4 { get; set; }
+
+        [WZMember(5)]
+        public byte Level5 { get; set; }
+
+        [WZMember(6)]
+        public byte Level6 { get; set; }
+
+        [WZMember(7)]
+        public byte Level7 { get; set; }
+    }
+
+    [WZContract]
+    public class STax : IGameMessage
+    {
+        [WZMember(0)]
+        public TaxType Type { get; set; }
+
+        [WZMember(1)]
+        public byte Rate { get; set; }
+    }
+
+    [WZContract]
+    public class SWarehouseMoney : IGameMessage
+    {
+        /// <summary>
+        /// Warehouse Money
+        /// </summary>
+        [WZMember(0)]
+        public int wMoney { get; set; }
+
+        /// <summary>
+        /// Inventory Money
+        /// </summary>
+        [WZMember(1)]
+        public int iMoney { get; set; }
+    }
+
+    [WZContract]
+    public class SQuestWindow : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Type { get; set; }
+
+        [WZMember(1)]
+        public byte SubType { get; set; }
+
+        [WZMember(2, 6)]
+        public byte[] Unknow { get; set; }
+
+        public SQuestWindow()
+        {
+            Unknow = Array.Empty<byte>();
+        }
+    }
+
+    [WZContract]
+    public class SCommand : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Type { get; set; }
+
+        [WZMember(1)]
+        public byte Arg1 { get; set; }
+
+        [WZMember(2)]
+        public byte Arg2 { get; set; }
+    }
+
+    [WZContract]
+    public class SBuy : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1,12)]
+        public byte[] ItemInfo { get; set; }
+    }
+
+    [WZContract]
+    public class SSell : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public uint Money { get; set; }
+    }
+
+    [WZContract]
+    public class SItemGet :IGameMessage
+    {
+        /// <summary>
+        /// 0xFE: Zen
+        /// </summary>
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1,12)]
+        public byte[] ItemInfo { get; set; }
+
+        public uint Money { get => BitConverter.ToUInt32(ItemInfo, 0).ShufleEnding(); set => ItemInfo = BitConverter.GetBytes(value.ShufleEnding()); }
+
+        public SItemGet()
+        {
+            ItemInfo = Array.Empty<byte>();
+        }
     }
 }
 
