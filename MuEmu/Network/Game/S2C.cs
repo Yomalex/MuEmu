@@ -616,7 +616,7 @@ namespace MuEmu.Network.Game
         public int iMoney { get; set; }
     }
 
-    [WZContract]
+    [WZContract(Serialized =true)]
     public class SQuestWindow : IGameMessage
     {
         [WZMember(0)]
@@ -684,6 +684,114 @@ namespace MuEmu.Network.Game
         public SItemGet()
         {
             ItemInfo = Array.Empty<byte>();
+        }
+    }
+
+    [WZContract]
+    public class SChatTarget : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort Number { get; set; }
+
+        [WZMember(1, typeof(ArraySerializer))]
+        public byte[] Message { get; set; }
+
+        [WZMember(2)]
+        public byte NullTerminator { get; set; }
+
+        public SChatTarget()
+        {
+            Message = Array.Empty<byte>();
+        }
+
+        public SChatTarget(ushort Target, string message)
+        {
+            Number = Target.ShufleEnding();
+            Message = message.GetBytes();
+        }
+    }
+
+    [WZContract(Serialized =true)]
+    public class STeleport : IGameMessage
+    {
+        // C3:1C
+        [WZMember(0)]
+        public byte Unk { get; set; }
+
+        [WZMember(1)]
+        public ushort Type { get; set; }
+
+        [WZMember(2)]
+        public Maps Map { get; set; } // 4
+
+        [WZMember(3)]
+        public byte MapX { get; set; }  // 5
+
+        [WZMember(4)]
+        public byte MapY { get; set; }  // 6
+
+        [WZMember(5)]
+        public byte Dir { get; set; }   // 7
+
+        public STeleport()
+        { }
+
+        public STeleport(ushort type, Maps map, Point position, byte dir)
+        {
+            Type = type;
+            Map = map;
+            MapX = (byte)position.X;
+            MapY = (byte)position.Y;
+            Dir = dir;
+        }
+    };
+
+    [WZContract]
+    public class SViewSkillState : IGameMessage
+    {
+        [WZMember(0)]
+        public byte State { get; set; }
+
+        [WZMember(1)]
+        public ushort Number { get; set; } 
+
+        [WZMember(2)]
+        public byte SkillIndex { get; set; }
+
+        public SViewSkillState() { }
+
+        public SViewSkillState(byte state, ushort number, byte skillIndex)
+        {
+            State = state;
+            Number = number.ShufleEnding();
+            SkillIndex = skillIndex;
+        }
+    }
+
+    [WZContract]
+    public class SInventoryItemDelete : IGameMessage
+    {
+        [WZMember(0)] public byte IPos { get; set; }    // 3
+        [WZMember(1)] public byte Flag { get; set; }    // 4
+
+        public SInventoryItemDelete() { }
+        public SInventoryItemDelete(byte pos, byte flag)
+        {
+            IPos = pos;
+            Flag = flag;
+        }
+    }
+
+    [WZContract]
+    public class SJewelMix : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }    // 3
+
+        public SJewelMix() { }
+
+        public SJewelMix(byte result)
+        {
+            Result = result;
         }
     }
 }

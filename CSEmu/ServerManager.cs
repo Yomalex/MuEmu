@@ -15,6 +15,7 @@ namespace CSEmu
         public ushort Port { get; set; }
         public byte Load { get; set; }
         public DateTime LastPush { get; set; }
+        public bool Visible { get; set; }
     }
 
     public class ServerManager
@@ -39,15 +40,15 @@ namespace CSEmu
             Instance = new ServerManager();
         }
 
-        public void Register(CSSession session, ushort index, string address, ushort port)
+        public void Register(CSSession session, ushort index, string address, ushort port, bool display)
         {
             lock (_servers)
             {
-                _servers.Add(index, new ServerInfo { Index = index, Address = address, Port = port, LastPush = DateTime.Now });
+                _servers.Add(index, new ServerInfo { Index = index, Address = address, Port = port, LastPush = DateTime.Now, Visible = display });
                 _GSsessions.Add(session, index);
             }
 
-            Logger.Information("New server found {0}", new { index, address, port });
+            Logger.Information("New server found [{0}] {1}:{2} {3}", index, address, port, display ? "SHOW":"HIDE");
         }
 
         public void Unregister(ushort index)
@@ -96,7 +97,7 @@ namespace CSEmu
             lock (_servers)
             {
                 deadServers = (from s in _servers
-                                where DateTime.Now - s.Value.LastPush > TimeSpan.FromSeconds(30)
+                                where DateTime.Now - s.Value.LastPush > TimeSpan.FromSeconds(30) && s.Value.Visible
                                 select s.Key).ToList();
             }
 

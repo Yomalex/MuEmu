@@ -46,7 +46,7 @@ namespace MuEmu.Network.Auth
                 new CharacterPreviewDto
                 {
                     ID = 0,
-                    Level = 1,
+                    Level = 400,
                     Name = "Yomalex".GetBytes(),
                     CharSet = Inventory.GetCharset(HeroClass.Summoner, inv),
                     ControlCode = ControlCode.GameMaster,
@@ -76,7 +76,7 @@ namespace MuEmu.Network.Auth
                 Index = 6,
                 Name = "Yomalex",
                 Class = (byte)HeroClass.Summoner,
-                Level = 1,
+                Level = 400,
                 Experience = 0,
                 Str = 21,
                 Agility = 21,

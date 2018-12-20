@@ -4,6 +4,7 @@ using System.Text;
 using MuEmu.Network;
 using MuEmu.Security;
 using MU.DataBase;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
@@ -32,6 +33,14 @@ namespace MuEmu
             Account = new Account(this, acc);
             CheckSum = new GameCheckSum(this);
             Status = LoginStatus.Logged;
+        }
+
+        public async Task SendV2Message(object message)
+        {
+            if (Status != LoginStatus.Playing)
+                throw new InvalidOperationException("Player is not playing");
+
+            await Character.SendV2Message(message);
         }
     }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Threading.Tasks;
 using WebZen.Util;
 
 namespace MuEmu
@@ -46,6 +47,7 @@ namespace MuEmu
         public Guild Guild { get; set; }
         public Inventory Inventory { get; }
         public Spells Spells { get; }
+        public bool Change { get; set; }
         
         public IEnumerable<ushort> MonstersVP { get; set; }
         public IEnumerable<Player> PlayersVP { get; set; }
@@ -53,6 +55,14 @@ namespace MuEmu
         // Basic Info
         public HeroClass Class { get; set; }
         public HeroClass BaseClass => (HeroClass)(((int)Class) & 0xF0);
+        public bool Changeup {
+            get => (((byte)Class)&0x0F) == 1;
+            set
+            {
+                Class &= (HeroClass)(0xF0);
+                Class |= (HeroClass)(value ? 1 : 0);
+            }
+        }
         public CharacterInfo BaseInfo => ResourceCache.Instance.GetDefChar()[BaseClass];
         public string Name { get; set; }
         public ushort Level { get; set; }
@@ -69,6 +79,12 @@ namespace MuEmu
 
                 _hp = value;
 
+                if (_hp <= 0)
+                {
+                    _hp = 0;
+                    OnDead();
+                }
+
                 HPorSDChanged();
             }
         }
@@ -77,7 +93,7 @@ namespace MuEmu
             get => _hpMax;
             set
             {
-                if (value == _hpMax)
+                if (value == _hpMax + _hpAdd)
                     return;
 
                 _hpAdd = value - _hpMax;
@@ -108,7 +124,7 @@ namespace MuEmu
             get => _sdMax + _sdAdd;
             set
             {
-                if (value == _sdMax)
+                if (value == _sdMax + _sdAdd)
                     return;
 
                 _sdAdd = value - _hpMax;
@@ -139,7 +155,7 @@ namespace MuEmu
             get => _mpMax + _mpAdd;
             set
             {
-                if (value == _mpMax)
+                if (value == _mpMax + _mpAdd)
                     return;
 
                 _mpAdd = value - _mpMax;
@@ -167,10 +183,10 @@ namespace MuEmu
         }
         public float MaxStamina
         {
-            get => _bpMax - _bpAdd;
+            get => _bpMax + _bpAdd;
             set
             {
-                if (value == _bpMax)
+                if (value == _bpMax + _bpAdd)
                     return;
 
                 _bpAdd = value - _bpMax;
@@ -218,9 +234,13 @@ namespace MuEmu
 
                 if (_exp >= NextExperience)
                     OnLevelUp();
+
+                if (_exp < BaseExperience)
+                    _exp = BaseExperience;
             }
         }
-        public ulong NextExperience => (((Level + 9ul) * Level) * Level) * 10ul + ((Level > 255)? ((((ulong)(Level-255) + 9ul) * (Level - 255ul)) * (Level - 255ul)) * 1000ul : 0ul);
+        public ulong BaseExperience => GetExperienceFromLevel((ushort)(Level - 1));
+        public ulong NextExperience => GetExperienceFromLevel(Level);
 
         // Points
         public ushort LevelUpPoints { get; set; }
@@ -246,12 +266,13 @@ namespace MuEmu
         }
         public ushort Vitality
         {
-            get => (ushort)(_agi + _agiAdd); set
+            get => (ushort)(_agi + _vitAdd);
+            set
             {
-                if (value == _agi + _agiAdd)
+                if (value == _agi + _vitAdd)
                     return;
 
-                _agiAdd = (ushort)(value - _agi);
+                _vitAdd = (ushort)(value - _agi);
             }
         }
         public ushort Energy
@@ -280,6 +301,10 @@ namespace MuEmu
         public short MaxAddPoints => 100;
         public short MinusPoints => 0;
         public short MaxMinusPoints => 100;
+
+        // Battle
+        //public int Attack => Inventory.Get((byte)Equipament.LeftRing).BasicInfo.
+        //public int Defense => Inventory.Player
 
         public byte ClientClass => GetClientClass(Class);
 
@@ -319,9 +344,9 @@ namespace MuEmu
             Health = characterDto.Life;
             Stamina = _bpMax / 2;
             Mana = characterDto.Mana;
-            Money = 100000000;
+            _zen = 100000000;
 
-            plr.Session.SendAsync(new SCharacterMapJoin2
+            var StatsInfo = new SCharacterMapJoin2
             {
                 Map = MapID,
                 LevelUpPoints = LevelUpPoints,
@@ -342,19 +367,27 @@ namespace MuEmu
                 MaxShield = (ushort)MaxShield,
                 Stamina = (ushort)Stamina,
                 MaxStamina = (ushort)_bpMax,
-                Zen = Money.ShufleEnding(),
+                Zen = Money,
                 PKLevel = 3,
                 AddPoints = AddPoints,
                 MaxAddPoints = MaxAddPoints,
                 MinusPoints = MinusPoints,
                 MaxMinusPoints = MaxMinusPoints,
-            });
+            };
+
+            plr.Session.SendAsync(StatsInfo).Wait();
 
             Inventory.SendInventory();
 
             Quests.SendList();
 
             Spells.SendList();
+        }
+
+        public async Task SendV2Message(object message)
+        {
+            foreach (var plr in PlayersVP)
+                await plr.Session.SendAsync(message);
         }
 
         private async void HPorSDChanged()
@@ -410,6 +443,30 @@ namespace MuEmu
         private async void OnMoneyChange()
         {
             await Player.Session.SendAsync(new SItemGet { Result = 0xFE, Money = Money });
+        }
+        private ulong GetExperienceFromLevel(ushort level)
+        {
+            return (((level + 9ul) * level) * level) * 10ul + ((level > 255) ? ((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul : 0ul);
+        }
+        private void OnDead()
+        {
+
+        }
+
+        public async void WarpTo(Maps map, Point position, byte dir)
+        {
+            Map.DelPlayer(this);
+            MapID = map;
+            Map.AddPlayer(this);
+            Position = position;
+            Direction = dir;
+            await Player.Session.SendAsync(new STeleport(256, MapID, Position, Direction));
+        }
+
+        public async void TeleportTo(Point position)
+        {
+            Position = position;
+            await Player.Session.SendAsync(new STeleport(0, MapID, Position, Direction));
         }
     }
 }

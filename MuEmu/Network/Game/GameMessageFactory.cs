@@ -22,7 +22,7 @@ namespace MuEmu.Network.Game
             Register<CNewQuestInfo>(GameOpCode.QuestDetails);
             Register<CPositionSet>(GameOpCode.Position);
             Register<CPointAdd>(GameOpCode.PointAdd);
-            Register<CClinetClose>(GameOpCode.ClientClose);
+            Register<CClientClose>(GameOpCode.ClientClose);
             Register<CMoveItem>(GameOpCode.MoveItem);
             Register<CUseItem>(GameOpCode.HealthUpdate); // Same OPCode
             Register<CEventEnterCount>(GameOpCode.EventEnterCount);
@@ -30,6 +30,11 @@ namespace MuEmu.Network.Game
             Register<CWarehouseUseEnd>(GameOpCode.WarehouseUseEnd);
             Register<CBuy>(GameOpCode.Buy);
             Register<CSell>(GameOpCode.Sell);
+            Register<CAttackS5E2>(GameOpCode.Attack);
+            Register<CWarp>(GameOpCode.Warp);
+            Register<CDataLoadOK>(GameOpCode.DataLoadOK);
+            Register<CJewelMix>(GameOpCode.JewelMix);
+            Register<CJewelUnMix>(GameOpCode.JewelUnMix);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -68,6 +73,11 @@ namespace MuEmu.Network.Game
             Register<SBuy>(GameOpCode.Buy);
             Register<SSell>(GameOpCode.Sell);
             Register<SItemGet>(GameOpCode.ItemGet);
+            Register<SChatTarget>(GameOpCode.GeneralChat1);
+            Register<STeleport>(GameOpCode.Teleport);
+            Register<SViewSkillState>(GameOpCode.ViewSkillState);
+            Register<SInventoryItemDelete>(GameOpCode.InventoryItemDelete);
+            Register<SJewelMix>(GameOpCode.JewelMix);
         }
     }
 }

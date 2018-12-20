@@ -67,6 +67,9 @@ namespace MuEmu
                     {
                         foreach (var @char in map.Value.Players)
                         {
+                            // Clear dead buffers
+                            @char.Spells.ClearBuffTimeOut();
+
                             var pos = @char.Position;
                             pos.Offset(15, 15);
 
@@ -83,8 +86,25 @@ namespace MuEmu
                                                Path = (byte)(monst.Direction << 4)
                                            };
 
-                            var MonstersID = Monsters.Select(x => (ushort)x.Number);
+                            var Players = from plr in map.Value.Players
+                                          let rect = new Rectangle(plr.Position, new Size(30, 30))
+                                          where plr != @char && plr.Player.Status == LoginStatus.Playing && rect.Contains(pos) && plr.Health > 0
+                                          select new VPCreateDto
+                                          {
+                                              CharSet = plr.Inventory.GetCharset(),
+                                              DirAndPkLevel = (byte)((plr.Direction << 4) | 0),
+                                              Name = plr.Name,
+                                              Number = plr.Player.Session.ID,
+                                              Position = plr.Position,
+                                              TPosition = plr.Position,
+                                              ViewSkillState = plr.Spells.ViewSkillStates,
+                                              Player = plr.Player
+                                          };
 
+                            var MonstersID = Monsters.Select(x => (ushort)x.Number);
+                            var PlayersID = Players.Select(x => x.Player);
+
+                            // Monsters
                             var add = from monstID in MonstersID.Except(@char.MonstersVP)
                                       from monst in Monsters
                                       where monst.Number == monstID
@@ -104,6 +124,44 @@ namespace MuEmu
                                 {
                                     ViewPort = add.ToArray()
                                 });
+
+                            // End Monsters
+
+                            // Players
+                            var addPlr = from plrID in PlayersID.Except(@char.PlayersVP)
+                                         from plr in Players
+                                         where plr.Player == plrID
+                                         select plr;
+                            
+                            var chgPlr = from plr in map.Value.Players
+                                         let rect = new Rectangle(plr.Position, new Size(30, 30))
+                                         where plr != @char && plr.Player.Status == LoginStatus.Playing && rect.Contains(pos) && plr.Health > 0 && plr.Change
+                                         select new VPChangeDto
+                                         {
+                                             CharSet = plr.Inventory.GetCharset(),
+                                             DirAndPkLevel = (byte)((plr.Direction << 4) | 0),
+                                             Name = plr.Name,
+                                             Number = plr.Player.Session.ID,
+                                             Position = plr.Position,
+                                             TPosition = plr.Position,
+                                             ViewSkillState = plr.Spells.ViewSkillStates
+                                         };
+
+                            var removePlr = @char.PlayersVP.Except(PlayersID).Select(x => new VPDestroyDto((ushort)x.Session.ID));
+                            @char.PlayersVP = PlayersID;
+
+                            if (removePlr.Count() > 0)
+                                await @char.Player.Session.SendAsync(new SViewPortDestroy
+                                {
+                                    ViewPort = removePlr.ToArray()
+                                });
+
+                            if (addPlr.Count() > 0)
+                                await @char.Player.Session.SendAsync(new SViewPortCreate
+                                {
+                                    ViewPort = addPlr.ToArray()
+                                });
+                            // End Players
 
                             @char.Health += @char.BaseInfo.Attributes.LevelLife * @char.Level;
                             @char.Mana += @char.BaseInfo.Attributes.LevelMana * @char.Level;

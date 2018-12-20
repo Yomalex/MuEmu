@@ -17,6 +17,34 @@ namespace MuEmu
         private Storage _personalShop;
         private Storage _tradeBox;
 
+        public int Defense => _equipament.Sum(x => x.Value.Defense);
+        //public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);
+
+        public byte[] FindAll(ItemNumber num)
+        {
+            var res = new List<byte>();
+            foreach(var e in _equipament)
+            {
+                if(e.Value.Number == num)
+                {
+                    res.Add((byte)e.Key);
+                }
+            }
+            foreach(var inv in _inventory.Items)
+            {
+                if (inv.Value.Number == num)
+                {
+                    res.Add((byte)(inv.Key+_inventory.IndexTranslate));
+                }
+            }
+            return res.ToArray();
+        }
+
+        public int GetFreeSlotCount()
+        {
+            return 0;
+        }
+
         public Inventory(Character @char, CharacterDto characterDto)
         {
             Player = @char?.Player??null;
@@ -29,13 +57,55 @@ namespace MuEmu
 
             _equipament = new Dictionary<Equipament, Item>();
 
-            _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (HarmonyOption)10 }));
+            _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (JewelOfHarmony)31 }));
+            //Equip(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (JewelOfHarmony)30 }));
             _inventory.Add(new Item(new ItemNumber(14,0), 0, new { Durability = (byte)255 }));
         }
 
         public byte Add(Item it)
         {
             return _inventory.Add(it);
+        }
+
+        public void Equip(Equipament slot, Item item)
+        {
+            if (_equipament.ContainsKey(slot))
+                throw new InvalidOperationException("Trying to equip already equiped slot:"+slot);
+
+            if ((Player?.Character ?? null) != null)
+            {
+                if (item.ReqStrength > Player.Character.Str)
+                    throw new InvalidOperationException("Need more Strength");
+
+                if (item.ReqAgility > Player.Character.Agility)
+                    throw new InvalidOperationException("Need more Agility");
+
+                if (item.ReqVitality > Player.Character.Vitality)
+                    throw new InvalidOperationException("Need more Vitality");
+
+                if (item.ReqEnergy > Player.Character.Energy)
+                    throw new InvalidOperationException("Need more Energy");
+
+                if (item.ReqCommand > Player.Character.Command)
+                    throw new InvalidOperationException("Need more Command");
+            }
+            else
+            {
+                throw new InvalidOperationException("No character logged");
+            }
+
+            _equipament.Add(slot, item);
+            item.ApplyEffects(Player);
+        }
+
+        public void Unequip(Equipament slot)
+        {
+            if (!_equipament.ContainsKey(slot))
+                throw new InvalidOperationException("Trying to unequip no equiped slot:"+slot);
+
+            var it = _equipament[slot];
+            _equipament.Remove(slot);
+            it.RemoveEffects();
         }
 
         public bool Move(MoveItemFlags from, byte fromIndex, MoveItemFlags to, byte toIndex)
@@ -83,7 +153,24 @@ namespace MuEmu
             if (sFrom == null || sTo == null)
                 return false;
 
-            var it = sFrom.Get(fromIndex);
+            Item it = null;
+
+            if(from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
+            {
+                it = _equipament[(Equipament)fromIndex];
+                sTo.Add(toIndex, it);
+                Unequip((Equipament)fromIndex);
+                return true;
+            }else if(to == MoveItemFlags.Inventory && toIndex < (byte)Equipament.End)
+            {
+                it = sFrom.Get(fromIndex);
+                sFrom.Remove(fromIndex);
+                it.Target = Player.Character;
+                Equip((Equipament)toIndex, it);
+                return true;
+            }
+            
+            it = sFrom.Get(fromIndex);
             sTo.Add(toIndex, it);
             sFrom.Remove(fromIndex);
             return true;
@@ -94,7 +181,7 @@ namespace MuEmu
             if (_inventory.IndexTranslate <= from)
                 return _inventory.Items.First(x => x.Key == from - _inventory.IndexTranslate).Value;
 
-            return _equipament.First(x => x.Key == (Equipament)from).Value;
+            return _equipament.FirstOrDefault(x => x.Key == (Equipament)from).Value;
         }
 
         public void Remove(byte from)
@@ -103,6 +190,15 @@ namespace MuEmu
                 _inventory.Remove(from);
 
             _equipament.Remove((Equipament)from);
+        }
+
+        public void Delete(byte target)
+        {
+            if (_equipament.ContainsKey((Equipament)target))
+                Unequip((Equipament)target);
+
+            Remove(target);
+            Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
         }
 
         public async void SendInventory()

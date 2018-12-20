@@ -209,11 +209,11 @@ namespace MuEmu.Network.Auth
         [WZMember(18)]
         public ushort MaxStamina { get; set; }//2c
 
-        //[WZMember(19)]
-        //public ushort unk { get; set; }
+        [WZMember(19)]
+        public ushort unk { get; set; }
 
         [WZMember(20)]
-        public ulong Zen { get; set; }//2e
+        public uint Zen { get; set; }//2e
 
         [WZMember(21)]
         public byte PKLevel { get; set; }//36

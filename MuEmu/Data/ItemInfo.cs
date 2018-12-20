@@ -8,6 +8,7 @@ namespace MuEmu.Data
     public class ItemInfo
     {
         public ushort Number { get; set; }
+        public ushort Skill { get; set; }
         public Size Size { get; set; }
         public byte Durability { get; set; }
         public bool Option { get; set; }

@@ -119,7 +119,7 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
-    public class CClinetClose : IGameMessage
+    public class CClientClose : IGameMessage
     {
         [WZMember(0)]
         public ClientCloseType Type { get; set; }
@@ -187,5 +187,68 @@ namespace MuEmu.Network.Game
     {
         [WZMember(0)]
         public byte Position { get; set; }
+    }
+
+    [WZContract]
+    public class CAttack : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort Number { get; set; }   // 3,4
+
+        [WZMember(1)]
+        public byte AttackAction { get; set; }  // 5
+
+        [WZMember(2)]
+        public byte DirDis { get; set; }    // 6
+    }
+
+    [WZContract]
+    public class CAttackS5E2 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte AttackAction { get; set; }  // 5
+
+        [WZMember(1)]
+        public byte DirDis { get; set; }    // 6
+
+        [WZMember(2)]
+        public ushort Number { get; set; }   // 3,4
+    }
+
+    [WZContract]
+    public class CWarp : IGameMessage
+    {
+        [WZMember(0)]
+        public int iCheckVal { get; set; }
+
+        [WZMember(1)]
+        public ushort MoveNumber { get; set; }
+    }
+
+    [WZContract]
+    public class CDataLoadOK :IGameMessage
+    { }
+
+    [WZContract]
+    public class CJewelMix : IGameMessage
+    {
+        [WZMember(0)]
+        public byte JewelType { get; set; }
+
+        [WZMember(1)]
+        public byte JewelMix { get; set; }
+    }
+
+    [WZContract]
+    public class CJewelUnMix : IGameMessage
+    {
+        [WZMember(0)]
+        public byte JewelType { get; set; }
+
+        [WZMember(1)]
+        public byte JewelLevel { get; set; }
+
+        [WZMember(2)]
+        public byte JewelPos { get; set; }
     }
 }

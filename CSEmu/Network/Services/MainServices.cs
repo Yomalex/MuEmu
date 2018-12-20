@@ -16,7 +16,7 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CServerList))]
         public void ServerListHandler(CSSession session, CServerList message)
         {
-            var servers = ServerManager.Instance.Servers.Select(x => new ServerDto { Index = x.Index, Load = x.Load, Padding = 0x77 }).ToArray();
+            var servers = ServerManager.Instance.Servers.Where(x => x.Visible).Select(x => new ServerDto { Index = x.Index, Load = x.Load, Padding = 0x77 }).ToArray();
             //Logger.Information("Sending Server list {0} servers", servers.Length);
             session.SendAsync(new SServerList(servers));
         }
@@ -36,7 +36,7 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CRegistryReq))]
         public void RegistryHandler(CSSession session, CRegistryReq message)
         {
-            ServerManager.Instance.Register(session, message.Index, message.Address, message.Port);
+            ServerManager.Instance.Register(session, message.Index, message.Address, message.Port, message.Show != 0);
         }
 
         [MessageHandler(typeof(CKeepAlive))]

@@ -30,6 +30,9 @@ namespace CSEmu.Network.Services
         [WZMember(2)]
         public ushort Port { get; set; }
 
+        [WZMember(3)]
+        public byte Show { get; set; }
+
         public string Address { get => btAddress.MakeString(); set => btAddress = value.GetBytes(); }
     }
 

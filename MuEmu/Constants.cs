@@ -148,11 +148,6 @@ namespace MuEmu
         End
     }
 
-    public enum HarmonyOption : byte
-    {
-        None,
-    }
-
     public enum SocketOption : byte
     {
         None = 0xff
@@ -213,7 +208,9 @@ namespace MuEmu
 
     public enum EventEnterType : byte
     {
-        BloodCastle = 2,
+        DevilSquare = 1,
+        BloodCastle,
+        ChaosCastle = 4,
         IllusionTemple,
     }
 
@@ -235,6 +232,8 @@ namespace MuEmu
         Warehouse,
         Shop,
         Quest,
+        Buff,
+        JewelMix,
     }
 
     public enum AttributeType
@@ -289,5 +288,47 @@ namespace MuEmu
         Shop,
         WareHouse = 2,
         DevilSquare = 4,
+    }
+
+    public enum DamageType
+    {
+        Miss,
+        Regular,
+        Excellent,
+        Critical,
+        Reflect,
+        Beat,
+        Double = 0x40,
+        Combo = 0x80,
+    }
+
+    public enum SkillStates
+    {
+        ShadowPhantom = 0x03,
+        None = 0xff,
+    }
+
+    public enum GateType
+    {
+        Warp,
+        Entrance,
+        Exit,
+    }
+
+    public enum QuestState : byte
+    {
+        Clear,
+        Reg,
+        Complete,
+        Unreg,
+    }
+
+    public enum QuestCompensation : byte
+    {
+        Statup = 200,
+        Changeup,
+        Plusstat,
+        Comboskill,
+        Master,
     }
 }

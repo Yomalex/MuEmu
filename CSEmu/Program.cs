@@ -21,7 +21,7 @@ namespace CSEmu
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
-            var ip = new IPEndPoint(IPAddress.Parse("192.168.100.4"), 44405);
+            var ip = new IPEndPoint(IPAddress.Parse("192.168.100.25"), 44405);
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<CSSession>()

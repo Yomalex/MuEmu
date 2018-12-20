@@ -38,6 +38,9 @@ namespace MuEmu.Resources
             Instance.GetDefChar();
             Instance.GetShops();
             Instance.GetNPCs();
+            Instance.GetJOH();
+            Instance.GetGates();
+            Instance.GetQuests();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -113,6 +116,45 @@ namespace MuEmu.Resources
                 Logger.Information("NPCs Caching...");
                 cache = _loader.LoadNPCs().ToDictionary(x => x.NPC);
                 _cache.Set("NPCs", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<byte, JewelOfHarmonyOption> GetJOH()
+        {
+            var cache = _cache.Get<IDictionary<byte, JewelOfHarmonyOption>>("JOH");
+            if (cache == null)
+            {
+                Logger.Information("JOH Caching...");
+                cache = _loader.LoadJOH().ToDictionary(x => (byte)(x.Type << 4 | x.Index));
+                _cache.Set("JOH", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<int, Gate> GetGates()
+        {
+            var cache = _cache.Get<IDictionary<int, Gate>>("Gates");
+            if (cache == null)
+            {
+                Logger.Information("Gates Caching...");
+                cache = _loader.LoadGates().ToDictionary(x => x.Number);
+                _cache.Set("Gates", cache);
+            }
+
+            return cache;
+        }
+
+        public IDictionary<int, QuestInfo> GetQuests()
+        {
+            var cache = _cache.Get<IDictionary<int, QuestInfo>>("Quests");
+            if (cache == null)
+            {
+                Logger.Information("Quests Caching...");
+                cache = _loader.LoadQuests().ToDictionary(x => x.Index);
+                _cache.Set("Quests", cache);
             }
 
             return cache;

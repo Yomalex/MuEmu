@@ -1,4 +1,5 @@
 ﻿using MuEmu.Monsters;
+using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
 using Serilog;
 using Serilog.Core;
@@ -122,8 +123,8 @@ namespace MuEmu.Network.Game
 
         }
 
-        [MessageHandler(typeof(CClinetClose))]
-        public void CClinetClose(GSSession session, CClinetClose message)
+        [MessageHandler(typeof(CClientClose))]
+        public void CClinetClose(GSSession session, CClientClose message)
         {
             Logger
                 .ForAccount(session)
@@ -183,30 +184,48 @@ namespace MuEmu.Network.Game
             var npcs = ResourceCache.Instance.GetNPCs();
             var ObjectIndex = message.Number.ShufleEnding();
             var obj = MonstersMng.Instance.GetMonster(ObjectIndex);
+            var @char = session.Player.Character;
             if (npcs.TryGetValue(obj.Info.Monster, out var npc))
             {
-                if(npc.Shop != null)
+                if (npc.Shop != null)
                 {
                     session.Player.Window = npc.Shop.Storage;
                     session.SendAsync(new STalk { Result = 0 });
                     session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
                     session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
                 }
-                else if(npc.Warehouse)
+                else if (npc.Warehouse)
                 {
                     session.Player.Window = session.Player.Account.Vault;
                     session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
                     session.SendAsync(new STalk { Result = 2 });
                     session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
                     session.SendAsync(new SWarehouseMoney { wMoney = 0, iMoney = 0 });
+                } else if (npc.JewelMix)
+                {
+                    session.SendAsync(new STalk { Result = 9 });
+                } else if (npc.Buff != 0)
+                {
+                    @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(30));
+                } else if (npc.Quest != 0xffff)
+                {
+                    var quest = @char.Quests.Find(obj.Info.Monster);
+
+                    if (quest == null)
+                    {
+                        session.SendAsync(new SChatTarget(ObjectIndex, "I don't have Quest for you"));
+                        return;
+                    }
+
+                    var details = quest.Details;
+                    Logger.ForAccount(session)
+                        .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", details.NPC, details.Name, quest.State);
+                    session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
                 }
             }
             else
             {
-                //session.SendAsync(new STalk { Result = 0 });
-                //session.SendAsync(new STax { Type = TaxType.Warehouse, Rate = 4 });
-
-                //session.SendAsync(new SQuestWindow { Type = 0x01, SubType = 0x01 }); S6EP2
+                session.SendAsync(new SChatTarget(ObjectIndex, "Have a good day"));
             }
         }
 
@@ -284,6 +303,172 @@ namespace MuEmu.Network.Game
             var result = new SSell { Result = 1, Money = session.Player.Character.Money };
 
             session.SendAsync(result);
+        }
+
+        [MessageHandler(typeof(CAttackS5E2))]
+        public void CAttackS5E2(GSSession session, CAttackS5E2 message)
+        {
+            CAttack(session, new CAttack { AttackAction = message.AttackAction, DirDis = message.DirDis, Number = message.Number });
+        }
+
+        [MessageHandler(typeof(CAttack))]
+        public void CAttack(GSSession session, CAttack message)
+        {
+            var target = message.Number.ShufleEnding();
+            var unkA = message.DirDis & 0x0F;
+            var unkB = (message.DirDis & 0xF0) >> 4;
+
+            Logger.ForAccount(session).Debug("Attack {0} {1}:{2} {3}", message.AttackAction, unkA, unkB, target);
+            session.Player.Character.Direction = message.DirDis;
+            session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, target));
+
+            if (target >= MonstersMng.MonsterStartIndex) // Is Monster
+            {
+                var monster = MonstersMng.Instance.GetMonster(target);
+                if(monster.Type == ObjectType.NPC)
+                {
+                    Logger.ForAccount(session)
+                        .Error("NPC Can't be attacked");
+                    return;
+                }
+
+                //var ad = session.Player.Character.Attack - monster.Defense;
+            }
+            else
+            {
+
+            }
+        }
+
+        [MessageHandler(typeof(CWarp))]
+        public void CWarp(GSSession session, CWarp message)
+        {
+            var gates = ResourceCache.Instance.GetGates();
+
+            var gate = (from g in gates
+                        where g.Value.GateType == GateType.Warp && g.Value.Target == message.MoveNumber
+                        select g.Value).FirstOrDefault();
+
+            if (gate == null)
+            {
+                Logger.ForAccount(session)
+                    .Error("Invalid Gate {0}", message.MoveNumber);
+
+                session.SendAsync(new SNotice(NoticeType.Blue, "You can't go there"));
+                return;
+            }
+
+            var @char = session.Player.Character;
+
+            if(gate.ReqLevel > @char.Level)
+            {
+                Logger.ForAccount(session)
+                .Error("Level too low");
+
+                session.SendAsync(new SNotice(NoticeType.Blue, $"Try again at Level {gate.ReqLevel}"));
+                return;
+            }
+
+            if(gate.ReqZen > @char.Money)
+            {
+                Logger.ForAccount(session)
+                .Error("Money too low");
+
+                session.SendAsync(new SNotice(NoticeType.Blue, $"Try again with more Zen"));
+                return;
+            }
+
+            @char.Money -= gate.ReqZen;
+
+            @char.WarpTo(gate.Map, gate.Door.Location, gate.Dir);
+        }
+
+        [MessageHandler(typeof(CJewelMix))]
+        public void CJewelMix(GSSession session, CJewelMix message)
+        {
+            var @char = session.Player.Character;
+            var result = @char.Inventory.FindAll(new ItemNumber(14, (ushort)(13 + message.JewelType)));
+            var neededJewels = new int[][] {
+                new int[] { 10,  500000 },
+                new int[] { 20, 1000000 },
+                new int[] { 30, 1500000 } };
+
+            if (message.JewelMix > 2)
+            {
+                Logger.ForAccount(session)
+                    .Error("JewelMix out of bounds: {0}", message.JewelMix);
+                session.SendAsync(new SJewelMix(0));
+                return;
+            }
+            
+            if(result.Count() < neededJewels[message.JewelMix][0])
+            {
+                Logger.ForAccount(session)
+                    .Error("JewelMix Insuficient Jewel count: {0} < {1}", result.Count(), neededJewels[message.JewelMix][0]);
+                session.SendAsync(new SJewelMix(0));
+                return;
+            }
+
+            if(@char.Money < neededJewels[message.JewelMix][1])
+            {
+                Logger.ForAccount(session)
+                    .Error("JewelMix Insuficient Money: {0} < {1}", @char.Money, neededJewels[message.JewelMix][1]);
+                session.SendAsync(new SJewelMix(8));
+                return;
+            }
+
+            foreach (var i in result.Take(neededJewels[message.JewelMix][0]))
+            {
+                @char.Inventory.Delete(i);
+            }
+
+            @char.Inventory.Add(new Item(new ItemNumber(12, (ushort)(30 + message.JewelType)), 0, new { Plus = message.JewelMix }));
+            @char.Inventory.SendInventory();
+            session.SendAsync(new SJewelMix(1));
+        }
+
+        [MessageHandler(typeof(CJewelUnMix))]
+        public void CJewelUnMix(GSSession session, CJewelUnMix message)
+        {
+            var @char = session.Player.Character;
+            var target = @char.Inventory.Get(message.JewelPos);
+            var neededJewels = new int[][] {
+                new int[] { 10,  500000 },
+                new int[] { 20, 1000000 },
+                new int[] { 30, 1500000 } };
+
+            if (target == null)
+            {
+                Logger.ForAccount(session)
+                    .Error("Item not found: {0}", message.JewelPos);
+                session.SendAsync(new SJewelMix(4));
+                return;
+            }
+
+            if(target.Plus != message.JewelLevel)
+            {
+                Logger.ForAccount(session)
+                    .Error("Item level no match: {0} != {1}", message.JewelLevel, target.Plus);
+                session.SendAsync(new SJewelMix(3));
+                return;
+            }
+
+            if(@char.Money < 1000000)
+            {
+                Logger.ForAccount(session)
+                    .Error("Insuficient money: {0} < 1000000", @char.Money);
+                session.SendAsync(new SJewelMix(8));
+                return;
+            }
+
+            for(var i = 0; i < neededJewels[message.JewelLevel][0]; i++)
+            {
+                @char.Inventory.Add(new Item(new ItemNumber(14, (ushort)(13 + message.JewelType)), 0));
+            }
+
+            @char.Inventory.Delete(message.JewelPos);
+            @char.Inventory.SendInventory();
+            session.SendAsync(new SJewelMix(7));
         }
     }
 }

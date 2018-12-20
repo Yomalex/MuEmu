@@ -9,7 +9,7 @@ namespace MuEmu.Monsters
 {
     public class MonstersMng
     {
-        private const ushort MonsterStartIndex = 1000;
+        public const ushort MonsterStartIndex = 1000;
         private Dictionary<ushort, MonsterBase> _monsterInfo;
 
         public Dictionary<ushort, MonsterBase> MonsterInfo => _monsterInfo;

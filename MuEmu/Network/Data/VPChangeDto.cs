@@ -47,14 +47,14 @@ namespace MuEmu.Network.Data
 
         [WZMember(11, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
         //public byte SkillStateCount { get; set; }
-        public byte[] ViewSkillState { get; set; } //Num_ViewSkillState
+        public SkillStates[] ViewSkillState { get; set; } //Num_ViewSkillState
 
 
         public VPChangeDto()
         {
             CharSet = Array.Empty<byte>();
             Id = Array.Empty<byte>();
-            ViewSkillState = Array.Empty<byte>();
+            ViewSkillState = Array.Empty<SkillStates>();
         }
 
         public int Number

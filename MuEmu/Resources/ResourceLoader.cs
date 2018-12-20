@@ -19,9 +19,17 @@ namespace MuEmu.Resources
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceLoader));
         private string _root;
+
         public ResourceLoader(string root)
         {
             _root = root;
+        }
+
+        public static T XmlLoader<T>(string file)
+        {
+            var s = new XmlSerializer(typeof(T));
+            using (var ts = File.OpenText(file))
+                return (T)s.Deserialize(ts);
         }
 
         public IEnumerable<ItemInfo> LoadItems()
@@ -96,6 +104,7 @@ namespace MuEmu.Resources
                                     result.Add(new ItemInfo
                                     {
                                         Number = new ItemNumber(type, ushort.Parse(sm.Groups[1].Value)),
+                                        Skill = ushort.Parse(sm.Groups[3].Value),
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
@@ -412,7 +421,7 @@ namespace MuEmu.Resources
                 switch (type)
                 {
                     case NPCAttributeType.Quest:
-                        info.Quest = ushort.Parse(npc.Data);
+                        info.Quest = 1;
                         break;
                     case NPCAttributeType.Shop:
                         var shops = ResourceCache.Instance.GetShops();
@@ -429,16 +438,154 @@ namespace MuEmu.Resources
                     case NPCAttributeType.Warehouse:
                         info.Warehouse = true;
                         break;
+                    case NPCAttributeType.JewelMix:
+                        info.JewelMix = true;
+                        break;
+                    case NPCAttributeType.Buff:
+                        info.Buff = ushort.Parse(npc.Data);
+                        break;
                 }
                 yield return info;
             }
         }
 
-        public static T XmlLoader<T>(string file)
+        public IEnumerable<JewelOfHarmonyOption> LoadJOH()
         {
-            var s = new XmlSerializer(typeof(T));
-            using (var ts = File.OpenText(file))
-                return (T)s.Deserialize(ts);
+            using (var tr = File.OpenText(Path.Combine(_root, "JewelOfHarmonyOption.txt")))
+            {
+                var OptionsRegex = new Regex(@"([0-9]+)\s*(.*?)\n+(?s)(.*?)\nend");
+                var OptionRegex = new Regex(@"([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
+
+                foreach (Match m in OptionsRegex.Matches(tr.ReadToEnd()))
+                {                   
+                    foreach(Match sm in OptionRegex.Matches(m.Groups[3].Value))
+                    {
+                        yield return new JewelOfHarmonyOption
+                        {
+                            Type = byte.Parse(m.Groups[1].Value),
+                            Index = byte.Parse(sm.Groups[1].Value),
+                            Name = sm.Groups[2].Value,
+                            Value = new int[]
+                            {
+                                int.Parse(sm.Groups[5].Value),
+                                int.Parse(sm.Groups[5+2].Value),
+                                int.Parse(sm.Groups[5+4].Value),
+                                int.Parse(sm.Groups[5+6].Value),
+                                int.Parse(sm.Groups[5+8].Value),
+                                int.Parse(sm.Groups[5+10].Value),
+                                int.Parse(sm.Groups[5+12].Value),
+                                int.Parse(sm.Groups[5+14].Value),
+                                int.Parse(sm.Groups[5+16].Value),
+                                int.Parse(sm.Groups[5+18].Value),
+                                int.Parse(sm.Groups[5+20].Value),
+                                int.Parse(sm.Groups[5+22].Value),
+                                int.Parse(sm.Groups[5+24].Value),
+                                int.Parse(sm.Groups[5+26].Value),
+                            },
+                            Zen = new int[]
+                            {
+                                int.Parse(sm.Groups[6].Value),
+                                int.Parse(sm.Groups[6+2].Value),
+                                int.Parse(sm.Groups[6+4].Value),
+                                int.Parse(sm.Groups[6+6].Value),
+                                int.Parse(sm.Groups[6+8].Value),
+                                int.Parse(sm.Groups[6+10].Value),
+                                int.Parse(sm.Groups[6+12].Value),
+                                int.Parse(sm.Groups[6+14].Value),
+                                int.Parse(sm.Groups[6+16].Value),
+                                int.Parse(sm.Groups[6+18].Value),
+                                int.Parse(sm.Groups[6+20].Value),
+                                int.Parse(sm.Groups[6+22].Value),
+                                int.Parse(sm.Groups[6+24].Value),
+                                int.Parse(sm.Groups[6+26].Value),
+                            },
+                        };
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<Gate> LoadGates()
+        {
+            var xml = XmlLoader<WarpDto>(Path.Combine(_root, "Warps.xml"));
+            foreach(var g in xml.Gates)
+            {
+                yield return new Gate
+                {
+                    GateType = Enum.Parse<GateType>(g.GateType),
+                    Map = Enum.Parse<Maps>(g.Map),
+                    Number = g.Number,
+                    ReqLevel = g.ReqLevel,
+                    Target = g.Target,
+                    Dir = g.Dir,
+                    Door = new Rectangle(g.X1,g.Y1, g.X2- g.X1, g.Y2- g.Y1),
+                    ReqZen = g.ReqZen,
+                };
+            }
+        }
+
+        public IEnumerable<QuestInfo> LoadQuests()
+        {
+            var xml = XmlLoader<QuestsDto>(Path.Combine(_root, "Quests.xml"));
+            foreach (var q in xml.Quest)
+            {
+                var tmp = new QuestInfo
+                {
+                    Name = q.Name,
+                    Type = q.Type,
+                    Index = q.Index,
+                    NPC = q.NPC,
+                    Sub = new List<SubQuest>(),
+                    Conditions = new List<RunConditions>(),
+                };
+
+                foreach (var sq in q.Details)
+                {
+                    var stmp = new SubQuest
+                    {
+                        Allowed = sq.Classes.Split(",").Select(x => Enum.Parse<HeroClass>(x)).ToArray(),
+                        Messages = new Dictionary<QuestState, ushort>(),
+                        CompensationType = Enum.Parse<QuestCompensation>(sq.Reward.Type),
+                        Amount = sq.Reward.SubType,
+                    };
+                    if (sq.NeededItem != null)
+                    {
+                        stmp.Requeriment = new Item(ItemNumber.FromTypeIndex((byte)sq.NeededItem.Type, (ushort)sq.NeededItem.Index), 0, new { Plus = (byte)sq.NeededItem.Level });
+                        stmp.Count = sq.NeededItem.Count;
+                    }
+
+                    if (sq.NeededMonster != null)
+                    {
+                        stmp.Monster = sq.NeededMonster.Type;
+                        stmp.Count = sq.NeededMonster.Count;
+                    }
+
+                    stmp.Messages.Add(QuestState.Unreg, sq.Message.BeforeReg);
+                    stmp.Messages.Add(QuestState.Reg, sq.Message.AfterReg);
+                    stmp.Messages.Add(QuestState.Complete, sq.Message.CompleteQuest);
+                    stmp.Messages.Add(QuestState.Clear, sq.Message.ClearQuest);
+
+                    tmp.Sub.Add(stmp);
+                }
+
+                foreach (var c in q.Conditions)
+                {
+                    var ctmp = new RunConditions
+                    {
+                        NeededQuestIndex = c.NeededQuest,
+                        Cost = c.Cost,
+                        MaxLevel = c.MaxLevel,
+                        Message = c.Message,
+                        MinLevel = c.MinLevel,
+                        NeedStr = c.NeedStr,
+                    };
+
+                    tmp.Conditions.Add(ctmp);
+                }
+
+                Logger.Information("Quest: {0} OK! Linked to NPC:{1}", tmp.Name, tmp.NPC);
+                yield return tmp;
+            }
         }
     }
 }

@@ -22,6 +22,9 @@ namespace MuEmu.Monsters
         public byte Direction { get; set; }
         public List<Item> ItemBag { get; set; }
 
+        public int Attack => Info.Attack + (new Random().Next(Info.DmgMin,Info.DmgMax));
+        public int Defense => Info.Defense;
+
         public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction)
         {
             Type = type;

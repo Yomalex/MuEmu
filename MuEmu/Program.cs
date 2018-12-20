@@ -16,13 +16,19 @@ using WebZen.Network;
 using WebZen.Serialization;
 using MuEmu.Resources.XML;
 using MuEmu.Monsters;
+using MuEmu.Network.Event;
+using WebZen.Util;
+using MuEmu.Network.QuestSystem;
 
 namespace MuEmu
 {
     class Program
     {
+        private static CommandHandler<GSSession> handler;
         public static WZGameServer server;
         public static CSClient client;
+
+
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
@@ -51,6 +57,8 @@ namespace MuEmu
                     .AddHandler(new GlobalServices())
                     .AddHandler(new GameServices())
                     .AddHandler(new CashShopServices())
+                    .AddHandler(new EventServices())
+                    .AddHandler(new QuestSystemServices())
                     .RegisterRule<CIDAndPass>(MustNotBeLoggedIn)
                     .RegisterRule<CCharacterList>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin>(MustBeLoggedIn)
@@ -62,7 +70,9 @@ namespace MuEmu
                 new AuthMessageFactory(),
                 new GlobalMessageFactory(),
                 new GameMessageFactory(),
-                new CashShopMessageFactory()
+                new CashShopMessageFactory(),
+                new EventMessageFactory(),
+                new QuestSystemMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf);
             server.ClientVersion = xml.Version;
@@ -87,9 +97,7 @@ namespace MuEmu
 
             try
             {
-
-                if(xml.Show != 0)
-                    client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server);
+                client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server, (byte)xml.Show);
             }catch(Exception)
             {
                 Log.Error("Connect Server Unavailable");
@@ -97,16 +105,18 @@ namespace MuEmu
 
             Log.Information("Server Ready");
 
+            handler = new CommandHandler<GSSession>();
+            handler.AddCommand(new Command<GSSession>("exit", (object a, EventArgs b) => Environment.Exit(0)))
+                .AddCommand(new Command<GSSession>("quit", (object a, EventArgs b) => Environment.Exit(0)))
+                .AddCommand(new Command<GSSession>("stop", (object a, EventArgs b) => Environment.Exit(0)));
+
             while (true)
             {
                 var input = Console.ReadLine();
                 if (input == null)
                     break;
 
-                if (input.Equals("exit", StringComparison.InvariantCultureIgnoreCase) ||
-                    input.Equals("quit", StringComparison.InvariantCultureIgnoreCase) ||
-                    input.Equals("stop", StringComparison.InvariantCultureIgnoreCase))
-                    break;
+                handler.ProcessCommands(null, input);
             }
         }
     }

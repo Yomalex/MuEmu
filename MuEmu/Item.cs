@@ -79,6 +79,7 @@ namespace MuEmu
             return new ItemNumber(type, index);
         }
     }
+
     public class Item
     {
         public ItemNumber Number { get; set; }
@@ -89,14 +90,29 @@ namespace MuEmu
         public byte SmallPlus => (byte)(Plus > 0 ? (Plus - 1) / 2 : 0);
         public bool Luck { get; set; }
         public bool Skill { get; set; }
+        public Spell Spell { get; set; }
         public byte Durability { get; set; }
         public byte Option28 { get; set; }
         public byte OptionExe { get; set; }
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
         public uint SellPrice { get; private set; }
-        public HarmonyOption Harmony { get; set; }
+        //public HarmonyOption Harmony { get; set; }
         public SocketOption[] Slots { get; set; }
+        public Character Target { get; set; }
+        public List<ushort> Special { get; set; } = new List<ushort>();
+        public JewelOfHarmony Harmony { get; set; } = new JewelOfHarmony();
+
+        // Needed Stats
+        public int ReqStrength { get; set; }
+        public int ReqAgility { get; set; }
+        public int ReqVitality { get; set; }
+        public int ReqEnergy { get; set; }
+        public int ReqCommand { get; set; }
+
+        public int Attack { get; set; }
+        public int Defense { get; set; }
+        public int MagicDefense { get; set; }
 
         public Item(ItemNumber number, int Serial, object Options = null)
         {
@@ -106,30 +122,32 @@ namespace MuEmu
                 throw new Exception("Item don't exists " + number);
 
             BasicInfo = ItemDB[number];
-
             Durability = BasicInfo.Durability;
             Slots = Array.Empty<SocketOption>();
 
             if (Options != null)
                 Extensions.AnonymousMap(this, Options);
 
+            Harmony.Item = this;
+
             Number = number;
             GetValue();
+            CalcItemAttributes();
         }
 
         public byte[] GetBytes()
         {
             using (var ms = new MemoryStream(7+5))
             {
-                ms.WriteByte((byte)(BasicInfo.Number&0xff));
+                ms.WriteByte((byte)(Number&0xff));
 
                 var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
                 ms.WriteByte((byte)tmp);
                 ms.WriteByte(Durability);
-                ms.WriteByte((byte)(((BasicInfo.Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
+                ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
                 ms.WriteByte(SetOption); // Acient Option
-                ms.WriteByte((byte)(((BasicInfo.Number & 0x1E00) >> 5) | ((OptionExe & 0x80) >> 4)));
-                ms.WriteByte((byte)Harmony); // Harmony
+                ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | ((OptionExe & 0x80) >> 4)));
+                ms.WriteByte(Harmony); // Harmony
                 foreach(var slot in Slots)
                 {
                     ms.WriteByte((byte)slot);
@@ -353,6 +371,274 @@ namespace MuEmu
                 else
                 {
                     SellPrice = (uint)(Gold / 3.0);
+                }
+            }
+        }
+
+        public void ApplyEffects(Player plr)
+        {
+            if (plr == null)
+                return;
+
+            Target = plr.Character;
+            //var buffs = Target?.Effects;
+        }
+
+        public void RemoveEffects()
+        {
+
+        }
+
+        private void CalcItemAttributes()
+        {
+            var itemLevel = BasicInfo.Level;
+            if (SetOption != 0)
+                itemLevel += 25;
+
+            if (BasicInfo.Str != 0)
+                ReqStrength = (BasicInfo.Str * (itemLevel + Plus * 3) * 3) / 100 + 20;
+
+            if (BasicInfo.Ene != 0)
+                ReqEnergy = (BasicInfo.Ene * (itemLevel + Plus * 3) * 3) / 100 + 20;
+
+            if (BasicInfo.Agi != 0)
+                ReqAgility = (BasicInfo.Agi * (itemLevel + Plus * 3) * 3) / 100 + 20;
+
+            if (BasicInfo.Vit != 0)
+                ReqVitality = (BasicInfo.Vit * (itemLevel + Plus * 3) * 3) / 100 + 20;
+
+            if (BasicInfo.Cmd != 0)
+                ReqCommand = (BasicInfo.Cmd * (itemLevel + Plus * 3) * 3) / 100 + 20;
+
+            //if(Number == ItemNumber.FromTypeIndex(13,5)) // Dark Spirit
+            //{
+            //    ReqCommand = 
+            //}
+            
+            switch (Harmony.Type)
+            {
+                case 1:
+                    switch(Harmony.Option)
+                    {
+                        case 3: //DECREASE_REQUIRE_STR
+                            ReqStrength -= Harmony.EffectValue;
+                            break;
+                        case 4: //DECREASE_REQUIRE_DEX
+                            ReqAgility -= Harmony.EffectValue;
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (Harmony.Option)
+                    {
+                        case 2: //DECREASE_REQUIRE_STR
+                            ReqStrength -= Harmony.EffectValue;
+                            break;
+                        case 3: //DECREASE_REQUIRE_DEX
+                            ReqAgility -= Harmony.EffectValue;
+                            break;
+                    }
+                    break;
+            }
+
+
+            if (Skill && BasicInfo.Skill != 0)
+            {
+                Spell = (Spell)BasicInfo.Skill;
+                if (Spell == Spell.ForceWave)
+                {
+                    Special.Add(0);
+                }else
+                {
+                    Special.Add((ushort)Spell);
+                }
+            }
+            else
+            {
+                Skill = false;
+            }
+
+            switch (Number)
+            {
+                // Dinorant
+                case 13 * 512 + 3:
+                    Skill = true;
+                    Spell = Spell.FireBreath;
+                    break;
+                // DarkHorse
+                case 13 * 512 + 4:
+                    Skill = true;
+                    Spell = Spell.Earthshake;
+                    break;
+                // Fenrir
+                case 13 * 512 + 37:
+                    Skill = true;
+                    Spell = Spell.PlasmaStorm;
+                    break;
+                // Sahamut
+                case 5 * 512 + 21:
+                    Skill = true;
+                    Spell = Spell.Sahamutt;
+                    break;
+                // Neil
+                case 5 * 512 + 22:
+                    Skill = true;
+                    Spell = Spell.Neil;
+                    break;
+                // Ghost Phantom
+                case 5 * 512 + 23:
+                    Skill = true;
+                    Spell = Spell.GhostPhantom;
+                    break;
+            }
+
+            if (Luck)
+            {
+                if (Number.Type < 12)
+                {
+                    Special.Add(84);
+                }
+                else if (Number.Type == 12 && Number.Index <= 6) // Wings
+                {
+                    Special.Add(84);
+                }
+                else if (Number.Type == 12 && Number.Index >= 130 && Number.Index <= 135) // Wings
+                {
+                    Special.Add(84);
+                }
+                else if (Number.Type == 12 && Number.Index >= 36 && Number.Index <= 43) // Wings S3
+                {
+                    Special.Add(84);
+                }
+                else if (Number.Type == 12 && Number.Index == 50) // Wings S3
+                {
+                    Special.Add(84);
+                }
+                else if (Number == ItemNumber.FromTypeIndex(13, 30) || Number == ItemNumber.FromTypeIndex(12, 49)) // Cape of Lord
+                {
+                    Special.Add(84);
+                }
+            }
+
+            if (Option28 > 0)
+            {
+                if (Number.Type < 5)
+                {
+                    Special.Add(80);
+                    ReqStrength += Option28 * 4;
+                }
+                else if (Number.Type >= 5 && Number.Type < 6)
+                {
+                    Special.Add(81);
+                    ReqStrength += Option28 * 4;
+                }
+                else if (Number.Type >= 6 && Number.Type < 7)
+                {
+                    Special.Add(82);
+                    ReqStrength += Option28 * 4;
+                }
+                else if (Number.Type >= 7 && Number.Type < 12)
+                {
+                    Special.Add(83);
+                    ReqStrength += Option28 * 4;
+                }
+                else if (Number == ItemNumber.FromTypeIndex(12, 0)) // Wing elf
+                {
+                    Special.Add(85);
+                }
+                else if (Number == ItemNumber.FromTypeIndex(12, 1)) // Wing Heaven
+                {
+                    Special.Add(81);
+                    ReqStrength += Option28 * 4;
+                }
+                else if (Number == ItemNumber.FromTypeIndex(12, 2)) // Wing devil
+                {
+                    Special.Add(80);
+                    ReqStrength += Option28 * 4;
+                }
+                else if (Number == ItemNumber.FromTypeIndex(12, 3)) // Wing spitits
+                {
+                    Special.Add(80);
+                    ReqStrength += Option28 * 4;
+                }
+            }
+
+            Defense = BasicInfo.Def;
+
+            if (Defense > 0)
+            {
+                if (Number.Type == 6)
+                {
+                    Defense += Plus;
+                }
+                else
+                {
+                    if (SetOption != 0)
+                    {
+                        Defense += (Defense * 12) / BasicInfo.Level + (BasicInfo.Level / 5) + 4;
+                        //Defense += (Defense * 3) / ItemLevel + (ItemLevel / 30) + 2;
+                    }
+                    else if (OptionExe != 0)
+                    {
+                        Defense = (Defense * 12) / BasicInfo.Level + BasicInfo.Level / 5 + 4;
+                    }
+
+                    switch (Number)
+                    {
+                        case 12 * 512 + 3:
+                        case 12 * 512 + 4:
+                        case 12 * 512 + 5:
+                        case 12 * 512 + 6:
+                        case 13 * 512 + 30:
+                        case 12 * 512 + 49:
+                        case 13 * 512 + 4:
+                        case 12 * 512 + 42:
+                            Defense += Plus * 2;
+                            break;
+                        //Third Wings Defense * 4
+                        case 12 * 512 + 36:
+                        case 12 * 512 + 37:
+                        case 12 * 512 + 38:
+                        case 12 * 512 + 39:
+                        case 12 * 512 + 40:
+                        case 12 * 512 + 43:
+                        case 12 * 512 + 50:
+                            Defense += Plus * 4;
+                            break;
+                        default:
+                            Defense += Plus * 3;
+                            if (Plus >= 10)
+                            {
+                                Defense += (Plus - 9) * (Plus - 8) / 2;
+                            }
+                            break;
+                    }
+
+                    switch (Number)
+                    {
+                        case 13 * 512 + 30:
+                        case 12 * 512 + 49:
+                            Defense += Plus * 2 + 15;
+                            if (Plus >= 10)
+                            {
+                                Defense += (Plus - 9) * (Plus - 8) / 2;
+                            }
+                            break;
+                        //Wings S3 FIX EXC 1
+                        case 12 * 512 + 36:
+                        case 12 * 512 + 37:
+                        case 12 * 512 + 38:
+                        case 12 * 512 + 39:
+                        case 12 * 512 + 40:
+                        case 12 * 512 + 41:
+                        case 12 * 512 + 42:
+                        case 12 * 512 + 43:
+                            if (Plus >= 10)
+                            {
+                                Defense += (Plus - 9) * (Plus - 8) / 2;
+                            }
+                            break;
+                    }
                 }
             }
         }
