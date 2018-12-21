@@ -14,4 +14,13 @@ namespace MuEmu.Network.Event
         [WZMember(1)]
         public byte ItemLevel { get; set; }
     }
+
+    // LuckyCoins
+    [WZContract]
+    public class CLuckyCoinsCount : IEventMessage
+    { }
+
+    [WZContract]
+    public class CLuckyCoinsRegistre : IEventMessage
+    { }
 }

@@ -19,6 +19,7 @@ using MuEmu.Monsters;
 using MuEmu.Network.Event;
 using WebZen.Util;
 using MuEmu.Network.QuestSystem;
+using MuEmu.Events.LuckyCoins;
 
 namespace MuEmu
 {
@@ -93,6 +94,8 @@ namespace MuEmu
             MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
             MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
 
+            EventInitialize();
+
             SubSystem.Initialize();
 
             try
@@ -118,6 +121,11 @@ namespace MuEmu
 
                 handler.ProcessCommands(null, input);
             }
+        }
+
+        static void EventInitialize()
+        {
+            LuckyCoins.Initialize();
         }
     }
 }

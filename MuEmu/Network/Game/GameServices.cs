@@ -201,9 +201,9 @@ namespace MuEmu.Network.Game
                     session.SendAsync(new STalk { Result = 2 });
                     session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
                     session.SendAsync(new SWarehouseMoney { wMoney = 0, iMoney = 0 });
-                } else if (npc.JewelMix)
+                } else if (npc.Window != 0)
                 {
-                    session.SendAsync(new STalk { Result = 9 });
+                    session.SendAsync(new STalk { Result = npc.Window });//9
                 } else if (npc.Buff != 0)
                 {
                     @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(30));
@@ -219,12 +219,14 @@ namespace MuEmu.Network.Game
 
                     var details = quest.Details;
                     Logger.ForAccount(session)
-                        .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", details.NPC, details.Name, quest.State);
+                        .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", obj.Info.Name, details.Name, quest.State);
                     session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
                 }
             }
             else
             {
+                Logger.ForAccount(session)
+                    .Debug("Talk to unasigned NPC {0}", obj.Info.Monster);
                 session.SendAsync(new SChatTarget(ObjectIndex, "Have a good day"));
             }
         }

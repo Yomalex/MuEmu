@@ -1,6 +1,8 @@
-﻿using System;
+﻿using MuEmu.Events.LuckyCoins;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using WebZen.Handlers;
 
 namespace MuEmu.Network.Event
@@ -28,6 +30,20 @@ namespace MuEmu.Network.Event
             }
 
             session.SendAsync(res);
+        }
+
+        [MessageHandler(typeof(CLuckyCoinsCount))]
+        public async Task CLuckyCoinsCount(GSSession session/*, CLuckyCoinsCount message*/)
+        {
+            var coins = await LuckyCoins.Registered(session.Player);
+            await session.SendAsync(new SLuckyCoinsCount(coins));
+        }
+
+        [MessageHandler(typeof(CLuckyCoinsRegistre))]
+        public async Task CLuckyCoinsRegistre(GSSession session/*, CLuckyCoinsRegistre message*/)
+        {
+            var coins = await LuckyCoins.Registre(session.Player);
+            await session.SendAsync(new SLuckyCoinsCount(coins));
         }
     }
 }

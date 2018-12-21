@@ -20,4 +20,24 @@ namespace MuEmu.Network.Event
         [WZMember(3)]
         public byte RemainTime_LOW { get; set; }
     }
+
+    // LuckyCoins
+    [WZContract]
+    public class SLuckyCoinsCount : IEventMessage
+    {
+        [WZMember(0)]
+        public uint Count { get; set; }
+
+        public SLuckyCoinsCount()
+        { }
+
+        public SLuckyCoinsCount(uint count)
+        {
+            Count = count;
+        }
+    }
+
+    [WZContract]
+    public class SLuckyCoinsRegistre : IEventMessage
+    { }
 }

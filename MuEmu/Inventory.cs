@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
@@ -184,6 +185,16 @@ namespace MuEmu
             return _equipament.FirstOrDefault(x => x.Key == (Equipament)from).Value;
         }
 
+        public List<Item> Get(IEnumerable<byte> positions)
+        {
+            var returns = new List<Item>();
+
+            foreach(var p in positions)
+                returns.Add(Get(p));
+
+            return returns;
+        }
+
         public void Remove(byte from)
         {
             if (_inventory.IndexTranslate <= from)
@@ -192,13 +203,36 @@ namespace MuEmu
             _equipament.Remove((Equipament)from);
         }
 
-        public void Delete(byte target)
+        public async Task Delete(byte target)
         {
             if (_equipament.ContainsKey((Equipament)target))
                 Unequip((Equipament)target);
 
             Remove(target);
-            Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
+            await Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
+        }
+
+        public async Task Delete(Item item)
+        {
+            if (_equipament.ContainsValue(item))
+            {
+                await Delete((byte)_equipament.First(x => x.Value == item).Key);
+            }else if(_inventory.Items.Any(x => x.Value == item))
+            {
+                await Delete(_inventory.Items.First(x => x.Value == item).Key);
+            }
+            else if (_chaosBox.Items.Any(x => x.Value == item))
+            {
+                await Delete(_chaosBox.Items.First(x => x.Value == item).Key);
+            }
+            else if (_personalShop.Items.Any(x => x.Value == item))
+            {
+                await Delete(_personalShop.Items.First(x => x.Value == item).Key);
+            }
+            else if (_tradeBox.Items.Any(x => x.Value == item))
+            {
+                await Delete(_tradeBox.Items.First(x => x.Value == item).Key);
+            }
         }
 
         public async void SendInventory()

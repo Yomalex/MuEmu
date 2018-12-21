@@ -438,8 +438,8 @@ namespace MuEmu.Resources
                     case NPCAttributeType.Warehouse:
                         info.Warehouse = true;
                         break;
-                    case NPCAttributeType.JewelMix:
-                        info.JewelMix = true;
+                    case NPCAttributeType.Window:
+                        info.Window = byte.Parse(npc.Data);
                         break;
                     case NPCAttributeType.Buff:
                         info.Buff = ushort.Parse(npc.Data);

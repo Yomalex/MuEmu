@@ -233,7 +233,7 @@ namespace MuEmu
         Shop,
         Quest,
         Buff,
-        JewelMix,
+        Window,
     }
 
     public enum AttributeType

@@ -8,7 +8,7 @@ namespace MuEmu.Data
     {
         public ushort NPC { get; set; }
         public bool Warehouse { get; set; }
-        public bool JewelMix { get; set; }
+        public byte Window { get; set; }
         public ushort Quest { get; set; }
         public ShopInfo Shop { get; set; }
         public ushort Buff { get; set; }

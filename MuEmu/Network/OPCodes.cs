@@ -90,6 +90,8 @@ namespace MuEmu.Network
     public enum EventOpCode
     {
         RemainTime = 0xFF91,
+        LuckyCoinsCount = 0x0BBF,
+        LuckyCoinsRegistre = 0x0CBF,
     }
 
     public enum CashOpCode : ushort
