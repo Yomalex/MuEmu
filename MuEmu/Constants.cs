@@ -222,9 +222,10 @@ namespace MuEmu
 
     public enum ObjectState
     {
-        None,
+        Regen,
         Live,
-        Die = 4,
+        Dying,
+        Die,
     }
 
     public enum NPCAttributeType
@@ -234,6 +235,9 @@ namespace MuEmu
         Quest,
         Buff,
         Window,
+        EventChips,
+        MessengerAngel,
+        KingAngel,
     }
 
     public enum AttributeType
@@ -273,6 +277,7 @@ namespace MuEmu
         YouNeedInvitationBC = 0x15,
         SucceedBC = 0x17,
         InvalidBC = 0x18,
+        GoAheadBC = 0x2D,
         CompletedBC = 0x2E,
     }
 
@@ -330,5 +335,10 @@ namespace MuEmu
         Plusstat,
         Comboskill,
         Master,
+    }
+
+    public enum DevilSquareState : byte
+    {
+        Quit = 6
     }
 }

@@ -7,6 +7,7 @@ using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
@@ -40,6 +41,7 @@ namespace MuEmu
         private ushort _cmd;
         private ushort _cmdAdd;
         private uint _zen;
+        private Maps _map;
 
         public Player Player { get; }
         public Account Account { get; }
@@ -61,6 +63,15 @@ namespace MuEmu
             {
                 Class &= (HeroClass)(0xF0);
                 Class |= (HeroClass)(value ? 1 : 0);
+            }
+        }
+        public bool MasterClass
+        {
+            get => (((byte)Class) & 0x0F) > 1;
+            set
+            {
+                Class &= (HeroClass)(0xF0);
+                Class |= (HeroClass)(value ? 2 : 0);
             }
         }
         public CharacterInfo BaseInfo => ResourceCache.Instance.GetDefChar()[BaseClass];
@@ -208,7 +219,7 @@ namespace MuEmu
         }
 
         // Map
-        public Maps MapID { get; set; }
+        public Maps MapID { get => _map; set { _map = value; MapChanged?.Invoke(this, new EventArgs()); } }
         public Point Position { get => _position; set
             {
                 if (_position == value)
@@ -222,6 +233,8 @@ namespace MuEmu
         public byte Action { get; set; }
 
         public MapInfo Map => ResourceCache.Instance.GetMaps()[MapID];
+
+        public event EventHandler MapChanged;
 
         // Experience
         public ulong Experience { get => _exp;
@@ -453,7 +466,7 @@ namespace MuEmu
 
         }
 
-        public async void WarpTo(Maps map, Point position, byte dir)
+        public async Task WarpTo(Maps map, Point position, byte dir)
         {
             Map.DelPlayer(this);
             MapID = map;
@@ -461,6 +474,18 @@ namespace MuEmu
             Position = position;
             Direction = dir;
             await Player.Session.SendAsync(new STeleport(256, MapID, Position, Direction));
+        }
+
+        public async Task WarpTo(int gate)
+        {
+            var g = ResourceCache.Instance.GetGates()[gate];
+
+            var rand = new Random();
+
+            var randX = rand.Next(g.Door.Left, g.Door.Right);
+            var randY = rand.Next(g.Door.Top, g.Door.Bottom);
+
+            await WarpTo(g.Map, new Point(randX, randY), g.Dir);
         }
 
         public async void TeleportTo(Point position)

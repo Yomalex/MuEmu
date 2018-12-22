@@ -77,7 +77,7 @@ namespace MuEmu.Monsters
             {
                 var contents = tf.ReadToEnd();
                 var NPCRegex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)\nend");
-                var NPCSubRegex = new Regex(@"([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*");
+                var NPCSubRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*");
                 var count = 0;
                 foreach (Match m in NPCRegex.Matches(contents))
                 {
@@ -91,6 +91,16 @@ namespace MuEmu.Monsters
                             }
                             break;
                         case 2:
+                            foreach (Match sm in NPCSubRegex.Matches(m.Groups[2].Value))
+                            {
+                                var dir = int.Parse(sm.Groups[6].Value);
+                                if (dir < 0)
+                                    dir = 0;
+                                Monsters.Add(new Monster(ushort.Parse(sm.Groups[1].Value), ObjectType.Monster, (Maps)ushort.Parse(sm.Groups[2].Value), new System.Drawing.Point(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[5].Value)), (byte)dir) { Index = (ushort)(MonsterStartIndex + count) });
+                                count++;
+                            }
+                            break;
+                        case 4:
                             foreach (Match sm in NPCSubRegex.Matches(m.Groups[2].Value))
                             {
                                 var dir = int.Parse(sm.Groups[6].Value);

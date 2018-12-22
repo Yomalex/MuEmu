@@ -1,4 +1,6 @@
-﻿using MuEmu.Monsters;
+﻿using MuEmu.Events.BloodCastle;
+using MuEmu.Events.EventChips;
+using MuEmu.Monsters;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
 using Serilog;
@@ -201,9 +203,22 @@ namespace MuEmu.Network.Game
                     session.SendAsync(new STalk { Result = 2 });
                     session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
                     session.SendAsync(new SWarehouseMoney { wMoney = 0, iMoney = 0 });
-                } else if (npc.Window != 0)
+                }
+                else if (npc.EventChips)
                 {
-                    session.SendAsync(new STalk { Result = npc.Window });//9
+                    EventChips.NPCTalk(session.Player);
+                }
+                else if (npc.MessengerAngel)
+                {
+                    BloodCastles.MessengerAngelTalk(session.Player);
+                }
+                else if (npc.KingAngel)
+                {
+                    BloodCastles.AngelKingTalk(session.Player);
+                }
+                else if (npc.Window != 0)
+                {
+                    session.SendAsync(new STalk { Result = npc.Window });
                 } else if (npc.Buff != 0)
                 {
                     @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(30));
@@ -343,7 +358,7 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CWarp))]
-        public void CWarp(GSSession session, CWarp message)
+        public async Task CWarp(GSSession session, CWarp message)
         {
             var gates = ResourceCache.Instance.GetGates();
 
@@ -356,7 +371,7 @@ namespace MuEmu.Network.Game
                 Logger.ForAccount(session)
                     .Error("Invalid Gate {0}", message.MoveNumber);
 
-                session.SendAsync(new SNotice(NoticeType.Blue, "You can't go there"));
+                await session.SendAsync(new SNotice(NoticeType.Blue, "You can't go there"));
                 return;
             }
 
@@ -367,7 +382,7 @@ namespace MuEmu.Network.Game
                 Logger.ForAccount(session)
                 .Error("Level too low");
 
-                session.SendAsync(new SNotice(NoticeType.Blue, $"Try again at Level {gate.ReqLevel}"));
+                await session.SendAsync(new SNotice(NoticeType.Blue, $"Try again at Level {gate.ReqLevel}"));
                 return;
             }
 
@@ -376,13 +391,13 @@ namespace MuEmu.Network.Game
                 Logger.ForAccount(session)
                 .Error("Money too low");
 
-                session.SendAsync(new SNotice(NoticeType.Blue, $"Try again with more Zen"));
+                await session.SendAsync(new SNotice(NoticeType.Blue, $"Try again with more Zen"));
                 return;
             }
 
             @char.Money -= gate.ReqZen;
 
-            @char.WarpTo(gate.Map, gate.Door.Location, gate.Dir);
+            await @char.WarpTo(gate.Number);
         }
 
         [MessageHandler(typeof(CJewelMix))]

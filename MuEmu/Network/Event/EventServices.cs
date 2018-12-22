@@ -1,6 +1,8 @@
-﻿using MuEmu.Events.LuckyCoins;
+﻿using MuEmu.Events.BloodCastle;
+using MuEmu.Events.LuckyCoins;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Handlers;
@@ -19,7 +21,7 @@ namespace MuEmu.Network.Event
                     res.RemainTime = 0;
                     break;
                 case EventEnterType.BloodCastle:
-                    res.RemainTime = 0;
+                    res.RemainTime = BloodCastles.RemainTime();
                     break;
                 case EventEnterType.ChaosCastle:
                     res.RemainTime = 0;
@@ -44,6 +46,36 @@ namespace MuEmu.Network.Event
         {
             var coins = await LuckyCoins.Registre(session.Player);
             await session.SendAsync(new SLuckyCoinsCount(coins));
+        }
+
+        [MessageHandler(typeof(CBloodCastleMove))]
+        public async Task CBloodCastleMove(GSSession session, CBloodCastleMove message)
+        {
+            var plr = session.Player;
+            var @char = session.Player.Character;
+
+            var invisibleCloack = @char.Inventory.Get(message.ItemPos);
+            var itemLevel = BloodCastles.GetNeededLevel(plr);
+
+            if(invisibleCloack.Plus != message.Bridge && invisibleCloack.Number != ItemNumber.FromTypeIndex(13,47))
+            {
+                await session.SendAsync(new SBloodCastleMove(1));
+                return;
+            }
+
+            if(itemLevel != invisibleCloack.Plus)
+            {
+                await session.SendAsync(new SBloodCastleMove((byte)(itemLevel > invisibleCloack.Plus ? 4 : 3)));
+                return;
+            }
+
+            if (!BloodCastles.TryAdd(message.Bridge, plr))
+            {
+                await session.SendAsync(new SBloodCastleMove(5));
+                return;
+            }
+
+            @char.Inventory.Delete(message.ItemPos);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MuEmu.Resources.XML
     public class DetailDto
     {
         [XmlAttribute] public string Classes { get; set; }
-        [XmlElement] public NeededItemDto NeededItem { get; set; }
+        [XmlElement] public NeededItemDto[] NeededItem { get; set; }
         [XmlElement] public NeededMonsterDto NeededMonster { get; set; }
         [XmlElement] public RewardDto Reward { get; set; }
         [XmlElement] public MessageDto Message { get; set; }

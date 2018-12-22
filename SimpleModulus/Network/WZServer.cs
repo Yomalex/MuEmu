@@ -15,12 +15,13 @@ namespace WebZen.Network
     public class WZServer
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZServer));
+        protected Dictionary<int, WZClient> _clients;
+
         private TcpListener _listener;
         private WZPacketDecoder _decoder;
         private WZPacketDecoderSimple _decoderSimple;
         private ISessionFactory _factory;
         private MessageHandler[] _handler;
-        private Dictionary<int, WZClient> _clients;
         private WZPacketEncoder _encoder;
 
         public IPAddress IPAddress => ((IPEndPoint)_listener.LocalEndpoint).Address;

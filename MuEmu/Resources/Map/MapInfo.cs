@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MuEmu.Resources.Map
 {
-    public enum MapAttributes
+    public enum MapAttributes : byte
     {
         Unk1 = 1,
         Stand = 2,
@@ -25,6 +26,9 @@ namespace MuEmu.Resources.Map
         private byte[] Layer { get; }
         public int Map { get; }
         public byte Weather { get; set; }
+
+        public event EventHandler PlayerLeaves;
+        public event EventHandler MonsterAdd;
         
         public MapInfo(int map, string attFile)
         {
@@ -84,15 +88,121 @@ namespace MuEmu.Resources.Map
             Players.Add(@char);
         }
 
+        public void AddMonster(Monster mons)
+        {
+            var pos = mons.Position;
+            SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
+            Monsters.Add(mons);
+
+            MonsterAdd?.Invoke(mons, new EventArgs());
+        }
+
         public void DelPlayer(Character @char)
         {
             Players.Remove(@char);
+            PlayerLeaves?.Invoke(@char.Player, new EventArgs());
         }
 
         public void PositionChanged(Point prev, Point current)
         {
             ClearAttribute(prev.X, prev.Y, MapAttributes.Stand);
             SetAttribute(current.X, current.Y, MapAttributes.Stand);
+        }
+
+        public async Task SendAll(object message)
+        {
+            foreach(var plr in Players)
+            {
+                await plr.Player.Session.SendAsync(message);
+            }
+        }
+
+        public async Task AddAttribute(MapAttributes att, Rectangle area)
+        {
+            for (int y = area.Top; y < area.Bottom; y++)
+                for (int x = area.Left; x < area.Right; x++)
+                    Layer[y * 256 + x] |= (byte)att;
+
+            await SendAsync(new SSetMapAttribute(0, att, 1,
+                new MapRectDto[] {
+                    new MapRectDto {
+                        StartX = (byte)area.Left, StartY = (byte)area.Top,
+                        EndX = (byte)area.Right, EndY = (byte)area.Bottom
+                    }
+                }));
+        }
+
+        public async Task AddAttribute(MapAttributes att, Rectangle[] areas)
+        {
+            var result = new List<MapRectDto>();
+            foreach (var area in areas)
+            {
+                for (int y = area.Top; y < area.Bottom; y++)
+                    for (int x = area.Left; x < area.Right; x++)
+                        Layer[y * 256 + x] |= (byte)att;
+
+                result.Add(new MapRectDto
+                {
+                    StartX = (byte)area.Left,
+                    StartY = (byte)area.Top,
+                    EndX = (byte)area.Right,
+                    EndY = (byte)area.Bottom
+                });
+            }
+
+            await SendAsync(new SSetMapAttribute(0, att, 1, result.ToArray()));
+        }
+
+        public async Task RemoveAttribute(MapAttributes att, Rectangle area)
+        {
+            for(int y = area.Top; y < area.Bottom; y++)
+                for(int x = area.Left; x < area.Right; x++)
+                {
+                    var info = Layer[y * 256 + x];
+                    var invAtt = ~(int)att;
+                    info &= (byte)invAtt;
+                    Layer[y * 256 + x] = info;
+                }
+
+            await SendAsync(new SSetMapAttribute(0, att, 1, 
+                new MapRectDto[] {
+                    new MapRectDto {
+                        StartX = (byte)area.Left, StartY = (byte)area.Top,
+                        EndX = (byte)area.Right, EndY = (byte)area.Bottom
+                    }
+                }));
+        }
+
+        public async Task RemoveAttribute(MapAttributes att, Rectangle[] areas)
+        {
+            var result = new List<MapRectDto>();
+            foreach (var area in areas)
+            {
+                for (int y = area.Top; y < area.Bottom; y++)
+                    for (int x = area.Left; x < area.Right; x++)
+                    {
+                        var info = Layer[y * 256 + x];
+                        var invAtt = ~(int)att;
+                        info &= (byte)invAtt;
+                        Layer[y * 256 + x] = info;
+                    }
+
+                result.Add(new MapRectDto
+                {
+                    StartX = (byte)area.Left,
+                    StartY = (byte)area.Top,
+                    EndX = (byte)area.Right,
+                    EndY = (byte)area.Bottom
+                });
+            }
+
+            await SendAsync(new SSetMapAttribute(0, att, 1, result.ToArray()));
+        }
+
+        public async Task SendAsync(object message)
+        {
+            foreach(var @char in Players)
+                await @char.Player.Session.SendAsync(message);
         }
     }
 }

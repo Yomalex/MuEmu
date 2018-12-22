@@ -73,6 +73,7 @@ namespace MuEmu.Network
         Buy = 0xFF32,
         Sell = 0xFF33,
         ViewPortChange = 0xFF45,
+        SetMapAtt = 0xFF46,
         ViewPortGuildCreate = 0xFF65,
         WarehouseMoney = 0xFF81,
         WarehouseUseEnd = 0xFF82,
@@ -92,6 +93,11 @@ namespace MuEmu.Network
         RemainTime = 0xFF91,
         LuckyCoinsCount = 0x0BBF,
         LuckyCoinsRegistre = 0x0CBF,
+
+        DevilSquareSet = 0xFF92,
+        EventChipInfo = 0xFF94,
+        BloodCastleEnter = 0xFF9A,
+        BloodCastleState = 0xFF9B,
     }
 
     public enum CashOpCode : ushort

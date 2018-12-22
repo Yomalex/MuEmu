@@ -438,8 +438,17 @@ namespace MuEmu.Resources
                     case NPCAttributeType.Warehouse:
                         info.Warehouse = true;
                         break;
+                    case NPCAttributeType.MessengerAngel:
+                        info.MessengerAngel = true;
+                        break;
+                    case NPCAttributeType.KingAngel:
+                        info.KingAngel = true;
+                        break;
                     case NPCAttributeType.Window:
                         info.Window = byte.Parse(npc.Data);
+                        break;
+                    case NPCAttributeType.EventChips:
+                        info.EventChips = true;
                         break;
                     case NPCAttributeType.Buff:
                         info.Buff = ushort.Parse(npc.Data);
@@ -547,11 +556,12 @@ namespace MuEmu.Resources
                         Messages = new Dictionary<QuestState, ushort>(),
                         CompensationType = Enum.Parse<QuestCompensation>(sq.Reward.Type),
                         Amount = sq.Reward.SubType,
+                        Requeriment = new List<Item>(),
                     };
                     if (sq.NeededItem != null)
                     {
-                        stmp.Requeriment = new Item(ItemNumber.FromTypeIndex((byte)sq.NeededItem.Type, (ushort)sq.NeededItem.Index), 0, new { Plus = (byte)sq.NeededItem.Level });
-                        stmp.Count = sq.NeededItem.Count;
+                        foreach(var it in sq.NeededItem)
+                            stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), 0, new { Plus = (byte)it.Level, Durability = (byte)it.Count }));                        
                     }
 
                     if (sq.NeededMonster != null)

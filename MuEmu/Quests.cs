@@ -169,54 +169,58 @@ namespace MuEmu
                     else
                     {
                         var inv = Character.Inventory;
-                        var Items = (from it in inv.FindAll(sq.Requeriment.Number)
-                                     let x = inv.Get(it)
-                                     where x.Plus == sq.Requeriment.Plus
-                                     select it).Take(sq.Count);
-
-                        if (Items.Count() == sq.Count)
+                        foreach (var req in sq.Requeriment)
                         {
-                            foreach (var x in Items)
-                                inv.Delete(x);
+                            var Items = (from it in inv.FindAll(req.Number)
+                                         let x = inv.Get(it)
+                                         where x.Plus == req.Plus
+                                         select it)
+                                         .Take(sq.Count);
 
-                            var session = Character.Player.Session;
-
-                            byte RewardArg = 0;
-
-                            switch(sq.CompensationType)
+                            if (Items.Count() == sq.Count)
                             {
-                                case QuestCompensation.Changeup:
-                                    Character.LevelUpPoints += sq.Amount;
-                                    Character.Class |= (HeroClass)0x01;
-                                    RewardArg = Character.ClientClass;
-                                    
-                                    session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
-                                    break;
-                                case QuestCompensation.Statup:
-                                    Character.LevelUpPoints += sq.Amount;
-                                    RewardArg = sq.Amount;
-                                    break;
-                                case QuestCompensation.Plusstat:
-                                    break;
-                                case QuestCompensation.Comboskill:
-                                    break;
-                                case QuestCompensation.Master:
-                                    Character.LevelUpPoints += sq.Amount;
-                                    
-                                    if(!Character.Changeup && !(Character.Class == HeroClass.MagicGladiator || Character.Class == HeroClass.DarkLord))
-                                    {
-                                        return 0;
-                                    }
-                                    var newClass = Character.BaseClass | (HeroClass)0x02;
-                                    Character.Class = newClass;
-                                    RewardArg = Character.ClientClass;
-                                    session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
-                                    break;
+                                foreach (var x in Items)
+                                    inv.Delete(x);
+
+                                var session = Character.Player.Session;
+
+                                byte RewardArg = 0;
+
+                                switch (sq.CompensationType)
+                                {
+                                    case QuestCompensation.Changeup:
+                                        Character.LevelUpPoints += sq.Amount;
+                                        Character.Class |= (HeroClass)0x01;
+                                        RewardArg = Character.ClientClass;
+
+                                        session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
+                                        break;
+                                    case QuestCompensation.Statup:
+                                        Character.LevelUpPoints += sq.Amount;
+                                        RewardArg = sq.Amount;
+                                        break;
+                                    case QuestCompensation.Plusstat:
+                                        break;
+                                    case QuestCompensation.Comboskill:
+                                        break;
+                                    case QuestCompensation.Master:
+                                        Character.LevelUpPoints += sq.Amount;
+
+                                        if (!Character.Changeup && !(Character.Class == HeroClass.MagicGladiator || Character.Class == HeroClass.DarkLord))
+                                        {
+                                            return 0;
+                                        }
+                                        var newClass = Character.BaseClass | (HeroClass)0x02;
+                                        Character.Class = newClass;
+                                        RewardArg = Character.ClientClass;
+                                        session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
+                                        break;
+                                }
+
+                                session.SendAsync(new SSendQuestPrize((ushort)session.ID, sq.CompensationType, RewardArg));
+
+                                return (byte)sq.Messages[QuestState.Clear];
                             }
-
-                            session.SendAsync(new SSendQuestPrize((ushort)session.ID, sq.CompensationType, RewardArg));
-
-                            return (byte)sq.Messages[QuestState.Clear];
                         }
                     }
                 }

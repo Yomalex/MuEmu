@@ -78,6 +78,8 @@ namespace MuEmu.Network.Game
             Register<SViewSkillState>(GameOpCode.ViewSkillState);
             Register<SInventoryItemDelete>(GameOpCode.InventoryItemDelete);
             Register<SJewelMix>(GameOpCode.JewelMix);
+            Register<SCommand>(GameOpCode.Command);
+            Register<SSetMapAttribute>(GameOpCode.SetMapAtt);
         }
     }
 }

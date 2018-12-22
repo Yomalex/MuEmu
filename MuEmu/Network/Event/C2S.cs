@@ -23,4 +23,16 @@ namespace MuEmu.Network.Event
     [WZContract]
     public class CLuckyCoinsRegistre : IEventMessage
     { }
+
+    // BloodCastle
+    [WZContract]
+    public class CBloodCastleMove : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Bridge { get; set; }
+
+        [WZMember(1)]
+        public byte ItemPos { get; set; }
+    }
+
 }

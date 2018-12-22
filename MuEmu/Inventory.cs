@@ -17,6 +17,7 @@ namespace MuEmu
         private Storage _chaosBox;
         private Storage _personalShop;
         private Storage _tradeBox;
+        private List<Item> _forDelete;
 
         public int Defense => _equipament.Sum(x => x.Value.Defense);
         //public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);
@@ -41,6 +42,26 @@ namespace MuEmu
             return res.ToArray();
         }
 
+        public List<Item> FindAllItems(ItemNumber num)
+        {
+            var res = new List<Item>();
+            foreach (var e in _equipament)
+            {
+                if (e.Value.Number == num)
+                {
+                    res.Add(e.Value);
+                }
+            }
+            foreach (var inv in _inventory.Items)
+            {
+                if (inv.Value.Number == num)
+                {
+                    res.Add(inv.Value);
+                }
+            }
+            return res;
+        }
+
         public int GetFreeSlotCount()
         {
             return 0;
@@ -55,6 +76,7 @@ namespace MuEmu
             _personalShop = new Storage(Storage.TradeSize);
             _inventory.IndexTranslate = (int)Equipament.End;
             _personalShop.IndexTranslate = _inventory.IndexTranslate + Storage.InventorySize;
+            _forDelete = new List<Item>();
 
             _equipament = new Dictionary<Equipament, Item>();
 
@@ -198,7 +220,9 @@ namespace MuEmu
         public void Remove(byte from)
         {
             if (_inventory.IndexTranslate <= from)
+            {
                 _inventory.Remove(from);
+            }
 
             _equipament.Remove((Equipament)from);
         }
@@ -206,8 +230,14 @@ namespace MuEmu
         public async Task Delete(byte target)
         {
             if (_equipament.ContainsKey((Equipament)target))
+            {
+                _forDelete.Add(_equipament[(Equipament)target]);
                 Unequip((Equipament)target);
+                await Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
+                return;
+            }
 
+            _forDelete.Add(_inventory.Get(target));
             Remove(target);
             await Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
         }

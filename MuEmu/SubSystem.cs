@@ -7,6 +7,7 @@ using MuEmu.Resources;
 using System.Drawing;
 using MuEmu.Network.Game;
 using MuEmu.Network.Data;
+using MuEmu.Events.BloodCastle;
 
 namespace MuEmu
 {
@@ -21,6 +22,7 @@ namespace MuEmu
     {
         private Thread _workerDelayed;
         private Thread _workerViewPort;
+        private Thread _workerEvents;
         private List<DelayedMessage> _delayedMessages;
         public static SubSystem Instance { get; set; }
 
@@ -29,6 +31,7 @@ namespace MuEmu
             _delayedMessages = new List<DelayedMessage>();
             _workerDelayed = new Thread(WorkerDelayed);
             _workerViewPort = new Thread(WorkerViewPort);
+            _workerEvents = new Thread(WorkerEvents);
         }
 
         public void AddDelayedMessage(Player plr, TimeSpan time, object message)
@@ -175,6 +178,22 @@ namespace MuEmu
             }
         }
 
+        private static async void WorkerEvents()
+        {
+            while (true)
+            {
+                try
+                {
+                    BloodCastles.Update();
+                    Thread.Sleep(1000);
+                }
+                catch(Exception)
+                {
+
+                }
+            }
+        }
+
         public static void Initialize()
         {
             if (Instance != null)
@@ -184,6 +203,7 @@ namespace MuEmu
 
             Instance._workerDelayed.Start();
             Instance._workerViewPort.Start();
+            Instance._workerEvents.Start();
         }
     }
 }

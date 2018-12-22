@@ -18,7 +18,7 @@ namespace MuEmu.Data
     public class SubQuest
     {
         public HeroClass[] Allowed { get; set; }
-        public Item Requeriment { get; set; }
+        public List<Item> Requeriment { get; set; }
         public ushort Monster { get; set; }
         public int Count { get; set; }
         public Dictionary<QuestState, ushort> Messages { get; set; }

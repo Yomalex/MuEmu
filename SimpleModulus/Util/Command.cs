@@ -14,7 +14,7 @@ namespace WebZen.Util
 
         public event EventHandler OnCommand;
 
-        public Command(string cmd, EventHandler _event, Predicate<T> autority = null)
+        public Command(string cmd, EventHandler _event = null, Predicate<T> autority = null)
         {
             if(string.IsNullOrEmpty(cmd))
             {
@@ -24,6 +24,7 @@ namespace WebZen.Util
             _autority = autority ?? (x => true);
             _subCommands = new List<Command<T>>();
             OnCommand = _event;
+            _command = cmd;
         }
 
         public Command<T> AddCommand(Command<T> cmd)
@@ -37,7 +38,7 @@ namespace WebZen.Util
             var splited = text.Split(" ");
             var cmd = splited.First();
             var args = string.Join(" ", splited.Skip(1));
-            if (cmd.Equals(_command, StringComparison.InvariantCultureIgnoreCase))
+            if (!cmd.Equals(_command, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             if (!_autority(client))
@@ -49,7 +50,7 @@ namespace WebZen.Util
             {
                 foreach (var scmd in _subCommands)
                 {
-                    if (scmd.Process(client, text))
+                    if (scmd.Process(client, args))
                     {
                         return true;
                     }

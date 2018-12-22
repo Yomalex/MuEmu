@@ -6,6 +6,7 @@ using WebZen.Network;
 using WebZen.Handlers;
 using MuEmu.Network.Auth;
 using WebZen.Util;
+using System.Threading.Tasks;
 
 namespace MuEmu.Network
 {
@@ -33,6 +34,15 @@ namespace MuEmu.Network
             Session.Player.Status = LoginStatus.NotLogged;
             Session.Player.Character.Map.DelPlayer(Session.Player.Character);
             base.OnDisconnect(session);
+        }
+
+        public async Task SendAll(object message)
+        {
+            foreach(var cl in _clients)
+            {
+                var session = cl.Value as GSSession;
+                await session.SendAsync(message);
+            }
         }
     }
 }

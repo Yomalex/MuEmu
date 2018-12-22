@@ -1,4 +1,5 @@
 ﻿using MuEmu.Network.Data;
+using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -638,13 +639,24 @@ namespace MuEmu.Network.Game
     public class SCommand : IGameMessage
     {
         [WZMember(0)]
-        public byte Type { get; set; }
+        public ServerCommandType Type { get; set; }
 
         [WZMember(1)]
         public byte Arg1 { get; set; }
 
         [WZMember(2)]
         public byte Arg2 { get; set; }
+
+        public SCommand() { }
+
+        public SCommand(ServerCommandType type, params byte[] args)
+        {
+            Type = type;
+            if (args.Length > 0)
+                Arg1 = args[0];
+            if(args.Length > 1)
+                Arg1 = args[1];
+        }
     }
 
     [WZContract]
@@ -793,6 +805,50 @@ namespace MuEmu.Network.Game
         {
             Result = result;
         }
+    }
+
+    [WZContract]
+    public class SSetMapAttribute : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Type { get; set; }
+
+        [WZMember(1)]
+        public MapAttributes MapAtt { get; set; }
+
+        [WZMember(2)]
+        public byte MapSetType { get; set; }
+
+        [WZMember(3, typeof(ArrayWithScalarSerializer<byte>))]
+        //public byte Count { get; set; }
+        public MapRectDto[] Changes { get; set; }
+
+
+        public SSetMapAttribute() { Changes = Array.Empty<MapRectDto>(); }
+
+        public SSetMapAttribute(byte type, MapAttributes att, byte setType, MapRectDto[] changes)
+        {
+            Type = type;
+            MapAtt = att;
+            MapSetType = setType;
+            Changes = changes;
+        }
+    }
+
+    [WZContract]
+    public class MapRectDto
+    {
+        [WZMember(0)]
+        public byte StartX { get; set; }
+
+        [WZMember(1)]
+        public byte StartY { get; set; }
+
+        [WZMember(2)]
+        public byte EndX { get; set; }
+
+        [WZMember(3)]
+        public byte EndY { get; set; }
     }
 }
 

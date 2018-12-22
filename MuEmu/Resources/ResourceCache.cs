@@ -159,5 +159,11 @@ namespace MuEmu.Resources
 
             return cache;
         }
+
+        public void ReloadShops()
+        {
+            _cache.Remove("Shops");
+            GetShops();
+        }
     }
 }

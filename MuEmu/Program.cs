@@ -20,6 +20,9 @@ using MuEmu.Network.Event;
 using WebZen.Util;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Events.LuckyCoins;
+using MuEmu.Events.EventChips;
+using MuEmu.Events.BloodCastle;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
@@ -92,9 +95,9 @@ namespace MuEmu
             ResourceCache.Initialize(".\\Data");
             MonstersMng.Initialize();
             MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
-            MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
-
             EventInitialize();
+
+            MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
 
             SubSystem.Initialize();
 
@@ -111,7 +114,9 @@ namespace MuEmu
             handler = new CommandHandler<GSSession>();
             handler.AddCommand(new Command<GSSession>("exit", (object a, EventArgs b) => Environment.Exit(0)))
                 .AddCommand(new Command<GSSession>("quit", (object a, EventArgs b) => Environment.Exit(0)))
-                .AddCommand(new Command<GSSession>("stop", (object a, EventArgs b) => Environment.Exit(0)));
+                .AddCommand(new Command<GSSession>("stop", (object a, EventArgs b) => Environment.Exit(0)))
+                .AddCommand(new Command<GSSession>("reload")
+                            .AddCommand(new Command<GSSession>("shops", (object a, EventArgs b) => ResourceCache.Instance.ReloadShops())));
 
             while (true)
             {
@@ -126,6 +131,14 @@ namespace MuEmu
         static void EventInitialize()
         {
             LuckyCoins.Initialize();
+            EventChips.Initialize();
+            BloodCastles.Initialize();
+        }
+
+        public static async Task GlobalAnoucement(string text)
+        {
+            await server.SendAll(new SNotice(NoticeType.Gold, text));
+            Log.Information("Global Announcement: " + text);
         }
     }
 }
