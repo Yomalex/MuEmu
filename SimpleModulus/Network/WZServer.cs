@@ -213,7 +213,13 @@ namespace WebZen.Network
 
         public async void Send(byte[] data)
         {
-            await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
+            try
+            {
+                await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
+            }catch(Exception)
+            {
+
+            }
         }
 
         //private void OnSend(IAsyncResult result)

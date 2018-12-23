@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Serilog;
+using Serilog.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -37,8 +39,8 @@ namespace WebZen.Handlers
                                     m.Invoke(this, args);
                             }catch(Exception e)
                             {
-                                Console.WriteLine(e.Message);
-                                Console.WriteLine(e.StackTrace);
+                                Log.ForContext(Constants.SourceContextPropertyName, nameof(MessageHandler))
+                                    .Error(e, "Is Async:" + isAsync.ToString());
                                 return false;
                             }
                             return true;

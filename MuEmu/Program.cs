@@ -23,6 +23,7 @@ using MuEmu.Events.LuckyCoins;
 using MuEmu.Events.EventChips;
 using MuEmu.Events.BloodCastle;
 using System.Threading.Tasks;
+using MuEmu.Entity;
 
 namespace MuEmu
 {
@@ -31,7 +32,9 @@ namespace MuEmu
         private static CommandHandler<GSSession> handler;
         public static WZGameServer server;
         public static CSClient client;
-
+        public static string ConnectionString { get; set; }
+        public static bool AutoRegistre { get; set; }
+        public static ushort ServerCode { get; set; }
 
         static void Main(string[] args)
         {
@@ -48,12 +51,23 @@ namespace MuEmu
                 .WriteTo.Console(outputTemplate: "[{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}")
                 .MinimumLevel.Debug()
                 .CreateLogger();
-            
-            SimpleModulus.LoadDecryptionKey("Dec1.dat");
+
+            Console.Title = $"[{xml.Code}] GameServer .NetCore2 {xml.Name} Client:{xml.Version}#!{xml.Serial} DB:"+ xml.DataBase;
+
+            ConnectionString = $"Server={xml.DBIp};port=3306;Database={xml.DataBase};user={xml.BDUser};password={xml.DBPassword};Convert Zero Datetime=True;";
+            using (var db = new GameContext())
+            {
+                //db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
+            }
+
+                SimpleModulus.LoadDecryptionKey("Dec1.dat");
             SimpleModulus.LoadEncryptionKey("Enc2.dat");
 
             var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
             var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
+            AutoRegistre = xml.AutoRegistre;
+            ServerCode = (ushort)xml.Code;
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<GSSession>()
@@ -80,6 +94,7 @@ namespace MuEmu
             };
             server = new WZGameServer(ip, mh, mf);
             server.ClientVersion = xml.Version;
+            server.ClientSerial = xml.Serial;
 
             var cmh = new MessageHandler[]
             {

@@ -1,4 +1,5 @@
-﻿using MuEmu.Data;
+﻿using MU.DataBase;
+using MuEmu.Data;
 using MuEmu.Resources;
 using System;
 using System.Collections.Generic;
@@ -133,6 +134,30 @@ namespace MuEmu
             Number = number;
             GetValue();
             CalcItemAttributes();
+        }
+
+        public Item(ItemDto dto)
+        {
+            var ItemDB = ResourceCache.Instance.GetItems();
+
+            if (!ItemDB.ContainsKey(dto.Number))
+                throw new Exception("Item don't exists " + dto.Number);
+
+            Number = dto.Number;
+            Serial = dto.ItemId;
+            
+            BasicInfo = ItemDB[Number];
+            Durability = (byte)dto.Durability;
+            if(string.IsNullOrEmpty(dto.SocketOptions))
+            {
+                Slots = Array.Empty<SocketOption>();
+            }else
+            {
+                var tmp = dto.SocketOptions.Split(",");
+                Slots = tmp.Select(x => Enum.Parse<SocketOption>(x)).ToArray();
+            }
+            Harmony = (byte)dto.HarmonyOption;
+            Harmony.Item = this;
         }
 
         public byte[] GetBytes()

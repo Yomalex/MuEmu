@@ -1,4 +1,5 @@
 ﻿using MU.DataBase;
+using MuEmu.Entity;
 using MuEmu.Network.Game;
 using System;
 using System.Collections.Generic;
@@ -77,12 +78,27 @@ namespace MuEmu
             _inventory.IndexTranslate = (int)Equipament.End;
             _personalShop.IndexTranslate = _inventory.IndexTranslate + Storage.InventorySize;
             _forDelete = new List<Item>();
-
             _equipament = new Dictionary<Equipament, Item>();
 
-            _equipament.Add(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (JewelOfHarmony)31 }));
-            //Equip(Equipament.RightHand, new Item(0, 0, new { Luck = true, Harmony = (JewelOfHarmony)30 }));
-            _inventory.Add(new Item(new ItemNumber(14,0), 0, new { Durability = (byte)255 }));
+            foreach (var item in characterDto.Items)
+            {
+                if(item.VaultId == 0)
+                    Add((byte)item.SlotId, new Item(item));
+            }
+        }
+
+        private void Add(byte pos, Item item)
+        {
+            if(pos < _inventory.IndexTranslate)
+            {
+                _equipament.Add((Equipament)pos, item);
+            }else if(pos < _personalShop.IndexTranslate)
+            {
+                _inventory.Add(pos, item);
+            }else
+            {
+                _personalShop.Add(pos, item);
+            }
         }
 
         public byte Add(Item it)

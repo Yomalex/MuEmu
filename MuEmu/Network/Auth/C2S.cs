@@ -66,7 +66,9 @@ namespace MuEmu.Network.Auth
     public class CCharacterMapJoin : IAuthMessage
     {
         [WZMember(0,10)]
-        public byte[] Name { get; set; }
+        public byte[] btName { get; set; }
+
+        public string Name => btName.MakeString();
     }
 
     [WZContract]

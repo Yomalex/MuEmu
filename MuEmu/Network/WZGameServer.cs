@@ -13,10 +13,10 @@ namespace MuEmu.Network
     internal class WZGameServer : WZServer
     {
         public string ClientVersion { get; set; }
+        public string ClientSerial { get; set; }
         public WZGameServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories)
         {
             Initialize(address, handler, new GSSessionFactory(), factories);
-            ClientVersion = "10635";
         }
 
         protected override void OnConnect(WZClient session)
@@ -32,7 +32,7 @@ namespace MuEmu.Network
         {
             var Session = session as GSSession;
             Session.Player.Status = LoginStatus.NotLogged;
-            Session.Player.Character.Map.DelPlayer(Session.Player.Character);
+            Session.Player?.Character?.Map.DelPlayer(Session.Player.Character);
             base.OnDisconnect(session);
         }
 

@@ -1,6 +1,8 @@
 ﻿using MU.DataBase;
+using MuEmu.Entity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MuEmu
@@ -14,43 +16,35 @@ namespace MuEmu
 
         public Player Player { get; set; }
 
-        public Dictionary<int, string> Characters { get; set; }
+        public Dictionary<byte, CharacterDto> Characters { get; set; }
 
         public byte ActiveVault { get; set; }
         public Storage Vault => _vaults[ActiveVault];
+        public int VaultMoney { get; set; }
 
         public Account(Player player, AccountDto accountDto)
         {
             Player = player;
             ActiveVault = 0;
 
-            Characters = new Dictionary<int, string>();
             _vaults = new Dictionary<byte, Storage>();
-            _vaults.Add(0, new Storage(Storage.WarehouseSize));
-            Vault.Add(new Item(new ItemNumber(0, 0), 0));
+
+            using (var db = new GameContext())
+                for (var i = (byte)0; i < accountDto.VaultCount; i++)
+                {
+                    _vaults.Add(i, new Storage(Storage.WarehouseSize));
+                    var items = db.Items
+                        .Where(x => x.VaultId == accountDto.AccountId * 10 + i);
+
+                    foreach(var it in items)
+                        _vaults[i].Add(new Item(it));
+                }
+
             Nickname = accountDto.Account;
-            ID = accountDto.ID;
-
-            if (accountDto.Character1 != null)
-            {
-
-            }
-            if (accountDto.Character2 != null)
-            {
-
-            }
-            if (accountDto.Character3 != null)
-            {
-
-            }
-            if (accountDto.Character4 != null)
-            {
-
-            }
-            if (accountDto.Character5 != null)
-            {
-
-            }
+            ID = accountDto.AccountId;
+            byte y = 0;
+            Characters = accountDto.Characters.ToDictionary(x => y++);
+            VaultMoney = accountDto.VaultMoney;
         }
     }
 }

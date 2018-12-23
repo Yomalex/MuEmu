@@ -11,13 +11,14 @@ namespace MU.DataBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Index { get; set; }
+        public int CharacterId { get; set; }
 
         public string Name { get; set; }
 
         public int Class { get; set; }
 
-        public int? Guild { get; set; }
+        public int? GuildId { get; set; }
+        public GuildDto Guild { get; set; }
 
         public byte Map { get; set; }
         public byte X { get; set; }
@@ -45,32 +46,14 @@ namespace MU.DataBase
         public ushort Energy { get; set; }
 
         public ushort Command { get; set; }
-
-        // Equipament
-        public int? LeftHand { get; set; }
-
-        public int? RightHand { get; set; }
-
-        public int? Helm { get; set; }
-
-        public int? Armor { get; set; }
-
-        public int? Pants { get; set; }
-
-        public int? Gloves { get; set; }
-
-        public int? Boots { get; set; }
-
-        public int? Wings { get; set; }
-
-        public int? Pet { get; set; }
-
+        
         // Inventory
-        public string Inventory { get; set; }
-
-        public string PersonalShop { get; set; }
+        public List<ItemDto> Items { get; set; }
 
         // Quest
-        IList<QuestDto> Quests { get; set; } = new List<QuestDto>();
+        public List<QuestDto> Quests { get; set; }
+
+        public int AccountId { get; set; }
+        public AccountDto Account { get; set; }
     }
 }

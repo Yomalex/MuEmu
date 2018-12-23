@@ -96,7 +96,7 @@ namespace MuEmu.Network.Auth
         public ushort Level { get; set; }
 
         [WZMember(4)]
-        public HeroClass Class { get; set; }
+        public byte Class { get; set; }
 
         [WZMember(5, typeof(ArraySerializer))]
         public byte[] Equipament { get; set; }
@@ -105,6 +105,27 @@ namespace MuEmu.Network.Auth
         {
             btName = Array.Empty<byte>();
             Equipament = new byte[24];
+        }
+
+        public SCharacterCreate(byte result)
+        {
+            btName = Array.Empty<byte>();
+            Equipament = new byte[24];
+
+            Result = result;
+        }
+
+        public SCharacterCreate(byte result, string name, byte pos, ushort level, byte[] equip, byte @class)
+        {
+            btName = Array.Empty<byte>();
+            Equipament = new byte[24];
+
+            Result = result;
+            Name = name;
+            Position = pos;
+            Level = level;
+            Equipament = equip;
+            Class = @class;
         }
 
         public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
@@ -124,7 +145,7 @@ namespace MuEmu.Network.Auth
         public byte ID { get; set; }
 
         [WZMember(1, 11)]
-        public byte[] Name { get; set; }
+        public byte[] btName { get; set; }
 
         [WZMember(2)]
         public ushort Level { get; set; }
@@ -137,6 +158,18 @@ namespace MuEmu.Network.Auth
 
         [WZMember(5)]
         public GuildStatus GuildStatus { get; set; }
+
+        public CharacterPreviewDto() { }
+
+        public CharacterPreviewDto(byte Id, string name, ushort level, ControlCode cc, byte[] charSet, GuildStatus gStatus)
+        {
+            ID = Id;
+            btName = name.GetBytes();
+            Level = level;
+            ControlCode = cc;
+            CharSet = charSet;
+            GuildStatus = gStatus;
+        }
     }
 
     [WZContract]

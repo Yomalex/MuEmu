@@ -11,20 +11,36 @@ namespace MU.DataBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Serial { get; set; }
+        public int ItemId { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime DateCreation { get; set; }
 
-        public byte Map { get; set; }
+        public int AccountId { get; set; }
+        public AccountDto Account { get; set; }
 
-        public int? Owner { get; set; }
+        public int CharacterId { get; set; }
+        public CharacterDto Character { get; set; }
 
-        public ushort Item { get; set; }
+        public int VaultId { get; set; }
+        public int SlotId { get; set; }
+
+        public ushort Number { get; set; }
+
+        public short Plus { get; set; }
 
         public bool Luck { get; set; }
 
         public bool Skill { get; set; }
 
-        public int Option { get; set; }
+        public short Durability { get; set; }
+
+        public short Option { get; set; }
+
+        public short OptionExe { get; set; }
+
+        public short HarmonyOption { get; set; }
+
+        public string SocketOptions { get; set; }
     }
 }

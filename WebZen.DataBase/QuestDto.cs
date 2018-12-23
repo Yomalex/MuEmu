@@ -11,10 +11,12 @@ namespace MU.DataBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
+        public int QuestId { get; set; }
 
-        public int Character { get; set; }
-        public int Quets { get; set; }
+        public int Quest { get; set; }
         public int State { get; set; }
+
+        public int CharacterId { get; set; }
+        public CharacterDto Character { get; set; }
     }
 }

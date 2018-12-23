@@ -10,17 +10,24 @@ namespace MU.DataBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
+        public int AccountId { get; set; }
 
-        public string Account { get; set; } 
+        [Required]
+        [MaxLength(11)]
+        public string Account { get; set; }
+
+        [Required]
+        [MaxLength(11)]
         public string Password { get; set; }
 
-        public int? Character1 { get; set; }
-        public int? Character2 { get; set; }
-        public int? Character3 { get; set; }
-        public int? Character4 { get; set; }
-        public int? Character5 { get; set; }
+        public int VaultCount { get; set; }
+        public int VaultMoney { get; set; }
 
-        public string Vault { get; set; }
+        public int ServerCode { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime LastConnection { get; set; }
+
+        public List<CharacterDto> Characters { get; set; }
     }
 }

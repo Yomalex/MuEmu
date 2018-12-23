@@ -10,6 +10,7 @@ namespace MuEmu.Resources.XML
     public class ServerInfoDto
     {
         [XmlElement] public string Version { get; set; }
+        [XmlElement] public string Serial { get; set; }
         [XmlElement] public string Name { get; set; }
         [XmlElement] public int Code { get; set; }
         [XmlElement] public int Show { get; set; }
@@ -17,5 +18,11 @@ namespace MuEmu.Resources.XML
         [XmlElement] public int Port { get; set; }
         [XmlElement] public string ConnectServerIP { get; set; }
         [XmlElement] public float Experience { get; set; }
+        [XmlElement] public bool AutoRegistre { get; set; }
+
+        [XmlElement] public string DBIp { get; set; }
+        [XmlElement] public string DataBase { get; set; }
+        [XmlElement] public string BDUser { get; set; }
+        [XmlElement] public string DBPassword { get; set; }
     }
 }
