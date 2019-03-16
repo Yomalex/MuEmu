@@ -158,6 +158,15 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class CItemGet : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        public ushort Number => wzNumber.ShufleEnding();
+    }
+
+    [WZContract]
     public class CEventEnterCount : IGameMessage
     {
         [WZMember(0)]
@@ -250,5 +259,57 @@ namespace MuEmu.Network.Game
 
         [WZMember(2)]
         public byte JewelPos { get; set; }
+    }
+
+    [WZContract]
+    public class CChaosBoxItemMixButtonClick : IGameMessage
+    { }
+
+    [WZContract]
+    public class CChaosBoxUseEnd : IGameMessage
+    { }
+
+    [WZContract]
+    public class CSkillKey : IGameMessage
+    {
+        [WZMember(0)]
+        public byte subcode { get; set; }   // 3
+
+        [WZMember(1, 20)]
+        public byte[] SkillKey { get; set; }  // 4
+
+        [WZMember(2)]
+        public byte GameOption { get; set; }    // E
+
+        [WZMember(3)]
+        public byte QkeyDefine { get; set; }    // F
+
+        [WZMember(4)]
+        public byte WkeyDefine { get; set; }    // 10
+
+        [WZMember(5)]
+        public byte EkeyDefine { get; set; }    // 11
+
+        [WZMember(6)]
+        public byte ChatWindow { get; set; }    // 13
+
+        [WZMember(7)]
+        public byte RkeyDefine { get; set; }
+
+        [WZMember(8)]
+        public uint QWERLevelDefine { get; set; }
+    }
+
+    [WZContract]
+    public class CItemThrow : IGameMessage
+    {
+        [WZMember(0)]
+        public byte MapX { get; set; }   // 3
+
+        [WZMember(1)]
+        public byte MapY { get; set; }  // 4
+
+        [WZMember(2)]
+        public byte Source { get; set; }    // 5
     }
 }

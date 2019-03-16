@@ -25,6 +25,9 @@ namespace MU.DataBase
 
         public int ServerCode { get; set; }
 
+        [Column(TypeName = "TINYINT(1)")]
+        public bool IsConnected { get; set; }
+
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime LastConnection { get; set; }
 

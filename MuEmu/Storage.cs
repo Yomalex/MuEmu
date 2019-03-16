@@ -20,6 +20,7 @@ namespace MuEmu
         private RectangleF _bounds;
         private List<RectangleF> _map;
 
+        public bool NeedSave { get; set; }
         public int IndexTranslate { get; set; }
         public int Size { get; set; }
         public int Money { get; set; }
@@ -33,9 +34,23 @@ namespace MuEmu
             _map = new List<RectangleF>();
         }
 
+        public Storage(int size, int startIndex)
+        {
+            Size = size;
+            _items = new Dictionary<byte, Item>();
+            _bounds = new RectangleF(new Point(0, 0), new SizeF(8, Size / 8));
+            _map = new List<RectangleF>();
+            IndexTranslate = startIndex;
+        }
+
         public byte Add(Item it)
         {
-            for (var i = 0; i < Size; i++)
+            return Add(it, 0);
+        }
+
+        public byte Add(Item it, byte offset)
+        {
+            for (var i = offset; i < Size; i++)
             {
                 var itemRect = new RectangleF(new Point(i % 8, i / 8), it.BasicInfo.Size);
                 itemRect.Width -= 0.1f;
@@ -46,7 +61,9 @@ namespace MuEmu
                 if (_map.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
                 {
                     _add((byte)i, it);
-                    return (byte)(IndexTranslate + i);
+                    NeedSave = true;
+                    it.SlotId = IndexTranslate + i;
+                    return (byte)it.SlotId;
                 }
             }
 
@@ -68,8 +85,10 @@ namespace MuEmu
             if (pos >= Size)
                 return false;
 
+            it.SlotId = pos + IndexTranslate;
             _items.Add(pos, it);
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
+            NeedSave = true;
             return true;
         }
 
@@ -93,6 +112,11 @@ namespace MuEmu
             return _items
                 .Select(x => new InventoryDto { Index = (byte)(x.Key+IndexTranslate), Item = x.Value.GetBytes() })
                 .ToArray();
+        }
+
+        public bool CanContain(byte address)
+        {
+            return address >= IndexTranslate && address <= (IndexTranslate + Size);
         }
     }
 }

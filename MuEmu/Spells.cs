@@ -159,14 +159,15 @@ namespace MuEmu
         public async void SendList()
         {
             var i = 0;
-            var list = new List<SpellDto>();
+            var list = new List<MuEmu.Network.Data.SpellDto>();
             foreach(var magic in _spellList)
             {
-                list.Add(new SpellDto
+                list.Add(new MuEmu.Network.Data.SpellDto
                 {
                     Index = (byte)i,
                     Spell = (ushort)magic.Key,
                 });
+                i++;
             }
             await Player.Session.SendAsync(new SSpells(0, list.ToArray()));
         }

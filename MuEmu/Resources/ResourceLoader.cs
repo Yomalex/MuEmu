@@ -108,6 +108,7 @@ namespace MuEmu.Resources
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
+                                        Name = sm.Groups[9].Value,
                                         Level = ushort.Parse(sm.Groups[10].Value),
                                         Damage = new Point(ushort.Parse(sm.Groups[11].Value), ushort.Parse(sm.Groups[12].Value)),
                                         Speed = ushort.Parse(sm.Groups[13].Value),
@@ -149,6 +150,7 @@ namespace MuEmu.Resources
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
+                                        Name = sm.Groups[9].Value,
                                         Level = ushort.Parse(sm.Groups[10].Value),
                                         Def = ushort.Parse(sm.Groups[11].Value),
                                         DefRate = ushort.Parse(sm.Groups[12].Value),
@@ -186,6 +188,7 @@ namespace MuEmu.Resources
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
+                                        Name = sm.Groups[9].Value,
                                         Level = ushort.Parse(sm.Groups[10].Value),
                                         Def = ushort.Parse(sm.Groups[11].Value),
                                         Durability = byte.Parse(sm.Groups[12].Value),
@@ -229,6 +232,7 @@ namespace MuEmu.Resources
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
+                                        Name = sm.Groups[9].Value,
                                         Level = ushort.Parse(sm.Groups[10].Value),
                                         Durability = byte.Parse(sm.Groups[11].Value),
                                         Attributes = a,
@@ -273,6 +277,7 @@ namespace MuEmu.Resources
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
+                                        Name = sm.Groups[9].Value,
                                         Level = ushort.Parse(sm.Groups[10].Value),
                                         ReqLevel = ushort.Parse(sm.Groups[11].Value),
                                         Ene = ushort.Parse(sm.Groups[12].Value),
@@ -327,7 +332,7 @@ namespace MuEmu.Resources
                 var eq = new Dictionary<ushort, Item>();
                 foreach(var e in @char.Equipament)
                 {
-                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), 0, new { e.Level }));
+                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), 0, new { Plus = (byte)e.Level }));
                 }
 
                 yield return new CharacterInfo
@@ -417,6 +422,7 @@ namespace MuEmu.Resources
                 NPCInfo info = new NPCInfo
                 {
                     NPC = npc.NPC,
+                    ShopNumber = 0xffff,
                 };
                 switch (type)
                 {
@@ -426,14 +432,12 @@ namespace MuEmu.Resources
                     case NPCAttributeType.Shop:
                         var shops = ResourceCache.Instance.GetShops();
                         var shopNum = ushort.Parse(npc.Data);
+
                         if (shops.ContainsKey(shopNum))
-                        {
-                            info.Shop = shops[shopNum];
-                        }
+                            info.ShopNumber = shopNum;
                         else
-                        {
-                            Logger.Error("Shop {0} no exists", shopNum);
-                        }
+                            Logger.Error("Shop {0} no found", shopNum);
+
                         break;
                     case NPCAttributeType.Warehouse:
                         info.Warehouse = true;
@@ -526,6 +530,7 @@ namespace MuEmu.Resources
                     Number = g.Number,
                     ReqLevel = g.ReqLevel,
                     Target = g.Target,
+                    Move = g.Move,
                     Dir = g.Dir,
                     Door = new Rectangle(g.X1,g.Y1, g.X2- g.X1, g.Y2- g.Y1),
                     ReqZen = g.ReqZen,

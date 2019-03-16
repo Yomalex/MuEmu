@@ -5,6 +5,7 @@ using MuEmu.Network;
 using MuEmu.Security;
 using MU.DataBase;
 using System.Threading.Tasks;
+using MuEmu.Entity;
 
 namespace MuEmu
 {
@@ -41,6 +42,15 @@ namespace MuEmu
                 throw new InvalidOperationException("Player is not playing");
 
             await Character.SendV2Message(message);
+        }
+
+        public async Task Save(GameContext db)
+        {
+            if(Account != null)
+                await Account.Save(db);
+
+            if(Character != null)
+                await Character.Save(db);
         }
     }
 }

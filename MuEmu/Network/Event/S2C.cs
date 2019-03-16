@@ -136,4 +136,19 @@ namespace MuEmu.Network.Event
             Type = type;
         }
     }
+
+    // Crywolf
+    [WZContract]
+    public class SCrywolfBenefit : IEventMessage
+    {
+        [WZMember(0)]
+        public byte PlusChaosRate { get; set; }
+
+        public SCrywolfBenefit() { }
+
+        public SCrywolfBenefit(byte pcr)
+        {
+            PlusChaosRate = pcr;
+        }
+    }
 }

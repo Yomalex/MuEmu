@@ -167,11 +167,216 @@ namespace MuEmu.Network.Game
             }
         }
 
+        [MessageHandler(typeof(CPointAdd))]
+        public void CPointAdd(GSSession session, CPointAdd message)
+        {
+            var @char = session.Player.Character;
+            var msg = new SPointAdd
+            {
+                Result = (byte)(0x10 | (byte)message.Type),
+            };
+
+            switch(message.Type)
+            {
+                case PointAdd.Strength:
+                    if (@char.Strength + 1 <= short.MaxValue)
+                    {
+                        @char.LevelUpPoints--;
+                        @char.Strength++;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
+                    }else
+                    {
+                        msg.Result = 0;
+                    }
+                    break;
+                case PointAdd.Agility:
+                    if (@char.Agility + 1 <= short.MaxValue)
+                    {
+                        @char.LevelUpPoints--;
+                        @char.Agility++;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
+                    }
+                    else
+                    {
+                        msg.Result = 0;
+                    }
+                    break;
+                case PointAdd.Vitality:
+                    if (@char.Vitality + 1 <= short.MaxValue)
+                    {
+                        @char.LevelUpPoints--;
+                        @char.Vitality++;
+                        msg.MaxLifeAndMana = (ushort)@char.MaxHealth;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
+                    }
+                    else
+                    {
+                        msg.Result = 0;
+                    }
+                    break;
+                case PointAdd.Energy:
+                    if (@char.Energy + 1 <= short.MaxValue)
+                    {
+                        @char.LevelUpPoints--;
+                        @char.Energy++;
+                        msg.MaxLifeAndMana = (ushort)@char.MaxMana;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
+                    }
+                    else
+                    {
+                        msg.Result = 0;
+                    }
+                    break;
+                case PointAdd.Command:
+                    if (@char.Command + 1 <= short.MaxValue)
+                    {
+                        @char.LevelUpPoints--;
+                        @char.Command++;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
+                    }
+                    else
+                    {
+                        msg.Result = 0;
+                    }
+                    break;
+            }
+
+            session.SendAsync(msg);
+        }
+
         // lacting
         [MessageHandler(typeof(CUseItem))]
         public void CUseItem(GSSession session, CUseItem message)
         {
+            var @char = session.Player.Character;
+            var inv = @char.Inventory;
 
+            Logger.Debug("CUseItem {0} {1} {2}", message.Source, message.Dest, message.Type);
+
+            var Source = inv.Get(message.Source);
+
+            switch(Source.Number)
+            {
+                case 14 * 512 + 0:// Apple
+                case 14 * 512 + 1:// Small HP Potion
+                case 14 * 512 + 2:// Medium HP Potion
+                case 14 * 512 + 3:// Big HP Potion
+                    var AddLife = (Source.SellPrice * 10) - (@char.Level * 2);
+                    if (AddLife < 0)
+                        AddLife = 0;
+
+                    float AddLifeRate = ((Source.Number.Index+1) * 10.0f) + (Source.Plus * 5.0f);
+                    AddLife += (long)(@char.MaxHealth * AddLifeRate / 100.0f);
+                    if (Source.Durability == 1)
+                        inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+                    break;
+                case 14 * 512 + 4:// Small MP Potion
+                case 14 * 512 + 5:// Medium MP Potion
+                case 14 * 512 + 6:// Big MP Potion
+                    var AddMana = (Source.SellPrice * 10) - @char.Level;
+                    if (AddMana < 0)
+                        AddMana = 0;
+
+                    float AddManaRate = ((Source.Number.Index - 3) * 10.0f) + (Source.Plus * 5.0f);
+                    AddMana += (uint)(@char.MaxMana * AddManaRate / 100.0f);
+                    if (Source.Durability == 1)
+                        inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+                    break;
+                case 14 * 512 + 13: //  Jewel of Bless
+                    {
+                        var Target = inv.Get(message.Dest);
+                        if (Target.Plus >= 7)
+                            break;
+
+                        inv.Delete(message.Source);
+                        Target.Plus++;
+                    }
+                    break;
+                case 14 * 512 + 14: //  Jewel of Soul
+                    {
+                        var Target = inv.Get(message.Dest);
+                        if (Target.Plus >= 9)
+                            break;
+
+                        inv.Delete(message.Source);
+                        var soulRate = 50 + (Target.Luck ? 25 : 0);
+                        if (new Random().Next(100) < soulRate)
+                        {
+                            Target.Plus++;
+                        }
+                        else
+                        {
+                            if (Target.Plus > 7)
+                                Target.Plus = 0;
+                            else
+                                Target.Plus--;
+                        }
+                    }
+                    break;
+                case 14 * 512 + 16: // Jewel of Life
+                    {
+                        var Target = inv.Get(message.Dest);
+                        if (Target.Option28 >= 3)
+                            break;
+
+                        inv.Delete(message.Source);
+                        Target.Option28++;
+                    }
+                    break;
+            }
+        }
+
+        [MessageHandler(typeof(CItemThrow))]
+        public void CItemThrow(GSSession session, CItemThrow message)
+        {
+            var logger = Logger.ForAccount(session);
+            var plr = session.Player;
+            var inv = plr.Character.Inventory;
+            var item = inv.Get(message.Source);
+            inv.Delete(message.Source);
+
+            var date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+            session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
+            logger.Information("Drop item {0} at {1},{2} in {3} deleted at {4}", item.Number, message.MapX, message.MapY, plr.Character.MapID, date);
+        }
+
+        [MessageHandler(typeof(CItemGet))]
+        public async Task CItemGet(GSSession session, CItemGet message)
+        {
+            var @char = session.Player.Character;
+            var item = (from obj in @char.Map.Items
+                       where obj.Index == message.Number && obj.State == Resources.Map.ItemState.Created
+                       select obj).FirstOrDefault();
+
+            if(item == null)
+            {
+                Logger.ForAccount(session)
+                    .Error("Item {0} no exist", message.Number);
+                await session.SendAsync(new SItemGet { Result = 0xff });
+                return;
+            }
+
+            var pos = @char.Inventory.Add(item.Item);
+            if (pos == 0xff)
+            {
+                await session.SendAsync(new SItemGet { Result = 0xff });
+                return;
+            }
+            item.State = Resources.Map.ItemState.Deleted;
+
+            var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
+            await session.SendAsync(msg);
+            await session.Player.SendV2Message(msg);
+            await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
         }
 
         [MessageHandler(typeof(CEventEnterCount))]
@@ -199,10 +404,11 @@ namespace MuEmu.Network.Game
                 else if (npc.Warehouse)
                 {
                     session.Player.Window = session.Player.Account.Vault;
+                    
                     session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
                     session.SendAsync(new STalk { Result = 2 });
                     session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
-                    session.SendAsync(new SWarehouseMoney { wMoney = 0, iMoney = 0 });
+                    session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
                 }
                 else if (npc.EventChips)
                 {
@@ -337,16 +543,23 @@ namespace MuEmu.Network.Game
 
             Logger.ForAccount(session).Debug("Attack {0} {1}:{2} {3}", message.AttackAction, unkA, unkB, target);
             session.Player.Character.Direction = message.DirDis;
-            session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, target));
 
             if (target >= MonstersMng.MonsterStartIndex) // Is Monster
             {
-                var monster = MonstersMng.Instance.GetMonster(target);
-                if(monster.Type == ObjectType.NPC)
+                try
+                {
+                    var monster = MonstersMng.Instance.GetMonster(target);
+                    session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, target));
+                    if (monster.Type == ObjectType.NPC)
+                    {
+                        Logger.ForAccount(session)
+                            .Error("NPC Can't be attacked");
+                        return;
+                    }
+                }catch(Exception ex)
                 {
                     Logger.ForAccount(session)
-                        .Error("NPC Can't be attacked");
-                    return;
+                        .Error("Invalid monster #{0}", target);
                 }
 
                 //var ad = session.Player.Character.Attack - monster.Defense;
@@ -363,7 +576,7 @@ namespace MuEmu.Network.Game
             var gates = ResourceCache.Instance.GetGates();
 
             var gate = (from g in gates
-                        where g.Value.GateType == GateType.Warp && g.Value.Target == message.MoveNumber
+                        where g.Value.GateType != GateType.Exit && g.Value.Move == message.MoveNumber
                         select g.Value).FirstOrDefault();
 
             if (gate == null)
@@ -486,6 +699,44 @@ namespace MuEmu.Network.Game
             @char.Inventory.Delete(message.JewelPos);
             @char.Inventory.SendInventory();
             session.SendAsync(new SJewelMix(7));
+        }
+
+        [MessageHandler(typeof(CChaosBoxItemMixButtonClick))]
+        public async Task CChaosBoxItemMixButtonClick(GSSession session)
+        {
+            var @char = session.Player.Character;
+            var cbMix = @char.Inventory.ChaosBox;
+
+            var jochaos = from obj in cbMix.Items
+                      where obj.Value.Number == ItemNumber.FromTypeIndex(12, 15)
+                      select obj;
+
+            var job = from obj in cbMix.Items
+                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 13)
+                      select obj;
+
+            var jos = from obj in cbMix.Items
+                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 14)
+                      select obj;
+
+            var jol = from obj in cbMix.Items
+                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 16)
+                      select obj;
+
+            var jocreation = from obj in cbMix.Items
+                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 22)
+                      select obj;
+
+            var jewels = new List<byte>();
+            jewels.AddRange(jochaos.Select(x => x.Key));
+            jewels.AddRange(job.Select(x => x.Key));
+            jewels.AddRange(jos.Select(x => x.Key));
+            jewels.AddRange(jol.Select(x => x.Key));
+            jewels.AddRange(jocreation.Select(x => x.Key));
+
+            var leftItems = cbMix.Items.Where(x => !jewels.Contains(x.Key));
+
+            await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail });
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MU.DataBase;
+using MuEmu.Entity;
 using MuEmu.Network.Auth;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
@@ -16,6 +17,7 @@ namespace MuEmu
 {
     public class Character
     {
+        private int _characterId;
         private float _hp;
         private float _hpMax;
         private float _hpAdd;
@@ -42,20 +44,27 @@ namespace MuEmu
         private ushort _cmdAdd;
         private uint _zen;
         private Maps _map;
+        private bool _needSave;
+        private HeroClass _class;
+        private ushort _level;
+        private byte _pkLevel;
+        private ushort _levelUpPoints;
 
+        public int Id => _characterId;
         public Player Player { get; }
-        public Account Account { get; }
+        public Account Account => Player.Account;
         public Quests Quests { get; }
         public Guild Guild { get; set; }
         public Inventory Inventory { get; }
         public Spells Spells { get; }
         public bool Change { get; set; }
         
-        public IEnumerable<ushort> MonstersVP { get; set; }
-        public IEnumerable<Player> PlayersVP { get; set; }
+        public List<ushort> MonstersVP { get; set; }
+        public List<Player> PlayersVP { get; set; }
+        public List<ushort> ItemsVP { get; set; }
 
         // Basic Info
-        public HeroClass Class { get; set; }
+        public HeroClass Class { get => _class; set { _class = value; _needSave = true; BaseInfo = ResourceCache.Instance.GetDefChar()[BaseClass]; } }
         public HeroClass BaseClass => (HeroClass)(((int)Class) & 0xF0);
         public bool Changeup {
             get => (((byte)Class)&0x0F) == 1;
@@ -74,9 +83,9 @@ namespace MuEmu
                 Class |= (HeroClass)(value ? 2 : 0);
             }
         }
-        public CharacterInfo BaseInfo => ResourceCache.Instance.GetDefChar()[BaseClass];
+        public CharacterInfo BaseInfo { get; private set; }
         public string Name { get; set; }
-        public ushort Level { get; set; }
+        public ushort Level { get => _level; set { _level = value; _needSave = true; } }
         public float Health {
             get => _hp;
             set {
@@ -214,12 +223,27 @@ namespace MuEmu
                     return;
 
                 _zen = value;
+                _needSave = true;
                 OnMoneyChange();
             }
         }
+        public byte PKLevel { get => _pkLevel; set { _pkLevel = value; _needSave = true; } }
 
         // Map
-        public Maps MapID { get => _map; set { _map = value; MapChanged?.Invoke(this, new EventArgs()); } }
+        public Maps MapID {
+            get => _map;
+            set {
+                if (_map == value)
+                    return;
+
+                _map = value;
+                Map?.DelPlayer(this);
+                MapChanged?.Invoke(this, new EventArgs());
+                Map = ResourceCache.Instance.GetMaps()[_map];
+                Map.AddPlayer(this);
+                _needSave = true;
+            }
+        }
         public Point Position { get => _position; set
             {
                 if (_position == value)
@@ -232,7 +256,7 @@ namespace MuEmu
         public byte Direction { get; set; }
         public byte Action { get; set; }
 
-        public MapInfo Map => ResourceCache.Instance.GetMaps()[MapID];
+        public MapInfo Map { get; private set; }
 
         public event EventHandler MapChanged;
 
@@ -250,64 +274,156 @@ namespace MuEmu
 
                 if (_exp < BaseExperience)
                     _exp = BaseExperience;
+
+                _needSave = true;
             }
         }
         public ulong BaseExperience => GetExperienceFromLevel((ushort)(Level - 1));
         public ulong NextExperience => GetExperienceFromLevel(Level);
 
         // Points
-        public ushort LevelUpPoints { get; set; }
-        public ushort Str
-        {
-            get => (ushort)(_str + _strAdd); set
-            {
-                if (value == _str + _strAdd)
-                    return;
-
-                _strAdd = (ushort)(value - _str);
-            }
-        }
-        public ushort Agility
-        {
-            get => (ushort)(_agi + _agiAdd); set
-            {
-                if (value == _agi + _agiAdd)
-                    return;
-
-                _agiAdd = (ushort)(value - _agi);
-            }
-        }
-        public ushort Vitality
-        {
-            get => (ushort)(_agi + _vitAdd);
+        public ushort LevelUpPoints { get => _levelUpPoints;
             set
             {
-                if (value == _agi + _vitAdd)
+                if (_levelUpPoints == value)
                     return;
 
-                _vitAdd = (ushort)(value - _agi);
+                _levelUpPoints = value;
+                _needSave = true;
             }
         }
+
+        public ushort Strength
+        {
+            get => _str;
+            set
+            {
+                if (value == _str)
+                    return;
+
+                _str = value;
+                CalcStats();
+            }
+        }
+        public ushort StrengthAdd
+        {
+            get => _strAdd;
+            set
+            {
+                if (value == _strAdd)
+                    return;
+
+                _strAdd = value;
+                CalcStats();
+            }
+        }
+        public ushort StrengthTotal => (ushort)(_str + _strAdd);
+
+        public ushort Agility
+        {
+            get => _agi;
+            set
+            {
+                if (value == _agi)
+                    return;
+
+                _agi = value;
+                CalcStats();
+            }
+        }
+        public ushort AgilityAdd
+        {
+            get => (_agiAdd);
+            set
+            {
+                if (value == _agiAdd)
+                    return;
+
+                _agiAdd = value;
+                CalcStats();
+            }
+        }
+        public ushort AgilityTotal => (ushort)(_agi + _agiAdd);
+
+        public ushort Vitality
+        {
+            get => _vit;
+            set
+            {
+                if (value == _vit)
+                    return;
+
+                _vit = value;
+                CalcStats();
+            }
+        }
+        public ushort VitalityAdd
+        {
+            get => _vitAdd;
+            set
+            {
+                if (value == _vitAdd)
+                    return;
+
+                _vitAdd = value;
+                CalcStats();
+            }
+        }
+        public ushort VitalityTotal => (ushort)(_vit + _vitAdd);
+
+
         public ushort Energy
         {
-            get => (ushort)(_ene + _eneAdd); set
+            get => _ene;
+            set
             {
-                if (value == _ene + _eneAdd)
+                if (value == _ene)
                     return;
 
-                _eneAdd = (ushort)(value - _ene);
+                _ene = value;
+                CalcStats();
             }
         }
+        public ushort EnergyAdd
+        {
+            get => _eneAdd;
+            set
+            {
+                if (value == _eneAdd)
+                    return;
+
+                _eneAdd = value;
+                CalcStats();
+            }
+        }
+        public ushort EnergyTotal => (ushort)(_ene + _eneAdd);
+
         public ushort Command
         {
-            get => (ushort)(_cmd + _cmdAdd); set
+            get => _cmd;
+            set
             {
-                if (value == _cmd + _cmdAdd)
+                if (value == _cmd)
                     return;
 
-                _cmdAdd = (ushort)(value - _cmd);
+                _cmd = value;
+                CalcStats();
             }
         }
+        public ushort CommandAdd
+        {
+            get => _cmdAdd;
+            set
+            {
+                if (value == _cmdAdd)
+                    return;
+
+                _cmdAdd = value;
+                CalcStats();
+            }
+        }
+        public ushort CommandTotal => (ushort)(_cmd + _cmdAdd);
+
         public int TotalPoints => _str + _agi + _vit + _ene + _cmd + LevelUpPoints;
 
         public short AddPoints => (short)(TotalPoints - (BaseInfo.Stats.Str+ BaseInfo.Stats.Agi+ BaseInfo.Stats.Vit+ BaseInfo.Stats.Ene+ BaseInfo.Stats.Cmd + (Level-1)*5));
@@ -329,8 +445,8 @@ namespace MuEmu
 
         public Character(Player plr, CharacterDto characterDto)
         {
+            _characterId = characterDto.CharacterId;
             Player = plr;
-            Account = Player.Account;
             Name = characterDto.Name;
             Class = (HeroClass)characterDto.Class;
             Level = characterDto.Level;
@@ -338,11 +454,13 @@ namespace MuEmu
             Quests = new Quests(this, characterDto);
             Spells = new Spells(this, characterDto);
             MonstersVP = new List<ushort>();
+            ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
 
             MapID = (Maps)characterDto.Map;
-            Position = new Point(characterDto.X, characterDto.Y);
+            Map = ResourceCache.Instance.GetMaps()[_map];
             Map.AddPlayer(this);
+            _position = new Point(characterDto.X, characterDto.Y);
 
             Experience = (ulong)characterDto.Experience;
             _str = characterDto.Str;
@@ -357,17 +475,17 @@ namespace MuEmu
             Health = characterDto.Life;
             Stamina = _bpMax / 2;
             Mana = characterDto.Mana;
-            _zen = 100000000;
+            _zen = characterDto.Money;
 
             var StatsInfo = new SCharacterMapJoin2
             {
                 Map = MapID,
                 LevelUpPoints = LevelUpPoints,
-                Str = Str,
-                Agi = Agility,
-                Vit = Vitality,
-                Ene = Energy,
-                Cmd = Command,
+                Str = StrengthTotal,
+                Agi = AgilityTotal,
+                Vit = VitalityTotal,
+                Ene = EnergyTotal,
+                Cmd = CommandTotal,
                 Direccion = Direction,
                 Experience = Experience.ShufleEnding(),
                 NextExperience = NextExperience.ShufleEnding(),
@@ -405,6 +523,7 @@ namespace MuEmu
 
         private async void HPorSDChanged()
         {
+            Console.WriteLine("HP Changed");
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
@@ -450,7 +569,7 @@ namespace MuEmu
             var att = BaseInfo.Attributes;
             _hpMax = (att.Life + att.LevelLife * (Level - 1));
             _mpMax = (att.Mana + att.LevelMana * (Level - 1));
-            _bpMax = (att.StrToBP * Str) + (att.AgiToBP * Agility) + (att.VitToBP * Vitality) + (att.EneToBP * Energy);
+            _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
         }
         private async void OnMoneyChange()
@@ -492,6 +611,36 @@ namespace MuEmu
         {
             Position = position;
             await Player.Session.SendAsync(new STeleport(0, MapID, Position, Direction));
+        }
+
+        public async Task Save(GameContext db)
+        {
+            await Inventory.Save(db);
+
+            if (_needSave == false)
+                return;
+
+            var charDto = db.Characters.First(x => x.CharacterId == _characterId);
+            charDto.Class = (byte)_class;
+            charDto.Level = _level;
+            charDto.LevelUpPoints = _levelUpPoints;
+            charDto.Map = (byte)_map;
+            charDto.X = (byte)_position.X;
+            charDto.Y = (byte)_position.Y;
+            charDto.Experience = (long)_exp;
+            charDto.Life = (ushort)_hp;
+            charDto.MaxLife = (ushort)_hpMax;
+            charDto.Mana = (ushort)_mp;
+            charDto.MaxMana = (ushort)_mpMax;
+            charDto.Str = _str;
+            charDto.Agility = _agi;
+            charDto.Vitality = _vit;
+            charDto.Energy = _ene;
+            charDto.Command = _cmd;
+            charDto.Money = _zen;
+            db.Characters.Update(charDto);
+
+            _needSave = false;
         }
     }
 }

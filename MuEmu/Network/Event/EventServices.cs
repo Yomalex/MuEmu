@@ -77,5 +77,11 @@ namespace MuEmu.Network.Event
 
             @char.Inventory.Delete(message.ItemPos);
         }
+
+        [MessageHandler(typeof(CCrywolfBenefit))]
+        public void CCrywolfBenefit(GSSession session)
+        {
+            session.SendAsync(new SCrywolfBenefit());
+        }
     }
 }

@@ -13,7 +13,8 @@ namespace MuEmu.Data
         public bool EventChips { get; set; }
         public byte Window { get; set; }
         public ushort Quest { get; set; }
-        public ShopInfo Shop { get; set; }
+        public ushort ShopNumber { get; set; }
+        public ShopInfo Shop => ShopNumber != 0xffff ? Resources.ResourceCache.Instance.GetShops()[ShopNumber] : null;
         public ushort Buff { get; set; }
     }
 }

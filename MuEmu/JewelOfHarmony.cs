@@ -10,7 +10,7 @@ namespace MuEmu
         public byte Option { get; set; }
         public byte Level { get; set; }
         public Item Item { get; set; }
-        public byte Type => (byte)(Item.Number < 5 ? 1 : (Item.Number >= 5 && Item.Number < 6 ? 2 : (Item.Number >= 6 && Item.Number < 12 ? 3 : 0)));
+        public byte Type => (byte)((Item!=null)?(Item.Number < 5 ? 1 : (Item.Number >= 5 && Item.Number < 6 ? 2 : (Item.Number >= 6 && Item.Number < 12 ? 3 : 0))):0);
         public byte Index => (byte)(Type << 4 | Option);
 
         public static implicit operator byte(JewelOfHarmony a)

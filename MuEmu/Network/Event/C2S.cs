@@ -35,4 +35,9 @@ namespace MuEmu.Network.Event
         public byte ItemPos { get; set; }
     }
 
+
+    // Crywolf
+    [WZContract]
+    public class CCrywolfBenefit : IEventMessage
+    { }
 }

@@ -41,6 +41,7 @@ namespace MuEmu.Network
         Spells = 0x11F3,
         DataLoadOK = 0x12F3,
         Equipament = 0x13F3,
+        OneItemSend = 0x14F3,
         SkillKey = 0x30F3,
         Command = 0x40F3,
         NewQuestInfo = 0x1AF6,
@@ -64,10 +65,12 @@ namespace MuEmu.Network
         ViewPortItemCreate = 0xFF20,
         ViewPortItemDestroy = 0xFF21,
         ItemGet = 0xFF22,
+        ItemThrow = 0xFF23,
         MoveItem = 0xFF24,
         HealthUpdate = 0xFF26,
         ManaUpdate = 0xFF27,
         InventoryItemDelete = 0xFF28,
+        InventoryItemDurUpdate = 0xFF2A,
         Talk = 0xFF30,
         CloseWindow = 0xFF31,
         Buy = 0xFF32,
@@ -77,6 +80,8 @@ namespace MuEmu.Network
         ViewPortGuildCreate = 0xFF65,
         WarehouseMoney = 0xFF81,
         WarehouseUseEnd = 0xFF82,
+        ChaosBoxItemMixButtonClick = 0xFF86,
+        ChaosBoxUseEnd = 0xFF87,
         EventEnterCount = 0xFF9F,
         QuestInfo = 0xFFA0,
         FriendList = 0xFFC0,
@@ -98,6 +103,8 @@ namespace MuEmu.Network
         EventChipInfo = 0xFF94,
         BloodCastleEnter = 0xFF9A,
         BloodCastleState = 0xFF9B,
+
+        CrywolfBenefit = 0x09BD,
     }
 
     public enum CashOpCode : ushort

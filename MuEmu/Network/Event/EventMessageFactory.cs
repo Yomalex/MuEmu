@@ -19,6 +19,9 @@ namespace MuEmu.Network.Event
             Register<CLuckyCoinsRegistre>(EventOpCode.LuckyCoinsRegistre);
             Register<CBloodCastleMove>(EventOpCode.BloodCastleEnter);
 
+            // Crywolf
+            Register<CCrywolfBenefit>(EventOpCode.CrywolfBenefit);
+
             // S2C
             Register<SEventRemainTime>(EventOpCode.RemainTime);
             //LuckyCoins
@@ -32,6 +35,9 @@ namespace MuEmu.Network.Event
 
             //DevilSquare
             Register<SDevilSquareSet>(EventOpCode.DevilSquareSet);
+
+            // Crywolf
+            Register<SCrywolfBenefit>(EventOpCode.CrywolfBenefit);
         }
     }
 }

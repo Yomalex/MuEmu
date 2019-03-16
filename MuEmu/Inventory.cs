@@ -1,6 +1,8 @@
 ﻿using MU.DataBase;
 using MuEmu.Entity;
 using MuEmu.Network.Game;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,28 +14,35 @@ namespace MuEmu
 {
     public class Inventory
     {
-        public Player Player { get; set; }
+        //public Player Player { get; set; }
+        public Character Character { get; }
+
         private Dictionary<Equipament, Item> _equipament;
         private Storage _inventory;
         private Storage _chaosBox;
         private Storage _personalShop;
         private Storage _tradeBox;
         private List<Item> _forDelete;
+        private bool _needSave;
 
-        public int Defense => _equipament.Sum(x => x.Value.Defense);
+        public int Defense => _equipament.Values.Sum(x => x.Defense);
         //public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);
+
+        public Storage ChaosBox => _chaosBox;
+        public Storage PersonalShop => _personalShop;
+        public Storage TradeBox => _tradeBox;
 
         public byte[] FindAll(ItemNumber num)
         {
             var res = new List<byte>();
-            foreach(var e in _equipament)
+            foreach (var e in _equipament)
             {
-                if(e.Value.Number == num)
+                if (e.Value.Number == num)
                 {
                     res.Add((byte)e.Key);
                 }
             }
-            foreach(var inv in _inventory.Items)
+            foreach (var inv in _inventory.Items)
             {
                 if (inv.Value.Number == num)
                 {
@@ -70,15 +79,17 @@ namespace MuEmu
 
         public Inventory(Character @char, CharacterDto characterDto)
         {
-            Player = @char?.Player??null;
-            _inventory = new Storage(Storage.InventorySize);
-            _chaosBox = new Storage(Storage.ChaosBoxSize);
-            _tradeBox = new Storage(Storage.TradeSize);
-            _personalShop = new Storage(Storage.TradeSize);
-            _inventory.IndexTranslate = (int)Equipament.End;
-            _personalShop.IndexTranslate = _inventory.IndexTranslate + Storage.InventorySize;
-            _forDelete = new List<Item>();
+            Character = @char;
+            //Player = @char?.Player??null;
             _equipament = new Dictionary<Equipament, Item>();
+            _inventory = new Storage(Storage.InventorySize, 12);
+            _personalShop = new Storage(Storage.TradeSize, _inventory.IndexTranslate + Storage.InventorySize);
+            if (@char != null)
+            {
+                _chaosBox = new Storage(Storage.ChaosBoxSize);
+                _tradeBox = new Storage(Storage.TradeSize);
+            }
+            _forDelete = new List<Item>();
 
             foreach (var item in characterDto.Items)
             {
@@ -89,43 +100,63 @@ namespace MuEmu
 
         private void Add(byte pos, Item item)
         {
-            if(pos < _inventory.IndexTranslate)
+            if (pos < _inventory.IndexTranslate)
             {
+                if(_equipament.ContainsKey((Equipament)pos))
+                    throw new InvalidOperationException($"Already equiped slot {(Equipament)pos} with item {_equipament[(Equipament)pos].ToString()}, new item {item.ToString()}");
                 _equipament.Add((Equipament)pos, item);
-            }else if(pos < _personalShop.IndexTranslate)
+            }
+            else
+            if (pos < _personalShop.IndexTranslate)
             {
                 _inventory.Add(pos, item);
             }else
             {
-                _personalShop.Add(pos, item);
+                _personalShop?.Add(pos, item);
             }
+
+            if (Character != null)
+            {
+                item.AccountId = Character.Account.ID;
+                item.CharacterId = Character.Id;
+                item.Character = Character;
+            }
+            _needSave = true;
         }
 
         public byte Add(Item it)
         {
+            if (Character != null)
+            {
+                it.AccountId = Character.Account.ID;
+                it.CharacterId = Character.Id;
+            }
+            _needSave = true;
             return _inventory.Add(it);
         }
 
         public void Equip(Equipament slot, Item item)
         {
+            var bslot = (byte)slot;
             if (_equipament.ContainsKey(slot))
+            //if(_inventory.Items.ContainsKey(bslot))
                 throw new InvalidOperationException("Trying to equip already equiped slot:"+slot);
 
-            if ((Player?.Character ?? null) != null)
+            if (Character != null)
             {
-                if (item.ReqStrength > Player.Character.Str)
+                if (item.ReqStrength > Character.StrengthTotal)
                     throw new InvalidOperationException("Need more Strength");
 
-                if (item.ReqAgility > Player.Character.Agility)
+                if (item.ReqAgility > Character.AgilityTotal)
                     throw new InvalidOperationException("Need more Agility");
 
-                if (item.ReqVitality > Player.Character.Vitality)
+                if (item.ReqVitality > Character.VitalityTotal)
                     throw new InvalidOperationException("Need more Vitality");
 
-                if (item.ReqEnergy > Player.Character.Energy)
+                if (item.ReqEnergy > Character.EnergyTotal)
                     throw new InvalidOperationException("Need more Energy");
 
-                if (item.ReqCommand > Player.Character.Command)
+                if (item.ReqCommand > Character.CommandTotal)
                     throw new InvalidOperationException("Need more Command");
             }
             else
@@ -134,17 +165,24 @@ namespace MuEmu
             }
 
             _equipament.Add(slot, item);
-            item.ApplyEffects(Player);
+            //_inventory.Add(bslot, item);
+            item.ApplyEffects(Character.Player);
+            item.CharacterId = Character.Id;
         }
 
-        public void Unequip(Equipament slot)
+        public Item Unequip(Equipament slot)
         {
-            if (!_equipament.ContainsKey(slot))
+            //if (!_inventory.Items.ContainsKey(bslot))
+            if(!_equipament.ContainsKey(slot))
                 throw new InvalidOperationException("Trying to unequip no equiped slot:"+slot);
 
+            //var it = _inventory.Get(bslot);
+            //_inventory.Remove(bslot);
             var it = _equipament[slot];
             _equipament.Remove(slot);
             it.RemoveEffects();
+            it.SlotId = 0xff;
+            return it;
         }
 
         public bool Move(MoveItemFlags from, byte fromIndex, MoveItemFlags to, byte toIndex)
@@ -156,17 +194,17 @@ namespace MuEmu
                     sFrom = _inventory;
                     break;
                 case MoveItemFlags.Warehouse:
-                    sFrom = Player.Account.Vault;
+                    sFrom = Character.Account.Vault;
                     break;
                 case MoveItemFlags.PersonalShop:
                     sFrom = _personalShop;
                     break;
                 case MoveItemFlags.ChaosBox:
                 case MoveItemFlags.DarkTrainer:
-                    sFrom = _personalShop;
+                    sFrom = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
-                    sFrom = _personalShop;
+                    sFrom = _tradeBox;
                     break;
             }
             switch (to)
@@ -175,17 +213,17 @@ namespace MuEmu
                     sTo = _inventory;
                     break;
                 case MoveItemFlags.Warehouse:
-                    sTo = Player.Account.Vault;
+                    sTo = Character.Account.Vault;
                     break;
                 case MoveItemFlags.PersonalShop:
                     sTo = _personalShop;
                     break;
                 case MoveItemFlags.ChaosBox:
                 case MoveItemFlags.DarkTrainer:
-                    sTo = _personalShop;
+                    sTo = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
-                    sTo = _personalShop;
+                    sTo = _tradeBox;
                     break;
             }
 
@@ -194,33 +232,41 @@ namespace MuEmu
 
             Item it = null;
 
-            if(from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
+            if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
             {
-                it = _equipament[(Equipament)fromIndex];
-                sTo.Add(toIndex, it);
-                Unequip((Equipament)fromIndex);
-                return true;
-            }else if(to == MoveItemFlags.Inventory && toIndex < (byte)Equipament.End)
+                it = Unequip((Equipament)fromIndex);
+            }
+            else
             {
                 it = sFrom.Get(fromIndex);
                 sFrom.Remove(fromIndex);
-                it.Target = Player.Character;
-                Equip((Equipament)toIndex, it);
-                return true;
             }
-            
-            it = sFrom.Get(fromIndex);
-            sTo.Add(toIndex, it);
-            sFrom.Remove(fromIndex);
+
+            if (to == MoveItemFlags.Inventory && toIndex < (byte)Equipament.End)
+            {
+                Equip((Equipament)toIndex, it);
+            }
+            else
+            {
+                sTo.Add(toIndex, it);
+
+                if (to == MoveItemFlags.Warehouse)
+                    it.VaultId = Character.Account.ID * 10 + Character.Account.ActiveVault;
+            }
+
+            _needSave = true;
             return true;
         }
 
         public Item Get(byte from)
         {
-            if (_inventory.IndexTranslate <= from)
-                return _inventory.Items.First(x => x.Key == from - _inventory.IndexTranslate).Value;
+            if (_inventory.CanContain(from))
+                return _inventory.Get(from);
 
-            return _equipament.FirstOrDefault(x => x.Key == (Equipament)from).Value;
+            if (from < 12)
+                return _equipament[(Equipament)from];
+
+            return null;
         }
 
         public List<Item> Get(IEnumerable<byte> positions)
@@ -235,27 +281,42 @@ namespace MuEmu
 
         public void Remove(byte from)
         {
-            if (_inventory.IndexTranslate <= from)
+            if(_inventory.CanContain(from))
             {
                 _inventory.Remove(from);
             }
+            else if (_personalShop.CanContain(from))
+            {
+                _personalShop.Remove(from);
+            }else if(from < 12)
+            {
+                _equipament.Remove((Equipament)from);
+            }
 
-            _equipament.Remove((Equipament)from);
+            _needSave = true;
         }
 
         public async Task Delete(byte target)
         {
+            _needSave = true;
+            var session = Character.Player.Session;
+
             if (_equipament.ContainsKey((Equipament)target))
             {
                 _forDelete.Add(_equipament[(Equipament)target]);
                 Unequip((Equipament)target);
-                await Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
-                return;
+            }
+            else
+            if (_inventory.CanContain(target))
+            {
+                _forDelete.Add(_inventory.Get(target));
+            }else if(_personalShop.CanContain(target))
+            {
+                _forDelete.Add(_personalShop.Get(target));
             }
 
-            _forDelete.Add(_inventory.Get(target));
             Remove(target);
-            await Player.Session.SendAsync(new SInventoryItemDelete(target, 1));
+            await session.SendAsync(new SInventoryItemDelete(target, 1));
         }
 
         public async Task Delete(Item item)
@@ -263,24 +324,26 @@ namespace MuEmu
             if (_equipament.ContainsValue(item))
             {
                 await Delete((byte)_equipament.First(x => x.Value == item).Key);
-            }else if(_inventory.Items.Any(x => x.Value == item))
+            }
+            else
+            if (_inventory.Items.Any(x => x.Value == item))
             {
-                await Delete(_inventory.Items.First(x => x.Value == item).Key);
+                await Delete((byte)(_inventory.Items.First(x => x.Value == item).Key + _inventory.IndexTranslate));
             }
             else if (_chaosBox.Items.Any(x => x.Value == item))
             {
-                await Delete(_chaosBox.Items.First(x => x.Value == item).Key);
+                await Delete((byte)(_chaosBox.Items.First(x => x.Value == item).Key + _chaosBox.IndexTranslate));
             }
             else if (_personalShop.Items.Any(x => x.Value == item))
             {
-                await Delete(_personalShop.Items.First(x => x.Value == item).Key);
+                await Delete((byte)(_personalShop.Items.First(x => x.Value == item).Key + _personalShop.IndexTranslate));
             }
             else if (_tradeBox.Items.Any(x => x.Value == item))
             {
-                await Delete(_tradeBox.Items.First(x => x.Value == item).Key);
+                await Delete((byte)(_tradeBox.Items.First(x => x.Value == item).Key + _tradeBox.IndexTranslate));
             }
         }
-
+        
         public async void SendInventory()
         {
             var list = new List<Network.Data.InventoryDto>();
@@ -297,7 +360,7 @@ namespace MuEmu
             list.AddRange(_inventory.GetInventory());
             list.AddRange(_personalShop.GetInventory());
 
-            await Player.Session.SendAsync(new SInventory(list.ToArray()));
+            await Character.Player.Session.SendAsync(new SInventory(list.ToArray()));
         }
 
         public static byte[] GetCharset(HeroClass @class, Inventory inv)
@@ -311,8 +374,8 @@ namespace MuEmu
             if (equip.ContainsKey(Equipament.RightHand))
             {
                 var it = equip[Equipament.RightHand];
-                CharSet[1] = it.Number.Type;
-                CharSet[12] |= (byte)(it.Number.Index << 4);
+                CharSet[1] = (byte)it.Number.Index;
+                CharSet[12] |= (byte)(it.Number.Type << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x04 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x04 : 0x00);
                 SmallLevel |= it.SmallPlus;
@@ -325,8 +388,8 @@ namespace MuEmu
             if (equip.ContainsKey(Equipament.LeftHand))
             {
                 var it = equip[Equipament.LeftHand];
-                CharSet[2] = it.Number.Type;
-                CharSet[13] |= (byte)(it.Number.Index << 4);
+                CharSet[2] = (byte)it.Number.Index;
+                CharSet[13] |= (byte)(it.Number.Type << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x02 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x02 : 0x00);
                 SmallLevel |= (byte)(it.SmallPlus << 3);
@@ -450,7 +513,34 @@ namespace MuEmu
 
         public byte[] GetCharset()
         {
-            return GetCharset(Player.Character.Class, Player.Character.Inventory);
+            return GetCharset(Character.Class, Character.Inventory);
+        }
+
+        public async Task Save(GameContext db)
+        {
+            if (!_needSave)
+                return;
+
+            var log = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
+
+            var forDel = from it in db.Items
+                         from del in _forDelete
+                         where it.ItemId == del.Serial
+                         select it;
+
+            if (forDel.Any())
+                db.Items.RemoveRange(forDel);
+            
+            //foreach(var e in _equipament.Values)
+            //    await e.Save(db);
+
+            foreach (var e in _inventory.Items.Values)
+                await e.Save(db);
+
+            foreach (var e in _personalShop.Items.Values)
+                await e.Save(db);
+
+            _needSave = false;
         }
     }
 }

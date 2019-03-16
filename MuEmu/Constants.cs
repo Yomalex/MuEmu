@@ -15,6 +15,17 @@ namespace MuEmu
     {
         Ok = 1,
         Fail,
+        IsConnected,
+        ServerFull,
+        IsBanned,
+        OldVersion,
+        ConnectionError,
+        ConnectionClosed3Fail,
+        OnlyVIP,
+        VipEnding,
+        VipEnded,
+        VipEnded2,
+
         OkWithItemBlock = 15,
     }
 
@@ -340,5 +351,12 @@ namespace MuEmu
     public enum DevilSquareState : byte
     {
         Quit = 6
+    }
+
+    public enum ChaosBoxMixResult : byte
+    {
+        Fail,
+        Success,
+        InsufficientMoney,
     }
 }

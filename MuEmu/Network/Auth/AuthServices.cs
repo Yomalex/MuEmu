@@ -27,11 +27,10 @@ namespace MuEmu.Network.Auth
             BuxDecode.Decode(message.btAccount);
             BuxDecode.Decode(message.btPassword);
 
-            Logger.Debug("ID:{account} Client:{cl}#!"+message.ClientSerial, message.Account, message.ClientVersion);
-
             if(Program.server.ClientVersion != message.ClientVersion)
             {
                 Logger.Error("Bad client version {0} != {1}", Program.server.ClientVersion, message.ClientVersion);
+                await session.SendAsync(new SLoginResult(LoginResult.OldVersion));
                 session.Disconnect();
                 return;
             }
@@ -39,6 +38,7 @@ namespace MuEmu.Network.Auth
             if(Program.server.ClientSerial != message.ClientSerial)
             {
                 Logger.Error("Bad client serial {0} != {1}", Program.server.ClientSerial, message.ClientSerial);
+                await session.SendAsync(new SLoginResult(LoginResult.OldVersion));
                 session.Disconnect();
                 return;
             }
@@ -65,8 +65,7 @@ namespace MuEmu.Network.Auth
                             Password = message.Password,
                             Characters = new List<MU.DataBase.CharacterDto>(),
                             VaultCount = 1,
-                            VaultMoney = 0,
-                            LastConnection = DateTime.Now
+                            VaultMoney = 0
                         };
                         db.Accounts.Add(acc);
                         db.SaveChanges();
@@ -76,12 +75,18 @@ namespace MuEmu.Network.Auth
 
                 if(acc.Password != message.Password)
                 {
-                    await session.SendAsync(new SLoginResult(LoginResult.Fail));
+                    await session.SendAsync(new SLoginResult(LoginResult.ConnectionError));
                     return;
                 }
 
-                acc.LastConnection = DateTime.Now;
+                if(acc.IsConnected == true)
+                {
+                    await session.SendAsync(new SLoginResult(LoginResult.IsConnected));
+                    return;
+                }
+
                 acc.ServerCode = Program.ServerCode;
+                acc.IsConnected = true;
                 db.Accounts.Update(acc);
                 db.SaveChanges();
 
@@ -128,6 +133,25 @@ namespace MuEmu.Network.Auth
                 .Select(x => x.Value)
                 .FirstOrDefault(x => x.Name == Character.Name.MakeString());
 
+            using (var db = new GameContext())
+            {
+                @charDto.Spells = (from spell in db.Spells
+                                  where spell.CharacterId == @charDto.CharacterId
+                                  select spell).ToList();
+
+                @charDto.Quests = (from quest in db.Quests
+                                   where quest.CharacterId == @charDto.CharacterId
+                                   select quest).ToList();
+
+                charDto.SkillKey = (from config in db.Config
+                                    where config.SkillKeyId == @charDto.CharacterId
+                                    select config).FirstOrDefault();
+
+                var friendList = from friend in db.Friends
+                                 where (friend.FriendId == @charDto.CharacterId || friend.CharacterId == @charDto.CharacterId) && friend.State == 1
+                                 select friend;
+            }
+
             if (@charDto == null)
                 return;
 
@@ -148,7 +172,18 @@ namespace MuEmu.Network.Auth
                 Notice = $"Bienvenido {@char.Name} a mu desertor"
             });
 
-            await session.SendAsync(new SSkillKey());
+            if (charDto.SkillKey != null)
+            {
+                await session.SendAsync(new SSkillKey {
+                    SkillKey = charDto.SkillKey.SkillKey,
+                    ChatWindow = charDto.SkillKey.ChatWindow,
+                    E_Key = charDto.SkillKey.EkeyDefine,
+                    GameOption = charDto.SkillKey.GameOption,
+                    Q_Key = charDto.SkillKey.QkeyDefine,
+                    R_Key = charDto.SkillKey.RkeyDefine,
+                    W_Key = charDto.SkillKey.WkeyDefine,
+                });
+            }
             session.Player.Status = LoginStatus.Playing;
         }
 
@@ -246,7 +281,44 @@ namespace MuEmu.Network.Auth
         [MessageHandler(typeof(CCharacterDelete))]
         public async Task CCharacterDelete(GSSession session, CCharacterDelete message)
         {
+            using (var db = new GameContext())
+            {
+                var @char = db.Characters.FirstOrDefault(x => x.Name == message.Name);
+                if (@char != null)
+                {
+                    db.Characters.Remove(@char);
+                    db.SaveChanges();
+
+                    var pk = session.Player.Account.Characters.FirstOrDefault(x => x.Value.Name == message.Name);
+                    session.Player.Account.Characters.Remove(pk.Key);
+                }
+            }
             await session.SendAsync(new SCharacterDelete());
+        }
+
+        [MessageHandler(typeof(SSkillKey))]
+        public void CSkillKey(GSSession session, SSkillKey message)
+        {
+            using (var db = new GameContext())
+            {
+                var res = db.Config.FirstOrDefault(x => x.SkillKeyId == session.Player.Character.Id);
+                var New = new MU.DataBase.SkillKeyDto
+                {
+                    SkillKeyId = session.Player.Character.Id,
+                    SkillKey = message.SkillKey,
+                    QkeyDefine = message.Q_Key,
+                    EkeyDefine = message.E_Key,
+                    WkeyDefine = message.W_Key,
+                    GameOption = message.GameOption,
+                    ChatWindow = message.ChatWindow,
+                    RkeyDefine = message.R_Key,
+                    //QWERLevelDefine = message.
+                };
+                if (res == null)
+                    db.Config.Add(New);
+                else
+                    db.Config.Update(New);
+            }
         }
     }
 }

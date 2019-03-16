@@ -165,5 +165,11 @@ namespace MuEmu.Resources
             _cache.Remove("Shops");
             GetShops();
         }
+
+        public void ReloadGates()
+        {
+            _cache.Remove("Gates");
+            GetGates();
+        }
     }
 }

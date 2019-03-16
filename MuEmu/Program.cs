@@ -24,6 +24,7 @@ using MuEmu.Events.EventChips;
 using MuEmu.Events.BloodCastle;
 using System.Threading.Tasks;
 using MuEmu.Entity;
+using System.Linq;
 
 namespace MuEmu
 {
@@ -52,16 +53,11 @@ namespace MuEmu
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
-            Console.Title = $"[{xml.Code}] GameServer .NetCore2 {xml.Name} Client:{xml.Version}#!{xml.Serial} DB:"+ xml.DataBase;
+            Console.Title = $"GameServer .NetCore2 [{xml.Code}]{xml.Name} Client:{xml.Version}#!{xml.Serial} DB:"+ xml.DataBase;
 
             ConnectionString = $"Server={xml.DBIp};port=3306;Database={xml.DataBase};user={xml.BDUser};password={xml.DBPassword};Convert Zero Datetime=True;";
-            using (var db = new GameContext())
-            {
-                //db.Database.EnsureDeleted();
-                db.Database.EnsureCreated();
-            }
-
-                SimpleModulus.LoadDecryptionKey("Dec1.dat");
+            
+            SimpleModulus.LoadDecryptionKey("Dec1.dat");
             SimpleModulus.LoadEncryptionKey("Enc2.dat");
 
             var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
@@ -124,6 +120,20 @@ namespace MuEmu
                 Log.Error("Connect Server Unavailable");
             }
 
+            Log.Information("Disconnecting Accounts");
+            using (var db = new GameContext())
+            {
+                var accs = from acc in db.Accounts
+                           where acc.IsConnected && acc.ServerCode == xml.Code
+                           select acc;
+
+                foreach (var acc in accs)
+                    acc.IsConnected = false;
+
+                db.Accounts.UpdateRange(accs);
+                db.SaveChanges();
+            }
+
             Log.Information("Server Ready");
 
             handler = new CommandHandler<GSSession>();
@@ -131,7 +141,12 @@ namespace MuEmu
                 .AddCommand(new Command<GSSession>("quit", (object a, EventArgs b) => Environment.Exit(0)))
                 .AddCommand(new Command<GSSession>("stop", (object a, EventArgs b) => Environment.Exit(0)))
                 .AddCommand(new Command<GSSession>("reload")
-                            .AddCommand(new Command<GSSession>("shops", (object a, EventArgs b) => ResourceCache.Instance.ReloadShops())));
+                    .AddCommand(new Command<GSSession>("shops", (object a, EventArgs b) => ResourceCache.Instance.ReloadShops()))
+                    .AddCommand(new Command<GSSession>("gates", (object a, EventArgs b) => ResourceCache.Instance.ReloadGates())))
+                .AddCommand(new Command<GSSession>("db")
+                    .AddCommand(new Command<GSSession>("migrate", Migrate))
+                    .AddCommand(new Command<GSSession>("create", Create))
+                    .AddCommand(new Command<GSSession>("delete", Delete)));
 
             while (true)
             {
@@ -154,6 +169,31 @@ namespace MuEmu
         {
             await server.SendAll(new SNotice(NoticeType.Gold, text));
             Log.Information("Global Announcement: " + text);
+        }
+
+        public static void Create(object a, EventArgs b)
+        {
+            Log.Information("Creating DB");
+            using (var db = new GameContext())
+                db.Database.EnsureCreated();
+        }
+
+        public static void Migrate(object a, EventArgs b)
+        {
+            using (var db = new GameContext())
+            {
+                Log.Information("Dropping DB");
+                db.Database.EnsureDeleted();
+                Log.Information("Creating DB");
+                db.Database.EnsureCreated();
+            }
+        }
+
+        public static void Delete(object a, EventArgs b)
+        {
+            Log.Information("Dropping DB");
+            using (var db = new GameContext())
+                db.Database.EnsureDeleted();
         }
     }
 }

@@ -8,6 +8,11 @@ using System.Drawing;
 using MuEmu.Network.Game;
 using MuEmu.Network.Data;
 using MuEmu.Events.BloodCastle;
+using Serilog;
+using Serilog.Core;
+using MuEmu.Entity;
+using WebZen.Util;
+using MuEmu.Resources.Map;
 
 namespace MuEmu
 {
@@ -20,9 +25,11 @@ namespace MuEmu
 
     public class SubSystem
     {
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(SubSystem));
         private Thread _workerDelayed;
         private Thread _workerViewPort;
         private Thread _workerEvents;
+        private Thread _workerSavePlayers;
         private List<DelayedMessage> _delayedMessages;
         public static SubSystem Instance { get; set; }
 
@@ -32,6 +39,7 @@ namespace MuEmu
             _workerDelayed = new Thread(WorkerDelayed);
             _workerViewPort = new Thread(WorkerViewPort);
             _workerEvents = new Thread(WorkerEvents);
+            _workerSavePlayers = new Thread(WorkerSavePlayers);
         }
 
         public void AddDelayedMessage(Player plr, TimeSpan time, object message)
@@ -43,20 +51,27 @@ namespace MuEmu
         {
             while(true)
             {
-                var toSend = (from msg in Instance._delayedMessages
-                             where DateTimeOffset.Now >= msg.Time
-                             select msg).ToList();
-
-                foreach(var msg in toSend)
+                try
                 {
-                    await msg.Player.Session.SendAsync(msg.Message);
+                    var toSend = (from msg in Instance._delayedMessages
+                                  where DateTimeOffset.Now >= msg.Time
+                                  select msg).ToList();
+
+                    foreach (var msg in toSend)
+                    {
+                        await msg.Player.Session.SendAsync(msg.Message);
+                    }
+
+                    Instance._delayedMessages = (from msg in Instance._delayedMessages
+                                                 where DateTimeOffset.Now < msg.Time
+                                                 select msg).ToList();
+
+                    Thread.Sleep(100);
                 }
-
-                Instance._delayedMessages = (from msg in Instance._delayedMessages
-                                             where DateTimeOffset.Now < msg.Time
-                                             select msg).ToList();
-
-                Thread.Sleep(100);
+                catch (Exception e)
+                {
+                    Logger.Error(e, DateTime.Now.ToString());
+                }
             }
         }
 
@@ -66,116 +81,255 @@ namespace MuEmu
             {
                 try
                 {
-                    foreach (var map in ResourceCache.Instance.GetMaps())
+                    foreach (var map in ResourceCache.Instance.GetMaps().Values)
                     {
-                        foreach (var @char in map.Value.Players)
+                        foreach (var @char in map.Players)
                         {
                             // Clear dead buffers
                             @char.Spells.ClearBuffTimeOut();
 
-                            var pos = @char.Position;
-                            pos.Offset(15, 15);
+                            //PlayerPlrViewport(map, @char);
+                            PlayerMonsViewport(map, @char);
+                            PlayerItemViewPort(map, @char);
 
-                            var Monsters = from monst in map.Value.Monsters
-                                           let rect = new Rectangle(monst.Position, new Size(30, 30))
-                                           where rect.Contains(pos) && monst.Life > 0
-                                           select new VPMCreateDto
-                                           {
-                                               Number = monst.Index,
-                                               Position = monst.Position,
-                                               TPosition = monst.Position,
-                                               Type = monst.Info.Monster,
-                                               ViewSkillState = Array.Empty<byte>(),
-                                               Path = (byte)(monst.Direction << 4)
-                                           };
+                            @char.Health += @char.BaseInfo.Attributes.LevelLife * @char.Level * 0.1f;
+                            @char.Mana += @char.BaseInfo.Attributes.LevelMana * @char.Level * 0.05f;
+                        }
 
-                            var Players = from plr in map.Value.Players
-                                          let rect = new Rectangle(plr.Position, new Size(30, 30))
-                                          where plr != @char && plr.Player.Status == LoginStatus.Playing && rect.Contains(pos) && plr.Health > 0
-                                          select new VPCreateDto
-                                          {
-                                              CharSet = plr.Inventory.GetCharset(),
-                                              DirAndPkLevel = (byte)((plr.Direction << 4) | 0),
-                                              Name = plr.Name,
-                                              Number = plr.Player.Session.ID,
-                                              Position = plr.Position,
-                                              TPosition = plr.Position,
-                                              ViewSkillState = plr.Spells.ViewSkillStates,
-                                              Player = plr.Player
-                                          };
+                        // update monster section
+                        foreach(var obj in map.Monsters)
+                        {
+                            switch(obj.State)
+                            {
+                                case ObjectState.Regen:
+                                    obj.State = ObjectState.Live;
+                                    break;
+                                case ObjectState.Dying:
+                                    obj.State = ObjectState.Die;
+                                    break;
+                            }
+                        }
 
-                            var MonstersID = Monsters.Select(x => (ushort)x.Number);
-                            var PlayersID = Players.Select(x => x.Player);
+                        // Update item section
+                        foreach(var it in map.Items)
+                        {
+                            switch(it.State)
+                            {
+                                case ItemState.Creating:
+                                    it.State = ItemState.Created;
+                                    break;
+                                case ItemState.Deleting:
+                                    it.State = ItemState.Deleted;
+                                    break;
+                            }
 
-                            // Monsters
-                            var add = from monstID in MonstersID.Except(@char.MonstersVP)
-                                      from monst in Monsters
-                                      where monst.Number == monstID
-                                      select monst;
-
-                            var remove = @char.MonstersVP.Except(MonstersID).Select(x => new VPDestroyDto(x));
-                            @char.MonstersVP = MonstersID;
-
-                            if (remove.Count() > 0)
-                                await @char.Player.Session.SendAsync(new SViewPortDestroy
-                                {
-                                    ViewPort = remove.ToArray()
-                                });
-
-                            if (add.Count() > 0)
-                                await @char.Player.Session.SendAsync(new SViewPortMonCreate
-                                {
-                                    ViewPort = add.ToArray()
-                                });
-
-                            // End Monsters
-
-                            // Players
-                            var addPlr = from plrID in PlayersID.Except(@char.PlayersVP)
-                                         from plr in Players
-                                         where plr.Player == plrID
-                                         select plr;
-                            
-                            var chgPlr = from plr in map.Value.Players
-                                         let rect = new Rectangle(plr.Position, new Size(30, 30))
-                                         where plr != @char && plr.Player.Status == LoginStatus.Playing && rect.Contains(pos) && plr.Health > 0 && plr.Change
-                                         select new VPChangeDto
-                                         {
-                                             CharSet = plr.Inventory.GetCharset(),
-                                             DirAndPkLevel = (byte)((plr.Direction << 4) | 0),
-                                             Name = plr.Name,
-                                             Number = plr.Player.Session.ID,
-                                             Position = plr.Position,
-                                             TPosition = plr.Position,
-                                             ViewSkillState = plr.Spells.ViewSkillStates
-                                         };
-
-                            var removePlr = @char.PlayersVP.Except(PlayersID).Select(x => new VPDestroyDto((ushort)x.Session.ID));
-                            @char.PlayersVP = PlayersID;
-
-                            if (removePlr.Count() > 0)
-                                await @char.Player.Session.SendAsync(new SViewPortDestroy
-                                {
-                                    ViewPort = removePlr.ToArray()
-                                });
-
-                            if (addPlr.Count() > 0)
-                                await @char.Player.Session.SendAsync(new SViewPortCreate
-                                {
-                                    ViewPort = addPlr.ToArray()
-                                });
-                            // End Players
-
-                            @char.Health += @char.BaseInfo.Attributes.LevelLife * @char.Level;
-                            @char.Mana += @char.BaseInfo.Attributes.LevelMana * @char.Level;
+                            if (it.validTime < DateTimeOffset.Now)
+                                it.State = ItemState.Deleting;
                         }
                     }
                     Thread.Sleep(1000);
-                }catch(Exception)
+                }
+                catch (Exception e)
                 {
-
+                    Logger.Error(e, DateTime.Now.ToString());
                 }
             }
+        }
+
+        private static async void PlayerPlrViewport(MapInfo Map, Character plr)
+        {
+            var pos = plr.Position;
+            pos.Offset(15, 15);
+
+            var playerVP = from obj in Map.Players
+                           let rect = new Rectangle(obj.Position, new Size(30, 30))
+                           where rect.Contains(pos) && obj != plr
+                           select obj;
+
+            if (!playerVP.Any())
+                return;
+
+            //var newPlr = from mons in playerVP
+            //              where mons.
+
+            var existPlr = from obj in playerVP
+                            where !plr.PlayersVP.Contains(obj.Player)
+                            select obj;
+
+            var lostPlr = from obj in playerVP
+                           where /*it.itemState == ItemState.Deleting && */plr.PlayersVP.Contains(obj.Player)
+                           select obj.Player;
+
+            //plr.PlayersVP.AddRange(newPlr.Select(x => x..Player));
+            plr.PlayersVP.AddRange(existPlr.Select(x => x.Player));
+            foreach (var it in lostPlr)
+                plr.PlayersVP.Remove(it);
+
+            var addPlr = new List<VPCreateDto>();
+            /*addMons.AddRange(newItem.Select(x => new VPMCreateDto
+            {
+                Number = x.Index|0x8000,
+                Position = x.Position,
+                TPosition = x.Position,
+                Type = x.Info.Monster,
+                ViewSkillState = Array.Empty<byte>(),
+                Path = (byte)(x.Direction << 4)
+            }));*/
+            addPlr.AddRange(existPlr.Select(x => new VPCreateDto
+            {
+                CharSet = plr.Inventory.GetCharset(),
+                DirAndPkLevel = (byte)((plr.Direction << 4) | 0),
+                Name = plr.Name,
+                Number = (ushort)plr.Player.Session.ID,
+                Position = plr.Position,
+                TPosition = plr.Position,
+                ViewSkillState = plr.Spells.ViewSkillStates,
+                Player = plr.Player
+            }));
+
+            if (addPlr.Any())
+                await plr.Player.Session.SendAsync(new SViewPortCreate { ViewPort = addPlr.ToArray() });
+
+            if (lostPlr.Any())
+                await plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
+        }
+
+        private static async void PlayerMonsViewport(MapInfo Map, Character plr)
+        {
+            var oldVP = plr.MonstersVP;
+            var targetVP = Map.Monsters;
+            var pos = plr.Position;
+            pos.Offset(15, 15);
+
+            var playerVP = from obj in targetVP
+                           let rect = new Rectangle(obj.Position, new Size(30, 30))
+                           where rect.Contains(pos)
+                           select obj;
+
+            if (!playerVP.Any())
+            {
+                oldVP.Clear();
+                return;
+            }
+
+            var newObj = (from obj in playerVP
+                         where obj.State == ObjectState.Regen
+                         select obj).ToList();
+
+            var existObj = (from obj in playerVP
+                           where !oldVP.Contains(obj.Index) && obj.State == ObjectState.Live
+                           select obj).ToList();
+
+            var deadObj = (from obj in playerVP
+                          where obj.State == ObjectState.Die
+                          select new VPDestroyDto(obj.Index)).ToList();
+
+            var lostObj = (from obj in targetVP
+                          let rect = new Rectangle(obj.Position, new Size(30, 30))
+                          where !rect.Contains(pos) && oldVP.Contains(obj.Index)
+                          select new VPDestroyDto(obj.Index)).ToList();
+
+            // Update the old player VP
+            oldVP.AddRange(newObj.Select(x => x.Index));
+            oldVP.AddRange(existObj.Select(x => x.Index));
+
+            foreach (var it in deadObj)
+                oldVP.Remove(it.Number.ShufleEnding());
+            foreach (var it in lostObj)
+                oldVP.Remove(it.Number.ShufleEnding());
+
+            var addObj = new List<VPMCreateDto>();
+            addObj.AddRange(newObj.Select(x => new VPMCreateDto
+            {
+                Number = (ushort)(x.Index|0x8000),
+                Position = x.Position,
+                TPosition = x.Position,
+                Type = x.Info.Monster,
+                ViewSkillState = Array.Empty<byte>(),
+                Path = (byte)(x.Direction << 4)
+            }));
+            addObj.AddRange(existObj.Select(x => new VPMCreateDto
+            {
+                Number = x.Index,
+                Position = x.Position,
+                TPosition = x.Position,
+                Type = x.Info.Monster,
+                ViewSkillState = Array.Empty<byte>(),
+                Path = (byte)(x.Direction << 4)
+            }));
+
+            var remObj = new List<VPDestroyDto>();
+            remObj.AddRange(deadObj);
+            remObj.AddRange(lostObj);
+
+            if (addObj.Any())
+                await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = addObj.ToArray() });
+
+            if (remObj.Any())
+                await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
+        }
+
+        private static async void PlayerItemViewPort(MapInfo Map, Character plr)
+        {
+            var oldVP = plr.ItemsVP;
+            var targetVP = Map.Items;
+            var pos = plr.Position;
+            pos.Offset(15, 15);
+
+            var playerVP = from obj in targetVP
+                           let rect = new Rectangle(obj.Position, new Size(30, 30))
+                           where rect.Contains(pos)
+                           select obj;
+
+            if (!playerVP.Any())
+            {
+                oldVP.Clear();
+                return;
+            }
+
+            var newObj = (from obj in playerVP
+                          where obj.State == ItemState.Creating
+                          select obj).ToList();
+
+            var existObj = (from obj in playerVP
+                            where !oldVP.Contains(obj.Index) && obj.State == ItemState.Created
+                            select obj).ToList();
+
+            var existObjVP = (from obj in playerVP
+                              where oldVP.Contains(obj.Index) && obj.State == ItemState.Created
+                              select obj).ToList();
+
+            var deadObj = (from obj in playerVP
+                           where obj.State == ItemState.Deleted
+                           select new VPDestroyDto(obj.Index)).ToList();
+
+            var lostObj = (from obj in targetVP
+                           let rect = new Rectangle(obj.Position, new Size(30, 30))
+                           where !rect.Contains(pos) && oldVP.Contains(obj.Index)
+                           select new VPDestroyDto(obj.Index)).ToList();
+
+            // Update the old player VP
+            oldVP.AddRange(newObj.Select(x => x.Index));
+            oldVP.AddRange(existObj.Select(x => x.Index));
+
+            foreach (var it in deadObj)
+                oldVP.Remove(it.Number.ShufleEnding());
+            foreach (var it in lostObj)
+                oldVP.Remove(it.Number.ShufleEnding());
+
+            var addItem = new List<VPICreateDto>();
+            addItem.AddRange(newObj.Select(x => new VPICreateDto { ItemInfo = x.Item.GetBytes(), wzNumber = ((ushort)(x.Index | 0x8000)).ShufleEnding(), X = (byte)x.Position.X, Y = (byte)x.Position.Y }));
+            addItem.AddRange(existObj.Select(x => new VPICreateDto { ItemInfo = x.Item.GetBytes(), wzNumber = ((ushort)(x.Index | 0x0000)).ShufleEnding(), X = (byte)x.Position.X, Y = (byte)x.Position.Y }));
+
+            if (addItem.Any())
+            {
+                // fix VP
+                addItem.AddRange(existObjVP.Select(x => new VPICreateDto { ItemInfo = x.Item.GetBytes(), wzNumber = ((ushort)(x.Index | 0x0000)).ShufleEnding(), X = (byte)x.Position.X, Y = (byte)x.Position.Y }));
+                await plr.Player.Session.SendAsync(new SViewPortItemCreate(addItem.ToArray()));
+            }
+
+            if(lostObj.Any())
+                await plr.Player.Session.SendAsync(new SViewPortItemDestroy { ViewPort = lostObj.ToArray() });
         }
 
         private static async void WorkerEvents()
@@ -187,9 +341,35 @@ namespace MuEmu
                     BloodCastles.Update();
                     Thread.Sleep(1000);
                 }
-                catch(Exception)
+                catch(Exception e)
                 {
+                    Logger.Error(e, DateTime.Now.ToString());
+                }
+            }
+        }
 
+        private static async void WorkerSavePlayers()
+        {
+            while (true)
+            {
+                try
+                {
+                    Logger.Information("Saving players");
+                    using (var db = new GameContext())
+                    {
+                        foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
+                        {
+                            await plr.Save(db);
+                        }
+
+                        db.SaveChanges();
+                    }
+                    Logger.Information("Saved players");
+                    Thread.Sleep(60000);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, DateTime.Now.ToString());
                 }
             }
         }
@@ -204,6 +384,7 @@ namespace MuEmu
             Instance._workerDelayed.Start();
             Instance._workerViewPort.Start();
             Instance._workerEvents.Start();
+            Instance._workerSavePlayers.Start();
         }
     }
 }

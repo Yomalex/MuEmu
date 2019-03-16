@@ -13,6 +13,7 @@ namespace MuEmu.Data
         public byte Durability { get; set; }
         public bool Option { get; set; }
         public bool Drop { get; set; }
+        public string Name { get; set; }
         public ushort Level { get; set; }
         public Point Damage { get; set; }
         public ushort Def { get; set; }

@@ -41,6 +41,9 @@ namespace MuEmu.Resources.XML
         public int Target { get; set; }
 
         [XmlAttribute]
+        public int Move { get; set; } = -1;
+
+        [XmlAttribute]
         public byte Dir { get; set; }
 
         [XmlAttribute]

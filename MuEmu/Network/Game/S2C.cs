@@ -193,11 +193,38 @@ namespace MuEmu.Network.Game
         }
     }
 
+    [WZContract(LongMessage = true)]
+    public class SViewPortItemCreate : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPICreateDto[] ViewPort { get; set; }
+
+        public SViewPortItemCreate()
+        {
+            ViewPort = Array.Empty<VPICreateDto>();
+        }
+
+        public SViewPortItemCreate(VPICreateDto[] array)
+        {
+            ViewPort = array;
+        }
+    }
+
     [WZContract]
     public class SViewPortDestroy : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
         public VPDestroyDto[] ViewPort { get; set; }
+
+        public SViewPortDestroy()
+        {
+            ViewPort = Array.Empty<VPDestroyDto>();
+        }
+
+        public SViewPortDestroy(VPDestroyDto[] VPDelete)
+        {
+            ViewPort = VPDelete;
+        }
     }
 
     [WZContract]
@@ -354,6 +381,12 @@ namespace MuEmu.Network.Game
 
         [WZMember(4)]
         public byte E_Key { get; set; }
+
+        [WZMember(5)]
+        public byte ChatWindow { get; set; }
+
+        [WZMember(6)]
+        public byte R_Key { get; set; }
 
         public SSkillKey()
         {
@@ -614,7 +647,16 @@ namespace MuEmu.Network.Game
         /// Inventory Money
         /// </summary>
         [WZMember(1)]
-        public int iMoney { get; set; }
+        public uint iMoney { get; set; }
+
+        public SWarehouseMoney()
+        { }
+
+        public SWarehouseMoney(int _wMoney, uint _iMoney)
+        {
+            wMoney = _wMoney;
+            iMoney = _iMoney;
+        }
     }
 
     [WZContract(Serialized =true)]
@@ -795,6 +837,29 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class SInventoryItemSend : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Pos { get; set; }   // 4
+
+        [WZMember(1, 12)]
+        public byte[] ItemInfo { get; set; }	// 5
+    }
+
+    [WZContract]
+    public class SInventoryItemDurSend : IGameMessage
+    {
+        [WZMember(0)]
+        public byte IPos { get; set; }  // 3
+
+        [WZMember(1)]
+        public byte Dur { get; set; }   // 4
+
+        [WZMember(2)]
+        public byte Flag { get; set; }	// 5
+    }
+
+    [WZContract]
     public class SJewelMix : IGameMessage
     {
         [WZMember(0)] public byte Result { get; set; }    // 3
@@ -849,6 +914,26 @@ namespace MuEmu.Network.Game
 
         [WZMember(3)]
         public byte EndY { get; set; }
+    }
+
+    [WZContract]
+    public class SItemThrow : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public byte Source { get; set; }
+    }
+
+    [WZContract]
+    public class SChaosBoxItemMixButtonClick : IGameMessage
+    {
+        [WZMember(0)]
+        public ChaosBoxMixResult Result { get; set; }
+
+        [WZMember(1, 12)]
+        public byte[] ItemInfo { get; set; }
     }
 }
 

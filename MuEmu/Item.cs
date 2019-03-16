@@ -1,11 +1,14 @@
 ﻿using MU.DataBase;
 using MuEmu.Data;
+using MuEmu.Entity;
+using MuEmu.Network.Game;
 using MuEmu.Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
@@ -83,26 +86,130 @@ namespace MuEmu
 
     public class Item
     {
-        public ItemNumber Number { get; set; }
-        public Character Player { get; set; }
-        public int Serial { get; set; }
+        private byte _plus;
+        private byte _durability;
+        private byte _option;
+        private int _aid;
+        private int _cid;
+        private int _vid;
+        private int _slot;
+        private SocketOption[] _slots;
+        private JewelOfHarmony _jewelOfHarmony = new JewelOfHarmony();
+
+        public int AccountId {
+            get => _aid;
+            set
+            {
+                if (_aid == value)
+                    return;
+                _aid = value;
+
+                NeedSave = true;
+            }
+        }
+        public int CharacterId
+        {
+            get => _cid;
+            set
+            {
+                if (_cid == value)
+                    return;
+                _cid = value;
+
+                NeedSave = true;
+            }
+        }
+        public Character Character { get; set; }
+        public int VaultId {
+            get => _vid;
+            set {
+                if (_vid == value)
+                    return;
+                _vid = value;
+
+                NeedSave = true;
+            }
+        }
+        public int SlotId {
+            get => _slot;
+            set {
+                if (_slot == value)
+                    return;
+                _slot = value;
+                NeedSave = true;
+            }
+        }
+
         public ItemInfo BasicInfo { get; set; }
-        public byte Plus { get; set; }
+        public ItemNumber Number { get; set; }
+        public int Serial { get; set; }
+        public byte Plus {
+            get => _plus;
+            set
+            {
+                if (_plus == value)
+                    return;
+                _plus = value;
+
+                NeedSave = true;
+                OnItemChange();
+            }
+        }
         public byte SmallPlus => (byte)(Plus > 0 ? (Plus - 1) / 2 : 0);
         public bool Luck { get; set; }
         public bool Skill { get; set; }
         public Spell Spell { get; set; }
-        public byte Durability { get; set; }
-        public byte Option28 { get; set; }
+        public byte Durability {
+            get =>
+                _durability;
+            set {
+                if (_durability == value)
+                    return;
+
+                var reduce = _durability > value;
+                _durability = value;
+                OnDurabilityChange(reduce);
+                NeedSave = true;
+                OnItemChange();
+            }
+        }
+        public byte Option28
+        {
+            get => _option;
+            set
+            {
+                if (_option == value)
+                    return;
+
+                _option = value;
+                OnItemChange();
+            }
+        }
         public byte OptionExe { get; set; }
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
         public uint SellPrice { get; private set; }
         //public HarmonyOption Harmony { get; set; }
-        public SocketOption[] Slots { get; set; }
+        public SocketOption[] Slots {
+            get => _slots;
+            set
+            {
+                _slots = value;
+                NeedSave = true;
+                OnItemChange();
+            }
+        }
         public Character Target { get; set; }
         public List<ushort> Special { get; set; } = new List<ushort>();
-        public JewelOfHarmony Harmony { get; set; } = new JewelOfHarmony();
+        public JewelOfHarmony Harmony { get => _jewelOfHarmony;
+            set
+            {
+                _jewelOfHarmony = value;
+                NeedSave = true;
+            }
+        }
+
+        public bool NeedSave { get; set; }
 
         // Needed Stats
         public int ReqStrength { get; set; }
@@ -115,6 +222,11 @@ namespace MuEmu
         public int Defense { get; set; }
         public int MagicDefense { get; set; }
 
+        public static Item Zen(uint BuyPrice)
+        {
+            return new Item(ItemNumber.FromTypeIndex(14, 15), 0, new { BuyPrice });
+        }
+
         public Item(ItemNumber number, int Serial, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();
@@ -123,8 +235,8 @@ namespace MuEmu
                 throw new Exception("Item don't exists " + number);
 
             BasicInfo = ItemDB[number];
-            Durability = BasicInfo.Durability;
-            Slots = Array.Empty<SocketOption>();
+            _durability = BasicInfo.Durability;
+            _slots = Array.Empty<SocketOption>();
 
             if (Options != null)
                 Extensions.AnonymousMap(this, Options);
@@ -143,20 +255,28 @@ namespace MuEmu
             if (!ItemDB.ContainsKey(dto.Number))
                 throw new Exception("Item don't exists " + dto.Number);
 
-            Number = dto.Number;
+            BasicInfo = ItemDB[dto.Number];
+
+            _aid = dto.AccountId;
+            _cid = dto.CharacterId;
+            _vid = dto.VaultId;
+            _slot = dto.SlotId;
             Serial = dto.ItemId;
+            Number = dto.Number;
+            _plus= dto.Plus;
+            _option = dto.Option;
+            OptionExe = dto.OptionExe;
             
-            BasicInfo = ItemDB[Number];
-            Durability = (byte)dto.Durability;
+            _durability = dto.Durability;
             if(string.IsNullOrEmpty(dto.SocketOptions))
             {
-                Slots = Array.Empty<SocketOption>();
+                _slots = Array.Empty<SocketOption>();
             }else
             {
                 var tmp = dto.SocketOptions.Split(",");
-                Slots = tmp.Select(x => Enum.Parse<SocketOption>(x)).ToArray();
+                _slots = tmp.Select(x => Enum.Parse<SocketOption>(x)).ToArray();
             }
-            Harmony = (byte)dto.HarmonyOption;
+            Harmony = dto.HarmonyOption;
             Harmony.Item = this;
         }
 
@@ -164,22 +284,42 @@ namespace MuEmu
         {
             using (var ms = new MemoryStream(7+5))
             {
-                ms.WriteByte((byte)(Number&0xff));
+                ms.WriteByte((byte)(Number & 0xff));
 
-                var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
-                ms.WriteByte((byte)tmp);
-                ms.WriteByte(Durability);
-                ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
-                ms.WriteByte(SetOption); // Acient Option
-                ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | ((OptionExe & 0x80) >> 4)));
-                ms.WriteByte(Harmony); // Harmony
-                foreach(var slot in Slots)
+                // Is ZEN?
+                if (Number.Type == 14 && Number.Index == 15)
                 {
-                    ms.WriteByte((byte)slot);
+                    var arr = BitConverter.GetBytes(BuyPrice);
+                    ms.WriteByte(arr[1]);
+                    ms.WriteByte(arr[2]);
+                    ms.WriteByte(0);
+                    ms.WriteByte(arr[3]);
+                    ms.WriteByte((byte)((Number & 0x1E00) >> 5));
+                    ms.WriteByte(0);
+
+                    ms.WriteByte(0);
+                    ms.WriteByte(0);
+                    ms.WriteByte(0);
+                    ms.WriteByte(0);
+                    ms.WriteByte(0);
                 }
-                for(var i = 0; i < 5 - Slots.Length; i++)
+                else
                 {
-                    ms.WriteByte((byte)SocketOption.None);
+                    var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
+                    ms.WriteByte((byte)tmp);
+                    ms.WriteByte(Durability);
+                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
+                    ms.WriteByte(SetOption); // Acient Option
+                    ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | ((OptionExe & 0x80) >> 4)));
+                    ms.WriteByte(Harmony); // Harmony
+                    foreach (var slot in Slots)
+                    {
+                        ms.WriteByte((byte)slot);
+                    }
+                    for (var i = 0; i < 5 - Slots.Length; i++)
+                    {
+                        ms.WriteByte((byte)SocketOption.None);
+                    }
                 }
                 return ms.GetBuffer();
             }
@@ -187,6 +327,9 @@ namespace MuEmu
 
         private void GetValue()
         {
+            if (BuyPrice != 0)
+                return;
+
             if (BasicInfo.Zen > 0)
             {
                 var res = Math.Floor(Math.Log10(BasicInfo.Zen)) - 1;
@@ -412,6 +555,55 @@ namespace MuEmu
         public void RemoveEffects()
         {
 
+        }
+        
+        public async Task Save(GameContext db)
+        {
+            ItemDto item = null;
+            if (Serial != 0 && NeedSave)
+            {
+                item = db.Items.First(x => x.ItemId == Serial);
+                item.AccountId = _aid;
+                item.CharacterId = _cid;
+                item.VaultId = _vid;
+                item.Durability = _durability;
+                item.HarmonyOption = _jewelOfHarmony;
+                item.Option = _option;
+                item.Plus = _plus;
+                item.SlotId = _slot;
+                item.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
+                db.Items.Update(item);
+            }
+            else if(Serial == 0)
+            {
+                item = new ItemDto
+                {
+                    Number = Number,
+                    Luck = Luck,
+                    OptionExe = OptionExe,
+                    Skill = Skill,
+                    AccountId = _aid,
+                    CharacterId = _cid,
+                    VaultId = _vid,
+                    Durability = _durability,
+                    HarmonyOption = _jewelOfHarmony,
+                    Option = _option,
+                    Plus = _plus,
+                    SlotId = _slot,
+                    DateCreation = DateTime.Now,
+                    SocketOptions = string.Join(",", _slots.Select(x => x.ToString()))
+                };
+                await db.Items.AddAsync(item);
+                //await db.SaveChangesAsync();
+                Serial = item.ItemId;
+            }
+            else
+            {
+                return;
+            }
+
+            Serilog.Log.Information("[A{2}:C{3}:V{4}]Item Saved:{0} {1}", item.Number, ToString(), item.AccountId, item.CharacterId, item.VaultId);
+            NeedSave = false;
         }
 
         private void CalcItemAttributes()
@@ -666,6 +858,33 @@ namespace MuEmu
                     }
                 }
             }
+        }
+
+        private void OnItemChange()
+        {
+            CalcItemAttributes();
+
+            Character?.Player.Session.SendAsync(new SInventoryItemSend
+            {
+                Pos = (byte)SlotId,
+                ItemInfo = GetBytes()
+            });
+        }
+
+        private void OnDurabilityChange(bool flag)
+        {
+            var p = new SInventoryItemDurSend
+            {
+                IPos = (byte)SlotId,
+                Dur = _durability,
+                Flag = (byte)(flag ? 1 : 0)
+            };
+            Character?.Player.Session.SendAsync(p);
+        }
+
+        public override string ToString()
+        {
+            return $"[{Number}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "");
         }
     }
 }

@@ -11,10 +11,7 @@ namespace MuEmu.Network.Data
     public class VPCreateDto
     {
         [WZMember(0)]
-        public byte NumberH { get; set; }
-
-        [WZMember(1)]
-        public byte NumberL { get; set; }
+        public ushort wzNumber { get; set; }
 
         [WZMember(2)]
         public byte X { get; set; }
@@ -50,13 +47,16 @@ namespace MuEmu.Network.Data
             ViewSkillState = Array.Empty<SkillStates>();
         }
 
-        public int Number
+        public ushort Number
         {
-            get => (NumberH << 8) | NumberL;
+            get
+            {
+                return wzNumber.ShufleEnding();
+            }
+
             set
             {
-                NumberH = (byte)(value >> 8);
-                NumberL = (byte)(value & 0xFF);
+                wzNumber = value.ShufleEnding();
             }
         }
 

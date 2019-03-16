@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebZen.Util;
 
 namespace MuEmu.Resources.Map
 {
@@ -16,14 +18,30 @@ namespace MuEmu.Resources.Map
         NoWalk = 4,
         Hide = 8,
     }
+    public enum ItemState : byte
+    {
+        Creating,
+        Created,
+        Deleting,
+        Deleted,
+    }
+    public class ItemInMap
+    {
+        public ushort Index { get; set; }
+        public ItemState State { get; set; }
+        public Point Position { get; set; }
+        public Item Item { get; set; }
+        public DateTimeOffset validTime { get; set; }
+    };
     public class MapInfo
     {
+        private byte[] Layer { get; }
+
         public int Width { get; }
         public int Height { get; }
         public List<Monster> Monsters { get; }
         public List<Character> Players { get; }
-        public List<Item> Items { get; }
-        private byte[] Layer { get; }
+        public List<ItemInMap> Items { get; }
         public int Map { get; }
         public byte Weather { get; set; }
 
@@ -48,7 +66,7 @@ namespace MuEmu.Resources.Map
 
             Monsters = new List<Monster>();
             Players = new List<Character>();
-            Items = new List<Item>();
+            Items = new List<ItemInMap>();
         }
 
         public MapAttributes[] GetAttributes(int X, int Y)
@@ -97,6 +115,42 @@ namespace MuEmu.Resources.Map
             MonsterAdd?.Invoke(mons, new EventArgs());
         }
 
+        public DateTimeOffset AddItem(int X, int Y, Item item)
+        {
+            var valid = DateTimeOffset.Now.AddSeconds(120);
+
+            ItemInMap it = new ItemInMap {
+                Index = (ushort)(Items.Count),
+                Item = item,
+                State = ItemState.Creating,
+                Position = new Point(X, Y),
+                validTime = valid,
+            };
+
+            if (Items.Count > 0)
+            {
+                try
+                {
+                    var fit = Items.First(x => x.State == ItemState.Deleted);
+                    it.Index = fit.Index;
+                    Items.Remove(fit);
+                }
+                catch(Exception) { }
+            }
+
+            Items.Add(it);
+
+            //var pitem = new SViewPortItemCreate(new Network.Data.VPICreateDto[] { new Network.Data.VPICreateDto {
+            //    ItemInfo = item.GetBytes(),
+            //    wzNumber = ((ushort)(it.index | 0x8000)).ShufleEnding(),
+            //    X = (byte)X,
+            //    Y = (byte)Y,
+            //} });
+            //await SendAll(pitem);
+
+            return valid;
+        }
+        
         public void DelPlayer(Character @char)
         {
             Players.Remove(@char);

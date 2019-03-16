@@ -35,6 +35,10 @@ namespace MuEmu.Network.Game
             Register<CDataLoadOK>(GameOpCode.DataLoadOK);
             Register<CJewelMix>(GameOpCode.JewelMix);
             Register<CJewelUnMix>(GameOpCode.JewelUnMix);
+            Register<CChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
+            Register<CChaosBoxUseEnd>(GameOpCode.ChaosBoxUseEnd);
+            Register<CItemThrow>(GameOpCode.ItemThrow);
+            Register<CItemGet>(GameOpCode.ItemGet);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -80,6 +84,11 @@ namespace MuEmu.Network.Game
             Register<SJewelMix>(GameOpCode.JewelMix);
             Register<SCommand>(GameOpCode.Command);
             Register<SSetMapAttribute>(GameOpCode.SetMapAtt);
+            Register<SItemThrow>(GameOpCode.ItemThrow);
+            Register<SViewPortItemCreate>(GameOpCode.ViewPortItemCreate);
+            Register<SInventoryItemSend>(GameOpCode.OneItemSend);
+            Register<SInventoryItemDurSend>(GameOpCode.InventoryItemDurUpdate);
+            Register<SChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
         }
     }
 }

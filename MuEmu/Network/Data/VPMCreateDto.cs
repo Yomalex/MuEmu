@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using WebZen.Serialization;
+using WebZen.Util;
 
 namespace MuEmu.Network.Data
 {
@@ -10,16 +11,10 @@ namespace MuEmu.Network.Data
     public class VPMCreateDto
     {
         [WZMember(0)]
-        public byte NumberH { get; set; }
-
-        [WZMember(1)]
-        public byte NumberL { get; set; }
+        public ushort wzNumber { get; set; }
 
         [WZMember(2)]
-        public byte TypeH { get; set; }
-
-        [WZMember(3)]
-        public byte TypeL { get; set; }
+        public ushort wzType { get; set; }
 
         [WZMember(4)]
         public byte X { get; set; }
@@ -45,23 +40,25 @@ namespace MuEmu.Network.Data
             ViewSkillState = Array.Empty<byte>();
         }
 
-        public int Number
+        public ushort Number
         {
-            get => (NumberH << 8) | NumberL;
+            get
+            {
+                return wzNumber.ShufleEnding();
+            }
+
             set
             {
-                NumberH = (byte)(value >> 8);
-                NumberL = (byte)(value & 0xFF);
+                wzNumber = value.ShufleEnding();
             }
         }
 
-        public int Type
+        public ushort Type
         {
-            get => (TypeH << 8) | TypeL;
+            get => wzType.ShufleEnding();
             set
             {
-                TypeH = (byte)(value >> 8);
-                TypeL = (byte)(value & 0xFF);
+                wzType = value.ShufleEnding();
             }
         }
 
