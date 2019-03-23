@@ -92,11 +92,13 @@ namespace WebZen.Network
             var messages = new List<object>();
             short serial = 0;
             long TotalRecv = 0;
+            byte type = 0x00;
 
             try
             {
                 var @in = sender.Received(result);
                 TotalRecv = @in.Length;
+                type = @in[0];
                 using (var received = new MemoryStream(2048))
                 {
                     received.Write(@in, 0, (int)TotalRecv);
@@ -143,7 +145,7 @@ namespace WebZen.Network
                 }
             }catch(Exception e)
             {
-                Logger.Error(e, $"packet decode pSize:{TotalRecv}");
+                Logger.Error(e, $"packet decode pSize:{TotalRecv} pType:{type}");
                 sender.Disconnect();
                 return;
             }

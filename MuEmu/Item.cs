@@ -28,7 +28,7 @@ namespace MuEmu
 
         public ItemNumber(byte type, ushort index)
         {
-            Number = (ushort)(type * 512 + index);
+            Number = (ushort)(type * 512 + (index & 0x1FF));
             Type = type;
             Index = index;
         }
@@ -227,7 +227,7 @@ namespace MuEmu
             return new Item(ItemNumber.FromTypeIndex(14, 15), 0, new { BuyPrice });
         }
 
-        public Item(ItemNumber number, int Serial, object Options = null)
+        public Item(ItemNumber number, int Serial = 0, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();
 
@@ -562,17 +562,25 @@ namespace MuEmu
             ItemDto item = null;
             if (Serial != 0 && NeedSave)
             {
-                item = db.Items.First(x => x.ItemId == Serial);
-                item.AccountId = _aid;
-                item.CharacterId = _cid;
-                item.VaultId = _vid;
-                item.Durability = _durability;
-                item.HarmonyOption = _jewelOfHarmony;
-                item.Option = _option;
-                item.Plus = _plus;
-                item.SlotId = _slot;
-                item.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
-                db.Items.Update(item);
+                try
+                {
+                    item = db.Items.First(x => x.ItemId == Serial);
+                    item.AccountId = _aid;
+                    item.CharacterId = _cid;
+                    item.VaultId = _vid;
+                    item.Durability = _durability;
+                    item.HarmonyOption = _jewelOfHarmony;
+                    item.Option = _option;
+                    item.Plus = _plus;
+                    item.SlotId = _slot;
+                    item.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
+                    db.Items.Update(item);
+                }
+                catch(Exception) //?? Don't exists any more?
+                {
+                    NeedSave = false;
+                    Serilog.Log.Information("[A{2}:C{3}:V{4}]Item Deleted?:[{5}] {0} {1}", Number, ToString(), _aid, _cid, _vid, Serial);
+                }
             }
             else if(Serial == 0)
             {

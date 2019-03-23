@@ -266,6 +266,13 @@ namespace MuEmu.Network.Game
     { }
 
     [WZContract]
+    public class CChaosBoxItemMixButtonClickS5 : IGameMessage // Season 5 reference
+    {
+        [WZMember(0)] public ChaosMixType Type { get; set; }
+        [WZMember(1)] public byte Info { get; set; }
+    }
+
+    [WZContract]
     public class CChaosBoxUseEnd : IGameMessage
     { }
 

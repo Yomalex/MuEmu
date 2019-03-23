@@ -41,6 +41,7 @@ namespace MuEmu.Resources
             Instance.GetJOH();
             Instance.GetGates();
             Instance.GetQuests();
+            Instance.GetChaosMixInfo();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -160,6 +161,19 @@ namespace MuEmu.Resources
             return cache;
         }
 
+        public ChaosMixInfo GetChaosMixInfo()
+        {
+            var cache = _cache.Get<ChaosMixInfo>("ChaosMix");
+            if (cache == null)
+            {
+                Logger.Information("ChaosMix Caching...");
+                cache = _loader.LoadChaosBox();
+                _cache.Set("ChaosMix", cache);
+            }
+
+            return cache;
+        }
+
         public void ReloadShops()
         {
             _cache.Remove("Shops");
@@ -170,6 +184,12 @@ namespace MuEmu.Resources
         {
             _cache.Remove("Gates");
             GetGates();
+        }
+
+        public void ReloadChaosMix()
+        {
+            _cache.Remove("ChaosMix");
+            GetChaosMixInfo();
         }
     }
 }

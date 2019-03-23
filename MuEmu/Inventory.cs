@@ -32,6 +32,8 @@ namespace MuEmu
         public Storage PersonalShop => _personalShop;
         public Storage TradeBox => _tradeBox;
 
+        public bool Lock { get; set; }
+
         public byte[] FindAll(ItemNumber num)
         {
             var res = new List<byte>();
@@ -248,10 +250,18 @@ namespace MuEmu
             }
             else
             {
-                sTo.Add(toIndex, it);
+                try
+                {
+                    sTo.Add(toIndex, it);
 
-                if (to == MoveItemFlags.Warehouse)
-                    it.VaultId = Character.Account.ID * 10 + Character.Account.ActiveVault;
+                    if (to == MoveItemFlags.Warehouse)
+                        it.VaultId = Character.Account.ID * 10 + Character.Account.ActiveVault;
+                }catch (Exception ex)
+                {
+                    Log.Logger.Error(ex, "Can't move, rolling back");
+                    sFrom.Add(fromIndex, it);
+                    return false;
+                }
             }
 
             _needSave = true;
@@ -518,7 +528,7 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            if (!_needSave)
+            if (!_needSave || Lock)
                 return;
 
             var log = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
@@ -542,5 +552,13 @@ namespace MuEmu
 
             _needSave = false;
         }
+
+        public void DeleteAll(Storage storage)
+        {
+            _forDelete.AddRange(storage.Items.Values);
+            storage.Clear();
+        }
+
+        public void DeleteChaosBox() => DeleteAll(ChaosBox);
     }
 }

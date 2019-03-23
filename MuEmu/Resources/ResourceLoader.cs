@@ -249,6 +249,7 @@ namespace MuEmu.Resources
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
+                                        Name = sm.Groups[9].Value,
                                         Zen = int.Parse(sm.Groups[10].Value),
                                         Level = ushort.Parse(sm.Groups[11].Value)
                                     });
@@ -601,6 +602,75 @@ namespace MuEmu.Resources
                 Logger.Information("Quest: {0} OK! Linked to NPC:{1}", tmp.Name, tmp.NPC);
                 yield return tmp;
             }
+        }
+
+        public ChaosMixInfo LoadChaosBox()
+        {
+            var cbmix = new ChaosMixInfo
+            {
+                AdditionalJewels = new List<JewelInfo>(),
+                Mixes = new List<MixInfo>()
+            };
+            var xml = XmlLoader<ChaosMixDto>(Path.Combine(_root, "ChaosBox.xml"));
+            foreach(var j in xml.Jewels)
+            {
+                cbmix.AdditionalJewels.Add(new JewelInfo
+                {
+                    ItemNumber = ItemNumber.FromTypeIndex((byte)j.Type, (ushort)j.Index),
+                    Success = j.Success
+                });
+            }
+            foreach(var m in xml.Mixes)
+            {
+                var mix = new MixInfo
+                {
+                    Name = m.Name,
+                    BaseCost = m.Value,
+                    GeneralSuccess = m.Success,
+                    Ingredients = new List<IngredientInfo>(),
+                    ResultSuccess = new List<IngredientInfo>(),
+                };
+                mix.Ingredients.AddRange(
+                    m.Ingredients.Select(x => new IngredientInfo
+                    {
+                        IID = x.IID,
+                        Count = x.Count,
+                        ItemNumber = ItemNumber.FromTypeIndex((byte)x.Type, (ushort)x.Index),
+                        Level = x.Level.Split("-").Select(y => int.Parse(y)).ToArray(),
+                        Luck = x.Luck,
+                        Option = x.Option,
+                        Skill = x.Skill,
+                        Success = x.Success,
+                    }
+                    ));
+                mix.ResultSuccess.AddRange(
+                    m.RewardSuccess.Select(x => new IngredientInfo
+                    {
+                        IID = x.IID,
+                        Count = x.Count,
+                        ItemNumber = ItemNumber.FromTypeIndex((byte)x.Type, (ushort)x.Index),
+                        Level = x.Level.Split("-").Select(y => int.Parse(y)).ToArray(),
+                        Luck = x.Luck,
+                        Option = x.Option,
+                        Skill = x.Skill,
+                        Success = x.Success,
+                    }
+                    ));
+                mix.ResultFail = new IngredientInfo
+                    {
+                        IID = m.RewardFail.IID,
+                        Count = m.RewardFail.Count,
+                        ItemNumber = ItemNumber.FromTypeIndex((byte)m.RewardFail.Type, (ushort)m.RewardFail.Index),
+                        Level = m.RewardFail.Level.Split("-").Select(y => int.Parse(y)).ToArray(),
+                        Luck = m.RewardFail.Luck,
+                        Option = m.RewardFail.Option,
+                        Skill = m.RewardFail.Skill,
+                        Success = m.RewardFail.Success,
+                    };
+                cbmix.Mixes.Add(mix);
+            }
+
+            return cbmix;
         }
     }
 }

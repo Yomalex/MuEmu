@@ -404,7 +404,8 @@ namespace MuEmu.Network.Game
                 else if (npc.Warehouse)
                 {
                     session.Player.Window = session.Player.Account.Vault;
-                    
+                    session.Player.Character.Inventory.Lock = true;
+
                     session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
                     session.SendAsync(new STalk { Result = 2 });
                     session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
@@ -425,6 +426,13 @@ namespace MuEmu.Network.Game
                 else if (npc.Window != 0)
                 {
                     session.SendAsync(new STalk { Result = npc.Window });
+
+                    if (npc.Window == 3) // ChaosMachine
+                    {
+                        session.Player.Character.Inventory.Lock = true;
+                        session.Player.Window = session.Player.Character.Inventory.ChaosBox;
+                    }
+
                 } else if (npc.Buff != 0)
                 {
                     @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(30));
@@ -706,37 +714,44 @@ namespace MuEmu.Network.Game
         {
             var @char = session.Player.Character;
             var cbMix = @char.Inventory.ChaosBox;
+            
+            var mixInfo = ResourceCache.Instance.GetChaosMixInfo();
+            var mixMatched = mixInfo.FindMix(@char);
 
-            var jochaos = from obj in cbMix.Items
-                      where obj.Value.Number == ItemNumber.FromTypeIndex(12, 15)
-                      select obj;
+            if (mixMatched == null)
+            {
+                Logger.ForAccount(session)
+                    .Error("No mix found, try to hack?");
 
-            var job = from obj in cbMix.Items
-                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 13)
-                      select obj;
+                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail });
+                return;
+            }
 
-            var jos = from obj in cbMix.Items
-                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 14)
-                      select obj;
+            Logger.ForAccount(session)
+                .Information("Mix found, match: {0}", mixMatched.Name);
 
-            var jol = from obj in cbMix.Items
-                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 16)
-                      select obj;
+            var result = mixMatched.Execute(@char);
 
-            var jocreation = from obj in cbMix.Items
-                      where obj.Value.Number == ItemNumber.FromTypeIndex(14, 22)
-                      select obj;
+            if(result == ChaosBoxMixResult.Fail)
+            {
+                await session.SendAsync(new SShopItemList(cbMix.GetInventory()) { ListType = 3 });
+            }
 
-            var jewels = new List<byte>();
-            jewels.AddRange(jochaos.Select(x => x.Key));
-            jewels.AddRange(job.Select(x => x.Key));
-            jewels.AddRange(jos.Select(x => x.Key));
-            jewels.AddRange(jol.Select(x => x.Key));
-            jewels.AddRange(jocreation.Select(x => x.Key));
+            await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = result, ItemInfo = cbMix.Items.Values.FirstOrDefault()?.GetBytes()??Array.Empty<byte>() });
+            Logger.ForAccount(session)
+                .Information("Mix Result: {0} : {1}", mixMatched.Name, result);
+        }
 
-            var leftItems = cbMix.Items.Where(x => !jewels.Contains(x.Key));
+        [MessageHandler(typeof(CChaosBoxUseEnd))]
+        public void CChaosBoxUseEnd(GSSession session)
+        {
+            session.Player.Character.Inventory.Lock = false;
+        }
 
-            await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail });
+        [MessageHandler(typeof(CWarehouseUseEnd))]
+        public void CWarehouseUseEnd(GSSession session)
+        {
+            session.Player.Character.Inventory.Lock = false;
         }
     }
 }

@@ -76,20 +76,20 @@ namespace MuEmu
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
         }
 
-        public bool Add(byte pos, Item it)
+        public void Add(byte pos, Item it)
         {
-            if (_items.ContainsKey(pos))
-                return false;
-
             pos -= (byte)IndexTranslate;
+
+            if (_items.ContainsKey(pos))
+                throw new Exception($"Position {pos} isn't free");
+
             if (pos >= Size)
-                return false;
+                throw new Exception("Out of range");
 
             it.SlotId = pos + IndexTranslate;
             _items.Add(pos, it);
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
             NeedSave = true;
-            return true;
         }
 
         public Item Get(byte pos)
@@ -105,6 +105,12 @@ namespace MuEmu
             var pos2 = new Point(pos % 8, pos / 8);
             var rect = _map.First(x => x.Location == pos2);
             _map.Remove(rect);
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
+            _map.Clear();
         }
 
         public InventoryDto[] GetInventory()
