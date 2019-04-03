@@ -97,7 +97,7 @@ namespace MuEmu
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceCache));
         private Dictionary<Spell, SpellInfo> _spellList;
         private List<Buff> _buffs;
-
+        
         public Player Player { get; }
         public Character Character { get; }
 
@@ -174,7 +174,21 @@ namespace MuEmu
 
         public async void SetBuff(SkillStates effect, TimeSpan time)
         {
-            _buffs.Add(new Buff { State = effect });
+            if (_buffs.Any(x => x.State == effect))
+                return;
+
+            var buff = new Buff { State = effect, EndAt = DateTimeOffset.Now.Add(time), };
+            var @char = Player.Character;
+
+            switch (effect)
+            {
+                case SkillStates.ShadowPhantom:
+                    buff.AttackAdd = @char.Level / 3 + 45;
+                    buff.DefenseAdd = @char.Level / 3 + 50;
+                    break;
+            }
+
+            _buffs.Add(buff);
 
             var m = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);
 
@@ -184,7 +198,7 @@ namespace MuEmu
 
         public async void ClearBuffTimeOut()
         {
-            var b = _buffs.Where(x => x.EndAt < DateTimeOffset.Now);
+            var b = _buffs.Where(x => x.EndAt > DateTimeOffset.Now);
             var rem = _buffs.Except(b);
             _buffs = b.ToList();
 

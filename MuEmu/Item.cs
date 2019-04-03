@@ -12,24 +12,75 @@ using System.Threading.Tasks;
 
 namespace MuEmu
 {
+    public enum ItemType : byte
+    {
+        Sword,
+        Axe,
+        Scepter,
+        Spear,
+        BowOrCrossbow,
+        Staff,
+        Shield,
+        Heml,
+        Armor,
+        Pant,
+        Gloves,
+        Boots,
+        Wing_Orb,Seed,
+        Missellaneo,
+        Potion,
+        Scroll,
+
+        Invalid = 0xff
+    };
+    public enum SpecialNumber : ushort
+    {
+        AditionalDamage = 80,
+        AditionalMagic = 81,
+        SuccessFullBlocking = 82,
+        AditionalDefense = 83,
+        CriticalDamage = 84,
+        RecoverLife = 85,
+        ExcellentOption = 86,
+        AddLife = 100,
+        AddMana = 101,
+        AddStamina = 103,
+        AddLeaderShip = 105,
+        AddMaxMana = 172,
+        AddMaxStamina = 173,
+        SetAttribute = 0xC3,
+        AddStrength = 196,
+        AddAgility = 197,
+        AddEnergy = 198,
+        AddVitality = 199,
+    }
     public struct ItemNumber
     {
         public ushort Number { get; set; } 
         public ushort Index { get; set; }
-        public byte Type { get; set; }
+        public ItemType Type { get; set; }
         public const ushort Invalid = 0xFFFF;
+
+        public static readonly ItemNumber Zen = FromTypeIndex(14, 15);
 
         public ItemNumber(ushort number)
         {
             Number = number;
-            Type = (byte)(number / 512);
+            Type = (ItemType)(number / 512);
             Index = (ushort)(number % 512);
+        }
+
+        public ItemNumber(ItemType type, ushort index)
+        {
+            Number = (ushort)((byte)type * 512 + (index & 0x1FF));
+            Type = type;
+            Index = index;
         }
 
         public ItemNumber(byte type, ushort index)
         {
             Number = (ushort)(type * 512 + (index & 0x1FF));
-            Type = type;
+            Type = (ItemType)type;
             Index = index;
         }
 
@@ -75,10 +126,15 @@ namespace MuEmu
 
         public override string ToString()
         {
-            return $"T{Type}-I{Index}";
+            return $"{Type}-I{Index}";
         }
 
         public static ItemNumber FromTypeIndex(byte type, ushort index)
+        {
+            return new ItemNumber(type, index);
+        }
+
+        public static ItemNumber FromTypeIndex(ItemType type, ushort index)
         {
             return new ItemNumber(type, index);
         }
@@ -200,7 +256,7 @@ namespace MuEmu
             }
         }
         public Character Target { get; set; }
-        public List<ushort> Special { get; set; } = new List<ushort>();
+        public List<SpecialNumber> Special { get; set; } = new List<SpecialNumber>();
         public JewelOfHarmony Harmony { get => _jewelOfHarmony;
             set
             {
@@ -218,13 +274,26 @@ namespace MuEmu
         public int ReqEnergy { get; set; }
         public int ReqCommand { get; set; }
 
-        public int Attack { get; set; }
-        public int Defense { get; set; }
-        public int MagicDefense { get; set; }
+        // Options
+        public int CriticalDamage => Special.Contains(SpecialNumber.CriticalDamage) ? 4 : 0;
+        public int AditionalDamage => Special.Contains(SpecialNumber.AditionalDamage) ? Option28 * 4 : 0;
+        public int AditionalMagic => Special.Contains(SpecialNumber.AditionalMagic) ? Option28 * 4 : 0;
+        public int AditionalDefense => Special.Contains(SpecialNumber.AditionalDefense) ? Option28 * 4 : 0;
+        public int AddLife => Special.Contains(SpecialNumber.AddLife) ? Character.Level * 5 + 50 : 0;
+        public int AddMana => Special.Contains(SpecialNumber.AddMana) ? Character.Level * 5 + 50 : 0;
+        public int AddStamina => Special.Contains(SpecialNumber.AddStamina) ? 50 : 0;
+        public int AddLeaderShip => Special.Contains(SpecialNumber.AddLeaderShip) ? Character.Level * 5 + 10 : 0;
+
+        public int AttackMin { get; private set; }
+        public int AttackMax { get; private set; }
+        public bool Attack => AttackMax - AttackMin > 0;
+        public int Defense { get; private set; }
+        public int DefenseRate { get; private set; }
+        public int MagicDefense { get; private set; }
 
         public static Item Zen(uint BuyPrice)
         {
-            return new Item(ItemNumber.FromTypeIndex(14, 15), 0, new { BuyPrice });
+            return new Item(ItemNumber.Zen, 0, new { BuyPrice });
         }
 
         public Item(ItemNumber number, int Serial = 0, object Options = null)
@@ -278,6 +347,8 @@ namespace MuEmu
             }
             Harmony = dto.HarmonyOption;
             Harmony.Item = this;
+
+            CalcItemAttributes();
         }
 
         public byte[] GetBytes()
@@ -287,7 +358,7 @@ namespace MuEmu
                 ms.WriteByte((byte)(Number & 0xff));
 
                 // Is ZEN?
-                if (Number.Type == 14 && Number.Index == 15)
+                if (Number.Type == ItemType.Missellaneo && Number.Index == 15)
                 {
                     var arr = BitConverter.GetBytes(BuyPrice);
                     ms.WriteByte(arr[1]);
@@ -635,11 +706,16 @@ namespace MuEmu
             if (BasicInfo.Cmd != 0)
                 ReqCommand = (BasicInfo.Cmd * (itemLevel + Plus * 3) * 3) / 100 + 20;
 
+            AttackMax = BasicInfo.Damage.Y + Plus * 3;
+            AttackMin = BasicInfo.Damage.X + Plus * 3;
+            Defense = BasicInfo.Def + Plus * 3;
+            DefenseRate = BasicInfo.DefRate + Plus * 3;
+
             //if(Number == ItemNumber.FromTypeIndex(13,5)) // Dark Spirit
             //{
             //    ReqCommand = 
             //}
-            
+
             switch (Harmony.Type)
             {
                 case 1:
@@ -675,7 +751,7 @@ namespace MuEmu
                     Special.Add(0);
                 }else
                 {
-                    Special.Add((ushort)Spell);
+                    Special.Add((SpecialNumber)Spell);
                 }
             }
             else
@@ -719,71 +795,71 @@ namespace MuEmu
 
             if (Luck)
             {
-                if (Number.Type < 12)
+                if (Number.Type < ItemType.Wing_Orb)
                 {
-                    Special.Add(84);
+                    Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == 12 && Number.Index <= 6) // Wings
+                else if (Number.Type == ItemType.Wing_Orb && Number.Index <= 6) // Wings
                 {
-                    Special.Add(84);
+                    Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == 12 && Number.Index >= 130 && Number.Index <= 135) // Wings
+                else if (Number.Type == ItemType.Wing_Orb && Number.Index >= 130 && Number.Index <= 135) // Wings
                 {
-                    Special.Add(84);
+                    Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == 12 && Number.Index >= 36 && Number.Index <= 43) // Wings S3
+                else if (Number.Type == ItemType.Wing_Orb && Number.Index >= 36 && Number.Index <= 43) // Wings S3
                 {
-                    Special.Add(84);
+                    Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == 12 && Number.Index == 50) // Wings S3
+                else if (Number.Type == ItemType.Wing_Orb && Number.Index == 50) // Wings S3
                 {
-                    Special.Add(84);
+                    Special.Add(SpecialNumber.CriticalDamage);
                 }
                 else if (Number == ItemNumber.FromTypeIndex(13, 30) || Number == ItemNumber.FromTypeIndex(12, 49)) // Cape of Lord
                 {
-                    Special.Add(84);
+                    Special.Add(SpecialNumber.CriticalDamage);
                 }
             }
 
             if (Option28 > 0)
             {
-                if (Number.Type < 5)
+                if (Number.Type < ItemType.Staff)
                 {
-                    Special.Add(80);
+                    Special.Add(SpecialNumber.AditionalDamage);
                     ReqStrength += Option28 * 4;
                 }
-                else if (Number.Type >= 5 && Number.Type < 6)
+                else if (Number.Type >= ItemType.Staff && Number.Type < ItemType.Shield)
                 {
-                    Special.Add(81);
+                    Special.Add(SpecialNumber.AditionalMagic);
                     ReqStrength += Option28 * 4;
                 }
-                else if (Number.Type >= 6 && Number.Type < 7)
+                else if (Number.Type >= ItemType.Shield && Number.Type < ItemType.Heml)
                 {
-                    Special.Add(82);
+                    Special.Add(SpecialNumber.AditionalDefense);
                     ReqStrength += Option28 * 4;
                 }
-                else if (Number.Type >= 7 && Number.Type < 12)
+                else if (Number.Type >= ItemType.Heml && Number.Type < ItemType.Wing_Orb)
                 {
-                    Special.Add(83);
+                    Special.Add(SpecialNumber.AditionalDefense);
                     ReqStrength += Option28 * 4;
                 }
                 else if (Number == ItemNumber.FromTypeIndex(12, 0)) // Wing elf
                 {
-                    Special.Add(85);
+                    Special.Add(SpecialNumber.RecoverLife);
                 }
                 else if (Number == ItemNumber.FromTypeIndex(12, 1)) // Wing Heaven
                 {
-                    Special.Add(81);
+                    Special.Add(SpecialNumber.AditionalMagic);
                     ReqStrength += Option28 * 4;
                 }
                 else if (Number == ItemNumber.FromTypeIndex(12, 2)) // Wing devil
                 {
-                    Special.Add(80);
+                    Special.Add(SpecialNumber.AditionalDamage);
                     ReqStrength += Option28 * 4;
                 }
                 else if (Number == ItemNumber.FromTypeIndex(12, 3)) // Wing spitits
                 {
-                    Special.Add(80);
+                    Special.Add(SpecialNumber.AditionalDamage);
                     ReqStrength += Option28 * 4;
                 }
             }
@@ -792,7 +868,7 @@ namespace MuEmu
 
             if (Defense > 0)
             {
-                if (Number.Type == 6)
+                if (Number.Type == ItemType.Shield)
                 {
                     Defense += Plus;
                 }

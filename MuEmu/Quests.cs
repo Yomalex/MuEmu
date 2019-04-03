@@ -99,18 +99,10 @@ namespace MuEmu
     public class Quest
     {
         private int _index;
-        private int _questByte => Index / 4;
+        private int _questByte;
+        private int _shift;
 
-        public bool Standar { get; set; }
-        public int Index { get => _index;
-            set
-            {
-                _index = value;
-                Shift = (_index % 4) * 2;
-                Details = Resources.ResourceCache.Instance.GetQuests()[_index];
-            }
-        }
-        public int Shift { get; set; }
+        public byte StateByte => Manager.QuestStates[_questByte];
         public QuestState State
         {
             get => (QuestState)((StateByte >> Shift) & 0x03);
@@ -124,7 +116,18 @@ namespace MuEmu
                 Manager.QuestStates[_questByte] = curState;
             }
         }
-        public byte StateByte => Manager.QuestStates[_questByte];
+
+        public bool Standar { get; set; }
+        public int Index { get => _index;
+            set
+            {
+                _index = value;
+                _questByte = _index / 4;
+                _shift = (_index % 4) * 2;
+                Details = Resources.ResourceCache.Instance.GetQuests()[_index];
+            }
+        }
+        public int Shift => _shift;
         public QuestInfo Details { get; private set; }
         public Quests Manager { get; set; }
         public Character Character => Manager.Player.Character;
@@ -137,23 +140,26 @@ namespace MuEmu
             switch(State)
             {
                 case QuestState.Unreg:
+                case QuestState.Clear:
                     result = canRun();
+
                     if (result != 0)
-                    {
-                        Character.Money -= Cost;
-                        State = QuestState.Reg;
-                    }
-                    return result;
+                        return result;
+
+                    Character.Money -= Cost;
+                    State = QuestState.Reg;
+                    return 0;
                 case QuestState.Reg:
                     result = canClear();
+
                     if (result != 0)
-                    {
-                        State = QuestState.Complete;
-                        return 0;
-                    }
-                    return 1;
+                        return result;
+
+                    State = QuestState.Complete;
+                    return 0;
+                default:
+                    return 0xff;
             }
-            return 0xff;
         }
 
         private byte canClear()
@@ -171,11 +177,10 @@ namespace MuEmu
                         var inv = Character.Inventory;
                         foreach (var req in sq.Requeriment)
                         {
-                            var Items = (from it in inv.FindAll(req.Number)
-                                         let x = inv.Get(it)
-                                         where x.Plus == req.Plus
-                                         select it)
-                                         .Take(sq.Count);
+                            var Items = (from it in inv.FindAllItems(req.Number)
+                                        where it.Plus == req.Plus
+                                        select it)
+                                        .Take(sq.Count);
 
                             if (Items.Count() == sq.Count)
                             {
@@ -208,7 +213,7 @@ namespace MuEmu
 
                                         if (!Character.Changeup && !(Character.Class == HeroClass.MagicGladiator || Character.Class == HeroClass.DarkLord))
                                         {
-                                            return 0;
+                                            return 1;
                                         }
                                         var newClass = Character.BaseClass | (HeroClass)0x02;
                                         Character.Class = newClass;
@@ -219,7 +224,7 @@ namespace MuEmu
 
                                 session.SendAsync(new SSendQuestPrize((ushort)session.ID, sq.CompensationType, RewardArg));
 
-                                return (byte)sq.Messages[QuestState.Clear];
+                                return 0;
                             }
                         }
                     }
@@ -231,7 +236,7 @@ namespace MuEmu
         private byte canRun()
         {
             return (byte)(Details.Conditions
-                .LastOrDefault(x => x.CanRun(Character))?.Message ?? 0);
+                .LastOrDefault(x => !x.CanRun(Character))?.Message ?? 0);
         }
     }
 }

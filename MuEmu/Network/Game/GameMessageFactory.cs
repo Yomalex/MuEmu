@@ -30,7 +30,8 @@ namespace MuEmu.Network.Game
             Register<CWarehouseUseEnd>(GameOpCode.WarehouseUseEnd);
             Register<CBuy>(GameOpCode.Buy);
             Register<CSell>(GameOpCode.Sell);
-            Register<CAttackS5E2>(GameOpCode.Attack);
+            //Register<CAttackS5E2>(GameOpCode.Attack);
+            Register<CAttack>(GameOpCode.Attack);
             Register<CWarp>(GameOpCode.Warp);
             Register<CDataLoadOK>(GameOpCode.DataLoadOK);
             Register<CJewelMix>(GameOpCode.JewelMix);
@@ -89,6 +90,9 @@ namespace MuEmu.Network.Game
             Register<SInventoryItemSend>(GameOpCode.OneItemSend);
             Register<SInventoryItemDurSend>(GameOpCode.InventoryItemDurUpdate);
             Register<SChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
+            Register<SDamage>(GameOpCode.Damage);
+            Register<SKillPlayer>(GameOpCode.KillPlayer);
+            Register<SAttackResult>(GameOpCode.Attack);
         }
     }
 }

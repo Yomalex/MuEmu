@@ -122,7 +122,9 @@ namespace MuEmu.Network.Game
         [MessageHandler(typeof(CCloseWindow))]
         public void CCloseWindow(GSSession session)
         {
-
+            if(session.Player.Window != null)
+                Logger.Debug("Player close window:{0}", session.Player.Window.GetType().ToString());
+            session.Player.Window = null;
         }
 
         [MessageHandler(typeof(CClientClose))]
@@ -364,19 +366,26 @@ namespace MuEmu.Network.Game
                 await session.SendAsync(new SItemGet { Result = 0xff });
                 return;
             }
-
-            var pos = @char.Inventory.Add(item.Item);
-            if (pos == 0xff)
+            
+            if(item.Item.Number != ItemNumber.Zen)
             {
-                await session.SendAsync(new SItemGet { Result = 0xff });
-                return;
+                var pos = @char.Inventory.Add(item.Item);
+                if (pos == 0xff)
+                {
+                    await session.SendAsync(new SItemGet { Result = 0xff });
+                    return;
+                }
+                await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
             }
-            item.State = Resources.Map.ItemState.Deleted;
+            else
+            {
+                session.Player.Character.Money += item.Item.BuyPrice;
+            }
 
+            item.State = Resources.Map.ItemState.Deleted;
             var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
             await session.SendAsync(msg);
             await session.Player.SendV2Message(msg);
-            await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
         }
 
         [MessageHandler(typeof(CEventEnterCount))]
@@ -435,7 +444,7 @@ namespace MuEmu.Network.Game
 
                 } else if (npc.Buff != 0)
                 {
-                    @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(30));
+                    @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(120));
                 } else if (npc.Quest != 0xffff)
                 {
                     var quest = @char.Quests.Find(obj.Info.Monster);
@@ -543,13 +552,15 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CAttack))]
-        public void CAttack(GSSession session, CAttack message)
+        public async Task CAttack(GSSession session, CAttack message)
         {
             var target = message.Number.ShufleEnding();
-            var unkA = message.DirDis & 0x0F;
-            var unkB = (message.DirDis & 0xF0) >> 4;
+            var Dir = message.DirDis & 0x0F;
+            var Dis = (message.DirDis & 0xF0) >> 4;
 
-            Logger.ForAccount(session).Debug("Attack {0} {1}:{2} {3}", message.AttackAction, unkA, unkB, target);
+            Logger.ForAccount(session)
+                .Debug("Attack {0} {1}:{2} {3}", message.AttackAction, Dir, Dis, target);
+
             session.Player.Character.Direction = message.DirDis;
 
             if (target >= MonstersMng.MonsterStartIndex) // Is Monster
@@ -557,20 +568,27 @@ namespace MuEmu.Network.Game
                 try
                 {
                     var monster = MonstersMng.Instance.GetMonster(target);
-                    session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, target));
+
+                    if (monster.Life <= 0)
+                        return;
+
+                    await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, target));
                     if (monster.Type == ObjectType.NPC)
                     {
                         Logger.ForAccount(session)
                             .Error("NPC Can't be attacked");
                         return;
                     }
-                }catch(Exception ex)
+
+                    DamageType type;
+                    var attack = session.Player.Character.Attack(monster, out type);
+                    await monster.GetAttacked(session.Player, attack, type);
+                }
+                catch(Exception ex)
                 {
                     Logger.ForAccount(session)
-                        .Error("Invalid monster #{0}", target);
+                        .Error(ex, "Invalid monster #{0}", target);
                 }
-
-                //var ad = session.Player.Character.Attack - monster.Defense;
             }
             else
             {

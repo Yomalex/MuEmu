@@ -104,8 +104,17 @@ namespace MuEmu
                                 case ObjectState.Regen:
                                     obj.State = ObjectState.Live;
                                     break;
+                                case ObjectState.Live:
+                                    obj.Update();
+                                    break;
                                 case ObjectState.Dying:
                                     obj.State = ObjectState.Die;
+                                    break;
+                                case ObjectState.Die:
+                                    obj.State = ObjectState.WaitRegen;
+                                    break;
+                                case ObjectState.WaitRegen:
+                                    obj.TryRegen();
                                     break;
                             }
                         }
@@ -221,29 +230,41 @@ namespace MuEmu
                            select obj).ToList();
 
             var deadObj = (from obj in playerVP
-                          where obj.State == ObjectState.Die
-                          select new VPDestroyDto(obj.Index)).ToList();
+                          where obj.State == ObjectState.Dying
+                          select obj).ToList();
 
             var lostObj = (from obj in targetVP
                           let rect = new Rectangle(obj.Position, new Size(30, 30))
                           where !rect.Contains(pos) && oldVP.Contains(obj.Index)
-                          select new VPDestroyDto(obj.Index)).ToList();
+                          select obj).ToList();
 
             // Update the old player VP
-            oldVP.AddRange(newObj.Select(x => x.Index));
-            oldVP.AddRange(existObj.Select(x => x.Index));
+            foreach (var obj in newObj)
+                obj.ViewPort.Add(plr.Player);
+
+            foreach (var obj in existObj)
+                obj.ViewPort.Add(plr.Player);
 
             foreach (var it in deadObj)
-                oldVP.Remove(it.Number.ShufleEnding());
+            {
+                oldVP.Remove(it.Index);
+                it.ViewPort.Remove(plr.Player);
+            }
             foreach (var it in lostObj)
-                oldVP.Remove(it.Number.ShufleEnding());
+            {
+                oldVP.Remove(it.Index);
+                it.ViewPort.Remove(plr.Player);
+            }
+
+            oldVP.AddRange(newObj.Select(x => x.Index));
+            oldVP.AddRange(existObj.Select(x => x.Index));
 
             var addObj = new List<VPMCreateDto>();
             addObj.AddRange(newObj.Select(x => new VPMCreateDto
             {
                 Number = (ushort)(x.Index|0x8000),
                 Position = x.Position,
-                TPosition = x.Position,
+                TPosition = x.TPosition,
                 Type = x.Info.Monster,
                 ViewSkillState = Array.Empty<byte>(),
                 Path = (byte)(x.Direction << 4)
@@ -252,21 +273,21 @@ namespace MuEmu
             {
                 Number = x.Index,
                 Position = x.Position,
-                TPosition = x.Position,
+                TPosition = x.TPosition,
                 Type = x.Info.Monster,
                 ViewSkillState = Array.Empty<byte>(),
                 Path = (byte)(x.Direction << 4)
             }));
 
             var remObj = new List<VPDestroyDto>();
-            remObj.AddRange(deadObj);
-            remObj.AddRange(lostObj);
-
-            if (addObj.Any())
-                await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = addObj.ToArray() });
+            remObj.AddRange(deadObj.Select(x => new VPDestroyDto(x.Index)));
+            remObj.AddRange(lostObj.Select(x => new VPDestroyDto(x.Index)));
 
             if (remObj.Any())
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
+
+            if (addObj.Any())
+                await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = addObj.ToArray() });
         }
 
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)

@@ -935,5 +935,77 @@ namespace MuEmu.Network.Game
         [WZMember(1, 12)]
         public byte[] ItemInfo { get; set; }
     }
+
+    [WZContract]
+    public class SDamage :IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzDamage { get; set; }
+
+        public ushort Damage { get => wzDamage.ShufleEnding(); set => wzDamage = value.ShufleEnding(); }
+
+        public SDamage() { }
+
+        public SDamage(ushort dmg)
+        {
+            Damage = dmg;
+        }
+    }
+
+    [WZContract(Serialized = true)]
+    public class SKillPlayer :IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzExp { get; set; }
+
+        [WZMember(2)]
+        public ushort wzDamage { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+        public ushort Exp { get => wzExp.ShufleEnding(); set => wzExp = value.ShufleEnding(); }
+        public ushort Damage { get => wzDamage.ShufleEnding(); set => wzDamage = value.ShufleEnding(); }
+
+        public SKillPlayer() { }
+
+        public SKillPlayer(ushort number, ushort exp, ushort dmg)
+        {
+            Number = (ushort)(number | 0x80);
+            Exp = exp;
+            Damage = dmg;
+        }
+    }
+
+    [WZContract]
+    public class SAttackResult : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzDamage { get; set; }
+
+        [WZMember(2)]
+        public DamageType DamageType { get; set; }
+
+        [WZMember(3)]
+        public ushort wzDamageShield { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+        public ushort Damage { get => wzDamage.ShufleEnding(); set => wzDamage = value.ShufleEnding(); }
+        public ushort DamageShield { get => wzDamageShield.ShufleEnding(); set => wzDamageShield = value.ShufleEnding(); }
+
+        public SAttackResult() { }
+
+        public SAttackResult(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
+        {
+            Number = number;
+            Damage = dmg;
+            DamageShield = dmgShield;
+            DamageType = dmgType;
+        }
+    }
 }
 

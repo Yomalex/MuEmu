@@ -17,7 +17,7 @@ namespace MuEmu.Network
 
         public async Task SendAsync(object message)
         {
-            Console.WriteLine("[S->C] {0}", message.GetType().ToString());
+            //Console.WriteLine("[S->C] {0}", message.GetType().ToString());
             Send(_server.Encode(message, ref _outSerial));
         }
     }

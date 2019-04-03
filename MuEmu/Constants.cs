@@ -237,6 +237,7 @@ namespace MuEmu
         Live,
         Dying,
         Die,
+        WaitRegen,
     }
 
     public enum NPCAttributeType
@@ -306,19 +307,21 @@ namespace MuEmu
         DevilSquare = 4,
     }
 
-    public enum DamageType
+    public enum DamageType : byte
     {
-        Miss,
         Regular,
-        Excellent,
+        Excellent = 2,
         Critical,
-        Reflect,
         Beat,
+        Poison,
+        Reflect,
+        White,
+        Miss = 9,
         Double = 0x40,
         Combo = 0x80,
     }
 
-    public enum SkillStates
+    public enum SkillStates : byte
     {
         ShadowPhantom = 0x03,
         None = 0xff,

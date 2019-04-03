@@ -1,5 +1,6 @@
 ﻿using MU.DataBase;
 using MuEmu.Entity;
+using MuEmu.Monsters;
 using MuEmu.Network.Auth;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
@@ -58,7 +59,7 @@ namespace MuEmu
         public Inventory Inventory { get; }
         public Spells Spells { get; }
         public bool Change { get; set; }
-        
+
         public List<ushort> MonstersVP { get; set; }
         public List<Player> PlayersVP { get; set; }
         public List<ushort> ItemsVP { get; set; }
@@ -67,7 +68,7 @@ namespace MuEmu
         public HeroClass Class { get => _class; set { _class = value; _needSave = true; BaseInfo = ResourceCache.Instance.GetDefChar()[BaseClass]; } }
         public HeroClass BaseClass => (HeroClass)(((int)Class) & 0xF0);
         public bool Changeup {
-            get => (((byte)Class)&0x0F) == 1;
+            get => (((byte)Class) & 0x0F) == 1;
             set
             {
                 Class &= (HeroClass)(0xF0);
@@ -89,7 +90,7 @@ namespace MuEmu
         public float Health {
             get => _hp;
             set {
-                if(value > _hpMax)
+                if (value > _hpMax)
                 {
                     value = _hpMax;
                 }
@@ -426,11 +427,16 @@ namespace MuEmu
 
         public int TotalPoints => _str + _agi + _vit + _ene + _cmd + LevelUpPoints;
 
-        public short AddPoints => (short)(TotalPoints - (BaseInfo.Stats.Str+ BaseInfo.Stats.Agi+ BaseInfo.Stats.Vit+ BaseInfo.Stats.Ene+ BaseInfo.Stats.Cmd + (Level-1)*5));
+        public short AddPoints => (short)(TotalPoints - (BaseInfo.Stats.Str + BaseInfo.Stats.Agi + BaseInfo.Stats.Vit + BaseInfo.Stats.Ene + BaseInfo.Stats.Cmd + (Level - 1) * 5));
         public short MaxAddPoints => 100;
         public short MinusPoints => 0;
         public short MaxMinusPoints => 100;
 
+        private float _leftAttackMin = 0.0f;
+        private float _leftAttackMax = 0.0f;
+        private float _rightAttackMin = 0.0f;
+        private float _rightAttackMax = 0.0f;
+        
         // Battle
         //public int Attack => Inventory.Get((byte)Equipament.LeftRing).BasicInfo.
         //public int Defense => Inventory.Player
@@ -543,12 +549,21 @@ namespace MuEmu
             if (Level >= 400)
                 return;
 
-            Level++;
+            var curLevel = Level;
+
+            do
+            {
+                Level++;
+            } while (_exp >= NextExperience);
 
             var att = BaseInfo.Attributes;
 
             _hpMax = (att.Life + att.LevelLife * (Level - 1));
             _mpMax = (att.Mana + att.LevelMana * (Level - 1));
+
+            var levelPoint = BaseClass == HeroClass.MagicGladiator || BaseClass == HeroClass.DarkLord ? 7 : 5;
+            levelPoint += MasterClass ? 1 : 0;
+            LevelUpPoints += (ushort)(levelPoint * (Level - curLevel));
 
             await Player.Session.SendAsync(new SLevelUp
             {
@@ -571,6 +586,90 @@ namespace MuEmu
             _mpMax = (att.Mana + att.LevelMana * (Level - 1));
             _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
+            ObjCalc();
+        }
+        private void ObjCalc()
+        {
+
+            var right = Inventory.Get(Equipament.RightHand);
+            var left = Inventory.Get(Equipament.LeftHand);
+
+            switch(BaseClass)
+            {
+                //case HeroClass.DarkWizard:
+                //    break;
+                case HeroClass.DarkKnight:
+                    _leftAttackMin = (StrengthTotal / 6);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 6);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
+                case HeroClass.FaryElf:
+                    if ((right?.Number.Type ?? ItemType.Invalid) == ItemType.BowOrCrossbow || (left?.Number.Type ?? ItemType.Invalid) == ItemType.BowOrCrossbow)
+                    {
+                        _leftAttackMin = AgilityTotal / 8;
+                        _leftAttackMax = AgilityTotal / 4;
+                        _rightAttackMin = AgilityTotal / 8;
+                        _rightAttackMax = AgilityTotal / 4;
+                    }
+                    else
+                    {
+                        _leftAttackMin = (StrengthTotal + AgilityTotal) / 7;
+                        _leftAttackMax = (StrengthTotal + AgilityTotal) / 4;
+                        _rightAttackMin = (StrengthTotal + AgilityTotal) / 7;
+                        _rightAttackMax = (StrengthTotal + AgilityTotal) / 4;
+                    }
+                    break;
+                case HeroClass.MagicGladiator:
+                    _leftAttackMin = (StrengthTotal / 6) + (EnergyTotal / 12);
+                    _leftAttackMax = (StrengthTotal / 4) + (EnergyTotal / 8);
+                    _rightAttackMin = (StrengthTotal / 6) + (EnergyTotal / 12);
+                    _rightAttackMax = (StrengthTotal / 4) + (EnergyTotal / 8);
+                    break;
+                case HeroClass.DarkLord:
+                    _leftAttackMin = (StrengthTotal / 7) + (EnergyTotal / 14);
+                    _leftAttackMax = (StrengthTotal / 5) + (EnergyTotal / 10);
+                    _rightAttackMin = (StrengthTotal / 7) + (EnergyTotal / 14);
+                    _rightAttackMax = (StrengthTotal / 5) + (EnergyTotal / 10);
+                    break;
+                //case HeroClass.Summoner:
+                //    break;
+                //case HeroClass.RageFighter:
+                //    break;
+                //case HeroClass.GrowLancer:
+                //    break;
+                default:
+                    _leftAttackMin = (StrengthTotal / 8);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 8);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
+            }
+
+            
+
+            if (right?.Attack ?? false)
+            {
+                _rightAttackMin += right.AttackMin;
+                _rightAttackMax += right.AttackMax;
+            }
+
+            if (left?.Attack ?? false)
+            {
+                _leftAttackMin += left.AttackMin;
+                _leftAttackMax += left.AttackMax;
+            }
+
+            if (BaseClass == HeroClass.BladeKnight || BaseClass == HeroClass.MagicGladiator)
+            {
+                if ((right?.Number ?? ItemNumber.Invalid) == (left?.Number ?? ItemNumber.Invalid) && (right?.Number ?? ItemNumber.Invalid) != ItemNumber.Invalid)
+                {
+                    _rightAttackMin *= 0.55f;
+                    _rightAttackMax *= 0.55f;
+                    _leftAttackMin *= 0.55f;
+                    _leftAttackMax *= 0.55f;
+                }
+            }
         }
         private async void OnMoneyChange()
         {
@@ -641,6 +740,82 @@ namespace MuEmu
             db.Characters.Update(charDto);
 
             _needSave = false;
+        }
+
+        public int Attack(Character target)
+        {
+            var leftHand = Inventory.Get(Equipament.LeftHand);
+            var rightHand = Inventory.Get(Equipament.RightHand);
+            var wing = Inventory.Get(Equipament.Wings);
+            var twing = target.Inventory.Get(Equipament.Wings);
+            var criticalRate = Inventory.CriticalRate;
+
+            var rand = new Random();
+
+            var attack = 0.0f;
+
+            if (leftHand?.Attack ?? false)
+                attack += rand.Next(leftHand.AttackMin, leftHand.AttackMax);
+
+            if (rightHand?.Attack ?? false)
+                attack += rand.Next(rightHand.AttackMin, rightHand.AttackMax);
+
+            attack -= target.Inventory.Defense;
+
+            if (wing != null) // Wings increase Dmg 12%+(Level*2)%
+            {
+                Health -= 3;
+                if(Health > 0)
+                {
+                    attack *= 1.12f + wing.Plus * 0.02f;
+                }                
+            }
+
+            if (twing != null) // Wings decrease Dmg 12%+(Level*2)%
+                attack *= 0.88f - twing.Plus * 0.02f;
+
+            return (int)attack;
+        }
+
+        public int Attack(Monster target, out DamageType type)
+        {
+            type = DamageType.Regular;
+            var leftHand = Inventory.Get(Equipament.LeftHand);
+            var rightHand = Inventory.Get(Equipament.RightHand);
+            var wing = Inventory.Get(Equipament.Wings);
+            var criticalRate = Inventory.CriticalRate;
+
+            var rand = new Random();
+
+            var attack = 0.0f;
+
+            attack = rand.Next((int)_rightAttackMin, (int)_rightAttackMax);
+
+            if (leftHand?.Attack ?? false)
+                attack += rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
+
+            attack += Spells.BuffList.Sum(x => x.AttackAdd);
+            attack -= target.Defense;
+
+            if(criticalRate> rand.Next(100))
+            {
+                type = DamageType.Critical;
+                attack *= 1.5f;
+            }
+
+            if (wing != null) // Wings increase Dmg 12%+(Level*2)%
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.12f + wing.Plus * 0.02f;
+                }
+            }
+
+            if (attack < 0)
+                attack = 0;
+
+            return (int)attack;
         }
     }
 }

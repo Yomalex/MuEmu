@@ -78,6 +78,8 @@ namespace MuEmu.Monsters
                 var contents = tf.ReadToEnd();
                 var NPCRegex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)\nend");
                 var NPCSubRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*");
+                var SpotRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s+([0-9]+)\s*");
+
                 var count = 0;
                 foreach (Match m in NPCRegex.Matches(contents))
                 {
@@ -88,6 +90,24 @@ namespace MuEmu.Monsters
                             {
                                 Monsters.Add(new Monster(ushort.Parse(sm.Groups[1].Value), ObjectType.NPC, (Maps)ushort.Parse(sm.Groups[2].Value), new System.Drawing.Point(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[5].Value)), byte.Parse(sm.Groups[6].Value)) { Index = (ushort)(MonsterStartIndex + count) });
                                 count++;
+                            }
+                            break;
+                        case 1:
+                            var rand = new Random();
+                            foreach(Match sm in SpotRegex.Matches(m.Groups[2].Value))
+                            {
+                                for(var i = 0; i < ushort.Parse(sm.Groups[9].Value); i++)
+                                {
+                                    var minX = Math.Min(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
+                                    var maxX = Math.Max(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
+                                    var minY = Math.Min(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
+                                    var maxY = Math.Max(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
+                                    var x = rand.Next(minX, maxX);
+                                    var y = rand.Next(minY, maxY);
+                                    var dir = (byte)rand.Next(7);
+                                    Monsters.Add(new Monster(ushort.Parse(sm.Groups[1].Value), ObjectType.Monster, (Maps)ushort.Parse(sm.Groups[2].Value), new System.Drawing.Point(x, y), dir) { Index = (ushort)(MonsterStartIndex + count) });
+                                    count++;
+                                }       
                             }
                             break;
                         case 2:

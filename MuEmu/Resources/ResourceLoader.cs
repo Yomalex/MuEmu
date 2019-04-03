@@ -566,8 +566,11 @@ namespace MuEmu.Resources
                     };
                     if (sq.NeededItem != null)
                     {
-                        foreach(var it in sq.NeededItem)
-                            stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), 0, new { Plus = (byte)it.Level, Durability = (byte)it.Count }));                        
+                        foreach (var it in sq.NeededItem)
+                        {
+                            stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), 0, new { Plus = (byte)it.Level, Durability = (byte)it.Count }));
+                            stmp.Count = it.Count;
+                        }
                     }
 
                     if (sq.NeededMonster != null)

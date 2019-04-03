@@ -26,7 +26,7 @@ namespace MuEmu.Data
             if(ItemNumber == ItemNumber.Invalid) // AnyItem
             {
 
-            }else if(ItemNumber.Type == 0xFF && ItemNumber.Index == item.Number.Index) // AnyType
+            }else if(ItemNumber.Type == ItemType.Invalid && ItemNumber.Index == item.Number.Index) // AnyType
             {
 
             }else if(ItemNumber.Index == 0x1FF && ItemNumber.Type == item.Number.Type) // AnyIndex

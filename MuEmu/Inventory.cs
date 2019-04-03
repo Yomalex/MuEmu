@@ -25,8 +25,9 @@ namespace MuEmu
         private List<Item> _forDelete;
         private bool _needSave;
 
+        public int CriticalRate => _equipament.Values.Sum(x => x.CriticalDamage);
         public int Defense => _equipament.Values.Sum(x => x.Defense);
-        //public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);
+        public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);
 
         public Storage ChaosBox => _chaosBox;
         public Storage PersonalShop => _personalShop;
@@ -279,6 +280,14 @@ namespace MuEmu
             return null;
         }
 
+        public Item Get(Equipament from)
+        {
+            if (from < Equipament.End && _equipament.ContainsKey(from))
+                return _equipament[from];
+
+            return null;
+        }
+
         public List<Item> Get(IEnumerable<byte> positions)
         {
             var returns = new List<Item>();
@@ -385,7 +394,7 @@ namespace MuEmu
             {
                 var it = equip[Equipament.RightHand];
                 CharSet[1] = (byte)it.Number.Index;
-                CharSet[12] |= (byte)(it.Number.Type << 4);
+                CharSet[12] |= (byte)((byte)it.Number.Type << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x04 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x04 : 0x00);
                 SmallLevel |= it.SmallPlus;
@@ -399,7 +408,7 @@ namespace MuEmu
             {
                 var it = equip[Equipament.LeftHand];
                 CharSet[2] = (byte)it.Number.Index;
-                CharSet[13] |= (byte)(it.Number.Type << 4);
+                CharSet[13] |= (byte)((byte)it.Number.Type << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x02 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x02 : 0x00);
                 SmallLevel |= (byte)(it.SmallPlus << 3);
