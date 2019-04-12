@@ -596,6 +596,136 @@ namespace MuEmu.Network.Game
             }
         }
 
+        [MessageHandler(typeof(CMagicAttack))]
+        public void CMagicAttack(GSSession session, CMagicAttack message)
+        {
+            var @char = session.Player.Character;
+            var target = message.Target;
+            MuEmu.Data.SpellInfo spell;
+            Spells spells = null;
+            Monster monster = null;
+            Player player = null;
+
+            if (!@char.Spells.SpellDictionary.ContainsKey(message.MagicNumber))
+            {
+                Logger.Error("Invalid Magic, user don't own this spell {0}", message.MagicNumber);
+                return;
+            }
+
+            spell = @char.Spells.SpellDictionary[message.MagicNumber];
+
+            try
+            {
+                if (target >= MonstersMng.MonsterStartIndex) // Is Monster
+                {
+                    monster = MonstersMng.Instance.GetMonster(target);
+                    spells = monster.Spells;
+                }
+                else
+                {
+                    player = Program.server.Clients.First(x => x.ID == target).Player;
+                    spells = player.Character.Spells;
+                }
+            }catch(Exception)
+            {
+                Logger.Error("MagicAttack: Invalid target");
+                return;
+            }
+
+            var mana = @char.Mana - spell.Mana;
+            var bp = @char.Stamina;
+
+            if (mana >= 0 && bp >= 0)
+            {
+                switch(spell.Number)
+                {
+                    case Spell.Poison:
+                        @char.Spells.AttackSend(spell.Number, message.Target, false);
+                        spells.SetBuff(SkillStates.Poison, TimeSpan.FromSeconds(60), @char);
+                        break;
+                    case Spell.Heal:
+                        if (@char.BaseClass != HeroClass.FaryElf)
+                            return;
+
+                        var addLife = @char.EnergyTotal / 5;
+
+                        if(spells.Character == null)
+                        {
+                            return;
+                        }
+
+                        spells.Character.Health += addLife;
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
+                    case Spell.GreaterDefense:
+                        if (@char.BaseClass != HeroClass.FaryElf)
+                            return;
+
+                        spells.SetBuff(SkillStates.Defense, TimeSpan.FromSeconds(60), @char);
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
+                    case Spell.GreaterDamage:
+                        if (@char.BaseClass != HeroClass.FaryElf)
+                            return;
+
+                        spells.SetBuff(SkillStates.Attack, TimeSpan.FromSeconds(60), @char);
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
+
+                    case Spell.SoulBarrier:
+                        spells.SetBuff(SkillStates.SoulBarrier, TimeSpan.FromSeconds(60 + @char.EnergyTotal / 40), @char);
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
+
+                    case Spell.GreaterFortitude:
+                        spells.SetBuff(SkillStates.SwellLife, TimeSpan.FromSeconds(60 + @char.EnergyTotal / 10), @char);
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
+                    default:
+                        @char.Spells.AttackSend(spell.Number, message.Target, false);
+                        break;
+                }
+
+                @char.Mana = mana;
+                DamageType type = DamageType.Regular;
+                var attack = 0.0f;
+
+                switch(spell.Number)
+                {
+                    case Spell.Falling_Slash:
+                    case Spell.Lunge:
+                    case Spell.Uppercut:
+                    case Spell.Cyclone:
+                    case Spell.Slash:
+                    case Spell.TwistingSlash:
+                    case Spell.RagefulBlow:
+                    case Spell.DeathStab:
+                    case Spell.CrescentMoonSlash:
+                    case Spell.Impale:
+                    case Spell.FireBreath:
+                        if (monster != null)
+                            attack = @char.SkillAttack(spell, monster, out type);
+                        //else
+                        //    @char.SkillAttack(spell, player, out type);
+                        break;
+                    default:
+                        if(@char.BaseClass == HeroClass.Summoner || @char.BaseClass == HeroClass.DarkWizard || @char.BaseClass == HeroClass.MagicGladiator)
+                        {
+                            if (monster != null)
+                                attack = @char.MagicAttack(spell, monster, out type);
+                        }
+                        else
+                        {
+                            if (monster != null)
+                                attack = @char.SkillAttack(spell, monster, out type);
+                        }
+                        break;
+                }
+
+                monster?.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
+            }
+        }
+
         [MessageHandler(typeof(CWarp))]
         public async Task CWarp(GSSession session, CWarp message)
         {

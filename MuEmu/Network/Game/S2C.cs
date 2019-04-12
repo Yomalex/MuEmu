@@ -534,32 +534,6 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
-    public class SKill
-    {
-        [WZMember(0)]
-        public ushort Target { get; set; }
-
-        [WZMember(1)]
-        public ushort Experience { get; set; }
-
-        [WZMember(2)]
-        public ushort Damage { get; set; }
-    }
-
-    [WZContract]
-    public class SDie
-    {
-        [WZMember(0)]
-        public ushort Target { get; set; }
-
-        [WZMember(1)]
-        public ushort Spell { get; set; }
-
-        [WZMember(2)]
-        public ushort Killer { get; set; }
-    }
-
-    [WZContract]
     public class SEventEnterCount :IGameMessage
     {
         [WZMember(0)]
@@ -1005,6 +979,79 @@ namespace MuEmu.Network.Game
             Damage = dmg;
             DamageShield = dmgShield;
             DamageType = dmgType;
+        }
+    }
+
+    [WZContract(Serialized = true)]
+    public class SMagicAttack : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzMagicNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzSource { get; set; }
+
+        [WZMember(2)]
+        public ushort wzTarget { get; set; }
+
+        public SMagicAttack() { }
+
+        public SMagicAttack(Spell magic, ushort source, ushort target)
+        {
+            wzMagicNumber = ((ushort)magic).ShufleEnding();
+            wzSource = source.ShufleEnding();
+            wzTarget = target.ShufleEnding();
+        }
+    }
+
+    [WZContract(Serialized = true)]
+    public class SMagicDuration : IGameMessage
+    {
+        [WZMember(0)]
+        public Spell MagicNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzNumber { get; set; }
+
+        [WZMember(2)]
+        public byte X { get; set; }
+
+        [WZMember(3)]
+        public byte Y { get; set; }
+
+        [WZMember(4)]
+        public byte Dis { get; set; }
+
+        public SMagicDuration() { }
+
+        public SMagicDuration(Spell magic, ushort Number, byte x, byte y, byte dis)
+        {
+            MagicNumber = magic;
+            wzNumber = Number.ShufleEnding();
+            X = x;
+            Y = y;
+            Dis = dis;
+        }
+    }
+
+    [WZContract]
+    public class SDiePlayer : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        [WZMember(1)]
+        public byte Skill { get; set; }
+
+        [WZMember(2)]
+        public ushort wzKiller { get; set; }
+
+        public SDiePlayer() { }
+        public SDiePlayer(ushort number, byte skill, ushort killer)
+        {
+            wzNumber = number.ShufleEnding();
+            Skill = skill;
+            wzKiller = killer.ShufleEnding();
         }
     }
 }

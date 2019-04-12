@@ -1,4 +1,5 @@
 ﻿using MU.DataBase;
+using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Monsters;
 using MuEmu.Network.Auth;
@@ -50,6 +51,7 @@ namespace MuEmu
         private ushort _level;
         private byte _pkLevel;
         private ushort _levelUpPoints;
+        private readonly Random _rand = new Random();
 
         public int Id => _characterId;
         public Player Player { get; }
@@ -780,27 +782,26 @@ namespace MuEmu
         public int Attack(Monster target, out DamageType type)
         {
             type = DamageType.Regular;
-            var leftHand = Inventory.Get(Equipament.LeftHand);
-            var rightHand = Inventory.Get(Equipament.RightHand);
             var wing = Inventory.Get(Equipament.Wings);
             var criticalRate = Inventory.CriticalRate;
-
-            var rand = new Random();
+            var excellentRate = Inventory.ExcellentRate;
 
             var attack = 0.0f;
 
-            attack = rand.Next((int)_rightAttackMin, (int)_rightAttackMax);
-
-            if (leftHand?.Attack ?? false)
-                attack += rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
+            attack = BaseAttack();
 
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
             attack -= target.Defense;
 
-            if(criticalRate> rand.Next(100))
+            if(excellentRate > _rand.Next(100))
+            {
+                type = DamageType.Excellent;
+                attack *= 2.0f;
+            }
+            else if(criticalRate > _rand.Next(100))
             {
                 type = DamageType.Critical;
-                attack *= 1.5f;
+                attack *= 2.0f;
             }
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
@@ -816,6 +817,102 @@ namespace MuEmu
                 attack = 0;
 
             return (int)attack;
+        }
+
+        public int SkillAttack(SpellInfo spell, Monster target, out DamageType type)
+        {
+            var criticalRate = Inventory.CriticalRate;
+            var excellentRate = Inventory.ExcellentRate;
+            var wing = Inventory.Get(Equipament.Wings);
+            var attack = BaseAttack();
+            attack += _rand.Next(spell.Damage.X, spell.Damage.Y);
+            attack -= target.Defense;
+
+            type = DamageType.Regular;
+
+            if (excellentRate > _rand.Next(100))
+            {
+                type = DamageType.Excellent;
+                attack *= 2.0f;
+            }
+            else if (criticalRate > _rand.Next(100))
+            {
+                type = DamageType.Critical;
+                attack *= 2.0f;
+            }
+
+            if (wing != null) // Wings increase Dmg 12%+(Level*2)%
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.12f + wing.Plus * 0.02f;
+                }
+            }
+
+            attack *= (200.0f + EnergyTotal / 10.0f) / 100.0f;
+
+            return (int)attack;
+        }
+        
+        public int MagicAttack(SpellInfo spell, Monster target, out DamageType type)
+        {
+            var criticalRate = Inventory.CriticalRate;
+            var excellentRate = Inventory.ExcellentRate;
+            var wing = Inventory.Get(Equipament.Wings);
+            //var leftHand = Inventory.Get(Equipament.LeftHand);
+            var rightHand = Inventory.Get(Equipament.RightHand);
+
+            var magicAdd = 0;
+
+            if(rightHand != null)
+                magicAdd = rightHand.BasicInfo.MagicPower / 2 + rightHand.Plus * 2;
+
+            var attack = 0.0f;
+            attack += _rand.Next(spell.Damage.X + Energy / 9, spell.Damage.Y + Energy / 4);
+            attack *= 1.0f + magicAdd / 100.0f;
+            attack -= target.Defense;
+
+            type = DamageType.Regular;
+
+            if (excellentRate > _rand.Next(100))
+            {
+                type = DamageType.Excellent;
+                attack *= 2.0f;
+            }
+            else if (criticalRate > _rand.Next(100))
+            {
+                type = DamageType.Critical;
+                attack *= 2.0f;
+            }
+
+            if (wing != null) // Wings increase Dmg 12%+(Level*2)%
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.12f + wing.Plus * 0.02f;
+                }
+            }
+
+            if (attack < 0)
+                attack = 0.0f;
+
+            return (int)attack;
+        }
+
+        public float BaseAttack()
+        {
+            var leftHand = Inventory.Get(Equipament.LeftHand);
+            var attack = 0.0f;
+            var rand = new Random();
+
+            attack = rand.Next((int)_rightAttackMin, (int)_rightAttackMax);
+
+            if (leftHand?.Attack ?? false)
+                attack += rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
+
+            return attack;
         }
     }
 }

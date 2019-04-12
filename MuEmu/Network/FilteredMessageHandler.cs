@@ -14,7 +14,7 @@ namespace MuEmu.Network
     public class FilteredMessageHandler<TSession> : MessageHandler
         where TSession : WZClient
     {
-        public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(FilteredMessageHandler<TSession>));
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(FilteredMessageHandler<TSession>));
         private readonly IDictionary<Type, List<Predicate<TSession>>> _filter = new Dictionary<Type, List<Predicate<TSession>>>();
         private readonly IList<IMessageHandler> _messageHandlers = new List<IMessageHandler>();
 

@@ -225,6 +225,22 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class CMagicAttack : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzMagicNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzTarget { get; set; }
+
+        [WZMember(2)]
+        public byte Dis { get; set; }
+
+        public ushort Target => wzTarget.ShufleEnding();
+        public Spell MagicNumber => (Spell)wzMagicNumber.ShufleEnding();
+    }
+
+    [WZContract]
     public class CWarp : IGameMessage
     {
         [WZMember(0)]

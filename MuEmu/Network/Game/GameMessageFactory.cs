@@ -40,6 +40,7 @@ namespace MuEmu.Network.Game
             Register<CChaosBoxUseEnd>(GameOpCode.ChaosBoxUseEnd);
             Register<CItemThrow>(GameOpCode.ItemThrow);
             Register<CItemGet>(GameOpCode.ItemGet);
+            Register<CMagicAttack>(GameOpCode.MagicAttack);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -92,7 +93,10 @@ namespace MuEmu.Network.Game
             Register<SChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
             Register<SDamage>(GameOpCode.Damage);
             Register<SKillPlayer>(GameOpCode.KillPlayer);
+            Register<SDiePlayer>(GameOpCode.DiePlayer);
             Register<SAttackResult>(GameOpCode.Attack);
+            Register<SMagicAttack>(GameOpCode.MagicAttack);
+            Register<SMagicDuration>(GameOpCode.MagicDuration);
         }
     }
 }

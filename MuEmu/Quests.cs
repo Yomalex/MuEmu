@@ -195,18 +195,18 @@ namespace MuEmu
                                 {
                                     case QuestCompensation.Changeup:
                                         Character.LevelUpPoints += sq.Amount;
-                                        Character.Class |= (HeroClass)0x01;
+                                        Character.Changeup = true;
                                         RewardArg = Character.ClientClass;
 
                                         session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
                                         break;
                                     case QuestCompensation.Statup:
+                                    case QuestCompensation.Plusstat:
                                         Character.LevelUpPoints += sq.Amount;
                                         RewardArg = sq.Amount;
                                         break;
-                                    case QuestCompensation.Plusstat:
-                                        break;
                                     case QuestCompensation.Comboskill:
+                                        RewardArg = 0;
                                         break;
                                     case QuestCompensation.Master:
                                         Character.LevelUpPoints += sq.Amount;
@@ -215,8 +215,7 @@ namespace MuEmu
                                         {
                                             return 1;
                                         }
-                                        var newClass = Character.BaseClass | (HeroClass)0x02;
-                                        Character.Class = newClass;
+                                        Character.MasterClass = true;
                                         RewardArg = Character.ClientClass;
                                         session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
                                         break;

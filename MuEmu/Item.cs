@@ -3,6 +3,8 @@ using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -142,6 +144,7 @@ namespace MuEmu
 
     public class Item
     {
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
         private byte _plus;
         private byte _durability;
         private byte _option;
@@ -650,7 +653,9 @@ namespace MuEmu
                 catch(Exception) //?? Don't exists any more?
                 {
                     NeedSave = false;
-                    Serilog.Log.Information("[A{2}:C{3}:V{4}]Item Deleted?:[{5}] {0} {1}", Number, ToString(), _aid, _cid, _vid, Serial);
+                        Logger
+                        .ForAccount(Character.Player.Session)
+                        .Information("[A{2}:C{3}:V{4}]Item Deleted?:[{5}] {0} {1}", Number, ToString(), _aid, _cid, _vid, Serial);
                 }
             }
             else if(Serial == 0)
@@ -673,7 +678,6 @@ namespace MuEmu
                     SocketOptions = string.Join(",", _slots.Select(x => x.ToString()))
                 };
                 await db.Items.AddAsync(item);
-                //await db.SaveChangesAsync();
                 Serial = item.ItemId;
             }
             else
@@ -681,7 +685,9 @@ namespace MuEmu
                 return;
             }
 
-            Serilog.Log.Information("[A{2}:C{3}:V{4}]Item Saved:{0} {1}", item.Number, ToString(), item.AccountId, item.CharacterId, item.VaultId);
+            Logger
+                .ForAccount(Character.Player.Session)
+                .Information("[A{2}:C{3}:V{4}]Item Saved:{0} {1}", item.Number, ToString(), item.AccountId, item.CharacterId, item.VaultId);
             NeedSave = false;
         }
 

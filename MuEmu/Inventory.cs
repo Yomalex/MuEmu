@@ -25,6 +25,7 @@ namespace MuEmu
         private List<Item> _forDelete;
         private bool _needSave;
 
+        public int ExcellentRate => 0;// _equipament.Values.Sum(x => x.OptionExe);
         public int CriticalRate => _equipament.Values.Sum(x => x.CriticalDamage);
         public int Defense => _equipament.Values.Sum(x => x.Defense);
         public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);

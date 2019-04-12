@@ -397,8 +397,6 @@ namespace WebZen.Network
                     Array.Copy(enc, 0, resultTemp, sizeFix2 + 1, enc.Length);
                     serial++;
 
-                    Console.WriteLine(string.Join(" ", resultTemp.Select(x => x.ToString("X2")).ToArray()));
-
                     return resultTemp;
                 }
             }

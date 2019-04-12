@@ -97,6 +97,12 @@ namespace WebZen.Network
             try
             {
                 var @in = sender.Received(result);
+                if (@in.Length == 0)
+                {
+                    sender.Disconnect();
+                    return;
+                }
+
                 TotalRecv = @in.Length;
                 type = @in[0];
                 using (var received = new MemoryStream(2048))
@@ -104,15 +110,7 @@ namespace WebZen.Network
                     received.Write(@in, 0, (int)TotalRecv);
                     received.Seek(0, SeekOrigin.Begin);
                     int readed = 0;
-
-                    if (received.Length == 0)
-                    {
-                        sender.Disconnect();
-                        return;
-                    }
-
                     received.SetLength(1024);
-
                     do
                     {
                         if (SimpleStream)

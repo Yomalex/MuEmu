@@ -16,6 +16,8 @@ namespace MuEmu.Data
         public string Name { get; set; }
         public ushort Level { get; set; }
         public Point Damage { get; set; }
+        public byte MagicDur { get; set; }
+        public byte MagicPower { get; set; }
         public ushort Def { get; set; }
         public ushort DefRate { get; set; }
         public int Speed { get; set; }

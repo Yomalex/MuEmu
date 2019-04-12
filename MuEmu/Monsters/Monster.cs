@@ -12,6 +12,7 @@ namespace MuEmu.Monsters
 {
     public class Monster
     {
+        private static Random _rand;
         private float _life;
         private ObjectState _state;
         private DateTimeOffset _regen;
@@ -53,6 +54,8 @@ namespace MuEmu.Monsters
         public float MaxLife => Info.HP;
         public float Mana { get; set; }
 
+        public Spells Spells { get; set; }
+
         public Maps MapID { get; set; }
         public MapInfo Map { get; }
         public Point Spawn { get; private set; }
@@ -60,13 +63,15 @@ namespace MuEmu.Monsters
         public Point TPosition { get; private set; }
         public Player Target { get; private set; }
         public List<Player> ViewPort { get; set; } = new List<Player>();
+        public Player Killer { get; set; }
+        public ushort DeadlyDmg { get; set; }
         public byte Direction { get; set; }
         public List<Item> ItemBag { get; set; }
 
         public bool Active { get; set; }
         public Dictionary<Player, int> DamageSum { get; private set; } = new Dictionary<Player, int>();
 
-        public int Attack => Info.Attack + (new Random().Next(Info.DmgMin,Info.DmgMax));
+        public int Attack => Info.Attack + (_rand.Next(Info.DmgMin,Info.DmgMax));
         public int Defense => Info.Defense;
 
         public event EventHandler Die;
@@ -86,45 +91,53 @@ namespace MuEmu.Monsters
             Map.AddMonster(this);
             State = ObjectState.Regen;
             Die += OnDie;
+            Spells = new Spells(this);
+            if (_rand == null)
+                _rand = new Random();
         }
 
         public async Task GetAttacked(Player plr, int dmg, DamageType type)
         {
+            if (State != ObjectState.Live)
+                return;
+
+            if (dmg < 0)
+                dmg = 0;
+
             if (DamageSum.ContainsKey(plr))
                 DamageSum[plr] += dmg;
             else
                 DamageSum.Add(plr, dmg);
 
-            Life -= dmg;
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
-            var rand = new Random();
+            DeadlyDmg = dmgSend;
+            Killer = plr;
+            Life -= dmg;
 
-            if(State == ObjectState.Dying)
-            {
-                foreach(var pair in DamageSum)
-                {
-                    float EXP = ((Level + 10) * Level) / 4;
-                    if (Level + 10 < pair.Key.Character.Level)
-                        EXP = EXP * (Level + 10) / pair.Key.Character.Level;
-
-                    if (EXP / 2.0f > 1.0f)
-                        EXP += rand.Next((int)(EXP / 2.0f));
-
-                    EXP *= pair.Value / MaxLife;
-
-                    pair.Key.Character.Experience += (ulong)EXP;
-
-                    if (EXP > ushort.MaxValue)
-                        EXP = ushort.MaxValue;
-
-                    await pair.Key.Session.SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == plr ? dmgSend : (ushort)0));
-                    Map.AddItem(Position.X, Position.Y, Item.Zen((uint)EXP));
-                }
-
-                DamageSum.Clear();
-            }else
+            if(State != ObjectState.Dying)
             {
                 await plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
+            }
+        }
+
+        public void GetAttackedDelayed(Player plr, int dmg, DamageType type, TimeSpan delay)
+        {
+            if (State != ObjectState.Live)
+                return;
+
+            if (DamageSum.ContainsKey(plr))
+                DamageSum[plr] += dmg;
+            else
+                DamageSum.Add(plr, dmg);
+
+            var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
+            DeadlyDmg = dmgSend;
+            Killer = plr;
+            Life -= dmg;
+
+            if (State != ObjectState.Dying)
+            {
+                plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
             }
         }
 
@@ -216,7 +229,32 @@ namespace MuEmu.Monsters
 
         private void OnDie(object obj, EventArgs args)
         {
-            
+            var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
+            foreach (var plr in ViewPort)
+                plr.Session.SendAsync(die);
+
+
+            foreach (var pair in DamageSum)
+            {
+                float EXP = ((Level + 10) * Level) / 4;
+                if (Level + 10 < pair.Key.Character.Level)
+                    EXP = EXP * (Level + 10) / pair.Key.Character.Level;
+
+                if (EXP / 2.0f > 1.0f)
+                    EXP += _rand.Next((int)(EXP / 2.0f));
+
+                EXP *= pair.Value / MaxLife;
+
+                pair.Key.Character.Experience += (ulong)EXP;
+
+                if (EXP > ushort.MaxValue)
+                    EXP = ushort.MaxValue;
+
+                SubSystem.Instance.AddDelayedMessage(pair.Key, TimeSpan.FromMilliseconds(1000), new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
+                Map.AddItem(Position.X, Position.Y, Item.Zen((uint)EXP));
+            }
+
+            DamageSum.Clear();
         }
     }
 }

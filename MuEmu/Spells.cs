@@ -1,5 +1,6 @@
 ﻿using MU.DataBase;
 using MuEmu.Data;
+using MuEmu.Monsters;
 using MuEmu.Network.Data;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace MuEmu
 {
-    public enum Spell
+    public enum Spell : ushort
     {
         Poison = 1,
         Meteorite,
@@ -98,8 +99,16 @@ namespace MuEmu
         private Dictionary<Spell, SpellInfo> _spellList;
         private List<Buff> _buffs;
         
+        public Monster Monster { get; }
         public Player Player { get; }
         public Character Character { get; }
+
+        public Spells(Monster monster)
+        {
+            Monster = monster;
+            _spellList = new Dictionary<Spell, SpellInfo>();
+            _buffs = new List<Buff>();
+        }
 
         public Spells(Character @char, CharacterDto character)
         {
@@ -152,7 +161,8 @@ namespace MuEmu
             Remove(skill.Number);
         }
 
-        public IEnumerable<SpellInfo> SpellList => _spellList.Select(x => x.Value);
+        public List<SpellInfo> SpellList => _spellList.Select(x => x.Value).ToList();
+        public IDictionary<Spell, SpellInfo> SpellDictionary => _spellList;
 
         public IEnumerable<Buff> BuffList => _buffs;
 
@@ -172,7 +182,7 @@ namespace MuEmu
             await Player.Session.SendAsync(new SSpells(0, list.ToArray()));
         }
 
-        public async void SetBuff(SkillStates effect, TimeSpan time)
+        public async void SetBuff(SkillStates effect, TimeSpan time, Character source = null)
         {
             if (_buffs.Any(x => x.State == effect))
                 return;
@@ -185,6 +195,18 @@ namespace MuEmu
                 case SkillStates.ShadowPhantom:
                     buff.AttackAdd = @char.Level / 3 + 45;
                     buff.DefenseAdd = @char.Level / 3 + 50;
+                    break;
+                case SkillStates.SoulBarrier:
+                    buff.DefenseAddRate = 10 + source.AgilityTotal / 50 + source.EnergyTotal / 200;
+                    break;
+                case SkillStates.Defense:
+                    buff.DefenseAdd = source.EnergyTotal / 8;
+                    break;
+                case SkillStates.Attack:
+                    buff.AttackAdd = source.EnergyTotal / 7;
+                    break;
+                case SkillStates.SwellLife:
+                    buff.LifeAdd = 0;
                     break;
             }
 
@@ -212,6 +234,23 @@ namespace MuEmu
 
             await Player.Session.SendAsync(m);
             await Player.SendV2Message(m);
+        }
+
+        public async void AttackSend(Spell spell, ushort Target, bool Success)
+        {
+            Target = Success ? (ushort)(Target | 0x8000) : Target;
+
+            var message = new SMagicAttack(spell, (ushort)Player.Session.ID, Target);
+
+            if (Monster == null)
+            {
+
+                await Player
+                    .Session
+                    .SendAsync(message);
+
+                await Player.SendV2Message(message);
+            }
         }
 
         public SkillStates[] ViewSkillStates => _buffs.Select(x => x.State).ToArray();

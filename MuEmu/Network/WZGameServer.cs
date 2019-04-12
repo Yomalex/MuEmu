@@ -9,11 +9,14 @@ using WebZen.Util;
 using System.Threading.Tasks;
 using System.Linq;
 using MuEmu.Entity;
+using Serilog;
+using Serilog.Core;
 
 namespace MuEmu.Network
 {
     internal class WZGameServer : WZServer
     {
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZGameServer));
         public string ClientVersion { get; set; }
         public string ClientSerial { get; set; }
         public IEnumerable<GSSession> Clients => _clients.Values.Select(x => x as GSSession);
@@ -39,9 +42,13 @@ namespace MuEmu.Network
             {
                 if (Session.Player != null)
                 {
+                    if (Session.Player.Status == LoginStatus.Playing)
+                        Session.Player.Character?.Map.DelPlayer(Session.Player.Character);
+
                     Session.Player.Status = LoginStatus.NotLogged;
-                    Session.Player.Character?.Map.DelPlayer(Session.Player.Character);
+                    Logger.ForAccount(Session).Information("Saving...");
                     Session.Player.Save(db);
+                    Logger.ForAccount(Session).Information("Saved!");
                 }
                 if(Session.Player.Account != null)
                 {
@@ -53,6 +60,7 @@ namespace MuEmu.Network
 
                     db.Accounts.Update(acc);
                     db.SaveChanges();
+                    Logger.ForAccount(Session).Information("Disconnecting...");
                 }
             }
             base.OnDisconnect(session);
