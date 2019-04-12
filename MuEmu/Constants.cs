@@ -516,4 +516,11 @@ namespace MuEmu
         Plus14 = 49,
         Plus15 = 50,
     };
+
+    public enum ClientEffect : byte
+    {
+        RecoverShield = 3,
+        LevelUp = 16,
+        ShieldDamage = 17,
+    }
 }

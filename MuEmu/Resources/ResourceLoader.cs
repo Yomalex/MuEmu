@@ -32,12 +32,19 @@ namespace MuEmu.Resources
                 return (T)s.Deserialize(ts);
         }
 
+        public static void XmlSaver<T>(string file, T xml)
+        {
+            var s = new XmlSerializer(typeof(T));
+            using (var ts = File.OpenWrite(file))
+                s.Serialize(ts, xml);
+        }
+
         public IEnumerable<ItemInfo> LoadItems()
         {
             var result = new List<ItemInfo>();
             try
             {
-                var xml = XmlLoader<ItemDbDto>(Path.Combine(_root, "Items2.xml"));
+                var xml = XmlLoader<ItemDbDto>(Path.Combine(_root, "Items.xml"));
 
                 foreach (var i in xml.items)
                 {
@@ -57,7 +64,13 @@ namespace MuEmu.Resources
                         Ene = i.NeededEne,
                         Cmd = i.NeededCmd,
                         Level = i.Level,
-                        Classes = i.ReqClass.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList()
+                        Classes = i.ReqClass.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList(),
+                        Skill = Enum.Parse<Spell>(i.Skill),
+                        Durability = i.Durability,
+                        MagicDur = i.MagicDur,
+                        MagicPower = i.MagicPower,
+                        Name = i.Name,
+                        ReqLevel = i.NeededLevel,
                     };
 
                     result.Add(tmp);
@@ -104,7 +117,7 @@ namespace MuEmu.Resources
                                     result.Add(new ItemInfo
                                     {
                                         Number = new ItemNumber(type, ushort.Parse(sm.Groups[1].Value)),
-                                        Skill = ushort.Parse(sm.Groups[3].Value),
+                                        Skill = (Spell)ushort.Parse(sm.Groups[3].Value),
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
@@ -254,7 +267,8 @@ namespace MuEmu.Resources
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
                                         Name = sm.Groups[9].Value,
                                         Zen = int.Parse(sm.Groups[10].Value),
-                                        Level = ushort.Parse(sm.Groups[11].Value)
+                                        Level = ushort.Parse(sm.Groups[11].Value),
+                                        Classes = new List<HeroClass>(),
                                     });
                                 }
                                 break;
@@ -293,6 +307,32 @@ namespace MuEmu.Resources
                         }
                     }
                 }
+
+                var xml = new ItemDbDto();
+                xml.items = result.Select(x => new ItemDto
+                {
+                    Durability = x.Durability,
+                    Dmg = $"{x.Damage.X}-{x.Damage.Y}",
+                    Drop = x.Drop.ToString(),
+                    Level = x.Level,
+                    MagicDur = x.MagicDur,
+                    MagicPower = x.MagicPower,
+                    Name = x.Name,
+                    NeededAgi = x.Agi,
+                    NeededCmd = x.Cmd,
+                    NeededEne = x.Ene,
+                    NeededLevel = x.ReqLevel,
+                    NeededStr = x.Str,
+                    NeededVit = x.Vit,
+                    Number = x.Number,
+                    Option = x.Option.ToString(),
+                    ReqClass = string.Join(",", x.Classes),
+                    Size = $"{x.Size.Width},{x.Size.Height}",
+                    Skill = x.Skill.ToString(),
+                    Speed = x.Speed,
+                }).ToArray();
+
+                XmlSaver(Path.Combine(_root, "Items.xml"), xml);
             }
 
             return result;            

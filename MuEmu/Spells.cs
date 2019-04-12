@@ -16,7 +16,8 @@ namespace MuEmu
 {
     public enum Spell : ushort
     {
-        Poison = 1,
+        None,
+        Poison,
         Meteorite,
         Lighting,
         FireBall,
@@ -87,11 +88,21 @@ namespace MuEmu
         PlasmaStorm = 76,
         ShadowArrow,
         FireScream,
-        DrainLife,
-
-        Sahamutt = 223,
+        DrainLife = 214,
+        ChainLighting,
+        ElectricSurge,
+        Reflex,
+        Sleep = 219,
+        Night,
+        MagicSpeedUp,
+        MagicDefenseUp,
+        Sahamutt,
         Neil,
         GhostPhantom,
+
+        RedStorm = 230,
+        MagicCircle = 233,
+        LightingStorm = 237,
     }
     public class Spells
     {

@@ -1054,5 +1054,23 @@ namespace MuEmu.Network.Game
             wzKiller = killer.ShufleEnding();
         }
     }
+
+    [WZContract]
+    public class SEffect : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1)] public ClientEffect Effect { get; set; }
+
+        public SEffect()
+        {
+
+        }
+
+        public SEffect(ushort Target, ClientEffect effect)
+        {
+            wzNumber = Target.ShufleEnding();
+            Effect = effect;
+        }
+    }
 }
 

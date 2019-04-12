@@ -253,7 +253,7 @@ namespace MuEmu.Network.Game
 
         // lacting
         [MessageHandler(typeof(CUseItem))]
-        public void CUseItem(GSSession session, CUseItem message)
+        public async Task CUseItem(GSSession session, CUseItem message)
         {
             var @char = session.Player.Character;
             var inv = @char.Inventory;
@@ -261,6 +261,15 @@ namespace MuEmu.Network.Game
             Logger.Debug("CUseItem {0} {1} {2}", message.Source, message.Dest, message.Type);
 
             var Source = inv.Get(message.Source);
+
+            if(Source.BasicInfo.Skill != Spell.None)
+            {
+                if(@char.Spells.TryAdd(Source.BasicInfo.Skill))
+                {
+                    await inv.Delete(message.Source);
+                }
+                return;
+            }
 
             switch(Source.Number)
             {
@@ -275,7 +284,7 @@ namespace MuEmu.Network.Game
                     float AddLifeRate = ((Source.Number.Index+1) * 10.0f) + (Source.Plus * 5.0f);
                     AddLife += (long)(@char.MaxHealth * AddLifeRate / 100.0f);
                     if (Source.Durability == 1)
-                        inv.Delete(message.Source);
+                        await inv.Delete(message.Source);
                     else
                         Source.Durability--;
                     break;
@@ -289,9 +298,17 @@ namespace MuEmu.Network.Game
                     float AddManaRate = ((Source.Number.Index - 3) * 10.0f) + (Source.Plus * 5.0f);
                     AddMana += (uint)(@char.MaxMana * AddManaRate / 100.0f);
                     if (Source.Durability == 1)
-                        inv.Delete(message.Source);
+                        await inv.Delete(message.Source);
                     else
                         Source.Durability--;
+                    break;
+                case 14 * 512 + 35:// Small SD Potion
+                case 14 * 512 + 36:// Medium SD Potion
+                case 14 * 512 + 37:// Big SD Potion
+                    float addSDRate = @char.MaxShield * (25.0f + (Source.Number.Index - 35) * 10.0f) / 100.0f;
+
+                    @char.Shield += addSDRate;
+                    await session.SendAsync(new SEffect((ushort)session.ID, ClientEffect.RecoverShield));
                     break;
                 case 14 * 512 + 13: //  Jewel of Bless
                     {
@@ -299,7 +316,7 @@ namespace MuEmu.Network.Game
                         if (Target.Plus >= 7)
                             break;
 
-                        inv.Delete(message.Source);
+                        await inv.Delete(message.Source);
                         Target.Plus++;
                     }
                     break;
@@ -309,7 +326,7 @@ namespace MuEmu.Network.Game
                         if (Target.Plus >= 9)
                             break;
 
-                        inv.Delete(message.Source);
+                        await inv.Delete(message.Source);
                         var soulRate = 50 + (Target.Luck ? 25 : 0);
                         if (new Random().Next(100) < soulRate)
                         {
@@ -330,7 +347,10 @@ namespace MuEmu.Network.Game
                         if (Target.Option28 >= 3)
                             break;
 
-                        inv.Delete(message.Source);
+                        if (!Target.BasicInfo.Option)
+                            break;
+
+                        await inv.Delete(message.Source);
                         Target.Option28++;
                     }
                     break;
@@ -391,8 +411,9 @@ namespace MuEmu.Network.Game
         [MessageHandler(typeof(CEventEnterCount))]
         public void CEventEnterCount(GSSession session, CEventEnterCount message)
         {
-            session.SendAsync(new SEventEnterCount { Type = message.Type });
+            session.SendAsync(new SEventEnterCount { Type = message.Type, Left = 10 });
         }
+
 
         [MessageHandler(typeof(CTalk))]
         public void CTalk(GSSession session, CTalk message)

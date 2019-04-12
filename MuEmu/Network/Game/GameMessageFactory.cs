@@ -97,6 +97,7 @@ namespace MuEmu.Network.Game
             Register<SAttackResult>(GameOpCode.Attack);
             Register<SMagicAttack>(GameOpCode.MagicAttack);
             Register<SMagicDuration>(GameOpCode.MagicDuration);
+            Register<SEffect>(GameOpCode.Effect);
         }
     }
 }

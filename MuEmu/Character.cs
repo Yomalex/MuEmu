@@ -580,6 +580,8 @@ namespace MuEmu
                 MinusPoint = (ushort)MinusPoints,
                 MaxMinusPoint = (ushort)MaxMinusPoints,
             });
+
+            await Player.Session.SendAsync(new SEffect((ushort)Player.Session.ID, ClientEffect.LevelUp));
         }
         private void CalcStats()
         {

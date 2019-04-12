@@ -83,6 +83,7 @@ namespace MuEmu.Network
         Sell = 0xFF33,
         ViewPortChange = 0xFF45,
         SetMapAtt = 0xFF46,
+        Effect = 0xFF48,
         ViewPortGuildCreate = 0xFF65,
         WarehouseMoney = 0xFF81,
         WarehouseUseEnd = 0xFF82,

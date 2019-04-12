@@ -36,11 +36,11 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute] public int Speed { get; set; }
 
-        [XmlAttribute] public int Dirability { get; set; }
+        [XmlAttribute] public byte Durability { get; set; }
 
-        [XmlAttribute] public int MagicDur { get; set; }
+        [XmlAttribute] public byte MagicDur { get; set; }
 
-        [XmlAttribute] public int MagicPower { get; set; }
+        [XmlAttribute] public byte MagicPower { get; set; }
 
         [XmlAttribute] public ushort NeededLevel { get; set; }
 
