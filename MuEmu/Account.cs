@@ -31,7 +31,7 @@ namespace MuEmu
             _vaults = new Dictionary<byte, Storage>();
             ID = accountDto.AccountId;
             Nickname = accountDto.Account;
-            Characters = accountDto.Characters.ToDictionary(x => y++);
+            //Characters = accountDto.Characters.ToDictionary(x => y++);
             VaultMoney = accountDto.VaultMoney;
 
             using (var db = new GameContext())

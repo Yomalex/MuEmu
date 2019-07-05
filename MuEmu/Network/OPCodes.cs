@@ -81,6 +81,7 @@ namespace MuEmu.Network
         CloseWindow = 0xFF31,
         Buy = 0xFF32,
         Sell = 0xFF33,
+        ItemModify = 0xFF34,
         ViewPortChange = 0xFF45,
         SetMapAtt = 0xFF46,
         Effect = 0xFF48,

@@ -1,4 +1,5 @@
-﻿using MuEmu.Events.BloodCastle;
+﻿using MuEmu.Entity;
+using MuEmu.Events.BloodCastle;
 using MuEmu.Events.EventChips;
 using MuEmu.Monsters;
 using MuEmu.Network.QuestSystem;
@@ -142,6 +143,9 @@ namespace MuEmu.Network.Game
             SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5), new SCloseMsg { Type = message.Type });
 
             session.Player.Status = message.Type==ClientCloseType.SelectChar?LoginStatus.Logged:LoginStatus.NotLogged;
+
+            using (var db = new GameContext())
+                session.Player.Save(db);
         }
 
         [MessageHandler(typeof(CMoveItem))]
@@ -264,7 +268,7 @@ namespace MuEmu.Network.Game
 
             if(Source.BasicInfo.Skill != Spell.None)
             {
-                if(@char.Spells.TryAdd(Source.BasicInfo.Skill))
+                if(await @char.Spells.TryAdd(Source.BasicInfo.Skill))
                 {
                     await inv.Delete(message.Source);
                 }
@@ -890,7 +894,7 @@ namespace MuEmu.Network.Game
             if (mixMatched == null)
             {
                 Logger.ForAccount(session)
-                    .Error("No mix found, try to hack?");
+                    .Error("Invalid MIX");
 
                 await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail });
                 return;
@@ -898,6 +902,13 @@ namespace MuEmu.Network.Game
 
             Logger.ForAccount(session)
                 .Information("Mix found, match: {0}", mixMatched.Name);
+
+            if (!@char.Inventory.TryAdd())
+            {
+                await session.SendAsync(new SNotice(NoticeType.Blue, "Organize your inventory before mix"));
+                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail });
+                return;
+            }
 
             var result = mixMatched.Execute(@char);
 
@@ -921,6 +932,34 @@ namespace MuEmu.Network.Game
         public void CWarehouseUseEnd(GSSession session)
         {
             session.Player.Character.Inventory.Lock = false;
+        }
+
+        [MessageHandler(typeof(CItemModify))]
+        public void CItemModify(GSSession session, CItemModify message)
+        {
+            if(message.Position == 0xff)
+            {
+                return;
+            }
+
+            var it = session.Player.Character.Inventory.Get(message.Position);
+            var res = new SItemModify
+            {
+                Money = 0,
+            };
+
+            var cost = it.RepairPrice;
+
+            if(cost <= 0 || cost > session.Player.Character.Money)
+            {
+                session.SendAsync(res);
+                return;
+            }
+
+            res.Money = cost;
+            it.Durability = it.BasicInfo.Durability;
+            session.Player.Character.Money -= cost;
+            session.SendAsync(res);
         }
     }
 }

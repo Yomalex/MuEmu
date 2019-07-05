@@ -68,7 +68,7 @@ namespace MuEmu.Network
 
         public async Task SendAll(object message)
         {
-            foreach(var cl in _clients.Values.Select(x => x as GSSession))
+            foreach(var cl in _clients.Values.Select(x => x as GSSession).Where(x => x.Player.Status == LoginStatus.Playing))
                 await cl.SendAsync(message);
         }
     }

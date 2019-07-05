@@ -121,17 +121,25 @@ namespace MuEmu
             }
 
             Log.Information("Disconnecting Accounts");
-            using (var db = new GameContext())
+            try
             {
-                var accs = from acc in db.Accounts
-                           where acc.IsConnected && acc.ServerCode == xml.Code
-                           select acc;
+                using (var db = new GameContext())
+                {
+                    var accs = from acc in db.Accounts
+                               where acc.IsConnected && acc.ServerCode == xml.Code
+                               select acc;
 
-                foreach (var acc in accs)
-                    acc.IsConnected = false;
+                    foreach (var acc in accs)
+                        acc.IsConnected = false;
 
-                db.Accounts.UpdateRange(accs);
-                db.SaveChanges();
+                    db.Accounts.UpdateRange(accs);
+                    db.SaveChanges();
+                }
+            }catch(Exception)
+            {
+                Log.Error("MySQL unavailable.");
+                Task.Delay(15000);
+                return;
             }
 
             Log.Information("Server Ready");

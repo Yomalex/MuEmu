@@ -248,6 +248,7 @@ namespace MuEmu
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
         public uint SellPrice { get; private set; }
+        public uint RepairPrice => RepairItemPrice();
         //public HarmonyOption Harmony { get; set; }
         public SocketOption[] Slots {
             get => _slots;
@@ -634,6 +635,10 @@ namespace MuEmu
         public async Task Save(GameContext db)
         {
             ItemDto item = null;
+            var log = Logger;
+            if (Character != null)
+                log = Logger.ForAccount(Character.Player.Session);
+
             if (Serial != 0 && NeedSave)
             {
                 try
@@ -653,9 +658,9 @@ namespace MuEmu
                 catch(Exception) //?? Don't exists any more?
                 {
                     NeedSave = false;
-                        Logger
-                        .ForAccount(Character.Player.Session)
-                        .Information("[A{2}:C{3}:V{4}]Item Deleted?:[{5}] {0} {1}", Number, ToString(), _aid, _cid, _vid, Serial);
+                    log.Information("[A{2}:{3}{4}]Item Deleted?:[{5}] {0} {1}", Number, ToString(), _aid, _vid == 0 ? "C":"V", _vid == 0 ? _cid : _vid, Serial);
+
+                    return;
                 }
             }
             else if(Serial == 0)
@@ -685,9 +690,8 @@ namespace MuEmu
                 return;
             }
 
-            Logger
-                .ForAccount(Character.Player.Session)
-                .Information("[A{2}:C{3}:V{4}]Item Saved:{0} {1}", item.Number, ToString(), item.AccountId, item.CharacterId, item.VaultId);
+            log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", item.Number, ToString(), item.AccountId, item.VaultId == 0 ? "C" : "V", item.VaultId == 0 ? item.CharacterId : item.VaultId, SlotId);
+
             NeedSave = false;
         }
 
@@ -975,6 +979,43 @@ namespace MuEmu
         public override string ToString()
         {
             return $"[{Number}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "");
+        }
+
+        private uint RepairItemPrice()
+        {
+            var baseDur = (float)BasicInfo.Durability;
+            var currDur = (float)Durability;
+
+            if (baseDur == 0)
+                return 0;
+
+            var basePrice = 0u;
+
+            float fixFactor = 1.0f - currDur / baseDur;
+
+            if (Number.Type == ItemType.Seed && (Number.Index == 4 || Number.Index == 5))
+                basePrice = BuyPrice;
+            else
+                basePrice = BuyPrice / 3;
+
+            if (basePrice > 400000000)
+                basePrice = 400000000;
+
+            if (basePrice >= 1000)
+                basePrice = basePrice / 100 * 100;
+            else if (basePrice >= 100)
+                basePrice = basePrice / 10 * 10;
+
+            var repairPrice = 3.0f * Math.Sqrt(basePrice) * Math.Sqrt(Math.Sqrt(basePrice));
+            repairPrice *= fixFactor;
+            repairPrice += 1.0f;
+
+            if (repairPrice >= 1000)
+                repairPrice = repairPrice / 100 * 100;
+            else if (repairPrice >= 100)
+                repairPrice = repairPrice / 10 * 10;
+
+            return (uint)repairPrice;
         }
     }
 }

@@ -21,34 +21,23 @@ namespace MuEmu
         private List<RectangleF> _map;
 
         public bool NeedSave { get; set; }
-        public int IndexTranslate { get; set; }
-        public int Size { get; set; }
+        public StorageID IndexTranslate { get; private set; }
+        public int EndIndex { get; private set; }
+        public int Size { get; private set; }
         public int Money { get; set; }
         public Dictionary<byte, Item> Items => _items;
 
-        public Storage(int size)
-        {
-            Size = size;
-            _items = new Dictionary<byte, Item>();
-            _bounds = new RectangleF(new Point(0,0), new SizeF(8, Size / 8));
-            _map = new List<RectangleF>();
-        }
-
-        public Storage(int size, int startIndex)
+        public Storage(int size, StorageID startIndex = StorageID.Equipament)
         {
             Size = size;
             _items = new Dictionary<byte, Item>();
             _bounds = new RectangleF(new Point(0, 0), new SizeF(8, Size / 8));
             _map = new List<RectangleF>();
             IndexTranslate = startIndex;
+            EndIndex = (int)startIndex + size;
         }
-
-        public byte Add(Item it)
-        {
-            return Add(it, 0);
-        }
-
-        public byte Add(Item it, byte offset)
+        
+        public byte Add(Item it, byte offset = 0)
         {
             for (var i = offset; i < Size; i++)
             {
@@ -60,14 +49,33 @@ namespace MuEmu
 
                 if (_map.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
                 {
-                    _add((byte)i, it);
+                    _add(i, it);
                     NeedSave = true;
-                    it.SlotId = IndexTranslate + i;
+                    it.SlotId = (int)IndexTranslate + i;
                     return (byte)it.SlotId;
                 }
             }
 
             return 0xff;
+        }
+
+        public bool TryAdd(Size freeSpace, byte offset = 0)
+        {
+            for (var i = offset; i < Size; i++)
+            {
+                var itemRect = new RectangleF(new Point(i % 8, i / 8), freeSpace);
+                itemRect.Width -= 0.1f;
+                itemRect.Height -= 0.1f;
+                if (itemRect.Right >= _bounds.Right || itemRect.Bottom >= _bounds.Bottom)
+                    continue;
+
+                if (_map.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void _add(byte pos, Item it)
@@ -78,15 +86,16 @@ namespace MuEmu
 
         public void Add(byte pos, Item it)
         {
+            var org = pos;
             pos -= (byte)IndexTranslate;
 
             if (_items.ContainsKey(pos))
-                throw new Exception($"Position {pos} isn't free");
+                throw new Exception($"({org})[{IndexTranslate}] Position {pos} isn't free");
 
             if (pos >= Size)
-                throw new Exception("Out of range");
+                throw new Exception($"({org})[{IndexTranslate}] Out of range: {pos}/{Size}");
 
-            it.SlotId = pos + IndexTranslate;
+            it.SlotId = pos + (byte)IndexTranslate;
             _items.Add(pos, it);
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
             NeedSave = true;
@@ -122,7 +131,7 @@ namespace MuEmu
 
         public bool CanContain(byte address)
         {
-            return address >= IndexTranslate && address <= (IndexTranslate + Size);
+            return address >= (byte)IndexTranslate && address < EndIndex;
         }
     }
 }

@@ -51,7 +51,7 @@ namespace MuEmu.Data
             if (Skill != -1 && (item.Skill ? 1 : 0) != Skill) // No match Skill
                 return false;
 
-            if (Option > (item.Option28*4)) // No match Skill
+            if (Option > (item.Option28*4)) // No match Option
                 return false;
 
             return true;
@@ -170,13 +170,7 @@ namespace MuEmu.Data
         public MixInfo FindMix(Character @char)
         {
             var cbItems = @char.Inventory.ChaosBox.Items;
-            var items = from obj in cbItems
-                            where obj.Value.Number != ItemNumber.FromTypeIndex(12, 15) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 13) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 14) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 16) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 22)
-                            select obj.Value;
+            var items = from obj in cbItems select obj.Value;
 
             foreach (var m in Mixes)
             {

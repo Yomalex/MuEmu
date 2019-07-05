@@ -97,6 +97,13 @@ namespace MuEmu.Network.Game
             ListType = listType;
             Spells = spells;
         }
+
+        public SSpells(byte listType, SpellDto spell)
+        {
+            Count = (byte)0xFE;
+            ListType = listType;
+            Spells = new SpellDto[] { spell };
+        }
     }
 
     [WZContract(LongMessage = true)]
@@ -1071,6 +1078,12 @@ namespace MuEmu.Network.Game
             wzNumber = Target.ShufleEnding();
             Effect = effect;
         }
+    }
+
+    [WZContract]
+    public class SItemModify : IGameMessage
+    {
+        [WZMember(0)] public uint Money { get; set; }
     }
 }
 

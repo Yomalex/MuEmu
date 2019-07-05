@@ -1,5 +1,6 @@
 ﻿using MU.DataBase;
 using MuEmu.Data;
+using MuEmu.Entity;
 using MuEmu.Monsters;
 using MuEmu.Network.Data;
 using MuEmu.Network.Game;
@@ -109,6 +110,7 @@ namespace MuEmu
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceCache));
         private Dictionary<Spell, SpellInfo> _spellList;
         private List<Buff> _buffs;
+        private List<Spell> _newSpell = new List<Spell>();
         
         public Monster Monster { get; }
         public Player Player { get; }
@@ -128,9 +130,25 @@ namespace MuEmu
             Character = @char;
             _buffs = new List<Buff>();
 
-            foreach (var spell in Character.BaseInfo.Spells)
+
+            var spells = ResourceCache.Instance.GetSkills();
+            
+            foreach (var skill in Character.BaseInfo.Spells)
             {
-                Add(spell);
+                var spell = spells[skill];
+                _spellList.Add(skill, spell);
+                Logger
+                    .ForAccount(Player.Session)
+                    .Information($"Class Skill Added: {spell.Name}");
+            }
+
+            foreach (var skill in character.Spells.Select(x => (Spell)x.Magic))
+            {
+                var spell = spells[skill];
+                _spellList.Add(skill, spell);
+                Logger
+                    .ForAccount(Player.Session)
+                    .Information($"Learned {spell.Name} Skill Added");
             }
         }
 
@@ -138,11 +156,14 @@ namespace MuEmu
         {
             var spells = ResourceCache.Instance.GetSkills();
 
-            if(!_spellList.ContainsKey(skill))
+            if (!_spellList.ContainsKey(skill))
+            {
                 _spellList.Add(skill, spells[skill]);
+                _newSpell.Add(skill);
+            }
         }
 
-        public bool TryAdd(Spell skill)
+        public async Task<bool> TryAdd(Spell skill)
         {
             var spells = ResourceCache.Instance.GetSkills();
             var spell = spells.Where(x => x.Key == skill).Select(x => x.Value).FirstOrDefault();
@@ -153,11 +174,23 @@ namespace MuEmu
 
             if(spell.Energy > Character.Energy)
             {
-                Logger.Error("Insuficient Energy");
+                await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need {spell.Energy} of Energy"));
                 return false;
             }
 
+            var pos = _spellList.Count;
+
             Add(skill);
+
+            if(Player.Status == LoginStatus.Playing)
+            {
+                await Player.Session.SendAsync(new SSpells(0, new MuEmu.Network.Data.SpellDto
+                {
+                    Index = (byte)pos,
+                    Spell = (ushort)skill,
+                }));
+                await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You have learned: {spell.Name}"));
+            }
 
             return true;
         }
@@ -265,5 +298,20 @@ namespace MuEmu
         }
 
         public SkillStates[] ViewSkillStates => _buffs.Select(x => x.State).ToArray();
+
+        public async Task Save(GameContext db)
+        {
+            if (!_newSpell.Any())
+                return;
+
+            await db.Spells.AddRangeAsync(_newSpell.Select(x => new MU.DataBase.SpellDto
+            {
+                CharacterId = Character.Id,
+                Level = 1,
+                Magic = (short)x,
+            }));
+
+            _newSpell.Clear();
+        }
     }
 }

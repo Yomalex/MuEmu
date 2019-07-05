@@ -90,16 +90,16 @@ namespace MuEmu.Network.Auth
                 db.Accounts.Update(acc);
                 db.SaveChanges();
 
-                acc.Characters = (from @char in db.Characters
-                                  where @char.AccountId == acc.AccountId
-                                  select @char).ToList();
+                //acc.Characters = (from @char in db.Characters
+                //                  where @char.AccountId == acc.AccountId
+                //                  select @char).ToList();
 
-                foreach(var @char in acc.Characters)
-                {
-                    @char.Items = (from item in db.Items
-                                   where item.CharacterId == @char.CharacterId
-                                   select item).ToList();
-                }
+                //foreach(var @char in acc.Characters)
+                //{
+                //    @char.Items = (from item in db.Items
+                //                   where item.CharacterId == @char.CharacterId
+                //                   select item).ToList();
+                //}
 
                 session.Player.SetAccount(acc);
             }
@@ -110,11 +110,34 @@ namespace MuEmu.Network.Auth
         [MessageHandler(typeof(CCharacterList))]
         public async Task CCharacterList(GSSession session, CCharacterList listReq)
         {
-            var charList = session.Player.Account.Characters
-                .Select(x => new CharacterPreviewDto(x.Key, x.Value.Name, x.Value.Level, ControlCode.Normal, Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)), GuildStatus.NoMember))
-                .ToArray();
+            using (var db = new GameContext())
+            {
+                var acc = session.Player.Account;
 
-            await session.SendAsync(new SCharacterList(5, 0, charList));
+                byte y = 0;
+                acc.Characters = (from @char in db.Characters
+                                  where @char.AccountId == acc.ID
+                                  select @char).ToDictionary(x => y++);
+
+                foreach (var @char in acc.Characters)
+                {
+                    @char.Value.Items = (from item in db.Items
+                                   where item.CharacterId == @char.Value.CharacterId
+                                   select item).ToList();
+                }
+
+                var charList = session.Player.Account.Characters
+                    .Select(x => new CharacterPreviewDto(
+                        x.Key, 
+                        x.Value.Name, 
+                        x.Value.Level, 
+                        ControlCode.Normal, 
+                        Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)), 
+                        GuildStatus.NoMember))
+                    .ToArray();
+
+                await session.SendAsync(new SCharacterList(5, 0, charList));
+            }
         }
 
         [MessageHandler(typeof(CCharacterMapJoin))]
@@ -167,11 +190,7 @@ namespace MuEmu.Network.Auth
             await session.SendAsync(new SFriends { MemoCount = 0, Friends = new Data.FriendDto[] { new Data.FriendDto { Name = "Yomalex2".GetBytes() } } });
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
-            await session.SendAsync(new SNotice
-            {
-                Notice = $"Bienvenido {@char.Name} a mu desertor"
-            });
-
+            
             if (charDto.SkillKey != null)
             {
                 await session.SendAsync(new SSkillKey {
@@ -302,6 +321,7 @@ namespace MuEmu.Network.Auth
             using (var db = new GameContext())
             {
                 var res = db.Config.FirstOrDefault(x => x.SkillKeyId == session.Player.Character.Id);
+
                 var New = new MU.DataBase.SkillKeyDto
                 {
                     SkillKeyId = session.Player.Character.Id,
@@ -312,12 +332,14 @@ namespace MuEmu.Network.Auth
                     GameOption = message.GameOption,
                     ChatWindow = message.ChatWindow,
                     RkeyDefine = message.R_Key,
-                    //QWERLevelDefine = message.
+//                    QWERLevelDefine = message.q
                 };
                 if (res == null)
                     db.Config.Add(New);
                 else
-                    db.Config.Update(New);
+                    db.Config.Update(res);
+
+                db.SaveChanges();
             }
         }
     }

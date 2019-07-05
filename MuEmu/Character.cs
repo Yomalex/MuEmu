@@ -719,6 +719,7 @@ namespace MuEmu
         public async Task Save(GameContext db)
         {
             await Inventory.Save(db);
+            await Spells.Save(db);
 
             if (_needSave == false)
                 return;

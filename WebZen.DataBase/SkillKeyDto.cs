@@ -26,6 +26,6 @@ namespace MU.DataBase
 
         public byte RkeyDefine { get; set; }
 
-        public uint QWERLevelDefine { get; set; }
+        public Int64 QWERLevelDefine { get; set; }
     }
 }

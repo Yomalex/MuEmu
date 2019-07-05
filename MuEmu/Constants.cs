@@ -4,6 +4,15 @@ using System.Text;
 
 namespace MuEmu
 {
+    public enum StorageID
+    {
+        Equipament,
+        Inventory = 12,
+        PersonalShop = 76,
+        ChaosBox,
+        TradeBox,
+    }
+
     public enum LoginStatus
     {
         NotLogged,

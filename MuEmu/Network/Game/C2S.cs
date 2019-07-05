@@ -335,4 +335,12 @@ namespace MuEmu.Network.Game
         [WZMember(2)]
         public byte Source { get; set; }    // 5
     }
+
+    [WZContract]
+    public class CItemModify : IGameMessage
+    {
+        [WZMember(0)] public byte Position { get; set; }
+
+        [WZMember(1)] public byte ReqPosition { get; set; }
+    }
 }

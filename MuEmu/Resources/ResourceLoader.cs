@@ -64,7 +64,7 @@ namespace MuEmu.Resources
                         Ene = i.NeededEne,
                         Cmd = i.NeededCmd,
                         Level = i.Level,
-                        Classes = i.ReqClass.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList(),
+                        Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => Enum.Parse<HeroClass>(x)).ToList(),
                         Skill = Enum.Parse<Spell>(i.Skill),
                         Durability = i.Durability,
                         MagicDur = i.MagicDur,
@@ -76,7 +76,7 @@ namespace MuEmu.Resources
                     result.Add(tmp);
                 }
             }
-            catch (Exception)
+            catch (FileNotFoundException)
             { 
                 using (var tr = File.OpenText(Path.Combine(_root, "Item.txt")))
                 {

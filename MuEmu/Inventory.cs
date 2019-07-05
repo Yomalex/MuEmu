@@ -18,17 +18,21 @@ namespace MuEmu
         public Character Character { get; }
 
         private Dictionary<Equipament, Item> _equipament;
+        private Dictionary<StorageID, object> Storages;
         private Storage _inventory;
         private Storage _chaosBox;
         private Storage _personalShop;
         private Storage _tradeBox;
         private List<Item> _forDelete;
         private bool _needSave;
+        private int _defense;
+        private int _defenseRate;
+        private int _criticalRate;
 
         public int ExcellentRate => 0;// _equipament.Values.Sum(x => x.OptionExe);
-        public int CriticalRate => _equipament.Values.Sum(x => x.CriticalDamage);
-        public int Defense => _equipament.Values.Sum(x => x.Defense);
-        public int DefenseRate => _equipament.Sum(x => x.Value.BasicInfo.DefRate);
+        public int CriticalRate => _criticalRate;
+        public int Defense => _defense;
+        public int DefenseRate => _defenseRate;
 
         public Storage ChaosBox => _chaosBox;
         public Storage PersonalShop => _personalShop;
@@ -75,57 +79,73 @@ namespace MuEmu
             }
             return res;
         }
-
-        public int GetFreeSlotCount()
+        
+        public bool TryAdd()
         {
-            return 0;
+            return _inventory.TryAdd(new System.Drawing.Size(5,3));
         }
 
         public Inventory(Character @char, CharacterDto characterDto)
         {
             Character = @char;
             //Player = @char?.Player??null;
+            Storages = new Dictionary<StorageID, object>();
             _equipament = new Dictionary<Equipament, Item>();
-            _inventory = new Storage(Storage.InventorySize, 12);
-            _personalShop = new Storage(Storage.TradeSize, _inventory.IndexTranslate + Storage.InventorySize);
+            _inventory = new Storage(Storage.InventorySize, StorageID.Inventory);
+            _personalShop = new Storage(Storage.TradeSize, StorageID.PersonalShop);
             if (@char != null)
             {
                 _chaosBox = new Storage(Storage.ChaosBoxSize);
                 _tradeBox = new Storage(Storage.TradeSize);
+                Storages.Add(StorageID.ChaosBox, _chaosBox);
+                Storages.Add(StorageID.TradeBox, _tradeBox);
             }
             _forDelete = new List<Item>();
+            Storages.Add(StorageID.Equipament, _equipament);
+            Storages.Add(StorageID.Inventory, _inventory);
+            Storages.Add(StorageID.PersonalShop, _personalShop);
 
-            foreach (var item in characterDto.Items)
+            foreach (var item in characterDto.Items.Where(x => x.VaultId == 0))
             {
-                if(item.VaultId == 0)
-                    Add((byte)item.SlotId, new Item(item));
+                var it = new Item(item);
+                try
+                {
+                    Add((byte)item.SlotId, it, false);
+                }catch(Exception ex)
+                {
+                    Log.Information(ex, "Inventory Add");
+                    Add(it);
+                }
             }
         }
 
-        private void Add(byte pos, Item item)
+        private void Add(byte pos, Item item, bool save = true)
         {
-            if (pos < _inventory.IndexTranslate)
+            foreach(var st in Storages)
             {
-                if(_equipament.ContainsKey((Equipament)pos))
-                    throw new InvalidOperationException($"Already equiped slot {(Equipament)pos} with item {_equipament[(Equipament)pos].ToString()}, new item {item.ToString()}");
-                _equipament.Add((Equipament)pos, item);
+                if (st.Value.GetType() == typeof(Storage))
+                {
+                    var sto = st.Value as Storage;
+                    if(sto.CanContain(pos))
+                        sto.Add(pos, item);
+                }
+                else
+                {
+                    var sto = st.Value as Dictionary<Equipament, Item>;
+                    if(pos < (byte)StorageID.Inventory)
+                        sto.Add((Equipament)pos, item);
+                }
             }
-            else
-            if (pos < _personalShop.IndexTranslate)
-            {
-                _inventory.Add(pos, item);
-            }else
-            {
-                _personalShop?.Add(pos, item);
-            }
-
+            
             if (Character != null)
             {
                 item.AccountId = Character.Account.ID;
                 item.CharacterId = Character.Id;
                 item.Character = Character;
             }
-            _needSave = true;
+
+            if (save)
+                _needSave = true;
         }
 
         public byte Add(Item it)
@@ -168,24 +188,31 @@ namespace MuEmu
                 throw new InvalidOperationException("No character logged");
             }
 
+            item.SlotId = (int)slot;
+            item.VaultId = 0;
             _equipament.Add(slot, item);
-            //_inventory.Add(bslot, item);
             item.ApplyEffects(Character.Player);
             item.CharacterId = Character.Id;
+
+            _defense += item.Defense;
+            _defenseRate += item.BasicInfo.DefRate;
+            _criticalRate += item.CriticalDamage;
         }
 
         public Item Unequip(Equipament slot)
         {
-            //if (!_inventory.Items.ContainsKey(bslot))
             if(!_equipament.ContainsKey(slot))
                 throw new InvalidOperationException("Trying to unequip no equiped slot:"+slot);
 
-            //var it = _inventory.Get(bslot);
-            //_inventory.Remove(bslot);
             var it = _equipament[slot];
             _equipament.Remove(slot);
             it.RemoveEffects();
             it.SlotId = 0xff;
+
+            _defense -= it.Defense;
+            _defenseRate -= it.BasicInfo.DefRate;
+            _criticalRate -= it.CriticalDamage;
+
             return it;
         }
 
@@ -265,7 +292,6 @@ namespace MuEmu
                     return false;
                 }
             }
-
             _needSave = true;
             return true;
         }
@@ -533,7 +559,7 @@ namespace MuEmu
 
         public byte[] GetCharset()
         {
-            return GetCharset(Character.Class, Character.Inventory);
+            return GetCharset(Character.Class, this);
         }
 
         public async Task Save(GameContext db)
@@ -543,16 +569,23 @@ namespace MuEmu
 
             var log = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
 
-            var forDel = from it in db.Items
-                         from del in _forDelete
-                         where it.ItemId == del.Serial
-                         select it;
+            if(_forDelete.Any())
+            {
+                var forDel = from it in db.Items
+                             from del in _forDelete
+                             where it.ItemId == del.Serial
+                             select it;
 
-            if (forDel.Any())
-                db.Items.RemoveRange(forDel);
-            
-            //foreach(var e in _equipament.Values)
-            //    await e.Save(db);
+                if (forDel.Any())
+                    db.Items.RemoveRange(forDel);
+
+                _forDelete.Clear();
+            }
+
+            log.Information("----- Main Inventory Save");
+
+            foreach(var e in _equipament.Values)
+                await e.Save(db);
 
             foreach (var e in _inventory.Items.Values)
                 await e.Save(db);
