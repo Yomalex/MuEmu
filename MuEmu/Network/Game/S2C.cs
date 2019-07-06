@@ -234,7 +234,7 @@ namespace MuEmu.Network.Game
         }
     }
 
-    [WZContract]
+    [WZContract(LongMessage = true)]
     public class SViewPortItemDestroy : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]

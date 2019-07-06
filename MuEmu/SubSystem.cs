@@ -321,12 +321,12 @@ namespace MuEmu
                               select obj).ToList();
 
             var deadObj = (from obj in playerVP
-                           where obj.State == ItemState.Deleted
+                           where obj.State == ItemState.Deleting
                            select new VPDestroyDto(obj.Index)).ToList();
 
             var lostObj = (from obj in targetVP
                            let rect = new Rectangle(obj.Position, new Size(30, 30))
-                           where !rect.Contains(pos) && oldVP.Contains(obj.Index)
+                           where !rect.Contains(pos) && oldVP.Contains(obj.Index) && obj.State == ItemState.Created
                            select new VPDestroyDto(obj.Index)).ToList();
 
             // Update the old player VP
@@ -349,8 +349,12 @@ namespace MuEmu
                 await plr.Player.Session.SendAsync(new SViewPortItemCreate(addItem.ToArray()));
             }
 
-            if(lostObj.Any())
-                await plr.Player.Session.SendAsync(new SViewPortItemDestroy { ViewPort = lostObj.ToArray() });
+            var remItem = new List<VPDestroyDto>();
+            remItem.AddRange(deadObj);
+            remItem.AddRange(lostObj);
+
+            if (remItem.Any())
+                await plr.Player.Session.SendAsync(new SViewPortItemDestroy { ViewPort = remItem.ToArray() });
         }
 
         private static async void WorkerEvents()
