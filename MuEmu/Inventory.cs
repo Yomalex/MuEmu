@@ -97,8 +97,8 @@ namespace MuEmu
             {
                 _chaosBox = new Storage(Storage.ChaosBoxSize);
                 _tradeBox = new Storage(Storage.TradeSize);
-                Storages.Add(StorageID.ChaosBox, _chaosBox);
-                Storages.Add(StorageID.TradeBox, _tradeBox);
+                //Storages.Add(StorageID.ChaosBox, _chaosBox);
+                //Storages.Add(StorageID.TradeBox, _tradeBox);
             }
             _forDelete = new List<Item>();
             Storages.Add(StorageID.Equipament, _equipament);
@@ -126,14 +126,20 @@ namespace MuEmu
                 if (st.Value.GetType() == typeof(Storage))
                 {
                     var sto = st.Value as Storage;
-                    if(sto.CanContain(pos))
+                    if (sto.CanContain(pos))
+                    {
                         sto.Add(pos, item);
+                        break;
+                    }
                 }
                 else
                 {
                     var sto = st.Value as Dictionary<Equipament, Item>;
-                    if(pos < (byte)StorageID.Inventory)
+                    if (pos < (byte)StorageID.Inventory)
+                    {
                         sto.Add((Equipament)pos, item);
+                        break;
+                    }
                 }
             }
             
@@ -288,7 +294,14 @@ namespace MuEmu
                 }catch (Exception ex)
                 {
                     Log.Logger.Error(ex, "Can't move, rolling back");
-                    sFrom.Add(fromIndex, it);
+                    if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
+                    {
+                        Equip((Equipament)fromIndex, it);
+                    }
+                    else
+                    {
+                        sFrom.Add(fromIndex, it);
+                    }
                     return false;
                 }
             }

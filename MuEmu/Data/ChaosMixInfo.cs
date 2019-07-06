@@ -87,18 +87,14 @@ namespace MuEmu.Data
                 ingOk.Add(ing, count);
             }
 
-            var leftItems = (from obj in cbItems
-                            where obj.Value.Number != ItemNumber.FromTypeIndex(12, 15) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 13) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 14) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 16) &&
-                            obj.Value.Number != ItemNumber.FromTypeIndex(14, 22)
-                            select obj).ToList();
-
             var pairIng = (from ing in Ingredients
-                          from it in leftItems
+                          from it in cbItems
                           where ing.Match(it.Value)
                           select new { Address = it.Key, Item = it.Value, Ingredient = ing }).ToList();
+
+            var leftItems = (from it in cbItems
+                            where !pairIng.Any(x => x.Item == it.Value)
+                            select it).ToList();
 
             var successRate = GeneralSuccess;
             foreach(var ing in ingOk)
@@ -171,17 +167,30 @@ namespace MuEmu.Data
         {
             var cbItems = @char.Inventory.ChaosBox.Items;
             var items = from obj in cbItems select obj.Value;
+            var MixMatching = new Dictionary<MixInfo, int>();
 
             foreach (var m in Mixes)
             {
-                foreach (var i in items)
+                var ingCount = 0;
+                var iteCount = 0;
+                foreach(var ing in m.Ingredients)
                 {
-                    if (m.Ingredients.Any(x => x.Match(i)))
-                        return m;
+                    ingCount += ing.Count;
+                    iteCount += items.Where(x => ing.Match(x)).Count();
                 }
+                var res = (float)iteCount;
+
+                res /= ingCount;
+                res *= 100.0f;
+
+                MixMatching.Add(m, (int)res);
             }
 
-            return null;
+            return MixMatching
+                .OrderByDescending(x => x.Value)
+                .Where(x => x.Value == 100)
+                .Select(x => x.Key)
+                .FirstOrDefault();
         }
     }
 }

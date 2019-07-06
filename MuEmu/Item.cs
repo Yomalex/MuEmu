@@ -362,13 +362,15 @@ namespace MuEmu
                 ms.WriteByte((byte)(Number & 0xff));
 
                 // Is ZEN?
-                if (Number.Type == ItemType.Missellaneo && Number.Index == 15)
+                if (Number == ItemNumber.Zen)
                 {
+                    // 0 1 2 3
+                    // 3 2 1 0
                     var arr = BitConverter.GetBytes(BuyPrice);
-                    ms.WriteByte(arr[1]);
                     ms.WriteByte(arr[2]);
+                    ms.WriteByte(arr[1]);
                     ms.WriteByte(0);
-                    ms.WriteByte(arr[3]);
+                    ms.WriteByte(arr[0]);
                     ms.WriteByte((byte)((Number & 0x1E00) >> 5));
                     ms.WriteByte(0);
 
