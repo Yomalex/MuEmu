@@ -174,7 +174,7 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CPointAdd))]
-        public void CPointAdd(GSSession session, CPointAdd message)
+        public async Task CPointAdd(GSSession session, CPointAdd message)
         {
             var @char = session.Player.Character;
             var msg = new SPointAdd
@@ -189,8 +189,8 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Strength++;
-                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
-                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
                     }else
                     {
                         msg.Result = 0;
@@ -201,8 +201,8 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Agility++;
-                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
-                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
                     }
                     else
                     {
@@ -214,9 +214,9 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Vitality++;
-                        msg.MaxLifeAndMana = ((ushort)@char.MaxHealth).ShufleEnding();
-                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
-                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
+                        msg.MaxLifeAndMana = (ushort)@char.MaxHealth;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
                     }
                     else
                     {
@@ -228,9 +228,9 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Energy++;
-                        msg.MaxLifeAndMana = ((ushort)@char.MaxMana).ShufleEnding();
-                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
-                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
+                        msg.MaxLifeAndMana = (ushort)@char.MaxMana;
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
                     }
                     else
                     {
@@ -242,8 +242,8 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Command++;
-                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
-                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
+                        msg.MaxStamina = (ushort)@char.MaxStamina;
+                        msg.MaxShield = (ushort)@char.MaxShield;
                     }
                     else
                     {
@@ -252,7 +252,7 @@ namespace MuEmu.Network.Game
                     break;
             }
 
-            session.SendAsync(msg);
+            await session.SendAsync(msg);
         }
 
         // lacting

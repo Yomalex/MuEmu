@@ -479,12 +479,15 @@ namespace MuEmu.Network.Game
         public byte Result { get; set; }
 
         [WZMember(1)]
-        public ushort MaxLifeAndMana { get; set; }
+        public byte Padding { get; set; }
 
         [WZMember(2)]
-        public ushort MaxShield { get; set; }
+        public ushort MaxLifeAndMana { get; set; }
 
         [WZMember(3)]
+        public ushort MaxShield { get; set; }
+
+        [WZMember(4)]
         public ushort MaxStamina { get; set; }
     }
 

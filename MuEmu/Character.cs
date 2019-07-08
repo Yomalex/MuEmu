@@ -587,8 +587,8 @@ namespace MuEmu
         private void CalcStats()
         {
             var att = BaseInfo.Attributes;
-            _hpMax = (att.Life + att.LevelLife * (Level - 1));
-            _mpMax = (att.Mana + att.LevelMana * (Level - 1));
+            _hpMax = (att.Life + att.LevelLife * (Level - 1) + att.VitalityToLife * Vitality);
+            _mpMax = (att.Mana + att.LevelMana * (Level - 1) + att.EnergyToMana * Energy);
             _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
             ObjCalc();
