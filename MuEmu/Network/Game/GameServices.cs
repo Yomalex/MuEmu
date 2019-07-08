@@ -189,8 +189,8 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Strength++;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
+                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
+                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
                     }else
                     {
                         msg.Result = 0;
@@ -201,8 +201,8 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Agility++;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
+                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
+                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
                     }
                     else
                     {
@@ -214,9 +214,9 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Vitality++;
-                        msg.MaxLifeAndMana = (ushort)@char.MaxHealth;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
+                        msg.MaxLifeAndMana = ((ushort)@char.MaxHealth).ShufleEnding();
+                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
+                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
                     }
                     else
                     {
@@ -228,9 +228,9 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Energy++;
-                        msg.MaxLifeAndMana = (ushort)@char.MaxMana;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
+                        msg.MaxLifeAndMana = ((ushort)@char.MaxMana).ShufleEnding();
+                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
+                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
                     }
                     else
                     {
@@ -242,8 +242,8 @@ namespace MuEmu.Network.Game
                     {
                         @char.LevelUpPoints--;
                         @char.Command++;
-                        msg.MaxStamina = (ushort)@char.MaxStamina;
-                        msg.MaxShield = (ushort)@char.MaxShield;
+                        msg.MaxStamina = ((ushort)@char.MaxStamina).ShufleEnding();
+                        msg.MaxShield = ((ushort)@char.MaxShield).ShufleEnding();
                     }
                     else
                     {
@@ -541,7 +541,7 @@ namespace MuEmu.Network.Game
 
             Logger
                 .ForAccount(session)
-                .Information("Buy {0} for {1}", item.BasicInfo.Number, item.BuyPrice);
+                .Information("Buy {0} for {1}", item.ToString(), item.BuyPrice);
 
             session.SendAsync(bResult);
         }
@@ -583,8 +583,8 @@ namespace MuEmu.Network.Game
             var Dir = message.DirDis & 0x0F;
             var Dis = (message.DirDis & 0xF0) >> 4;
 
-            Logger.ForAccount(session)
-                .Debug("Attack {0} {1}:{2} {3}", message.AttackAction, Dir, Dis, target);
+            //Logger.ForAccount(session)
+            //    .Debug("Attack {0} {1}:{2} {3}", message.AttackAction, Dir, Dis, target);
 
             session.Player.Character.Direction = message.DirDis;
 

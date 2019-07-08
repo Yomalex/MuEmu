@@ -28,10 +28,11 @@ namespace MuEmu
         Pant,
         Gloves,
         Boots,
-        Wing_Orb,Seed,
+        Wing_Orb_Seed,
         Missellaneo,
         Potion,
         Scroll,
+        End,
 
         Invalid = 0xff
     };
@@ -58,32 +59,27 @@ namespace MuEmu
     }
     public struct ItemNumber
     {
-        public ushort Number { get; set; } 
-        public ushort Index { get; set; }
-        public ItemType Type { get; set; }
+        private ushort _number;
+        public ushort Number { get => _number; set => _number = value; } 
+        public ushort Index { get => (ushort)(_number % 512); set => _number = (ushort)((_number& ~511)|value); }
+        public ItemType Type { get => (ItemType)(_number / 512); set => _number = (ushort)((_number & 511) | (int)value * 512); }
         public const ushort Invalid = 0xFFFF;
 
         public static readonly ItemNumber Zen = FromTypeIndex(14, 15);
 
         public ItemNumber(ushort number)
         {
-            Number = number;
-            Type = (ItemType)(number / 512);
-            Index = (ushort)(number % 512);
+            _number = number;
         }
 
         public ItemNumber(ItemType type, ushort index)
         {
-            Number = (ushort)((byte)type * 512 + (index & 0x1FF));
-            Type = type;
-            Index = index;
+            _number = (ushort)((byte)type * 512 + (index & 0x1FF));
         }
 
         public ItemNumber(byte type, ushort index)
         {
-            Number = (ushort)(type * 512 + (index & 0x1FF));
-            Type = (ItemType)type;
-            Index = index;
+            _number = (ushort)(type * 512 + (index & 0x1FF));
         }
 
         public static implicit operator ItemNumber(ushort num)
@@ -807,23 +803,23 @@ namespace MuEmu
 
             if (Luck)
             {
-                if (Number.Type < ItemType.Wing_Orb)
+                if (Number.Type < ItemType.Wing_Orb_Seed)
                 {
                     Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == ItemType.Wing_Orb && Number.Index <= 6) // Wings
+                else if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index <= 6) // Wings
                 {
                     Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == ItemType.Wing_Orb && Number.Index >= 130 && Number.Index <= 135) // Wings
+                else if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index >= 130 && Number.Index <= 135) // Wings
                 {
                     Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == ItemType.Wing_Orb && Number.Index >= 36 && Number.Index <= 43) // Wings S3
+                else if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index >= 36 && Number.Index <= 43) // Wings S3
                 {
                     Special.Add(SpecialNumber.CriticalDamage);
                 }
-                else if (Number.Type == ItemType.Wing_Orb && Number.Index == 50) // Wings S3
+                else if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index == 50) // Wings S3
                 {
                     Special.Add(SpecialNumber.CriticalDamage);
                 }
@@ -850,7 +846,7 @@ namespace MuEmu
                     Special.Add(SpecialNumber.AditionalDefense);
                     ReqStrength += Option28 * 4;
                 }
-                else if (Number.Type >= ItemType.Heml && Number.Type < ItemType.Wing_Orb)
+                else if (Number.Type >= ItemType.Heml && Number.Type < ItemType.Wing_Orb_Seed)
                 {
                     Special.Add(SpecialNumber.AditionalDefense);
                     ReqStrength += Option28 * 4;
@@ -995,7 +991,7 @@ namespace MuEmu
 
             float fixFactor = 1.0f - currDur / baseDur;
 
-            if (Number.Type == ItemType.Seed && (Number.Index == 4 || Number.Index == 5))
+            if (Number.Type == ItemType.Wing_Orb_Seed && (Number.Index == 4 || Number.Index == 5))
                 basePrice = BuyPrice;
             else
                 basePrice = BuyPrice / 3;
@@ -1018,6 +1014,105 @@ namespace MuEmu
                 repairPrice = repairPrice / 10 * 10;
 
             return (uint)repairPrice;
+        }
+
+        public byte GetLevel(int level)
+        {
+            var _rand = new Random();
+            ushort itemlevel;
+            if (level < 0)
+                level = 0;
+
+            if (BasicInfo.Level == 0xffff || BasicInfo.Level == 0)
+                return 0xff;
+
+            if(Number.Type == ItemType.Potion)
+            {
+                itemlevel = BasicInfo.Level;
+
+                if (Number.Index == 15)
+                    return 0xff;
+
+                if (itemlevel >= (level - 8))
+                {
+                    if (itemlevel <= level)
+                        return 0;
+                }
+
+                return 0xff;
+            }
+
+            if (Number.Type == ItemType.Missellaneo && Number.Index == 10)
+            {
+                byte ilevel;
+
+                if (_rand.Next(10) == 0)
+                {
+                    ilevel = 0;
+
+                    if (level < 0)
+                        level = 0;
+
+                    ilevel = (byte)(level / 10);
+
+                    if (ilevel > 0)
+                        ilevel--;
+
+                    if (ilevel > 5)
+                        ilevel = 5;
+
+                    return ilevel;
+                }
+
+                return 0xff;
+            }
+
+            if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index == 11)
+            {
+                byte ilevel;
+
+                if (_rand.Next(10) == 0)
+                {
+                    ilevel = 0;
+
+                    if (level < 0)
+                        level = 0;
+
+                    ilevel = (byte)(level / 10);
+
+                    if (ilevel > 0)
+                        ilevel--;
+
+                    if (ilevel > 6)
+                        ilevel = 6;
+
+                    return ilevel;
+                }
+
+                return 0xff;
+            }
+
+            itemlevel = BasicInfo.Level;
+
+            if (itemlevel >= level - 18 && itemlevel <= level)
+            {
+                if (Number.Type == ItemType.Scroll)
+                    return 0;
+
+                itemlevel = (byte)((level - itemlevel) / 3);
+
+                if (Number.Type == ItemType.Missellaneo)
+                {
+                    if (Number.Index == 8 || Number.Index == 9 || Number.Index == 12 || Number.Index == 13 || Number.Index == 20 || Number.Index == 21 || Number.Index == 22 || Number.Index == 23 || Number.Index == 24 || Number.Index == 25 || Number.Index == 26 || Number.Index == 27 || Number.Index == 28)
+                    {
+                        if (itemlevel > 4)
+                            itemlevel = 4;
+                    }
+                }
+
+                return (byte)itemlevel;
+            }
+            return 0xff;
         }
     }
 }

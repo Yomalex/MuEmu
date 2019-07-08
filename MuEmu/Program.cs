@@ -36,6 +36,9 @@ namespace MuEmu
         public static string ConnectionString { get; set; }
         public static bool AutoRegistre { get; set; }
         public static ushort ServerCode { get; set; }
+        public static float Experience { get; set; }
+        public static float Zen { get; set; }
+        public static int DropRate { get; set; }
 
         static void Main(string[] args)
         {
@@ -64,6 +67,9 @@ namespace MuEmu
             var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
             AutoRegistre = xml.AutoRegistre;
             ServerCode = (ushort)xml.Code;
+            Experience = xml.Experience;
+            Zen = xml.Zen;
+            DropRate = xml.DropRate;
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<GSSession>()

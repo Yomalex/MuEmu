@@ -245,6 +245,7 @@ namespace MuEmu
         Regen,
         Live,
         Dying,
+        Dying2,
         Die,
         WaitRegen,
     }

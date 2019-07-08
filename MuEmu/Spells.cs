@@ -268,8 +268,15 @@ namespace MuEmu
             var rem = _buffs.Except(b);
             _buffs = b.ToList();
 
-            foreach (var r in rem)
-                await DelBuff(r.State);
+            try
+            {
+                foreach (var r in rem)
+                    await DelBuff(r.State);
+            }catch(Exception)
+            {
+                _buffs.Clear();
+                return;
+            }
         }
 
         public async Task DelBuff(SkillStates effect)

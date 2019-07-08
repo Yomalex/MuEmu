@@ -132,28 +132,29 @@ namespace MuEmu.Data
                 res = ResultSuccess.First();
 
             var res2 = pairIng.FirstOrDefault(x => x.Ingredient.IID == res.IID);
-            if(res2.Item != null)
-            {
-                var mix = new Item(res2.Item.Number);
-                if(res.Level.Length == 1)
-                {
-                    mix.Plus = res.Level[0] == 255 ? res2.Item.Plus : (byte)res.Level[0];
-                }else if(res.Level.Length == 2)
-                {
-                    mix.Plus = (byte)rand.Next(res.Level[0], res.Level[1]);
-                }else
-                {
-                    mix.Plus = res2.Item.Plus;
-                }
 
-                mix.Luck = res.Luck == -1 ? res2.Item.Luck : (res.Luck > 0 ? true : false);
-                mix.Skill = res.Skill == -1 ? res2.Item.Skill : (res.Skill > 0 ? true : false);
-                mix.Option28 = (byte)(res.Option == -1 ? res2.Item.Option28 : res.Option);
-                mix.Character = @char;
-                mix.AccountId = @char.Account.ID;
-                mix.CharacterId = @char.Id;
-                @char.Inventory.ChaosBox.Add(mix);
+            var mix = new Item(res.IID == -1 ? res.ItemNumber : res2.Item.Number);
+            
+            if (res.Level.Length == 1)
+            {
+                mix.Plus = res.Level[0] == 255 ? res2.Item.Plus : (byte)res.Level[0];
             }
+            else if (res.Level.Length == 2)
+            {
+                mix.Plus = (byte)rand.Next(res.Level[0], res.Level[1]);
+            }
+            else
+            {
+                mix.Plus = res2?.Item.Plus??0;
+            }
+
+            mix.Luck = res.Luck == -1 ? res2?.Item.Luck??false : (res.Luck > 0 ? true : false);
+            mix.Skill = res.Skill == -1 ? res2?.Item.Skill??false : (res.Skill > 0 ? true : false);
+            mix.Option28 = (byte)(res.Option == -1 ? res2?.Item.Option28??0x00 : res.Option);
+            mix.Character = @char;
+            mix.AccountId = @char.Account.ID;
+            mix.CharacterId = @char.Id;
+            @char.Inventory.ChaosBox.Add(mix);
 
             return ChaosBoxMixResult.Success;
         }

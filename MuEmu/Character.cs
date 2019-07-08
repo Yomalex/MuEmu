@@ -476,6 +476,7 @@ namespace MuEmu
             _vit = characterDto.Vitality;
             _ene = characterDto.Energy;
             _cmd = characterDto.Command;
+            _levelUpPoints = characterDto.LevelUpPoints;
 
             CalcStats();
 
@@ -531,7 +532,7 @@ namespace MuEmu
 
         private async void HPorSDChanged()
         {
-            Console.WriteLine("HP Changed");
+            Console.WriteLine($"HP Changed {_hp} {_sd}");
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()

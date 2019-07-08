@@ -19,6 +19,8 @@ namespace MuEmu.Resources.XML
         [XmlElement] public string ConnectServerIP { get; set; }
         [XmlElement] public float Experience { get; set; }
         [XmlElement] public bool AutoRegistre { get; set; }
+        [XmlElement] public float Zen { get; set; }
+        [XmlElement] public int DropRate { get; set; }
 
         [XmlElement] public string DBIp { get; set; }
         [XmlElement] public string DataBase { get; set; }

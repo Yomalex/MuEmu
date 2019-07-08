@@ -12,6 +12,7 @@ namespace MuEmu.Monsters
 {
     public class Monster
     {
+        private static ushort[] _maxItemIndex;
         private static Random _rand;
         private float _life;
         private ObjectState _state;
@@ -92,8 +93,22 @@ namespace MuEmu.Monsters
             State = ObjectState.Regen;
             Die += OnDie;
             Spells = new Spells(this);
+            ItemBag = new List<Item>();
             if (_rand == null)
+            {
                 _rand = new Random();
+                _maxItemIndex = new ushort[(int)ItemType.End];
+
+                foreach(var t in Enum.GetValues(typeof(ItemType)))
+                {
+                    if ((ItemType)t == ItemType.End)
+                        break;
+
+                    _maxItemIndex[(int)(ItemType)t] = (ushort)ResourceCache.Instance.GetItems().Where(x => (new ItemNumber(x.Key)).Type == (ItemType)(t)).Count();
+                }
+            }
+
+            //gObjGiveItemSearch(Level);
         }
 
         public async Task GetAttacked(Player plr, int dmg, DamageType type)
@@ -229,6 +244,8 @@ namespace MuEmu.Monsters
 
         private void OnDie(object obj, EventArgs args)
         {
+            gObjGiveItemSearch(Level);
+
             var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
             foreach (var plr in ViewPort)
                 plr.Session.SendAsync(die);
@@ -244,17 +261,218 @@ namespace MuEmu.Monsters
                     EXP += _rand.Next((int)(EXP / 2.0f));
 
                 EXP *= pair.Value / MaxLife;
+                var Zen = EXP;
+                EXP *= Program.Experience;
+                Zen *= Program.Zen;
 
                 pair.Key.Character.Experience += (ulong)EXP;
 
                 if (EXP > ushort.MaxValue)
                     EXP = ushort.MaxValue;
 
-                SubSystem.Instance.AddDelayedMessage(pair.Key, TimeSpan.FromMilliseconds(1000), new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
-                Map.AddItem(Position.X, Position.Y, Item.Zen((uint)EXP));
+                //SubSystem.Instance.AddDelayedMessage(pair.Key, TimeSpan.FromMilliseconds(1000), new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
+                pair.Key.Session.SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
+
+                Item reward;
+                if (_rand.Next(100) < Program.DropRate)
+                {
+                    if (_rand.Next(2) == 0 && ItemBag.Count > 0)
+                    {
+                        reward = ItemBag[_rand.Next(ItemBag.Count)];
+                    } else
+                    {
+                        reward = Item.Zen((uint)Zen);
+                    }
+
+                    Map.AddItem(Position.X, Position.Y, reward);
+                }
             }
 
             DamageSum.Clear();
+        }
+
+        private void gObjGiveItemSearch(int maxlevel)
+        {
+            if (ItemBag.Count != 0)
+                return;
+
+            var items = ResourceCache.Instance.GetItems();
+
+            int[] BallTable = new int[17];
+            ItemNumber itNum = new ItemNumber();
+
+            BallTable[0] = 7;
+            BallTable[1] = 8;
+            BallTable[2] = 9;
+            BallTable[3] = 10;
+            BallTable[4] = 11;
+            BallTable[5] = 12;
+            BallTable[6] = 13;
+            BallTable[7] = 14;
+            BallTable[8] = 16;
+            BallTable[9] = 17;
+            BallTable[10] = 18;
+            BallTable[11] = 19;
+            BallTable[12] = 21;
+            BallTable[13] = 22;
+            BallTable[14] = 23;
+            BallTable[15] = 24;
+            BallTable[16] = 35;
+
+            while(ItemBag.Count < 1000)
+            {
+                if(_rand.Next(20) == 0)
+                {
+                    if(_rand.Next(2) == 0)
+                    {
+                        itNum.Type = ItemType.Scroll;
+                        itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type]+1);
+                    }else
+                    {
+                        itNum.Type = ItemType.Wing_Orb_Seed;
+                        itNum.Index = (ushort)BallTable[_rand.Next((int)ItemType.End)];
+                    }
+                }else
+                {
+                    itNum.Type = (ItemType)_rand.Next((int)ItemType.End);
+                    itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type] + 1);
+
+                    if (itNum.Type == ItemType.Scroll || (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15))
+                        continue;
+                }
+
+                if (itNum.Type == ItemType.Missellaneo && itNum.Index == 3) //Horn of Dinorant
+                    continue;
+
+                if ((itNum.Type == ItemType.Missellaneo && itNum.Index == 32) // Fenrrir Items
+                      || (itNum.Type == ItemType.Missellaneo && itNum.Index == 33)
+                      || (itNum.Type == ItemType.Missellaneo && itNum.Index == 34)
+                      || (itNum.Type == ItemType.Missellaneo && itNum.Index == 35)
+                      || (itNum.Type == ItemType.Missellaneo && itNum.Index == 36)
+                      || (itNum.Type == ItemType.Missellaneo && itNum.Index == 37))
+                {
+                    continue;
+                }
+
+                if ((itNum.Type == ItemType.Potion && itNum.Index == 35) // Potion SD
+                  || (itNum.Type == ItemType.Potion && itNum.Index == 36)
+                  || (itNum.Type == ItemType.Potion && itNum.Index == 37)
+                  || (itNum.Type == ItemType.Potion && itNum.Index == 38) // Potion Complex
+                  || (itNum.Type == ItemType.Potion && itNum.Index == 39)
+                  || (itNum.Type == ItemType.Potion && itNum.Index == 40))
+                {
+                    continue;
+                }
+
+                if ((itNum.Type == ItemType.Missellaneo && itNum.Index < 8) || // Pets
+                ((itNum.Type == ItemType.Potion) && (itNum.Index == 9 || itNum.Index == 10 || itNum.Index == 13 || itNum.Index == 14 || itNum.Index == 16 || itNum.Index == 17 || itNum.Index == 18 || itNum.Index == 22)) || // Misc
+                (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15) || // Jewel of Chaos
+                (itNum.Type == ItemType.Missellaneo && itNum.Index == 14) || // Loch's Feather
+                (itNum.Type == ItemType.Potion && itNum.Index == 31)) // Jewel of Guardian
+                {
+                    var perc = 0;
+                    if(itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15) // Jewel of Chaos
+                    {
+                        if (Level >= 13 && Level <= 66) // 42%
+                        {
+                            perc = _rand.Next(7);
+
+                            if (perc < 3)
+                            {
+                                perc = 0;
+                            }
+                        }
+                        else
+                        {
+                            perc = 1;
+                        }
+                    }
+
+                    if((itNum.Type == ItemType.Potion && itNum.Index == 17) || // Devil Eye
+                       (itNum.Type == ItemType.Potion && itNum.Index == 18))   // Devil Key
+                    {
+                        perc = 0;
+                    }
+
+                    if(perc == 0)
+                    {
+                        if(itNum.Type == ItemType.Potion && (itNum.Index == 17 || itNum.Index == 18))
+                        {
+                            byte Plus = 0;
+
+                            if (Level < 3)
+                                Plus = 0;
+                            else if (Level < 36)
+                                Plus = 1;
+                            else if (Level < 47)
+                                Plus = 2;
+                            else if (Level < 60)
+                                Plus = 3;
+                            else if (Level < 70)
+                                Plus = 4;
+                            else if (Level < 80)
+                                Plus = 5;
+                            else
+                                Plus = 6;
+
+                            ItemBag.Add(new Item(itNum, 0, new { Plus }));
+                        }
+                        else
+                        {
+                            if (!items.ContainsKey(itNum))
+                                continue;
+
+                            var it = items[itNum];
+                            if (it.Level < Level)
+                                ItemBag.Add(new Item(itNum));
+                        }
+                    }
+                }
+                else
+                {
+                    if (!items.ContainsKey(itNum))
+                        continue;
+
+                    var it = new Item(itNum);
+                    var result = it.GetLevel(Level);
+
+                    if(result >= 0)
+                    {
+                        if ((it.Number.Type == ItemType.Missellaneo && it.Number.Index == 10) || (it.Number.Type == ItemType.Wing_Orb_Seed && it.Number.Index == 11))
+                        {
+                            it.Plus = result;
+                            ItemBag.Add(it);
+                        }
+                        else if (result <= maxlevel)
+                        {
+                            if (it.Number.Type == ItemType.Wing_Orb_Seed)
+                            {
+                                if (it.Number.Index != 11)
+                                    result = 0;
+                            }
+
+                            if (it.Number.Type == ItemType.Wing_Orb_Seed && it.Number.Index == 11)
+                            {
+
+                            }
+                            else
+                            {
+                                if (result > maxlevel)
+                                {
+                                    result = (byte)maxlevel;
+                                }
+                            }
+
+                            if ((it.Number.Type == ItemType.BowOrCrossbow && it.Number.Index == 7) || (it.Number.Type == ItemType.BowOrCrossbow && it.Number.Index == 15))
+                                result = 0;
+
+                            it.Plus = result;
+
+                            ItemBag.Add(it);
+                        }
+                    }
+                }
+            }
         }
     }
 }
