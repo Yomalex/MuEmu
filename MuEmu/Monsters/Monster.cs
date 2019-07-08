@@ -54,6 +54,7 @@ namespace MuEmu.Monsters
         }
         public float MaxLife => Info.HP;
         public float Mana { get; set; }
+        public float MaxMana => Info.MP;
 
         public Spells Spells { get; set; }
 
@@ -162,6 +163,13 @@ namespace MuEmu.Monsters
                 return;
 
             Life = MaxLife;
+            Mana = MaxMana;
+            Position = Spawn;
+            TPosition = Spawn;
+            ViewPort.Clear();
+            Target = null;
+            Killer = null;
+            DeadlyDmg = 0;
             State = ObjectState.Regen;
         }
 
