@@ -102,13 +102,15 @@ namespace MuEmu.Network.Game
             session.SendAsync(new SMove((ushort)session.Player.Account.ID, (byte)Cpos.X, (byte)Cpos.Y, message.Path[0]));
         }
 
+        // 0xC1 0x00
         [MessageHandler(typeof(CChatNickname))]
-        public void CChatNickname(GSSession session, CChatNickname message)
+        public async Task CChatNickname(GSSession session, CChatNickname message)
         {
-            Logger
-                .ForAccount(session)
-                .Information("Chat [" + message.Character.MakeString() + "] {0}", message.Message.MakeString());
-
+            if(!Program.Handler.ProcessCommands(session, message.Message.MakeString()))
+            {
+                await session.Player.SendV2Message(message);
+                await session.SendAsync(message);
+            }            
         }
 
         [MessageHandler(typeof(CNewQuestInfo))]
@@ -272,6 +274,7 @@ namespace MuEmu.Network.Game
                 {
                     await inv.Delete(message.Source);
                 }
+                @char.HPorSDChanged();
                 return;
             }
 
@@ -291,6 +294,9 @@ namespace MuEmu.Network.Game
                         await inv.Delete(message.Source);
                     else
                         Source.Durability--;
+
+                    @char.Health += AddLife;
+
                     break;
                 case 14 * 512 + 4:// Small MP Potion
                 case 14 * 512 + 5:// Medium MP Potion
@@ -305,6 +311,143 @@ namespace MuEmu.Network.Game
                         await inv.Delete(message.Source);
                     else
                         Source.Durability--;
+
+                    @char.Mana += AddMana;
+                    break;
+                case 14 * 512 + 8: // Antidote
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+                    await @char.Spells.DelBuff(SkillStates.Ice);
+                    await @char.Spells.DelBuff(SkillStates.Poison);
+                    break;
+                case 14 * 512 + 46: // Haloween Scroll
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    @char.Spells.SetBuff(SkillStates.HAttackSpeed, TimeSpan.FromMilliseconds(1800));
+                    break;
+                case 14 * 512 + 47: // Haloween Scroll
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    @char.Spells.SetBuff(SkillStates.HAttackPower, TimeSpan.FromMilliseconds(1800));
+                    break;
+                case 14 * 512 + 48: // Haloween Scroll
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    @char.Spells.SetBuff(SkillStates.HDefensePower, TimeSpan.FromMilliseconds(1800));
+                    break;
+                case 14 * 512 + 49: // Haloween Scroll
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    @char.Spells.SetBuff(SkillStates.HMaxLife, TimeSpan.FromMilliseconds(1800));
+                    break;
+                case 14 * 512 + 50: // Haloween Scroll
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    @char.Spells.SetBuff(SkillStates.HMaxMana, TimeSpan.FromMilliseconds(1800));
+                    break;
+                case 14 * 512 + 10: // Town Portal Scroll
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    if (@char.MapID == Maps.Davias)
+                    {
+                        await @char.WarpTo(22);
+                    }
+                    else if (@char.MapID == Maps.Noria)
+                    {
+                        await @char.WarpTo(27);
+                    }
+                    else if (@char.MapID == Maps.LostTower)
+                    {
+                        await @char.WarpTo(42);
+                    }
+                    else if (@char.MapID == Maps.Atlans)
+                    {
+                        await @char.WarpTo(49);
+                    }
+                    else if (@char.MapID == Maps.Tarkan)
+                    {
+                        await @char.WarpTo(57);
+                    }
+                    else if (@char.MapID == Maps.BloodCastle1)
+                    {
+                        await @char.WarpTo(22);
+                    }
+                    else if (@char.MapID==Maps.ChaosCastle1)
+                    {
+                        await @char.WarpTo(22);
+                    }
+                    else if (@char.MapID==Maps.Kalima1)
+                    {
+                        await @char.WarpTo(22);
+                    }
+                    else if (@char.MapID == Maps.Aida)
+                    {
+                        await @char.WarpTo(27);
+                    }
+                    else if (@char.MapID == Maps.Crywolf)
+                    {
+                        await @char.WarpTo(27);
+                    }
+                    else
+                    {
+                        await @char.WarpTo(17);
+                    }
+                    break;
+                case 14 * 512 + 9: // Ale
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+                    break;
+                case 14 * 512 + 20: // Remedy Of Love
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    await session.SendAsync(new SItemUseSpecialTime { Number = 1, Time = 90 });
+                    break;
+                case 14 * 512 + 7: // Siege Potion
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    var SS = Source.Plus == 0 ? SkillStates.PotionBless : SkillStates.PotionSoul;
+                    var time = TimeSpan.FromSeconds(Source.Plus == 0 ? 120 : 60);
+                    @char.Spells.SetBuff(SS, time);
+                    if(Source.Plus == 1)
+                    {
+                        await session.SendAsync(new SItemUseSpecialTime { Number = 2, Time = 60 });
+                    }
+                    break;
+                case 14 * 512 + 63: // Fireworks
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
+
+                    await session.SendAsync(new SCommand(ServerCommandType.Fireworks, (byte)@char.Position.X, (byte)@char.Position.Y));
                     break;
                 case 14 * 512 + 35:// Small SD Potion
                 case 14 * 512 + 36:// Medium SD Potion
@@ -312,6 +455,10 @@ namespace MuEmu.Network.Game
                     float addSDRate = @char.MaxShield * (25.0f + (Source.Number.Index - 35) * 10.0f) / 100.0f;
 
                     @char.Shield += addSDRate;
+                    if (Source.Durability == 1)
+                        await inv.Delete(message.Source);
+                    else
+                        Source.Durability--;
                     await session.SendAsync(new SEffect((ushort)session.ID, ClientEffect.RecoverShield));
                     break;
                 case 14 * 512 + 13: //  Jewel of Bless
@@ -355,8 +502,20 @@ namespace MuEmu.Network.Game
                             break;
 
                         await inv.Delete(message.Source);
-                        Target.Option28++;
+                        var lifeRate = 50 + (Target.Luck ? 25 : 0);
+                        if (new Random().Next(100) < lifeRate)
+                        {
+                            Target.Option28++;
+                        }
+                        else
+                        {
+                            Target.Option28--;
+                        }
+
                     }
+                    break;
+                case 13 * 512 + 66: //Invitation of the Santa Town's
+
                     break;
             }
         }
@@ -444,6 +603,10 @@ namespace MuEmu.Network.Game
                     session.SendAsync(new STalk { Result = 2 });
                     session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
                     session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
+                }
+                else if(npc.GuildMaster)
+                {
+                    GuildManager.NPCTalk(session.Player);
                 }
                 else if (npc.EventChips)
                 {

@@ -42,7 +42,7 @@ namespace MuEmu.Data
 
             if (Level.Length == 1 && Level[0] != 255 && Level[0] != item.Plus)
                 return false;
-            else if (Level.Length == 2 && Level[0] > item.Plus && Level[1] < item.Plus)
+            else if (Level.Length == 2 && Level[0] >= item.Plus && Level[1] <= item.Plus)
                 return false;
 
             if (Luck != -1 && (item.Luck ? 1 : 0) != Luck) // No match LUCK
@@ -133,7 +133,7 @@ namespace MuEmu.Data
 
             var res2 = pairIng.FirstOrDefault(x => x.Ingredient.IID == res.IID);
 
-            var mix = new Item(res.IID == -1 ? res.ItemNumber : res2.Item.Number);
+            var mix = new Item(res.ItemNumber != ItemNumber.Invalid ? res.ItemNumber : res2.Item.Number);
             
             if (res.Level.Length == 1)
             {

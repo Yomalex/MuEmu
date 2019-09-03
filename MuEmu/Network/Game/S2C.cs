@@ -1090,5 +1090,12 @@ namespace MuEmu.Network.Game
     {
         [WZMember(0)] public uint Money { get; set; }
     }
+
+    [WZContract]
+    public class SItemUseSpecialTime : IGameMessage
+    {
+        [WZMember(0)] public byte Number { get; set; }
+        [WZMember(1)] public ushort Time { get; set; }
+    }
 }
 

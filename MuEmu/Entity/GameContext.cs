@@ -92,6 +92,7 @@ namespace MuEmu.Entity
         public DbSet<AccountDto> Accounts { get; set; }
         public DbSet<CharacterDto> Characters { get; set; }
         public DbSet<GuildDto> Guilds { get; set; }
+        public DbSet<GuildMemberDto> GuildMembers { get; set; }
         public DbSet<ItemDto> Items { get; set; }
         public DbSet<FriendDto> Friends { get; set; }
         public DbSet<MemoDto> Letters { get; set; }

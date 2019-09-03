@@ -260,6 +260,7 @@ namespace MuEmu
         EventChips,
         MessengerAngel,
         KingAngel,
+        GuildMaster,
     }
 
     public enum AttributeType
@@ -281,7 +282,8 @@ namespace MuEmu
 
     public enum ServerCommandType : byte
     {
-        EventMsg = 1,
+        Fireworks,
+        EventMsg,
         DefaultMsg = 4,
         ServerDivision = 6,
         ShadowPhantom = 0x0D,

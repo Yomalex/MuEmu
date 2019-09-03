@@ -76,6 +76,7 @@ namespace MuEmu.Network
         HealthUpdate = 0xFF26,
         ManaUpdate = 0xFF27,
         InventoryItemDelete = 0xFF28,
+        ItemUseSpecialTime = 0xFF29,
         InventoryItemDurUpdate = 0xFF2A,
         Talk = 0xFF30,
         CloseWindow = 0xFF31,
@@ -99,6 +100,15 @@ namespace MuEmu.Network
         PositionSet = 0xFFD6,
         Attack = 0xFFD7,
         Position = 0xFFDF,
+    }
+
+    public enum GuildOpCode
+    {
+        GuildListAll = 0xFF52,
+        MasterQuestion = 0xFF54,
+        GuildSaveInfo = 0xFF55,
+        GuildViewPort = 0xFF65,
+        GuildReqViewport = 0xFF66,
     }
 
     public enum EventOpCode

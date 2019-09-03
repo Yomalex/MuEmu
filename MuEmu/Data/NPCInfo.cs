@@ -11,6 +11,7 @@ namespace MuEmu.Data
         public bool KingAngel { get; set; }
         public bool Warehouse { get; set; }
         public bool EventChips { get; set; }
+        public bool GuildMaster { get; set; }
         public byte Window { get; set; }
         public ushort Quest { get; set; }
         public ushort ShopNumber { get; set; }

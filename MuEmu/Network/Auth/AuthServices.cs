@@ -133,7 +133,7 @@ namespace MuEmu.Network.Auth
                         x.Value.Level, 
                         ControlCode.Normal, 
                         Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)), 
-                        GuildStatus.NoMember))
+                        GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank?? GuildStatus.NoMember))
                     .ToArray();
 
                 await session.SendAsync(new SCharacterList(5, 0, charList));
@@ -190,6 +190,8 @@ namespace MuEmu.Network.Auth
             await session.SendAsync(new SFriends { MemoCount = 0, Friends = new Data.FriendDto[] { new Data.FriendDto { Name = "Yomalex2".GetBytes() } } });
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
+
+            GuildManager.Instance.AddPlayer(session.Player);
             
             if (charDto.SkillKey != null)
             {

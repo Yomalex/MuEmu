@@ -289,9 +289,24 @@ namespace MuEmu.Resources
                                     if (byte.Parse(sm.Groups[19].Value) > 0)
                                         c.Add((HeroClass)(byte.Parse(sm.Groups[19].Value) - 1 + 0x50));
 
-                                    result.Add(new ItemInfo
+                                    Spell spell = Spell.None;
+                                    var index = ushort.Parse(sm.Groups[1].Value);
+
+                                    if (index <= 15)
                                     {
-                                        Number = new ItemNumber(type, ushort.Parse(sm.Groups[1].Value)),
+                                        spell = (Spell)(index + 1);
+                                    }else if(index <= 18)
+                                    {
+                                        spell = (Spell)(index + 22);
+                                    }
+                                    else if (index <= 24)
+                                    {
+                                        spell = (Spell)(index + 195);
+                                    }
+
+                                    var itin = new ItemInfo
+                                    {
+                                        Number = new ItemNumber(type, index),
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
                                         Option = byte.Parse(sm.Groups[7].Value) != 0,
                                         Drop = byte.Parse(sm.Groups[8].Value) != 0,
@@ -300,8 +315,11 @@ namespace MuEmu.Resources
                                         ReqLevel = ushort.Parse(sm.Groups[11].Value),
                                         Ene = ushort.Parse(sm.Groups[12].Value),
                                         Zen = int.Parse(sm.Groups[13].Value),
-                                        Classes = c
-                                    });
+                                        Classes = c,
+                                        Skill = spell
+                                    };
+
+                                    result.Add(itin);
                                 }
                                 break;
                         }
@@ -340,23 +358,158 @@ namespace MuEmu.Resources
 
         public IEnumerable<SpellInfo> LoadSkills()
         {
-            var xml = XmlLoader<SpellDbDto>(Path.Combine(_root, "Skills.xml"));
-
-            foreach (var i in xml.skills)
+            var result = new List<SpellInfo>();
+            try
             {
-                var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
-                var tmp = new SpellInfo
-                {
-                    Number = (Spell)i.Number,
-                    Name = i.Name,
-                    Mana = i.Mana,
-                    Energy = i.Energy,
-                    Damage = new Point(Dmg[0], Dmg[1]),
-                    Classes = i.Classes.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList()
-                };
+                var xml = XmlLoader<SpellDbDto>(Path.Combine(_root, "Skills.xml"));
 
-                yield return tmp;
+                foreach (var i in xml.skills)
+                {
+                    var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
+
+                    var tmp = new SpellInfo
+                    {
+                        Number = (Spell)i.Number,
+                        Name = i.Name,
+                        AG = i.AG,
+                        Agility = i.Agility,
+                        Attribute = i.Attribute,
+                        BP = i.BP,
+                        Brand = i.Brand,
+                        Command = i.Command,
+                        Delay = i.Delay,
+                        Distance = i.Distance,
+                        Duration = i.Duration,
+                        Group = i.Group,
+                        Icon = i.Icon,
+                        IsDamage = i.IsDamage,
+                        Item = i.Item,
+                        KillCount = i.KillCount,
+                        MasterP = i.MasterP,
+                        Rank = i.Rank,
+                        ReqLevel = i.ReqLevel,
+                        SD = i.SD,
+                        Status = i.Status.Split(",").Select(x => int.Parse(x)).ToList(),
+                        Str = i.Str,
+                        Type = i.Type,
+                        UseType = i.UseType,
+                        UseType2 = i.UseType2,
+                        Mana = i.Mana,
+                        Energy = i.Energy,
+                        Damage = new Point(Dmg[0], Dmg[1]),
+                        Classes = i.Classes.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList()
+                    };
+
+                    result.Add(tmp);
+                }
+            }catch(FileNotFoundException)
+            {
+                using (var tr = File.OpenText(Path.Combine(_root, "Skill.txt")))
+                {
+                    var SkillRegex = new Regex(@"([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
+                    foreach(Match m in SkillRegex.Matches(tr.ReadToEnd()))
+                    {
+                        var c = new List<HeroClass>();
+                        if (byte.Parse(m.Groups[19].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[19].Value) - 1));
+                        if (byte.Parse(m.Groups[20].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[20].Value) - 1 + 0x10));
+                        if (byte.Parse(m.Groups[21].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[21].Value) - 1 + 0x20));
+                        if (byte.Parse(m.Groups[22].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[22].Value) - 1 + 0x30));
+                        if (byte.Parse(m.Groups[23].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[23].Value) - 1 + 0x40));
+                        if (byte.Parse(m.Groups[24].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[24].Value) - 1 + 0x50));
+                        if (byte.Parse(m.Groups[25].Value) > 0)
+                            c.Add((HeroClass)(byte.Parse(m.Groups[25].Value) - 1 + 0x60));
+
+                        var Dmg = ushort.Parse(m.Groups[4].Value);
+
+                        var status = new List<int>
+                        {
+                            int.Parse(m.Groups[16].Value),
+                            int.Parse(m.Groups[17].Value),
+                            int.Parse(m.Groups[18].Value),
+                        };
+
+                        var tmp = new SpellInfo
+                        {
+                            Number = Enum.Parse<Spell>(m.Groups[1].Value, true),
+                            Name = m.Groups[2].Value,
+                            ReqLevel = ushort.Parse(m.Groups[3].Value),
+                            Damage = new Point(Dmg, Dmg * 2),
+
+
+                            Mana = ushort.Parse(m.Groups[5].Value),
+                            BP = ushort.Parse(m.Groups[6].Value),
+                            Distance = byte.Parse(m.Groups[7].Value),
+                            Delay = uint.Parse(m.Groups[8].Value),
+                            Energy = ushort.Parse(m.Groups[9].Value),
+                            Command = ushort.Parse(m.Groups[10].Value),
+                            Attribute = byte.Parse(m.Groups[11].Value),
+                            Type = ushort.Parse(m.Groups[12].Value),
+                            UseType = byte.Parse(m.Groups[13].Value),
+                            Brand = int.Parse(m.Groups[14].Value),
+                            KillCount = int.Parse(m.Groups[15].Value),
+                            Status = status,
+                            Classes = c,
+                            Rank = int.Parse(m.Groups[26].Value),
+                            Group = int.Parse(m.Groups[27].Value),
+                            MasterP = int.Parse(m.Groups[28].Value),
+                            AG = int.Parse(m.Groups[29].Value),
+                            SD = int.Parse(m.Groups[30].Value),
+                            Duration = int.Parse(m.Groups[31].Value),
+                            Str = ushort.Parse(m.Groups[32].Value),
+                            Agility = ushort.Parse(m.Groups[33].Value),
+                            Icon = ushort.Parse(m.Groups[34].Value),
+                            UseType2 = byte.Parse(m.Groups[35].Value),
+                            Item = ushort.Parse(m.Groups[36].Value),
+                            IsDamage = byte.Parse(m.Groups[37].Value),
+                        };
+
+                        result.Add(tmp);
+                    }
+                    var xml = new SpellDbDto();
+                    xml.skills = result.Select(x => new SkillDto
+                    {
+                        AG = x.AG,
+                        Agility = x.Agility,
+                        Attribute = x.Attribute,
+                        BP = x.BP,
+                        Brand = x.Brand,
+                        Command = x.Command,
+                        Delay = x.Delay,
+                        Distance = x.Distance,
+                        Duration = x.Duration,
+                        Group = x.Group,
+                        Icon = x.Icon,
+                        IsDamage = x.IsDamage,
+                        Item = x.Item,
+                        KillCount = x.KillCount,
+                        MasterP = x.MasterP,
+                        Rank = x.Rank,
+                        ReqLevel = x.ReqLevel,
+                        SD = x.SD,
+                        Status = string.Join(",", x.Status),
+                        Str = x.Str,
+                        Type = x.Type,
+                        UseType = x.UseType,
+                        UseType2 = x.UseType2,
+                        Classes = string.Join(",", x.Classes),
+                        Dmg = $"{x.Damage.X}-{x.Damage.Y}",
+                        Energy = x.Energy,
+                        Mana = x.Mana,
+                        Name = x.Name,
+                        Number = (ushort)x.Number,
+                    }).ToArray();
+
+                    XmlSaver(Path.Combine(_root, "Skills.xml"), xml);
+                }
             }
+
+            return result;
         }
 
         public IEnumerable<MapInfo> LoadMaps()
@@ -498,6 +651,9 @@ namespace MuEmu.Resources
                     case NPCAttributeType.EventChips:
                         info.EventChips = true;
                         break;
+                    case NPCAttributeType.GuildMaster:
+                        info.GuildMaster = true;
+                        break;
                     case NPCAttributeType.Buff:
                         info.Buff = ushort.Parse(npc.Data);
                         break;
@@ -564,8 +720,54 @@ namespace MuEmu.Resources
 
         public IEnumerable<Gate> LoadGates()
         {
-            var xml = XmlLoader<WarpDto>(Path.Combine(_root, "Warps.xml"));
-            foreach(var g in xml.Gates)
+            WarpDto xml;
+            try
+            {
+                xml = XmlLoader<WarpDto>(Path.Combine(_root, "Warps.xml"));
+            }catch(FileNotFoundException)
+            {
+                xml = new WarpDto();
+                var gates = new List<GateDto>();
+                using (var tr = File.OpenText(Path.Combine(_root, "MoveGate.txt")))
+                {
+                    var GateRegex = new Regex(@"([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
+                    foreach(Match m in GateRegex.Matches(tr.ReadToEnd()))
+                    {
+                        gates.Add(new GateDto
+                        {
+                            Number = int.Parse(m.Groups[1].Value),
+                            GateType = m.Groups[2].Value,
+                            Map = m.Groups[3].Value,
+                            X1 = byte.Parse(m.Groups[4].Value),
+                            Y1 = byte.Parse(m.Groups[5].Value),
+                            X2 = byte.Parse(m.Groups[6].Value),
+                            Y2 = byte.Parse(m.Groups[7].Value),
+                            Target = int.Parse(m.Groups[8].Value),
+                            Dir = byte.Parse(m.Groups[9].Value),
+                            ReqLevel = ushort.Parse(m.Groups[10].Value),
+                        });
+                    }
+                }
+
+                using (var tr = File.OpenText(Path.Combine(_root, "MoveReq.txt")))
+                {
+                    var MoveRegex = new Regex(@"([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
+                    foreach (Match m in MoveRegex.Matches(tr.ReadToEnd()))
+                    {
+                        var igate = int.Parse(m.Groups[6].Value);
+                        var gate = gates.Where(x => x.Number == igate).FirstOrDefault();
+                        if (gate == null)
+                            continue;
+                        gate.ReqZen = ushort.Parse(m.Groups[4].Value);
+                        gate.Move = int.Parse(m.Groups[1].Value);
+                    }
+                }
+
+                xml.Gates = gates.ToArray();
+
+                XmlSaver(Path.Combine(_root, "Warps.xml"), xml);
+            }
+            foreach (var g in xml.Gates)
             {
                 yield return new Gate
                 {
@@ -576,7 +778,7 @@ namespace MuEmu.Resources
                     Target = g.Target,
                     Move = g.Move,
                     Dir = g.Dir,
-                    Door = new Rectangle(g.X1,g.Y1, g.X2- g.X1, g.Y2- g.Y1),
+                    Door = new Rectangle(g.X1, g.Y1, g.X2 - g.X1, g.Y2 - g.Y1),
                     ReqZen = g.ReqZen,
                 };
             }

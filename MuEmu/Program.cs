@@ -25,12 +25,13 @@ using MuEmu.Events.BloodCastle;
 using System.Threading.Tasks;
 using MuEmu.Entity;
 using System.Linq;
+using MuEmu.Network.Guild;
 
 namespace MuEmu
 {
     class Program
     {
-        private static CommandHandler<GSSession> handler;
+        public static CommandHandler<GSSession> Handler { get; } = new CommandHandler<GSSession>();
         public static WZGameServer server;
         public static CSClient client;
         public static string ConnectionString { get; set; }
@@ -79,6 +80,7 @@ namespace MuEmu
                     .AddHandler(new CashShopServices())
                     .AddHandler(new EventServices())
                     .AddHandler(new QuestSystemServices())
+                    .AddHandler(new GuildServices())
                     .RegisterRule<CIDAndPass>(MustNotBeLoggedIn)
                     .RegisterRule<CCharacterList>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin>(MustBeLoggedIn)
@@ -93,6 +95,7 @@ namespace MuEmu
                 new CashShopMessageFactory(),
                 new EventMessageFactory(),
                 new QuestSystemMessageFactory(),
+                new GuildMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf);
             server.ClientVersion = xml.Version;
@@ -109,14 +112,27 @@ namespace MuEmu
                 new CSMessageFactory()
             };
 
-            ResourceCache.Initialize(".\\Data");
-            MonstersMng.Initialize();
-            MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
-            EventInitialize();
+            try
+            {
+                ResourceCache.Initialize(".\\Data");
+                MonstersMng.Initialize();
+                MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
+                EventInitialize();
 
-            MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
-
-            SubSystem.Initialize();
+                MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
+                GuildManager.Initialize();
+                SubSystem.Initialize();
+            }catch(MySql.Data.MySqlClient.MySqlException ex)
+            {
+                Migrate(null, new EventArgs());
+                Log.Information("Server needs restart to reload all changes");
+                Task.Delay(10000);
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error on initialization");
+            }
 
             try
             {
@@ -150,17 +166,27 @@ namespace MuEmu
 
             Log.Information("Server Ready");
 
-            handler = new CommandHandler<GSSession>();
-            handler.AddCommand(new Command<GSSession>("exit", (object a, EventArgs b) => Environment.Exit(0)))
-                .AddCommand(new Command<GSSession>("quit", (object a, EventArgs b) => Environment.Exit(0)))
-                .AddCommand(new Command<GSSession>("stop", (object a, EventArgs b) => Environment.Exit(0)))
+            Handler.AddCommand(new Command<GSSession>("exit", Close))
+                .AddCommand(new Command<GSSession>("quit", Close))
+                .AddCommand(new Command<GSSession>("stop", Close))
                 .AddCommand(new Command<GSSession>("reload")
-                    .AddCommand(new Command<GSSession>("shops", (object a, EventArgs b) => ResourceCache.Instance.ReloadShops()))
-                    .AddCommand(new Command<GSSession>("gates", (object a, EventArgs b) => ResourceCache.Instance.ReloadGates())))
+                    .AddCommand(new Command<GSSession>("shops", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadShops()))
+                    .AddCommand(new Command<GSSession>("gates", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadGates())))
                 .AddCommand(new Command<GSSession>("db")
                     .AddCommand(new Command<GSSession>("migrate", Migrate))
                     .AddCommand(new Command<GSSession>("create", Create))
-                    .AddCommand(new Command<GSSession>("delete", Delete)));
+                    .AddCommand(new Command<GSSession>("delete", Delete)))
+                .AddCommand(new Command<GSSession>("!", (object a, CommandEventArgs b) => GlobalAnoucement(b.Argument)).SetPartial())
+                .AddCommand(new Command<GSSession>("/").SetPartial()
+                    .AddCommand(new Command<GSSession>("add").SetPartial()
+                        .AddCommand(new Command<GSSession>("str", Character.AddStr))
+                        .AddCommand(new Command<GSSession>("agi", Character.AddAgi))
+                        .AddCommand(new Command<GSSession>("vit", Character.AddVit))
+                        .AddCommand(new Command<GSSession>("ene", Character.AddEne))
+                        .AddCommand(new Command<GSSession>("cmd", Character.AddCmd)))
+                    /*.AddCommand(new Command<GSSession>("post"))*/)
+                //.AddCommand(new Command<GSSession>("~").SetPartial())
+                /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
 
             while (true)
             {
@@ -168,7 +194,7 @@ namespace MuEmu
                 if (input == null)
                     break;
 
-                handler.ProcessCommands(null, input);
+                Handler.ProcessCommands(null, input);
             }
         }
 
@@ -185,29 +211,49 @@ namespace MuEmu
             Log.Information("Global Announcement: " + text);
         }
 
+        public static void Close(object a, EventArgs b)
+        {
+            if (a != null)
+                return;
+
+            Environment.Exit(0);
+        }
+
         public static void Create(object a, EventArgs b)
         {
+            if (a != null)
+                return;
+
             Log.Information("Creating DB");
             using (var db = new GameContext())
                 db.Database.EnsureCreated();
+            Log.Information("Created DB");
         }
 
         public static void Migrate(object a, EventArgs b)
         {
+            if (a != null)
+                return;
+
             using (var db = new GameContext())
             {
                 Log.Information("Dropping DB");
                 db.Database.EnsureDeleted();
                 Log.Information("Creating DB");
                 db.Database.EnsureCreated();
+                Log.Information("Created DB");
             }
         }
 
         public static void Delete(object a, EventArgs b)
         {
+            if (a != null)
+                return;
+
             Log.Information("Dropping DB");
             using (var db = new GameContext())
                 db.Database.EnsureDeleted();
+            Log.Information("Dropped DB");
         }
     }
 }

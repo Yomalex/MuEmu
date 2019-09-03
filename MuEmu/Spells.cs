@@ -172,7 +172,25 @@ namespace MuEmu
                 throw new ArgumentException($"Can't find skill {skill}");
             }
 
-            if(spell.Energy > Character.Energy)
+            if(spell.ReqLevel > Character.Level)
+            {
+                await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need reach Lv. {spell.ReqLevel}"));
+                return false;
+            }
+
+            if(spell.Str > Character.Strength)
+            {
+                await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need {spell.Str} of Strength"));
+                return false;
+            }
+
+            if(spell.Agility > Character.Agility)
+            {
+                await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need {spell.Agility} of Agility"));
+                return false;
+            }
+
+            if (spell.Energy > Character.Energy)
             {
                 await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need {spell.Energy} of Energy"));
                 return false;
@@ -251,6 +269,20 @@ namespace MuEmu
                     break;
                 case SkillStates.SwellLife:
                     buff.LifeAdd = 0;
+                    break;
+                case SkillStates.HAttackPower:
+                    buff.AttackAdd = 25;
+                    break;
+                case SkillStates.HAttackSpeed:
+                    break;
+                case SkillStates.HDefensePower:
+                    buff.DefenseAdd = 100;
+                    break;
+                case SkillStates.HMaxLife:
+                    buff.LifeAdd = 500;
+                    break;
+                case SkillStates.HMaxMana:
+                    buff.ManaAdd = 500;
                     break;
             }
 

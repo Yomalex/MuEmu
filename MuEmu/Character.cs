@@ -2,6 +2,7 @@
 using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Monsters;
+using MuEmu.Network;
 using MuEmu.Network.Auth;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
@@ -438,10 +439,6 @@ namespace MuEmu
         private float _leftAttackMax = 0.0f;
         private float _rightAttackMin = 0.0f;
         private float _rightAttackMax = 0.0f;
-        
-        // Battle
-        //public int Attack => Inventory.Get((byte)Equipament.LeftRing).BasicInfo.
-        //public int Defense => Inventory.Player
 
         public byte ClientClass => GetClientClass(Class);
 
@@ -530,7 +527,7 @@ namespace MuEmu
                 await plr.Session.SendAsync(message);
         }
 
-        private async void HPorSDChanged()
+        public async void HPorSDChanged()
         {
             Console.WriteLine($"HP Changed {_hp} {_sd}");
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd, false));
@@ -546,43 +543,6 @@ namespace MuEmu
         private async void MPorBPMaxChanged()
         {
             await Player.Session.SendAsync(new SManaUpdate(RefillInfo.MaxChanged, (ushort)MaxMana, (ushort)MaxStamina));
-        }
-        private async void OnLevelUp()
-        {
-            if (Level >= 400)
-                return;
-
-            var curLevel = Level;
-
-            do
-            {
-                Level++;
-            } while (_exp >= NextExperience);
-
-            var att = BaseInfo.Attributes;
-
-            _hpMax = (att.Life + att.LevelLife * (Level - 1));
-            _mpMax = (att.Mana + att.LevelMana * (Level - 1));
-
-            var levelPoint = BaseClass == HeroClass.MagicGladiator || BaseClass == HeroClass.DarkLord ? 7 : 5;
-            levelPoint += MasterClass ? 1 : 0;
-            LevelUpPoints += (ushort)(levelPoint * (Level - curLevel));
-
-            await Player.Session.SendAsync(new SLevelUp
-            {
-                Level = Level,
-                LevelUpPoints = LevelUpPoints,
-                MaxLife = (ushort)MaxHealth,
-                MaxMana = (ushort)MaxMana,
-                MaxShield = (ushort)MaxShield,
-                MaxBP = (ushort)MaxStamina,
-                AddPoint = (ushort)AddPoints,
-                MaxAddPoint = (ushort)MaxAddPoints,
-                MinusPoint = (ushort)MinusPoints,
-                MaxMinusPoint = (ushort)MaxMinusPoints,
-            });
-
-            await Player.Session.SendAsync(new SEffect((ushort)Player.Session.ID, ClientEffect.LevelUp));
         }
         private void CalcStats()
         {
@@ -676,6 +636,45 @@ namespace MuEmu
                 }
             }
         }
+        private async void OnLevelUp()
+        {
+            if (Level >= 400)
+                return;
+
+            var curLevel = Level;
+
+            do
+            {
+                Level++;
+            } while (_exp >= NextExperience);
+
+            var att = BaseInfo.Attributes;
+
+            _hpMax = (att.Life + att.LevelLife * (Level - 1));
+            _mpMax = (att.Mana + att.LevelMana * (Level - 1));
+            _hp = _hpMax;
+            _mp = _mpMax;
+
+            var levelPoint = BaseClass == HeroClass.MagicGladiator || BaseClass == HeroClass.DarkLord ? 7 : 5;
+            levelPoint += MasterClass ? 1 : 0;
+            LevelUpPoints += (ushort)(levelPoint * (Level - curLevel));
+
+            await Player.Session.SendAsync(new SLevelUp
+            {
+                Level = Level,
+                LevelUpPoints = LevelUpPoints,
+                MaxLife = (ushort)MaxHealth,
+                MaxMana = (ushort)MaxMana,
+                MaxShield = (ushort)MaxShield,
+                MaxBP = (ushort)MaxStamina,
+                AddPoint = (ushort)AddPoints,
+                MaxAddPoint = (ushort)MaxAddPoints,
+                MinusPoint = (ushort)MinusPoints,
+                MaxMinusPoint = (ushort)MaxMinusPoints,
+            });
+
+            await Player.Session.SendAsync(new SEffect((ushort)Player.Session.ID, ClientEffect.LevelUp));
+        }
         private async void OnMoneyChange()
         {
             await Player.Session.SendAsync(new SItemGet { Result = 0xFE, Money = Money });
@@ -748,23 +747,28 @@ namespace MuEmu
             _needSave = false;
         }
 
-        public int Attack(Character target)
+        public int Attack(Character target, out DamageType type, out int Reflect)
         {
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
             var wing = Inventory.Get(Equipament.Wings);
             var twing = target.Inventory.Get(Equipament.Wings);
             var criticalRate = Inventory.CriticalRate;
+            var excellentRate = Inventory.ExcellentRate;
+            var tReflect = target.Inventory.Reflect;
 
+            type = DamageType.Regular;
+            Reflect = 0;
             var rand = new Random();
 
             var attack = 0.0f;
 
-            if (leftHand?.Attack ?? false)
-                attack += rand.Next(leftHand.AttackMin, leftHand.AttackMax);
+            if (excellentRate > _rand.Next(100))
+                type = DamageType.Excellent;
+            else if (criticalRate > _rand.Next(100))
+                type = DamageType.Critical;
 
-            if (rightHand?.Attack ?? false)
-                attack += rand.Next(rightHand.AttackMin, rightHand.AttackMax);
+            attack = BaseAttack(type != DamageType.Regular);
 
             attack -= target.Inventory.Defense;
 
@@ -780,6 +784,8 @@ namespace MuEmu
             if (twing != null) // Wings decrease Dmg 12%+(Level*2)%
                 attack *= 0.88f - twing.Plus * 0.02f;
 
+            Reflect = (int)(attack * tReflect / 100.0f);
+
             return (int)attack;
         }
 
@@ -791,22 +797,16 @@ namespace MuEmu
             var excellentRate = Inventory.ExcellentRate;
 
             var attack = 0.0f;
+            if (excellentRate > _rand.Next(100))
+                type = DamageType.Excellent;
+            else if (criticalRate > _rand.Next(100))
+                type = DamageType.Critical;
 
-            attack = BaseAttack();
+            attack = BaseAttack(type != DamageType.Regular);
+            attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
 
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
             attack -= target.Defense;
-
-            if(excellentRate > _rand.Next(100))
-            {
-                type = DamageType.Excellent;
-                attack *= 2.0f;
-            }
-            else if(criticalRate > _rand.Next(100))
-            {
-                type = DamageType.Critical;
-                attack *= 2.0f;
-            }
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -828,22 +828,19 @@ namespace MuEmu
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
             var wing = Inventory.Get(Equipament.Wings);
-            var attack = BaseAttack();
-            attack += _rand.Next(spell.Damage.X, spell.Damage.Y);
-            attack -= target.Defense;
 
+            var attack = 0.0f;
             type = DamageType.Regular;
 
             if (excellentRate > _rand.Next(100))
-            {
                 type = DamageType.Excellent;
-                attack *= 2.0f;
-            }
             else if (criticalRate > _rand.Next(100))
-            {
                 type = DamageType.Critical;
-                attack *= 2.0f;
-            }
+
+            attack = BaseAttack(type != DamageType.Regular);
+            attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
+            attack += _rand.Next(spell.Damage.X, spell.Damage.Y);
+            attack -= target.Defense;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -873,22 +870,16 @@ namespace MuEmu
                 magicAdd = rightHand.BasicInfo.MagicPower / 2 + rightHand.Plus * 2;
 
             var attack = 0.0f;
-            attack += _rand.Next(spell.Damage.X + Energy / 9, spell.Damage.Y + Energy / 4);
-            attack *= 1.0f + magicAdd / 100.0f;
-            attack -= target.Defense;
-
             type = DamageType.Regular;
-
             if (excellentRate > _rand.Next(100))
-            {
                 type = DamageType.Excellent;
-                attack *= 2.0f;
-            }
             else if (criticalRate > _rand.Next(100))
-            {
                 type = DamageType.Critical;
-                attack *= 2.0f;
-            }
+
+            attack += (type != DamageType.Regular) ? spell.Damage.Y + Energy / 4 : _rand.Next(spell.Damage.X + Energy / 9, spell.Damage.Y + Energy / 4);
+            attack *= 1.0f + magicAdd / 100.0f;
+            attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
+            attack -= target.Defense;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -905,18 +896,145 @@ namespace MuEmu
             return (int)attack;
         }
 
-        public float BaseAttack()
+        public float BaseAttack(bool critical)
         {
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var attack = 0.0f;
-            var rand = new Random();
 
-            attack = rand.Next((int)_rightAttackMin, (int)_rightAttackMax);
+            attack = critical ? _rightAttackMax : _rand.Next((int)_rightAttackMin, (int)_rightAttackMax);
 
             if (leftHand?.Attack ?? false)
-                attack += rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
+                attack += critical ? _leftAttackMax : _rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
 
             return attack;
+        }
+
+        public static void AddStr(object session, CommandEventArgs eventArgs)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if(int.TryParse(eventArgs.Argument, out int res))
+            {
+                if(res <= @char.LevelUpPoints)
+                {
+                    if (res + @char.StrengthTotal >= ushort.MaxValue)
+                        res = ushort.MaxValue - @char.StrengthTotal;
+
+                    @char.LevelUpPoints -= (ushort)res;
+                    @char.Strength += (ushort)res;
+
+
+                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    return;
+                }
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                return;
+            }
+
+            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+        }
+
+        public static void AddAgi(object session, CommandEventArgs eventArgs)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if (int.TryParse(eventArgs.Argument, out int res))
+            {
+                if (res <= @char.LevelUpPoints)
+                {
+                    if (res + @char.AgilityTotal >= ushort.MaxValue)
+                        res = ushort.MaxValue - @char.AgilityTotal;
+
+                    @char.LevelUpPoints -= (ushort)res;
+                    @char.Agility += (ushort)res;
+                    
+                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    return;
+                }
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                return;
+            }
+
+            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+        }
+
+        public static void AddVit(object session, CommandEventArgs eventArgs)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if (int.TryParse(eventArgs.Argument, out int res))
+            {
+                if (res <= @char.LevelUpPoints)
+                {
+                    if (res + @char.VitalityTotal >= ushort.MaxValue)
+                        res = ushort.MaxValue - @char.VitalityTotal;
+
+                    @char.LevelUpPoints -= (ushort)res;
+                    @char.Vitality += (ushort)res;
+
+
+                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    return;
+                }
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                return;
+            }
+
+            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+        }
+
+        public static void AddEne(object session, CommandEventArgs eventArgs)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if (int.TryParse(eventArgs.Argument, out int res))
+            {
+                if (res <= @char.LevelUpPoints)
+                {
+                    if (res + @char.EnergyTotal >= ushort.MaxValue)
+                        res = ushort.MaxValue - @char.EnergyTotal;
+
+                    @char.LevelUpPoints -= (ushort)res;
+                    @char.Energy += (ushort)res;
+
+
+                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    return;
+                }
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                return;
+            }
+
+            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+        }
+
+        public static void AddCmd(object session, CommandEventArgs eventArgs)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if (int.TryParse(eventArgs.Argument, out int res))
+            {
+                if (res <= @char.LevelUpPoints)
+                {
+                    if (res + @char.CommandTotal >= ushort.MaxValue)
+                        res = ushort.MaxValue - @char.CommandTotal;
+
+                    @char.LevelUpPoints -= (ushort)res;
+                    @char.Command += (ushort)res;
+
+                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    return;
+                }
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                return;
+            }
+
+            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
     }
 }

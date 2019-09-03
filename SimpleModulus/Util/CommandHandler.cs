@@ -21,16 +21,16 @@ namespace WebZen.Util
             return this;
         }
 
-        public CommandHandler<TSession> ProcessCommands(TSession source, string text)
+        public bool ProcessCommands(TSession source, string text)
         {
             foreach(var cmd in _commands)
             {
                 if(cmd.Process(source, text))
                 {
-                    return this;
+                    return true;
                 }
             }
-            return this;
+            return false;
         }
     }
 }

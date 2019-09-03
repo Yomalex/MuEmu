@@ -17,6 +17,12 @@ namespace MU.DataBase
 
         public int? AllianceId { get; set; }
 
-        public List<CharacterDto> Characters { get; set; }
+        public byte[] Mark { get; set; }
+
+        public byte GuildType { get; set; }
+
+        public List<GuildMemberDto> MembersInfo { get; set; }
+
+        //public List<CharacterDto> Characters { get; set; }
     }
 }

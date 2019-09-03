@@ -100,6 +100,7 @@ namespace MuEmu.Network.Game
             Register<SMagicDuration>(GameOpCode.MagicDuration);
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);
+            Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);
         }
     }
 }

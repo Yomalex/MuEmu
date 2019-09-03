@@ -20,9 +20,15 @@ namespace MuEmu
         public int LifeAdd { get; set; }
         public float LifeAddRate { get; set; }
 
+        public int ManaAdd { get; set; }
+        public float ManaAddRate { get; set; }
+
         public float IgnoreDefenseRate { get; set; }
 
         public Item Source { get; set; }
+
+        public int CoolDamage { get; set; }
+        public int PoisonDamage { get; set; }
 
         public SkillStates State { get; set; }
     }

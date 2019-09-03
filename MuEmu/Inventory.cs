@@ -14,6 +14,7 @@ namespace MuEmu
 {
     public class Inventory
     {
+        private static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
         //public Player Player { get; set; }
         public Character Character { get; }
 
@@ -27,12 +28,15 @@ namespace MuEmu
         private bool _needSave;
         private int _defense;
         private int _defenseRate;
+        private int _excellentRate;
         private int _criticalRate;
+        private int _reflect;
 
-        public int ExcellentRate => 0;// _equipament.Values.Sum(x => x.OptionExe);
+        public int ExcellentRate => _excellentRate;
         public int CriticalRate => _criticalRate;
         public int Defense => _defense;
         public int DefenseRate => _defenseRate;
+        public int Reflect => _reflect;
 
         public Storage ChaosBox => _chaosBox;
         public Storage PersonalShop => _personalShop;
@@ -88,7 +92,6 @@ namespace MuEmu
         public Inventory(Character @char, CharacterDto characterDto)
         {
             Character = @char;
-            //Player = @char?.Player??null;
             Storages = new Dictionary<StorageID, object>();
             _equipament = new Dictionary<Equipament, Item>();
             _inventory = new Storage(Storage.InventorySize, StorageID.Inventory);
@@ -97,8 +100,6 @@ namespace MuEmu
             {
                 _chaosBox = new Storage(Storage.ChaosBoxSize);
                 _tradeBox = new Storage(Storage.TradeSize);
-                //Storages.Add(StorageID.ChaosBox, _chaosBox);
-                //Storages.Add(StorageID.TradeBox, _tradeBox);
             }
             _forDelete = new List<Item>();
             Storages.Add(StorageID.Equipament, _equipament);
@@ -111,10 +112,12 @@ namespace MuEmu
                 try
                 {
                     Add((byte)item.SlotId, it, false);
-                }catch(Exception ex)
+                }catch(Exception)
                 {
-                    Log.Information(ex, "Inventory Add");
-                    Add(it);
+                    if(Add(it) == 0xff)
+                    {
+                        _forDelete.Add(it);
+                    }
                 }
             }
         }
@@ -362,8 +365,7 @@ namespace MuEmu
 
             if (_equipament.ContainsKey((Equipament)target))
             {
-                _forDelete.Add(_equipament[(Equipament)target]);
-                Unequip((Equipament)target);
+                _forDelete.Add(Unequip((Equipament)target));
             }
             else
             if (_inventory.CanContain(target))
@@ -576,12 +578,7 @@ namespace MuEmu
         }
 
         public async Task Save(GameContext db)
-        {
-            if (!_needSave || Lock)
-                return;
-
-            var log = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
-
+        {            
             if(_forDelete.Any())
             {
                 var forDel = from it in db.Items
@@ -590,12 +587,18 @@ namespace MuEmu
                              select it;
 
                 if (forDel.Any())
+                {
                     db.Items.RemoveRange(forDel);
+                    _logger.Information("Deleting {0} items", forDel.Count());
+                }
 
                 _forDelete.Clear();
             }
 
-            log.Information("----- Main Inventory Save");
+            if (!_needSave || Lock)
+                return;
+
+            _logger.Information("----- Main Inventory Save");
 
             foreach(var e in _equipament.Values)
                 await e.Save(db);

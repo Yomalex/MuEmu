@@ -297,12 +297,9 @@ namespace WebZen.Network
         public byte[] Encode(object message, ref short serial)
         {
 
-            var factory = _factories.FirstOrDefault(f => f.ContainsType(message.GetType()));
+            var factory = _factories.First(f => f.ContainsType(message.GetType()));
             byte[] result = null;
-
-            if (factory == null)
-                throw new InvalidProgramException($"Invalid message type {message.GetType()}");
-
+            
             ushort opCode = factory.GetOpCode(message.GetType());
 
             WZContractAttribute att = null;
