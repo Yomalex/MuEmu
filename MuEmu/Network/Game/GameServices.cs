@@ -1150,5 +1150,27 @@ namespace MuEmu.Network.Game
             session.Player.Character.Money -= cost;
             session.SendAsync(res);
         }
+
+        [MessageHandler(typeof(CPartyList))]
+        public async Task CPartyList(GSSession session)
+        {
+            await session.SendAsync(new SPartyList
+            {
+                Result = 1,
+                PartyMembers = new Data.PartyDto[]
+                {
+                    new Data.PartyDto
+                    {
+                        Id = "PTest",
+                        Life = 500,
+                        MaxLife = 1000,
+                        Map = Maps.Aida,
+                        Number = 0,
+                        X = 120,
+                        Y = 120
+                    },
+                }
+            });
+        }
     }
 }

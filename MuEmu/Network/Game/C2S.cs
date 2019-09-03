@@ -359,4 +359,10 @@ namespace MuEmu.Network.Game
 
         [WZMember(1)] public byte ReqPosition { get; set; }
     }
+
+    [WZContract]
+    public class CPartyList : IGameMessage
+    {
+
+    }
 }

@@ -1097,5 +1097,20 @@ namespace MuEmu.Network.Game
         [WZMember(0)] public byte Number { get; set; }
         [WZMember(1)] public ushort Time { get; set; }
     }
+
+    [WZContract]
+    public class SPartyList : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1, typeof(ArrayWithScalarSerializer<byte>))]
+        public PartyDto[] PartyMembers { get; set; }
+
+        public SPartyList()
+        {
+            PartyMembers = Array.Empty<PartyDto>();
+        }
+    }
 }
 
