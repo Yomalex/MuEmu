@@ -19,6 +19,8 @@ namespace MuEmu.Network.Game
             Register<CAction>(GameOpCode.Rotation);
             Register<CMove>(GameOpCode.Move);
             Register<CChatNickname>(GameOpCode.GeneralChat0);
+            Register<CChatNumber>(GameOpCode.GeneralChat1);
+            Register<CChatWhisper>(GameOpCode.WhisperChat);
             Register<CNewQuestInfo>(GameOpCode.QuestDetails);
             Register<CPositionSet>(GameOpCode.Position);
             Register<CPointAdd>(GameOpCode.PointAdd);

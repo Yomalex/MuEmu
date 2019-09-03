@@ -52,6 +52,7 @@ namespace MuEmu.Network
         JewelUnMix = 0x01BC,
         GeneralChat0 = 0xFF00,
         GeneralChat1 = 0xFF01,
+        WhisperChat = 0xFF02,
         GameSecurity = 0xFF03,
         ViewSkillState = 0xFF07,
         EventState = 0xFF0B,

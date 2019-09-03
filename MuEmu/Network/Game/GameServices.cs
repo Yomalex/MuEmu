@@ -113,6 +113,32 @@ namespace MuEmu.Network.Game
             }            
         }
 
+        // 0xC1 0x01
+        [MessageHandler(typeof(CChatNumber))]
+        public async Task CChatNumber(GSSession session, CChatNumber message)
+        {
+            message.Number = (ushort)session.ID;
+            await session.Player.SendV2Message(message);
+            await session.SendAsync(message);
+        }
+
+        // 0xC1 0x02
+        [MessageHandler(typeof(CChatWhisper))]
+        public async Task CChatWhisper(GSSession session, CChatWhisper message)
+        {
+            var target = Program.server.Clients
+                .Where(x => x.Player != null)
+                .Where(x => x.Player.Character != null)
+                .FirstOrDefault(x => x.Player.Character.Name.ToLower() == message.Id.ToLower());
+
+            if(target == null)
+            {
+                return;
+            }
+
+            await target.SendAsync(message);
+        }
+
         [MessageHandler(typeof(CNewQuestInfo))]
         public void CNewQuestInfo(GSSession session, CNewQuestInfo message)
         {

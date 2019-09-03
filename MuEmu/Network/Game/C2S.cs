@@ -68,16 +68,32 @@ namespace MuEmu.Network.Game
         [WZMember(1, 60)]
         public byte[] Message { get; set; } // 4
     }
-
+    
     [WZContract]
     public class CChatNumber : IGameMessage
     {
         [WZMember(0)]
-        public ushort Number { get; set; } // 3
+        public ushort wzNumber { get; set; } // 3
 
         [WZMember(1, 60)]
         public byte[] Message { get; set; } // 4
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
     }
+
+    [WZContract]
+    public class CChatWhisper : IGameMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] btId { get; set; }    // 3
+
+        [WZMember(1, 60)]
+        public byte[] btMessage { get; set; }   // D  
+
+        public string Id => btId.MakeString();
+
+        public string Message => btMessage.MakeString();
+    };
 
     [WZContract]
     public class CNewQuestInfo : IGameMessage
