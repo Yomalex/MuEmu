@@ -126,7 +126,7 @@ namespace MuEmu
                 Name = x.Name,
                 ConnectAServer = 0x80,
                 Number = 0,
-                btGuildStatus = 0,
+                btGuildStatus = 1,
             }).ToArray();
             pMsg.Count = (byte)pMsg.Members.Length;
 

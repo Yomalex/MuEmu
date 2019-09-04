@@ -42,8 +42,13 @@ namespace MuEmu.Network
             {
                 if (Session.Player != null)
                 {
-                    if (Session.Player.Status == LoginStatus.Playing)
-                        Session.Player.Character?.Map.DelPlayer(Session.Player.Character);
+                    if (Session.Player.Status == LoginStatus.Playing && Session.Player.Character != null)
+                    {
+                        var @char = Session.Player.Character;
+                        @char.Map.DelPlayer(Session.Player.Character);
+                        @char.Party?.Remove(Session.Player);
+                        @char.Party = null;
+                    }
 
                     Session.Player.Status = LoginStatus.NotLogged;
                     Logger.ForAccount(Session).Information("Saving...");

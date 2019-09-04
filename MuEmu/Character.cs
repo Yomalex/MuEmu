@@ -62,6 +62,7 @@ namespace MuEmu
         public Inventory Inventory { get; }
         public Spells Spells { get; }
         public bool Change { get; set; }
+        public Party Party { get; set; }
 
         public List<ushort> MonstersVP { get; set; }
         public List<Player> PlayersVP { get; set; }
@@ -248,13 +249,16 @@ namespace MuEmu
                 _needSave = true;
             }
         }
-        public Point Position { get => _position; set
+        public Point Position {
+            get => _position;
+            set
             {
                 if (_position == value)
                     return;
 
                 Map.PositionChanged(_position, value);
                 _position = value;
+                _needSave = true;
             }
         }
         public byte Direction { get; set; }
@@ -306,6 +310,7 @@ namespace MuEmu
                     return;
 
                 _str = value;
+                _needSave = true;
                 CalcStats();
             }
         }
@@ -332,6 +337,7 @@ namespace MuEmu
                     return;
 
                 _agi = value;
+                _needSave = true;
                 CalcStats();
             }
         }
@@ -358,6 +364,7 @@ namespace MuEmu
                     return;
 
                 _vit = value;
+                _needSave = true;
                 CalcStats();
             }
         }
@@ -385,6 +392,7 @@ namespace MuEmu
                     return;
 
                 _ene = value;
+                _needSave = true;
                 CalcStats();
             }
         }
@@ -411,6 +419,7 @@ namespace MuEmu
                     return;
 
                 _cmd = value;
+                _needSave = true;
                 CalcStats();
             }
         }

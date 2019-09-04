@@ -535,4 +535,13 @@ namespace MuEmu
         LevelUp = 16,
         ShieldDamage = 17,
     }
+
+    public enum PartyResults : byte
+    {
+        Fail,
+        Success,
+        PlayerOffline = 0x03,
+        InAnotherParty = 0x04,
+        RestrictedLevel = 0x05
+    }
 }

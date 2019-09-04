@@ -1098,11 +1098,30 @@ namespace MuEmu.Network.Game
         [WZMember(1)] public ushort Time { get; set; }
     }
 
+    //0xC1 0x40
+    // SAME CPartyRequest
+
+    //0xC1 0x41
+    [WZContract]
+    public class SPartyResult : IGameMessage
+    {
+        [WZMember(0)]
+        public PartyResults Result { get; set; }
+
+        public SPartyResult() { }
+
+        public SPartyResult(PartyResults res)
+        {
+            Result = res;
+        }
+    }
+
+    //0xC1 0x42
     [WZContract]
     public class SPartyList : IGameMessage
     {
         [WZMember(0)]
-        public byte Result { get; set; }
+        public PartyResults Result { get; set; }
 
         [WZMember(1, typeof(ArrayWithScalarSerializer<byte>))]
         public PartyDto[] PartyMembers { get; set; }
@@ -1111,6 +1130,11 @@ namespace MuEmu.Network.Game
         {
             PartyMembers = Array.Empty<PartyDto>();
         }
+    }
+
+    [WZContract]
+    public class SPartyDelUser : IGameMessage
+    {
     }
 }
 

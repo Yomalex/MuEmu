@@ -157,7 +157,7 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CClientClose))]
-        public void CClinetClose(GSSession session, CClientClose message)
+        public async Task CClinetClose(GSSession session, CClientClose message)
         {
             Logger
                 .ForAccount(session)
@@ -173,17 +173,17 @@ namespace MuEmu.Network.Game
             session.Player.Status = message.Type==ClientCloseType.SelectChar?LoginStatus.Logged:LoginStatus.NotLogged;
 
             using (var db = new GameContext())
-                session.Player.Save(db);
+                await session.Player.Save(db);
         }
 
         [MessageHandler(typeof(CMoveItem))]
-        public void CMoveItem(GSSession session, CMoveItem message)
+        public async Task CMoveItem(GSSession session, CMoveItem message)
         {
             Logger.Debug("Move item {0}:{1} to {2}:{3}", message.sFlag, message.Source, message.tFlag, message.Dest);
 
             if (session.Player.Character.Inventory.Move(message.sFlag, message.Source, message.tFlag, message.Dest))
             {
-                session.SendAsync(new SMoveItem
+                await session.SendAsync(new SMoveItem
                 {
                     ItemInfo = message.ItemInfo,
                     Position = message.Dest,
@@ -192,7 +192,7 @@ namespace MuEmu.Network.Game
             }
             else
             {
-                session.SendAsync(new SMoveItem
+                await session.SendAsync(new SMoveItem
                 {
                     ItemInfo = message.ItemInfo,
                     Position = 0xff,
@@ -547,16 +547,16 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CItemThrow))]
-        public void CItemThrow(GSSession session, CItemThrow message)
+        public async Task CItemThrow(GSSession session, CItemThrow message)
         {
             var logger = Logger.ForAccount(session);
             var plr = session.Player;
             var inv = plr.Character.Inventory;
             var item = inv.Get(message.Source);
-            inv.Delete(message.Source);
+            await inv.Delete(message.Source);
 
             var date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
-            session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
+            await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
             logger.Information("Drop item {0} at {1},{2} in {3} deleted at {4}", item.Number, message.MapX, message.MapY, plr.Character.MapID, date);
         }
 
@@ -598,14 +598,14 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CEventEnterCount))]
-        public void CEventEnterCount(GSSession session, CEventEnterCount message)
+        public async Task CEventEnterCount(GSSession session, CEventEnterCount message)
         {
-            session.SendAsync(new SEventEnterCount { Type = message.Type, Left = 10 });
+            await session.SendAsync(new SEventEnterCount { Type = message.Type, Left = 10 });
         }
 
 
         [MessageHandler(typeof(CTalk))]
-        public void CTalk(GSSession session, CTalk message)
+        public async Task CTalk(GSSession session, CTalk message)
         {
             var npcs = ResourceCache.Instance.GetNPCs();
             var ObjectIndex = message.Number.ShufleEnding();
@@ -616,19 +616,19 @@ namespace MuEmu.Network.Game
                 if (npc.Shop != null)
                 {
                     session.Player.Window = npc.Shop.Storage;
-                    session.SendAsync(new STalk { Result = 0 });
-                    session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
-                    session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
+                    await session.SendAsync(new STalk { Result = 0 });
+                    await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
+                    await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
                 }
                 else if (npc.Warehouse)
                 {
                     session.Player.Window = session.Player.Account.Vault;
                     session.Player.Character.Inventory.Lock = true;
 
-                    session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
-                    session.SendAsync(new STalk { Result = 2 });
-                    session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
-                    session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
+                    await session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
+                    await session.SendAsync(new STalk { Result = 2 });
+                    await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
+                    await session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
                 }
                 else if(npc.GuildMaster)
                 {
@@ -648,7 +648,7 @@ namespace MuEmu.Network.Game
                 }
                 else if (npc.Window != 0)
                 {
-                    session.SendAsync(new STalk { Result = npc.Window });
+                    await session.SendAsync(new STalk { Result = npc.Window });
 
                     if (npc.Window == 3) // ChaosMachine
                     {
@@ -665,26 +665,26 @@ namespace MuEmu.Network.Game
 
                     if (quest == null)
                     {
-                        session.SendAsync(new SChatTarget(ObjectIndex, "I don't have Quest for you"));
+                        await session.SendAsync(new SChatTarget(ObjectIndex, "I don't have Quest for you"));
                         return;
                     }
 
                     var details = quest.Details;
                     Logger.ForAccount(session)
                         .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", obj.Info.Name, details.Name, quest.State);
-                    session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
+                    await session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
                 }
             }
             else
             {
                 Logger.ForAccount(session)
                     .Debug("Talk to unasigned NPC {0}", obj.Info.Monster);
-                session.SendAsync(new SChatTarget(ObjectIndex, "Have a good day"));
+                await session.SendAsync(new SChatTarget(ObjectIndex, "Have a good day"));
             }
         }
 
         [MessageHandler(typeof(CBuy))]
-        public void CBuy(GSSession session, CBuy message)
+        public async Task CBuy(GSSession session, CBuy message)
         {
             var plr = session.Player;
             var @char = plr.Character;
@@ -712,7 +712,7 @@ namespace MuEmu.Network.Game
                 Logger
                     .ForAccount(session)
                     .Information("Insuficient Money");
-                session.SendAsync(bResult);
+                await session.SendAsync(bResult);
                 return;
             }
 
@@ -722,7 +722,7 @@ namespace MuEmu.Network.Game
                 Logger
                     .ForAccount(session)
                     .Information("Insuficient Space");
-                session.SendAsync(bResult);
+                await session.SendAsync(bResult);
                 return;
             }
 
@@ -732,11 +732,11 @@ namespace MuEmu.Network.Game
                 .ForAccount(session)
                 .Information("Buy {0} for {1}", item.ToString(), item.BuyPrice);
 
-            session.SendAsync(bResult);
+            await session.SendAsync(bResult);
         }
 
         [MessageHandler(typeof(CSell))]
-        public void CSell(GSSession session, CSell message)
+        public async Task CSell(GSSession session, CSell message)
         {
             if (session.Player.Window == null)
             {
@@ -756,13 +756,13 @@ namespace MuEmu.Network.Game
             session.Player.Character.Money += item.SellPrice;
             var result = new SSell { Result = 1, Money = session.Player.Character.Money };
 
-            session.SendAsync(result);
+            await session.SendAsync(result);
         }
 
         [MessageHandler(typeof(CAttackS5E2))]
-        public void CAttackS5E2(GSSession session, CAttackS5E2 message)
+        public async Task CAttackS5E2(GSSession session, CAttackS5E2 message)
         {
-            CAttack(session, new CAttack { AttackAction = message.AttackAction, DirDis = message.DirDis, Number = message.Number });
+            await CAttack(session, new CAttack { AttackAction = message.AttackAction, DirDis = message.DirDis, Number = message.Number });
         }
 
         [MessageHandler(typeof(CAttack))]
@@ -1151,26 +1151,90 @@ namespace MuEmu.Network.Game
             session.SendAsync(res);
         }
 
+        [MessageHandler(typeof(CPartyRequest))]
+        public async Task CPartyRequest(GSSession session, CPartyRequest message)
+        {
+            var trg = Program.server.Clients.FirstOrDefault(x => x.ID == message.Number);
+            if(trg == null)
+            {
+                await session.SendAsync(new SPartyResult(PartyResults.PlayerOffline));
+                return;
+            }
+
+            if(trg.Player.Character.Party != null)
+            {
+                await session.SendAsync(new SPartyResult(PartyResults.InAnotherParty));
+                return;
+            }
+
+            var party = session.Player.Character.Party;
+
+            if((party != null && party.Master != session.Player) || session.Player.Window != null || trg.Player.Window != null)
+            {
+                await session.SendAsync(new SPartyResult(PartyResults.Fail));
+                return;
+            }
+
+            if(Math.Abs(session.Player.Character.Level - trg.Player.Character.Level) > PartyManager.MaxLevelDiff)
+            {
+                await session.SendAsync(new SPartyResult(PartyResults.RestrictedLevel));
+                return;
+            }
+
+            message.Number = (ushort)session.ID;
+            await trg.SendAsync(message);
+        }
+
+        [MessageHandler(typeof(CPartyRequestResult))]
+        public async Task CPartyRequestResult(GSSession session, CPartyRequestResult message)
+        {
+            var trg = Program.server.Clients.FirstOrDefault(x => x.ID == message.Number);
+            if(trg == null)
+            {
+                await session.SendAsync(new SPartyResult(PartyResults.Fail));
+                return;
+            }
+            PartyManager.CreateLink(session.Player, trg.Player);
+        }
+
         [MessageHandler(typeof(CPartyList))]
         public async Task CPartyList(GSSession session)
         {
-            await session.SendAsync(new SPartyList
+            var partyInfo = new SPartyList();
+            var party = session.Player.Character.Party;
+
+            if (party == null)
             {
-                Result = 1,
-                PartyMembers = new Data.PartyDto[]
-                {
-                    new Data.PartyDto
-                    {
-                        Id = "PTest",
-                        Life = 500,
-                        MaxLife = 1000,
-                        Map = Maps.Aida,
-                        Number = 0,
-                        X = 120,
-                        Y = 120
-                    },
-                }
-            });
+                await session.SendAsync(partyInfo);
+                return;
+            }
+
+            partyInfo.Result = PartyResults.Success;
+            partyInfo.PartyMembers = party.List();
+            await session.SendAsync(partyInfo);
+        }
+
+        [MessageHandler(typeof(CPartyDelUser))]
+        public async Task CPartyDelUser(GSSession session, CPartyDelUser message)
+        {
+            var party = session.Player.Character.Party;
+            if(party == null)
+            {
+                return;
+            }
+
+            var memb = party.Members.ElementAtOrDefault(message.Index);
+            if(memb == null)
+            {
+                return;
+            }
+
+            if(memb != party.Master && memb != session.Player)
+            {
+                return;
+            }
+
+            PartyManager.Remove(memb);
         }
     }
 }

@@ -365,4 +365,32 @@ namespace MuEmu.Network.Game
     {
 
     }
+
+    [WZContract]
+    public class CPartyRequest : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+    }
+
+    [WZContract]
+    public class CPartyRequestResult : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public ushort wzNumber { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+    }
+
+    [WZContract]
+    public class CPartyDelUser : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Index { get; set; }
+    }
 }

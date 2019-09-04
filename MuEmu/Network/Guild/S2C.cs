@@ -51,11 +51,12 @@ namespace MuEmu.Network.Guild
     {
         [WZMember(0)] public byte Result { get; set; }    // 4
         [WZMember(1)] public byte Count { get; set; } // 5
-        [WZMember(2)] public int TotalScore { get; set; } // 8
-        [WZMember(3)] public byte Score { get; set; } // C
-        [WZMember(4,9)] public byte[] szRivalGuild { get; set; }	// D
+        [WZMember(2)] public ushort Padding { get; set; } // 6, 7
+        [WZMember(3)] public int TotalScore { get; set; } // 8, 9, A, B
+        [WZMember(4)] public byte Score { get; set; } // C
+        [WZMember(5,9)] public byte[] szRivalGuild { get; set; }	// D
 
-        [WZMember(5, SerializerType = typeof(ArraySerializer))]
+        [WZMember(6, SerializerType = typeof(ArraySerializer))]
         public GuildListDto[] Members { get; set; }
 
         public SGuildList()

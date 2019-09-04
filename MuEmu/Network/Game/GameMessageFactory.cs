@@ -44,7 +44,10 @@ namespace MuEmu.Network.Game
             Register<CItemGet>(GameOpCode.ItemGet);
             Register<CMagicAttack>(GameOpCode.MagicAttack);
             Register<CItemModify>(GameOpCode.ItemModify);
+            Register<CPartyRequest>(GameOpCode.PartyRequest);
+            Register<CPartyRequestResult>(GameOpCode.PartyResult);
             Register<CPartyList>(GameOpCode.PartyList);
+            Register<CPartyDelUser>(GameOpCode.PartyDelUser);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -104,7 +107,9 @@ namespace MuEmu.Network.Game
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);
             Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);
+            Register<SPartyResult>(GameOpCode.PartyResult);
             Register<SPartyList>(GameOpCode.PartyList);
+            Register<SPartyDelUser>(GameOpCode.PartyDelUser);
         }
     }
 }
