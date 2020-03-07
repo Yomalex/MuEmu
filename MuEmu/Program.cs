@@ -47,8 +47,6 @@ namespace MuEmu
             Predicate<GSSession> MustBeLoggedIn = session => session.Player.Status == LoginStatus.Logged;
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
 
-            var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
-
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
@@ -57,12 +55,40 @@ namespace MuEmu
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
+            if (!File.Exists("./Server.xml"))
+            {
+                Log.Logger.Error("Server configuration don't exist, please configure it in Server.xml");
+                ResourceLoader.XmlSaver("./Server.xml", new ServerInfoDto
+                {
+                    AutoRegistre = true,
+                    Code = 0,
+                    ConnectServerIP = "127.0.0.1",
+                    DataBase = "MuOnline",
+                    DBIp = "127.0.0.1",
+                    BDUser = "root",
+                    DBPassword = "",
+                    DropRate = 60,
+                    Experience = 10,
+                    IP = "127.0.0.1",
+                    Name = "GameServer",
+                    Port = 55901,
+                    Serial = "Serial",
+                    Show = 1,
+                    Version = "1.02.03",
+                    Zen = 10,
+                });
+                Task.Delay(10000);
+                return;
+            }
+
+            var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
+
             Console.Title = $"GameServer .NetCore2 [{xml.Code}]{xml.Name} Client:{xml.Version}#!{xml.Serial} DB:"+ xml.DataBase;
 
             ConnectionString = $"Server={xml.DBIp};port=3306;Database={xml.DataBase};user={xml.BDUser};password={xml.DBPassword};Convert Zero Datetime=True;";
             
-            SimpleModulus.LoadDecryptionKey("Dec1.dat");
-            SimpleModulus.LoadEncryptionKey("Enc2.dat");
+            SimpleModulus.LoadDecryptionKey("./Data/Dec1.dat");
+            SimpleModulus.LoadEncryptionKey("./Data/Enc2.dat");
 
             var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
             var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
@@ -122,7 +148,7 @@ namespace MuEmu
                 MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
                 GuildManager.Initialize();
                 SubSystem.Initialize();
-            }catch(MySql.Data.MySqlClient.MySqlException ex)
+            }catch(MySql.Data.MySqlClient.MySqlException)
             {
                 Migrate(null, new EventArgs());
                 Log.Information("Server needs restart to reload all changes");

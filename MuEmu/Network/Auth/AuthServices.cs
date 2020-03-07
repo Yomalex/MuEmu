@@ -65,7 +65,10 @@ namespace MuEmu.Network.Auth
                             Password = message.Password,
                             Characters = new List<MU.DataBase.CharacterDto>(),
                             VaultCount = 1,
-                            VaultMoney = 0
+                            VaultMoney = 0,
+                            LastConnection = DateTime.Now,
+                            IsConnected = false,
+                            ServerCode = 0,
                         };
                         db.Accounts.Add(acc);
                         db.SaveChanges();

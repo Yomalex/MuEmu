@@ -29,7 +29,7 @@ namespace MU.DataBase
         public bool IsConnected { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime LastConnection { get; set; }
+        public DateTime LastConnection { get; set; } = DateTime.Now;
 
         public List<CharacterDto> Characters { get; set; }
     }

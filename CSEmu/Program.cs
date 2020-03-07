@@ -13,13 +13,21 @@ namespace CSEmu
         public static WZConnectServer server;
         static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
+            Serilog.Core.Logger logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
                 .WriteTo.File("ConnectServer.txt")
                 .WriteTo.Console(outputTemplate: "[{Level} {SourceContext}] {Message}{NewLine}{Exception}")
                 .MinimumLevel.Debug()
                 .CreateLogger();
+            Log.Logger = logger;
+
+            if(args.Length != 1)
+            {
+                Log.Logger.Error("Se requiere la IP como argumento\nPresione cualquier tecla para continuar");
+                var input = Console.ReadLine();
+                return;
+            }
 
             var ip = new IPEndPoint(IPAddress.Parse(args[0]), 44405);
 
