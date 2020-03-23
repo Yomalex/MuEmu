@@ -29,7 +29,7 @@ namespace MuEmu.Network.ConnectServer
             _handler = handlers;
 
             _decoder = new WZPacketDecoderSimple(factories);
-            _encoder = new WZPacketEncoder(factories);
+            _encoder = new WZPacketEncoder(factories,false);
 
             _client.Client.BeginReceive(_buffer, 0, 1024, SocketFlags.None, ReceiveCallback, this);
 

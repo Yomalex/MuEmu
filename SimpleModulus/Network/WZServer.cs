@@ -42,12 +42,12 @@ namespace WebZen.Network
             MaxUsers = 300;
         }
 
-        public void Initialize(IPEndPoint address, MessageHandler[] handler, ISessionFactory factory, MessageFactory[] message)
+        public void Initialize(IPEndPoint address, MessageHandler[] handler, ISessionFactory factory, MessageFactory[] message, bool useRijndael)
         {
             _listener = new TcpListener(address);
-            _decoder = new WZPacketDecoder(message);
+            _decoder = new WZPacketDecoder(message, useRijndael);
             _decoderSimple = new WZPacketDecoderSimple(message);
-            _encoder = new WZPacketEncoder(message);
+            _encoder = new WZPacketEncoder(message, useRijndael);
             _listener.Start();
             _factory = factory;
             _handler = handler;

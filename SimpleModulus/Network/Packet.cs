@@ -15,10 +15,12 @@ namespace WebZen.Network
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZPacketDecoder));
         private readonly MessageFactory[] _factories;
+        private bool _packetRijndael;
 
-        public WZPacketDecoder(MessageFactory[] factories)
+        public WZPacketDecoder(MessageFactory[] factories, bool useRijndael)
         {
             _factories = factories;
+            _packetRijndael = useRijndael;
         }
 
         public int Decode(MemoryStream rawPacket, out short serial, List<object> messages)
@@ -61,7 +63,7 @@ namespace WebZen.Network
                     case 0xC3:
                         tmp = new byte[size - 2];
                         rawPacket.Read(tmp, 0, tmp.Length);
-                        dec = SimpleModulus.Decoder(tmp);
+                        dec = _packetRijndael ? PacketEncrypt.Decrypt(tmp) : SimpleModulus.Decoder(tmp);
                         serial = dec[0];
                         decPacket.WriteByte(0xC1);
                         decPacket.WriteByte((byte)(dec.Length + 1));
@@ -70,7 +72,7 @@ namespace WebZen.Network
                     case 0xC4:
                         tmp = new byte[size - 3];
                         rawPacket.Read(tmp, 0, tmp.Length);
-                        dec = SimpleModulus.Decoder(tmp);
+                        dec = _packetRijndael ? PacketEncrypt.Decrypt(tmp) : SimpleModulus.Decoder(tmp);
                         serial = dec[0];
                         decPacket.WriteByte(0xC2);
                         decPacket.WriteByte((byte)((dec.Length + 2) >> 8));
@@ -288,10 +290,12 @@ namespace WebZen.Network
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZPacketEncoder));
 
         private readonly MessageFactory[] _factories;
+        private bool _packetRijndael;
 
-        public WZPacketEncoder(MessageFactory[] factories)
+        public WZPacketEncoder(MessageFactory[] factories, bool useRijndael)
         {
             _factories = factories;
+            _packetRijndael = useRijndael;
         }
 
         public byte[] Encode(object message, ref short serial)
@@ -375,7 +379,11 @@ namespace WebZen.Network
                     byte[] enc;// = SimpleModulus.Encoder(temp);
                     using (var ms = new MemoryStream())
                     {
-                        SimpleModulus.Encrypt(ms, new MemoryStream(temp));
+                        if (_packetRijndael == true)
+                            PacketEncrypt.Encrypt(ms, new MemoryStream(temp));
+                        else
+                            SimpleModulus.Encrypt(ms, new MemoryStream(temp));
+
                         enc = new byte[ms.Length];
                         ms.Seek(0, SeekOrigin.Begin);
                         ms.Read(enc, 0, (int)ms.Length);

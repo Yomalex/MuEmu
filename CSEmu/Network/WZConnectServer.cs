@@ -10,9 +10,9 @@ namespace CSEmu.Network
 {
     internal class WZConnectServer : WZServer
     {
-        public WZConnectServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories)
+        public WZConnectServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories, bool useRijndael)
         {
-            Initialize(address, handler, new CSSessionFactory(), factories);
+            Initialize(address, handler, new CSSessionFactory(), factories, useRijndael);
             SimpleStream = true;
             ServerManager.Initialize();
         }

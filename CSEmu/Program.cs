@@ -5,6 +5,8 @@ using System;
 using System.Net;
 using WebZen.Handlers;
 using WebZen.Network;
+using System.Net;
+using System.Linq;
 
 namespace CSEmu
 {
@@ -22,14 +24,13 @@ namespace CSEmu
                 .CreateLogger();
             Log.Logger = logger;
 
-            if(args.Length != 1)
-            {
-                Log.Logger.Error("Se requiere la IP como argumento\nPresione cualquier tecla para continuar");
-                var input = Console.ReadLine();
-                return;
-            }
+            var name = Dns.GetHostName();
+            var ipaddr = Dns.GetHostEntry(name).AddressList
+                .Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                .Select(x => x)
+                .FirstOrDefault();
 
-            var ip = new IPEndPoint(IPAddress.Parse(args[0]), 44405);
+            var ip = new IPEndPoint(ipaddr, 44405);
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<CSSession>()
@@ -41,7 +42,7 @@ namespace CSEmu
                 new MainMessageFactory()
             };
 
-            server = new WZConnectServer(ip, mh, mf);
+            server = new WZConnectServer(ip, mh, mf, false);
 
             while (true)
             {

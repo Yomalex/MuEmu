@@ -26,5 +26,6 @@ namespace MuEmu.Resources.XML
         [XmlElement] public string DataBase { get; set; }
         [XmlElement] public string BDUser { get; set; }
         [XmlElement] public string DBPassword { get; set; }
+        [XmlElement] public bool Rijndael { get; set; }
     }
 }

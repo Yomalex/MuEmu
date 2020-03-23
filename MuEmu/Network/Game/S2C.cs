@@ -320,15 +320,13 @@ namespace MuEmu.Network.Game
     [WZContract]
     public class SHeatlUpdate : IGameMessage
     {
-        //[WZMember(0)] public byte fill { get; set; }
-
-        [WZMember(1)] public RefillInfo Pos { get; set; }
+        [WZMember(0)] public RefillInfo Pos { get; set; }
         
-        [WZMember(2)] public ushort HP { get; set; }
+        [WZMember(1)] public ushort HP { get; set; }
 
-        [WZMember(3)] public byte Flag { get; set; }
+        [WZMember(2)] public byte Flag { get; set; }
 
-        [WZMember(4)] public ushort SD { get; set; }
+        [WZMember(3)] public ushort SD { get; set; }
 
         public ushort Health { get => HP.ShufleEnding(); set => HP = value.ShufleEnding(); }
 

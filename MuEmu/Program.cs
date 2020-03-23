@@ -74,7 +74,7 @@ namespace MuEmu
                     Port = 55901,
                     Serial = "Serial",
                     Show = 1,
-                    Version = "1.02.03",
+                    Version = "10203",
                     Zen = 10,
                 });
                 Task.Delay(10000);
@@ -89,6 +89,8 @@ namespace MuEmu
             
             SimpleModulus.LoadDecryptionKey("./Data/Dec1.dat");
             SimpleModulus.LoadEncryptionKey("./Data/Enc2.dat");
+            byte[] key = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
+            PacketEncrypt.Initialize(key);
 
             var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
             var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
@@ -123,7 +125,7 @@ namespace MuEmu
                 new QuestSystemMessageFactory(),
                 new GuildMessageFactory(),
             };
-            server = new WZGameServer(ip, mh, mf);
+            server = new WZGameServer(ip, mh, mf, xml.Rijndael);
             server.ClientVersion = xml.Version;
             server.ClientSerial = xml.Serial;
 
@@ -210,7 +212,10 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("vit", Character.AddVit))
                         .AddCommand(new Command<GSSession>("ene", Character.AddEne))
                         .AddCommand(new Command<GSSession>("cmd", Character.AddCmd)))
-                    /*.AddCommand(new Command<GSSession>("post"))*/)
+                    .AddCommand(new Command<GSSession>("set")
+                        .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
+                        .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument)))
+                    /*.AddCommand(new Command<GSSession>("post"))*/))
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
 

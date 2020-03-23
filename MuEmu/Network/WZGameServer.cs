@@ -16,14 +16,13 @@ namespace MuEmu.Network
 {
     internal class WZGameServer : WZServer
     {
-        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(WZGameServer));
         public string ClientVersion { get; set; }
         public string ClientSerial { get; set; }
         public IEnumerable<GSSession> Clients => _clients.Values.Select(x => x as GSSession);
 
-        public WZGameServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories)
+        public WZGameServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories, bool useRijndael)
         {
-            Initialize(address, handler, new GSSessionFactory(), factories);
+            Initialize(address, handler, new GSSessionFactory(), factories, useRijndael);
         }
 
         protected override void OnConnect(WZClient session)

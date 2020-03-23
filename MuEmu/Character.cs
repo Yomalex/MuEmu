@@ -538,12 +538,13 @@ namespace MuEmu
 
         public async void HPorSDChanged()
         {
-            Console.WriteLine($"HP Changed {_hp} {_sd}");
+            Console.WriteLine($"HP Changed {_hp}/{_hpMax} {_sd}/{_sdMax}");
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
         {
-            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
+            Console.WriteLine($"Max HP Changed {_hpMax} {_sdMax}");
+            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)_hpMax, (ushort)_sdMax, false));
         }
         private async void MPorBPChanged()
         {
