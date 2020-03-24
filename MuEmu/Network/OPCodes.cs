@@ -35,6 +35,7 @@ namespace MuEmu.Network
         KillCount = 0x01B8,
         ClientClose = 0x02F1,
         ClientMessage = 0x03F1,
+        CharRegen = 0x04F3,
         LevelUp = 0x5F3,
         PointAdd = 0x06F3,
         Damage = 0x07F3,

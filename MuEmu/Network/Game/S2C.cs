@@ -1134,5 +1134,58 @@ namespace MuEmu.Network.Game
     public class SPartyDelUser : IGameMessage
     {
     }
+
+    [WZContract]
+    public class SCharRegen : IGameMessage
+    {
+        [WZMember(0)]
+        public byte MapX { get; set; }
+        /*<thisrel this+0x5>*/ /*|0x1|*/
+        [WZMember(1)]
+        public byte MapY { get; set; }
+        /*<thisrel this+0x6>*/ /*|0x1|*/
+        [WZMember(2)]
+        public Maps MapNumber { get; set; }
+        /*<thisrel this+0x7>*/ /*|0x1|*/
+        [WZMember(3)]
+        public byte Dir { get; set; }
+        /*<thisrel this+0x8>*/ /*|0x2|*/
+        [WZMember(4)]
+        public ushort Life { get; set; }
+        /*<thisrel this+0xa>*/ /*|0x2|*/
+        [WZMember(5)]
+        public ushort Mana { get; set; }
+        /*<thisrel this+0xc>*/ /*|0x2|*/
+        [WZMember(6)]
+        public ushort wShield { get; set; }
+        /*<thisrel this+0xe>*/ /*|0x2|*/
+        [WZMember(7)]
+        public ushort BP { get; set; }
+        /*<thisrel this+0x10>*/ /*|0x4|*/ //unsigned long Exp;
+        [WZMember(8)]
+        public ulong unk1 { get; set; }
+        /*<thisrel this+0x10>*/ /*|0x4|*/
+        [WZMember(9)]
+        public uint Exp { get; set; }
+        /*<thisrel this+0x14>*/ /*|0x4|*/
+        [WZMember(10)]
+        public ulong Money { get; set; }
+
+        public SCharRegen()
+        { }
+        public SCharRegen(Maps map, byte x, byte y, byte dir, ushort life, ushort mana, ushort shield, ushort bp, uint exp, ulong money)
+        {
+            MapNumber = map;
+            MapX = x;
+            MapY = y;
+            Dir = dir;
+            Life = life.ShufleEnding();
+            Mana = mana.ShufleEnding();
+            wShield = shield.ShufleEnding();
+            BP = bp.ShufleEnding();
+            Exp = exp.ShufleEnding();
+            Money = money.ShufleEnding();
+        }
+    }
 }
 

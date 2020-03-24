@@ -83,17 +83,44 @@ namespace MuEmu
                 {
                     foreach (var map in ResourceCache.Instance.GetMaps().Values)
                     {
+                        var deadPlayers = new List<Character>();
                         foreach (var @char in map.Players)
                         {
-                            // Clear dead buffers
-                            @char.Spells.ClearBuffTimeOut();
+                            switch (@char.State)
+                            {
+                                case ObjectState.Regen:
+                                    @char.State = ObjectState.Live;
+                                    @char.Spells.ClearAll();
+                                    break;
+                                case ObjectState.Live:
+                                    // Clear dead buffers
+                                    @char.Spells.ClearBuffTimeOut();
 
-                            //PlayerPlrViewport(map, @char);
-                            PlayerMonsViewport(map, @char);
-                            PlayerItemViewPort(map, @char);
+                                    //PlayerPlrViewport(map, @char);
+                                    PlayerMonsViewport(map, @char);
+                                    PlayerItemViewPort(map, @char);
 
-                            @char.Health += @char.BaseInfo.Attributes.LevelLife * @char.Level * 0.1f;
-                            @char.Mana += @char.BaseInfo.Attributes.LevelMana * @char.Level * 0.05f;
+                                    @char.Health += @char.BaseInfo.Attributes.LevelLife * @char.Level * 0.1f;
+                                    @char.Mana += @char.BaseInfo.Attributes.LevelMana * @char.Level * 0.05f;
+                                    break;
+                                case ObjectState.Dying:
+                                    @char.State = ObjectState.Die;
+                                    break;
+                                //case ObjectState.Dying2:
+                                //    obj.State = ObjectState.Die;
+                                //    break;
+                                case ObjectState.Die:
+                                    @char.State = ObjectState.WaitRegen;
+                                    break;
+                                case ObjectState.WaitRegen:
+                                    deadPlayers.Add(@char);
+                                    break;
+                            }
+                        }
+
+                        foreach(var @char in deadPlayers)
+                        {
+                            @char.TryRegen();
                         }
 
                         // update monster section
@@ -161,15 +188,20 @@ namespace MuEmu
             if (!playerVP.Any())
                 return;
 
-            //var newPlr = from mons in playerVP
-            //              where mons.
+            var newPlr = (from obj in playerVP
+                          where obj.State == ObjectState.Regen
+                          select obj).ToList();
 
             var existPlr = from obj in playerVP
-                            where !plr.PlayersVP.Contains(obj.Player)
-                            select obj;
+                            where !plr.PlayersVP.Contains(obj.Player) && obj.State == ObjectState.Live
+                           select obj;
+
+            var deadPlr = (from obj in playerVP
+                           where obj.State == ObjectState.WaitRegen
+                           select obj).ToList();
 
             var lostPlr = from obj in playerVP
-                           where /*it.itemState == ItemState.Deleting && */plr.PlayersVP.Contains(obj.Player)
+                           where plr.PlayersVP.Contains(obj.Player)
                            select obj.Player;
 
             //plr.PlayersVP.AddRange(newPlr.Select(x => x..Player));

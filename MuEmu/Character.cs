@@ -107,7 +107,8 @@ namespace MuEmu
                 if (_hp <= 0)
                 {
                     _hp = 0;
-                    OnDead();
+                    PlayerDie?.Invoke(this, new EventArgs());
+                    //OnDead();
                 }
 
                 HPorSDChanged();
@@ -267,6 +268,7 @@ namespace MuEmu
         public MapInfo Map { get; private set; }
 
         public event EventHandler MapChanged;
+        public event EventHandler PlayerDie;
 
         // Experience
         public ulong Experience { get => _exp;
@@ -444,11 +446,31 @@ namespace MuEmu
         public short MinusPoints => 0;
         public short MaxMinusPoints => 100;
 
+        public ushort AttackRatePvM => (ushort)_attackRatePvM;
+        public ushort AttackRatePvP => (ushort)_attackRatePvP;
+
+        public ushort Defense => (ushort)_defense;
+        public ushort DefenseRatePvM => (ushort)_defenseRatePvM;
+        public ushort DefenseRatePvP => (ushort)_defenseRatePvP;
+
+        private float _attackRatePvM = 0.0f;
+        private float _attackRatePvP = 0.0f;
         private float _leftAttackMin = 0.0f;
         private float _leftAttackMax = 0.0f;
         private float _rightAttackMin = 0.0f;
         private float _rightAttackMax = 0.0f;
+        private float _magicAttackMin = 0.0f;
+        private float _magicAttackMax = 0.0f;
+        private float _defense = 0.0f;
+        private float _defenseRatePvM = 0.0f;
+        private float _defenseRatePvP = 0.0f;
+        private float _attackSpeed = 0.0f;
 
+        public ObjectState State { get; set; }
+        public DateTimeOffset RegenTime { get; private set; }
+
+        private ushort _killerId;
+        private int _deadlyDmg;
         public byte ClientClass => GetClientClass(Class);
 
         public static byte GetClientClass(HeroClass dbClass)
@@ -459,6 +481,7 @@ namespace MuEmu
 
         public Character(Player plr, CharacterDto characterDto)
         {
+            PlayerDie += OnDead;
             _characterId = characterDto.CharacterId;
             Player = plr;
             Name = characterDto.Name;
@@ -470,6 +493,7 @@ namespace MuEmu
             MonstersVP = new List<ushort>();
             ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
+            State = ObjectState.Regen;
 
             MapID = (Maps)characterDto.Map;
             Map = ResourceCache.Instance.GetMaps()[_map];
@@ -635,7 +659,7 @@ namespace MuEmu
                 _leftAttackMax += left.AttackMax;
             }
 
-            if (BaseClass == HeroClass.BladeKnight || BaseClass == HeroClass.MagicGladiator)
+            if (BaseClass == HeroClass.DarkKnight || BaseClass == HeroClass.MagicGladiator)
             {
                 if ((right?.Number ?? ItemNumber.Invalid) == (left?.Number ?? ItemNumber.Invalid) && (right?.Number ?? ItemNumber.Invalid) != ItemNumber.Invalid)
                 {
@@ -644,6 +668,19 @@ namespace MuEmu
                     _leftAttackMin *= 0.55f;
                     _leftAttackMax *= 0.55f;
                 }
+            }
+
+            switch(BaseClass)
+            {
+                case HeroClass.DarkKnight:
+                    _defense = AgilityTotal / 3.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal * 4;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
+                    _attackSpeed = AgilityTotal / 15.0f;
+                    if (_attackSpeed > 288) _attackSpeed = 288.0f;
+                    break;
             }
         }
         private async void OnLevelUp()
@@ -693,16 +730,106 @@ namespace MuEmu
         {
             return (((level + 9ul) * level) * level) * 10ul + ((level > 255) ? ((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul : 0ul);
         }
-        private void OnDead()
+        private void OnDead(object obj, EventArgs args)
         {
+            State = ObjectState.Dying;
+            RegenTime = DateTimeOffset.Now.AddSeconds(4);
+            var die = new SDiePlayer((ushort)Player.Session.ID, 1, _killerId);
+            Player.Session.SendAsync(die);
+            SendV2Message(die);
 
+            var EXPPenalty = 0.00f;
+
+            if(Level >= 221)
+            {
+                switch(PKLevel)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        EXPPenalty = 0.01f;
+                        break;
+                    case 4:
+                        EXPPenalty = 0.05f;
+                        break;
+                    case 5:
+                        EXPPenalty = 0.10f;
+                        break;
+                    case 6:
+                        EXPPenalty = 0.20f;
+                        break;
+                }
+            }else if(Level >= 151)
+            {
+                switch (PKLevel)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        EXPPenalty = 0.02f;
+                        break;
+                    case 4:
+                        EXPPenalty = 0.05f;
+                        break;
+                    case 5:
+                        EXPPenalty = 0.10f;
+                        break;
+                    case 6:
+                        EXPPenalty = 0.20f;
+                        break;
+                }
+            }
+            else if (Level >= 11)
+            {
+                switch (PKLevel)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        EXPPenalty = 0.02f;
+                        break;
+                    case 4:
+                        EXPPenalty = 0.05f;
+                        break;
+                    case 5:
+                        EXPPenalty = 0.10f;
+                        break;
+                    case 6:
+                        EXPPenalty = 0.20f;
+                        break;
+                }
+            }
+
+            var expReduced = Experience * EXPPenalty;
+            Experience -= (ulong)expReduced;
+        }
+
+        public void TryRegen()
+        {
+            if(RegenTime <= DateTimeOffset.Now)
+            {
+                Health = MaxHealth;
+                Mana = MaxMana;
+                Shield = MaxShield;
+                Stamina = MaxStamina;
+                State = ObjectState.Regen;
+                Position = Map.GetRespawn();
+                var regen = new SCharRegen(MapID, (byte)Position.X, (byte)Position.Y, 1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, Money);
+                Player.Session.SendAsync(regen);
+            }
         }
 
         public async Task WarpTo(Maps map, Point position, byte dir)
         {
-            Map.DelPlayer(this);
-            MapID = map;
-            Map.AddPlayer(this);
+            if (MapID != map)
+            {
+                Map.DelPlayer(this);
+                MapID = map;
+                Map.AddPlayer(this);
+            }
             Position = position;
             Direction = dir;
             await Player.Session.SendAsync(new STeleport(256, MapID, Position, Direction));
@@ -769,9 +896,13 @@ namespace MuEmu
 
             type = DamageType.Regular;
             Reflect = 0;
-            var rand = new Random();
-
             var attack = 0.0f;
+
+            if (MissCheck(target))
+            {
+                type = DamageType.Miss;
+                return 0;
+            }
 
             if (excellentRate > _rand.Next(100))
                 type = DamageType.Excellent;
@@ -807,6 +938,13 @@ namespace MuEmu
             var excellentRate = Inventory.ExcellentRate;
 
             var attack = 0.0f;
+
+            if(!MissCheck(target))
+            {
+                type = DamageType.Miss;
+                return 0;
+            }
+
             if (excellentRate > _rand.Next(100))
                 type = DamageType.Excellent;
             else if (criticalRate > _rand.Next(100))
@@ -831,6 +969,71 @@ namespace MuEmu
                 attack = 0;
 
             return (int)attack;
+        }
+
+        private bool MissCheck(Monster target)
+        {
+            if (AttackRatePvM < target.Info.Success)
+            {
+                if (_rand.Next(100) >= 5)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (_rand.Next(AttackRatePvM) < target.Info.Success)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool MissCheck(Character target)
+        {
+            if (AttackRatePvM < target.DefenseRatePvP)
+            {
+                if (_rand.Next(100) >= 5)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (_rand.Next(AttackRatePvM) < target.DefenseRatePvP)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public async Task GetAttacked(Monster source, int dmg, DamageType type, Spell isMagic)
+        {
+            if (State != ObjectState.Live)
+                return;
+
+            var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
+
+            //DeadlyDmg = dmgSend;
+            _killerId = source.Index;
+            Health -= dmg;
+
+            if (State != ObjectState.Dying)
+            {
+                if (isMagic == Spell.None)
+                {
+                    await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
+                    //await Player.Session.SendAsync(new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID));
+                    await Player.Session.SendAsync(new SAction((ushort)source.Index, source.Direction, 120, (ushort)Player.Session.ID));
+                }
+                else
+                {
+                    await Player.Session.SendAsync(new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID));
+                    await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
+                }
+            }
         }
 
         public int SkillAttack(SpellInfo spell, Monster target, out DamageType type)

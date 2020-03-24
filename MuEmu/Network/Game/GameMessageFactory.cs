@@ -73,6 +73,7 @@ namespace MuEmu.Network.Game
             Register<SMove>(GameOpCode.Move);
             Register<SPositionSet>(GameOpCode.PositionSet);
             Register<SPointAdd>(GameOpCode.PointAdd);
+            Register<SCharRegen>(GameOpCode.CharRegen);
             Register<SLevelUp>(GameOpCode.LevelUp);
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);

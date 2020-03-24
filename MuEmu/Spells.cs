@@ -311,6 +311,20 @@ namespace MuEmu
             }
         }
 
+        public async void ClearAll()
+        {
+            try
+            {
+                foreach (var r in _buffs)
+                    await DelBuff(r.State);
+            }
+            catch (Exception)
+            {
+                _buffs.Clear();
+                return;
+            }
+        }
+
         public async Task DelBuff(SkillStates effect)
         {
             var m = new SViewSkillState(0, (ushort)Player.Session.ID, (byte)effect);

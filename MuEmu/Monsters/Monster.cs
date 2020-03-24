@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
+using MuEmu.Data;
 
 namespace MuEmu.Monsters
 {
@@ -17,6 +18,7 @@ namespace MuEmu.Monsters
         private float _life;
         private ObjectState _state;
         private DateTimeOffset _regen;
+        private Player _target;
 
         public ushort Index { get; set; }
 
@@ -29,7 +31,7 @@ namespace MuEmu.Monsters
                     return;
 
                 if(value == ObjectState.Die)
-                    _regen = DateTimeOffset.Now.AddMilliseconds(Info.RegenTime);
+                    _regen = DateTimeOffset.Now.AddSeconds(Info.RegenTime);
 
                 _state = value;
             }
@@ -63,7 +65,23 @@ namespace MuEmu.Monsters
         public Point Spawn { get; private set; }
         public Point Position { get; private set; }
         public Point TPosition { get; private set; }
-        public Player Target { get; private set; }
+        public Player Target {
+            get => _target;
+            set
+            {
+                if (_target == value)
+                    return;
+
+                if(_target != null)
+                    _target.Character.PlayerDie -= EnemyDie;
+
+                if (value == null)
+                    return;
+
+                _target = value;
+                _target.Character.PlayerDie += EnemyDie;
+            }
+        }
         public List<Player> ViewPort { get; set; } = new List<Player>();
         public Player Killer { get; set; }
         public ushort DeadlyDmg { get; set; }
@@ -207,13 +225,17 @@ namespace MuEmu.Monsters
                     var x = Target.Character.Position.X - Position.X;
                     var y = Target.Character.Position.Y - Position.Y;
 
-                    x = x > 0 ? x - 1 : (x < 0 ? x + 1 : 0);
-                    y = y > 0 ? y - 1 : (y < 0 ? y + 1 : 0);
+                    var d = Math.Sqrt(x * x + y * y);
+                    if (d > Info.AttackRange)
+                    {
+                        x = x > 0 ? x - 1 : (x < 0 ? x + 1 : 0);
+                        y = y > 0 ? y - 1 : (y < 0 ? y + 1 : 0);
 
-                    x += Position.X;
-                    y += Position.Y;
+                        x += Position.X;
+                        y += Position.Y;
 
-                    TPosition = new Point(x, y);
+                        TPosition = new Point(x, y);
+                    }
                 } else
                 {
                     var rand = new Random();
@@ -242,12 +264,82 @@ namespace MuEmu.Monsters
             dy = dy != 0 ? dy / Math.Abs(dy) : 0;
 
             if (dx == 0 && dy == 0)
+            {
+                if(Target != null)
+                {
+                    var x = Target.Character.Position.X - Position.X;
+                    var y = Target.Character.Position.Y - Position.Y;
+
+                    var d = Math.Sqrt(x * x + y * y);
+
+                    if(d <= Info.AttackRange)
+                    {
+                        DamageType type = DamageType.Miss;
+                        Spell isMagic;
+                        var attack = MonsterAttack(out type, out isMagic);
+                        Target.Character.GetAttacked(this, attack, type, isMagic);
+                    }
+                }
                 return;
+            }
 
             Position = new Point(Position.X+dx /** movSpeed*/, Position.Y+dy /** movSpeed*/);
 
             foreach(var obj in ViewPort)
                 obj.Session.SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, dir[dy+1, dx+1]));
+        }
+
+        private int MonsterAttack(out DamageType type, out Spell isMagic)
+        {
+            var @char = Target.Character;
+            var attack = 0;
+            type = DamageType.Regular;
+            isMagic = Info.Spell;
+
+            if (!MissCheck())
+            {
+                type = DamageType.Miss;
+                return 0;
+            }
+
+            if (Info.Spell != Spell.None)
+            {
+                SpellInfo si = ResourceCache.Instance.GetSkills()[Info.Spell];
+                var baseAttack = _rand.Next(si.Damage.X, si.Damage.Y);
+                type = DamageType.Regular;
+                attack = baseAttack - @char.Defense;
+            }
+            else
+            {
+                var baseAttack = _rand.Next(Info.DmgMin, Info.DmgMax);
+                attack = baseAttack - @char.Defense;
+            }
+
+            if (attack < 0)
+                attack = 0;
+
+            return attack;
+        }
+
+        private bool MissCheck()
+        {
+            var @char = Target.Character;
+
+            if (Info.Success < @char.DefenseRatePvM)
+            {
+                if (_rand.Next(100) >= 5)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (_rand.Next(Info.Success) < @char.DefenseRatePvM)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void OnDie(object obj, EventArgs args)
@@ -297,6 +389,11 @@ namespace MuEmu.Monsters
             }
 
             DamageSum.Clear();
+        }
+
+        private void EnemyDie(object obj, EventArgs args)
+        {
+            Target = null;
         }
 
         private void gObjGiveItemSearch(int maxlevel)

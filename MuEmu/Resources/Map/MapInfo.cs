@@ -13,7 +13,7 @@ namespace MuEmu.Resources.Map
 {
     public enum MapAttributes : byte
     {
-        Unk1 = 1,
+        Safe = 1,
         Stand = 2,
         NoWalk = 4,
         Hide = 8,
@@ -36,6 +36,7 @@ namespace MuEmu.Resources.Map
     public class MapInfo
     {
         private byte[] Layer { get; }
+        private List<Point> SafePoints { get; set; }
 
         public int Width { get; }
         public int Height { get; }
@@ -44,6 +45,29 @@ namespace MuEmu.Resources.Map
         public List<ItemInMap> Items { get; }
         public int Map { get; }
         public byte Weather { get; set; }
+        public Rectangle SafeArea { get; private set; }
+        public Point GetRespawn()
+        {
+            if (SafePoints == null)
+            {
+                SafePoints = new List<Point>();
+                for (var y = SafeArea.Y; y < SafeArea.Bottom; y++)
+                {
+                    for (var x = SafeArea.X; x < SafeArea.Right; x++)
+                    {
+                        var cell = Layer[x + y * 256];
+                        if ((cell & 4) != 4 && (cell & 8) != 8)
+                        {
+                            SafePoints.Add(new Point(x, y));
+                        }
+                    }
+                }
+            }
+
+            var rand = new Random().Next(SafePoints.Count());
+            var id = SafePoints[rand];
+            return id;
+        }
 
         public event EventHandler PlayerLeaves;
         public event EventHandler MonsterAdd;
@@ -67,6 +91,57 @@ namespace MuEmu.Resources.Map
             Monsters = new List<Monster>();
             Players = new List<Character>();
             Items = new List<ItemInMap>();
+            switch((Maps)Map)
+            {
+                case Maps.Lorencia:
+                    SafeArea = new Rectangle(130, 116, 21, 21);
+                    break;
+                case Maps.Dugeon:
+                    SafeArea = new Rectangle(106, 236, 6, 7);
+                    break;
+                case Maps.Davias:
+                    SafeArea = new Rectangle(197, 35, 21, 15);
+                    break;
+                case Maps.Noria:
+                    SafeArea = new Rectangle(174, 101, 13, 24);
+                    break;
+                case Maps.LostTower:
+                    SafeArea = new Rectangle(201, 70, 12, 11);
+                    break;
+                case Maps.Atlans:
+                    SafeArea = new Rectangle(14, 11, 13, 12);
+                    break;
+                case Maps.Tarkan:
+                    SafeArea = new Rectangle(187, 54, 16, 15);
+                    break;
+                case Maps.Aida:
+                    SafeArea = new Rectangle(82, 8, 5, 6);
+                    break;
+                //case Maps.Barracks:
+                //    SafeArea = new Rectangle(30, 75, 33, 78);
+                //    break;
+                case Maps.Elbeland:
+                    SafeArea = new Rectangle(50, 220, 6, 6);
+                    break;
+                case Maps.SilentSwamp:
+                    SafeArea = new Rectangle(135, 105, 10, 10);
+                    break;
+                case Maps.Raklion:
+                    SafeArea = new Rectangle(220, 210, 13, 2);
+                    break;
+                case Maps.Vulcan:
+                    SafeArea = new Rectangle(110, 120, 15, 15);
+                    break;
+                case Maps.Kantru1:
+                    SafeArea = new Rectangle(124, 123, 3, 2);
+                    break;
+                case Maps.Kantru2:
+                    SafeArea = new Rectangle(162, 16, 1, 1);
+                    break;
+                default:
+                    SafeArea = new Rectangle(0, 0, 255, 255);
+                    break;
+            }
         }
 
         public MapAttributes[] GetAttributes(int X, int Y)
