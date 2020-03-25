@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Characters>
+  <Character BaseClass="DarkWizard" Map="Lorencia" Level="1">
+    <Stats Str="18" Agi="18" Vit="15" Ene="30" Cmd="0" />
+    <Attributes Life="60.0" LevelLife="1.0" Mana="60.0" LevelMana="2.0" VitalityToLife="2.0" EnergyToMana="2.0" StrToBP="0.2" AgiToBP="0.4" VitToBP="0.3" EneToBP="0.2" CmdToBP="0.0" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+    <Skill>17</Skill>
+  </Character>
+  <Character BaseClass="DarkKnight" Map="Lorencia" Level="1">
+    <Stats Str="28" Agi="20" Vit="25" Ene="10" Cmd="0" />
+    <Attributes Life="110.0" LevelLife="2.0" Mana="20.0" LevelMana="0.5" VitalityToLife="3.0" EnergyToMana="1.0" StrToBP="0.15" AgiToBP="0.2" VitToBP="0.3" EneToBP="1.0" CmdToBP="0.0" />
+    <Equipament Slot="1" Type="1" Index="0" Level="1" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+  </Character>
+  <Character BaseClass="FaryElf" Map="Lorencia" Level="1">
+    <Stats Str="22" Agi="25" Vit="20" Ene="15" Cmd="0" />
+    <Attributes Life="80.0" LevelLife="1.0" Mana="30.0" LevelMana="1.5" VitalityToLife="2.0" EnergyToMana="1.5" StrToBP="0.3" AgiToBP="0.2" VitToBP="0.3" EneToBP="0.2" CmdToBP="0.0" />
+    <Equipament Slot="1" Type="4" Index="0" Level="0" />
+    <Equipament Slot="0" Type="4" Index="15" Level="0" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+  </Character>
+  <Character BaseClass="MagicGladiator" Map="Lorencia" Level="1">
+    <Stats Str="26" Agi="26" Vit="26" Ene="26" Cmd="0" />
+    <Attributes Life="110.0" LevelLife="1.0" Mana="60.0" LevelMana="1.0" VitalityToLife="2.0" EnergyToMana="2.0" StrToBP="0.2" AgiToBP="0.25" VitToBP="0.3" EneToBP="0.15" CmdToBP="0.0" />
+    <Equipament Slot="1" Type="6" Index="0" Level="1" />
+    <Equipament Slot="0" Type="0" Index="1" Level="1" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+  </Character>
+  <Character BaseClass="DarkLord" Map="Lorencia" Level="1">
+    <Stats Str="26" Agi="20" Vit="20" Ene="15" Cmd="25" />
+    <Attributes Life="90.0" LevelLife="1.5" Mana="40.0" LevelMana="1.0" VitalityToLife="2.0" EnergyToMana="1.5" StrToBP="0.3" AgiToBP="0.2" VitToBP="0.1" EneToBP="0.15" CmdToBP="0.3" />
+    <Equipament Slot="1" Type="6" Index="0" Level="1" />
+    <Equipament Slot="0" Type="0" Index="1" Level="1" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+  </Character>
+  <Character BaseClass="Summoner" Map="Elbeland" Level="1">
+    <Stats Str="18" Agi="18" Vit="15" Ene="30" Cmd="0" />
+    <Attributes Life="60.0" LevelLife="1.0" Mana="60.0" LevelMana="2.0" VitalityToLife="2.0" EnergyToMana="2.0" StrToBP="0.2" AgiToBP="0.4" VitToBP="0.3" EneToBP="0.2" CmdToBP="0.0"/>    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+    <Skill>4</Skill>
+  </Character>
+  <Character BaseClass="RageFighter" Map="Lorencia" Level="1">
+    <Stats Str="32" Agi="27" Vit="25" Ene="20" Cmd="0" />
+    <Attributes Life="100.0" LevelLife="1.3" Mana="40.0" LevelMana="1.0" VitalityToLife="2.0" EnergyToMana="1.3" StrToBP="0.15" AgiToBP="0.2" VitToBP="0.3" EneToBP="1.0" CmdToBP="0.0" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+  </Character>
+  <Character BaseClass="GrowLancer" Map="Lorencia" Level="1">
+    <Stats Str="0" Agi="0" Vit="0" Ene="0" Cmd="0" />
+    <Attributes Life="0" LevelLife="0" Mana="0" LevelMana="0" VitalityToLife="0" EnergyToMana="0" />    
+    <Equipament Slot="12" Type="13" Index="20" Level="1" />    
+    <Equipament Slot="13" Type="13" Index="20" Level="2" />
+  </Character>
+</Characters>

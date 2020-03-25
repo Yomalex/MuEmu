@@ -1,0 +1,53 @@
+//#############################################################################################################
+//Drop Settings: Green Mystery Box Drops
+//www.darksideofmu.com
+//#############################################################################################################
+
+//=============================================================================================================
+//	MapIndex	Drop Flag	Min Monster Level	Max MonsterLevel	
+//=============================================================================================================
+0	
+	0		0		0			1000
+end
+
+//=============================================================================================================
+//ItemDropRate	 	- Drop rate of item VS Zen [x/100]
+//ExRate		- Drop rate of excellent item [x/1000]
+//=============================================================================================================
+//[If item drop settings for the box/not monster]
+//=============================================================================================================
+//BoxType		- Item.TXT index (section) of the Box
+//BoxIndex 		- Item.TXT id of the Box
+//BoxLevel 		- Level of the Box (+1, +2 etc...)
+//BoxDropRate		- Rate at which the Box will drop
+//=============================================================================================================
+//	EventName		DropZen		BoxType	BoxIndex BoxLevel BoxDropRate 	ItemDropRate	ExRate
+//=============================================================================================================
+1	
+	"GreenMysteryBox"	200000		14	55	 0	  0		1		1
+end
+
+//=============================================================================================================
+//Type			- Item.TXT index (section) of the Box
+//Index 		- Item.TXT id of the Item
+//minLvl		- Minimal Level of the Item (+1, +2 etc...)
+//maxLvl		- Maximum Level of the Item (+1, +2 etc...)
+//Skill			- Drop Item with Skill (0 - off,1 - on)
+//Luck			- Drop Item with Luck (0 - off,1 - on)
+//maxZ28		- Maximum Z28 option (1 = +4, 2 = +8, 3 = +12, etc...)
+//maxExOpt		- Maximum number of Exc option in item
+//=============================================================================================================
+//	Type	Index	minLvl	maxLvl	Skill	Luck	maxZ28	maxExOpt		
+//=============================================================================================================
+2
+	0	19	0	0	1	1	1	2		//Sword of Archangel
+	0	20	0	0	1	1	1	2		//Knight Blade
+	0	23	0	0	1	1	1	2		//Explosion Blade
+	2	12	0	0	1	1	1	2		//Great Lord Scepter
+	2	13	0	0	1	1	1	2		//Scepter of Archangel
+	4	18	0	0	1	1	1	2		//Crossbow of Archangel
+	4	19	0	0	1	1	1	2		//Great Reign Crossbow
+	4	20	0	0	1	1	1	2		//Arrow Viper Bow
+	5	10	0	0	1	1	1	2		//Staff of Archangel
+	5	11	0	0	1	1	1	2		//Kundun Staff
+end

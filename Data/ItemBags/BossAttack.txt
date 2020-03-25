@@ -1,0 +1,38 @@
+//#############################################################################################################
+//Drop Settings: Boss Attack Event Drops
+//www.darksideofmu.com
+//#############################################################################################################
+
+//=============================================================================================================
+//ItemDropRate	 	- Drop rate of item VS Zen [x/100]
+//ExRate		- Drop rate of excellent item [x/1000]
+//=============================================================================================================
+//	EventName		DropZen		NA	NA 	NA 	  NA 		ItemDropRate	ExRate
+//=============================================================================================================
+1	
+	"BossAttackDrop"	10000		0	0	 0	  0		10		0
+end
+
+//=============================================================================================================
+//Type			- Item.TXT index (section) of the Box
+//Index 		- Item.TXT id of the Item
+//minLvl		- Minimal Level of the Item (+1, +2 etc...)
+//maxLvl		- Maximum Level of the Item (+1, +2 etc...)
+//Skill			- Drop Item with Skill (0 - off,1 - on)
+//Luck			- Drop Item with Luck (0 - off,1 - on)
+//maxZ28		- Maximum Z28 option (1 = +4, 2 = +8, 3 = +12, etc...)
+//maxExOpt		- Maximum number of Exc option in item
+//=============================================================================================================
+//	Type	Index	minLvl	maxLvl	Skill	Luck	maxZ28	maxExOpt		
+//=============================================================================================================
+2																		
+	
+
+	14 	13 	0 	0 	0 	0 	0	0	//Jewel of Bless
+	14 	14 	0 	0 	0 	0 	0 	0 	//Jewel of Soul
+	14 	16 	0 	0 	0 	0 	0	0	//Jewel of Life
+	14 	22 	0 	0 	0 	0 	0	0	//Jewel of Creation
+	12 	15 	0 	0 	0 	0 	0	0	//Jewel of Chaos
+
+
+end

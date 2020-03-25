@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ChaosBox>
+  <!-- Aditional JOChaos Add Success -->
+  <Jewel type="12" index="15" success="10" />
+  <!-- Aditional JOBless Add Success -->
+  <Jewel type="14" index="13" success="10" />
+  <!-- Aditional JOSoul Add Success -->
+  <Jewel type="14" index="14" success="10" />
+  <!-- Aditional JOLife Add Success -->
+  <Jewel type="14" index="16" success="10" />
+  <!-- Aditional JOCreation Add Success -->
+  <Jewel type="14" index="22" success="10" />
+  
+  <Mix name="Item +10" success="100" value="2000000">
+    <Ingredient iid="0" type="-1" index="-1" level="9" luck="-1" skill="-1" option="0" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <Ingredient iid="2" type="14" index="13" count="1" />
+    <Ingredient iid="3" type="14" index="14" count="1" />
+    <RewardSuccess iid="0" level="10" />
+    <RewardFail iid="0" level="8" />   
+  </Mix>
+  
+  <Mix name="Item +11" success="100" value="1000000">
+    <Ingredient iid="0" type="-1" index="-1" level="10" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <Ingredient iid="2" type="14" index="13" count="2" />
+    <Ingredient iid="3" type="14" index="14" count="2" />
+    <RewardSuccess iid="0" level="11" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Item +12" success="100" value="1000000">
+    <Ingredient iid="0" type="-1" index="-1" level="11" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <Ingredient iid="2" type="14" index="13" count="3" />
+    <Ingredient iid="3" type="14" index="14" count="3" />
+    <RewardSuccess iid="0" level="12" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Item +13" success="100" value="1000000">
+    <Ingredient iid="0" type="-1" index="-1" level="12" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <Ingredient iid="2" type="14" index="13" count="4" />
+    <Ingredient iid="3" type="14" index="14" count="4" />
+    <RewardSuccess iid="0" level="13" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Item +14" success="100" value="1000000">
+    <Ingredient iid="0" type="-1" index="-1" level="13" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <Ingredient iid="2" type="14" index="13" count="5" />
+    <Ingredient iid="3" type="14" index="14" count="5" />
+    <RewardSuccess iid="0" level="14" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Item +15" success="100" value="1000000">
+    <Ingredient iid="0" type="-1" index="-1" level="14" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <Ingredient iid="2" type="14" index="13" count="6" />
+    <Ingredient iid="3" type="14" index="14" count="6" />
+    <RewardSuccess iid="0" level="15" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Chaos Item" success="100" value="1000000">
+    <Ingredient iid="0" type="-1" index="-1" level="4-7" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Chaos Dragon Axe -->
+    <RewardSuccess type="2" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="33" />
+    <!-- Chaos Nature Bow -->
+    <RewardSuccess type="4" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="33" />
+    <!-- Chaos Lighting Staff -->
+    <RewardSuccess type="5" index="7" level="0-7" luck="-1" skill="-1" option="-1" success="33" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Fruit" success="90" value="3000000">
+    <!-- Jewel of Creation -->
+    <Ingredient iid="0" type="14" index="22" count="1" />
+    <!-- Jewel of Chaos -->
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Fruit -->
+    <RewardSuccess iid="-1" type="13" index="15" level="0-4" luck="-1" skill="-1" option="-1" success="100" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Potion Bless" success="100" value="100000">
+    <Ingredient iid="0" type="14" index="13" count="1" />
+    <RewardSuccess iid="-1" type="14" index="7" level="0" luck="0" skill="0" option="0" success="100" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Potion Soul" success="100" value="100000">
+    <Ingredient iid="0" type="14" index="14" count="1" />
+    <RewardSuccess iid="-1" type="14" index="7" level="1" luck="0" skill="0" option="0" success="100" />
+    <RewardFail iid="-1" />   
+  </Mix>
+  
+  <Mix name="Invitation of Devil Square" success="100" value="100000">
+    <Ingredient iid="0" type="14" index="17" level="1" count="1" />
+    <Ingredient iid="1" type="14" index="18" level="1" count="1" />
+    <Ingredient iid="2" type="12" index="15" count="1" />
+    <RewardSuccess iid="0" type="14" index="19" level="255" luck="0" skill="0" option="0" success="100" />
+    <RewardFail iid="-1" />   
+  </Mix>
+</ChaosBox>
+

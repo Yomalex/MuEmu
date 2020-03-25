@@ -1,0 +1,16 @@
+
+14 	23 	0 	255 0	0 	0 	0 		//Scroll of Emperor
+12	41	0	255 0	0	0	0		//Wing of Mistery"
+5	21	9	255 0	1 	1	0 		//Book of Sahamutt
+5	22	9	255 0	1	1	0 		//Book of Neil
+15 	19 	0 	255 0	0 	0 	0 		//Scroll of Drain Life
+15 	20 	0 	255 0	0 	0 	0 		//Scroll of Chain Ligthting
+15 	21 	0 	255 0	0 	0 	0 		//Scroll of Electric Surge
+15	22	0	255 0	0 	0	0 		//Scroll of Damage Reflex
+15	23	0	255 0	0 	0	0 		//Scroll of Night
+15 	24 	0 	255 0	0 	0 	0 		//Scroll of Sleep
+15 	25	0 	255 0	0 	0 	0 		//Scroll of Magic Speed Up
+15 	26 	0 	255 0	0 	0 	0 		//Scroll of Magic Defence Up
+15 	27 	0 	255 0	0 	0 	0 		//Scroll of Useless
+14      68      0       0   0   0       0       0              	//Eyes of Abyss-summoner
+end

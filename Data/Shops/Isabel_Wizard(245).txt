@@ -1,0 +1,55 @@
+// Wizard (Devias Wizard Shop) - 245 Monster.txt
+////////////////////////////////////////////////////////////////////////////////
+//Quest
+14	23	0	0	0	0	0 0	// Scroll of Emperor
+14	25	0	0	0	0	0 0	// Tear of Elf
+14	26	0	0	0	0	0 0	// Sould Shard of Wizard
+14	23	1	0	0	0	0 0	// Ring of Honor
+14	24	0	0	0	0	0 0	// Broken Sword
+14	24	1	0	0	0	0 0	// Dark Stone (BK Combo)
+14      67      0       0       0       0       0 0
+14      66      0       0       0       0       0 0
+14      65      0       0       0       0       0 0
+14      68      0       0       0       0       0 0 
+// Entradas a ilusion temple
+13      51	1	0	0	0	0 0	// ILUSION +1
+13      51	2	0	0	0	0 0	// ILUSION +2
+13      51	3	0	0	0	0 0	// ILUSION +3
+13      51	4	0	0	0	0 0	// ILUSION +4
+13      51	5	0	0	0	0 0	// ILUSION +5
+13      51	6	0	0	0	0 0	// ILUSION +6
+// Entrada al Chaos Castle
+13 	29	0 	0 	0 	0 	0 0 	//Armor of Guardman
+// Mantos para el Blood
+13 	18	1 	0 	0 	0 	0 0	//Invisibility Cloak+1
+13 	18	2	0 	0 	0 	0 0	//Invisibility Cloak+2
+13 	18 	3 	0	0	0	0 0	//Invisibility Cloak+3
+13 	18	4 	0 	0 	0	0 0	//Invisibility Cloak+4
+13 	18 	5 	0 	0 	0 	0 0	//Invisibility Cloak+5
+13 	18 	6 	0 	0 	0 	0 0	//Invisibility Cloak+6
+13 	18	7	0 	0 	0 	0 0	//Invisibility Cloak+7
+13 	18	8 	0 	0	0	0 0	//Invisibility Cloak+8
+// LLaves de devil
+14 	19 	1	0 	0	0	0 0	//Devil Key+1
+14 	19 	2 	0 	0 	0 	0 0	//Devil Key+2
+14 	19 	3 	0 	0 	0 	0 0	//Devil Key+3
+14 	19 	4 	0 	0 	0	0 0	//Devil Key+4
+14 	19 	5 	0 	0 	0 	0 0	//Devil Key+5
+14 	19 	6 	0 	0 	0 	0 0	//Devil Key+6
+14	19 	7 	0 	0 	0 	0 0	//Devil Key+7
+//Potions
+14 	0 	0 	255 	0 	0 	0 0
+14 	1 	0 	255 	0 	0 	0 0
+14 	2 	0 	255 	0 	0 	0 0
+14 	3 	0 	255 	0 	0 	0 0
+14 	4 	0 	255 	0	0 	0 0
+14 	5 	0 	255 	0 	0 	0 0
+14 	6 	0 	255 	0 	0 	0 0
+14 	8	0 	255 	0 	0 	0 0
+
+//eventos S5
+14	102	0	0	0	0	0 0	//Imperial guardian
+14	109	0	0	0	0	0 0	//Imperial guardian (Domingos)
+14	111	0	0	0	0	0 0	//double goer
+
+end

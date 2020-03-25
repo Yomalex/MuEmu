@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NPCs>
+  <NPC NPC="230" Type="Shop" Data="0" />
+  <NPC NPC="239" Type="Shop" Data="2" />
+  <NPC NPC="414" Type="Shop" Data="3" />
+  <NPC NPC="241" Type="GuildMaster" Data="0" />
+  <NPC NPC="242" Type="Shop" Data="4" />
+  <NPC NPC="243" Type="Shop" Data="5" />
+  <NPC NPC="379" Type="Shop" Data="6" />
+  <NPC NPC="251" Type="Shop" Data="7" />
+  <NPC NPC="250" Type="Shop" Data="8" />
+  <NPC NPC="245" Type="Shop" Data="9" />
+  <NPC NPC="416" Type="Shop" Data="10" />
+  <NPC NPC="371" Type="Shop" Data="11" />
+  <NPC NPC="255" Type="Shop" Data="12" />
+  <NPC NPC="244" Type="Shop" Data="13" />
+  <NPC NPC="417" Type="Shop" Data="14" />
+  <NPC NPC="248" Type="Shop" Data="15" />
+  <NPC NPC="492" Type="Shop" Data="16" />
+  <NPC NPC="415" Type="Shop" Data="19" />
+  <NPC NPC="377" Type="Shop" Data="20" />
+  <NPC NPC="376" Type="Shop" Data="21" />
+  <NPC NPC="231" Type="Shop" Data="22" />
+  <!-- King Angel -->
+  <NPC NPC="232" Type="KingAngel" Data="0" />
+  <!-- Messenger Angel -->
+  <NPC NPC="233" Type="MessengerAngel" Data="0" />
+  <NPC NPC="235" Type="Quest" Data="0" />  
+  <NPC NPC="236" Type="EventChips" Data="0" />
+  <!-- Chaos Goblin -->
+  <NPC NPC="238" Type="Window" Data="3" />
+  <NPC NPC="246" Type="Shop" Data="23" />
+  <NPC NPC="240" Type="Warehouse" Data="" />
+  <NPC NPC="253" Type="Shop" Data="1" />
+  <NPC NPC="254" Type="Shop" Data="17" />
+  <!-- Jewel Mixer -->
+  <NPC NPC="256" Type="Window" Data="9" />
+  <!-- Shadow Phantom -->
+  <NPC NPC="257" Type="Buff" Data="3" />
+  <NPC NPC="259" Type="Shop" Data="18" />
+  <!-- ChaosCard Dealer -->
+  <NPC NPC="375" Type="Window" Data="21" />
+  <!-- Priest Devin -->
+  <NPC NPC="406" Type="Quest" Data="0" />
+  <!-- BlossomGovernor -->
+  <NPC NPC="450" Type="Window" Data="22" />
+  <!-- SokcetMaster -->
+  <NPC NPC="452" Type="Window" Data="23" />
+  <!-- SokcetResearcher -->
+  <NPC NPC="453" Type="Window" Data="24" />
+  <!-- LuckyCoins Dealer -->
+  <NPC NPC="478" Type="Window" Data="32" />
+  <!-- GateKeeper Titus -->
+  <NPC NPC="479" Type="Window" Data="33" />
+  <!-- Sartigan the Angel -->
+  <NPC NPC="540" Type="Window" Data="35" />
+</NPCs>

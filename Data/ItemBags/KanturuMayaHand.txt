@@ -1,0 +1,71 @@
+//#############################################################################################################
+//Drop Settings: Maya Hand Drops
+//www.darksideofmu.com
+//#############################################################################################################
+
+//=============================================================================================================
+//ItemDropRate	 	- Drop rate of item VS Zen [x/100]
+//ExRate		- Drop rate of excellent item [x/1000]
+//=============================================================================================================
+//	EventName		DropZen		NA	NA 	NA 	  NA 		ItemDropRate	ExRate
+//=============================================================================================================
+1	
+	"MayaHandDrop"		30000000	0	0	 0	  0		50		200
+end
+
+//=============================================================================================================
+//Type			- Item.TXT index (section) of the Box
+//Index 		- Item.TXT id of the Item
+//minLvl		- Minimal Level of the Item (+1, +2 etc...)
+//maxLvl		- Maximum Level of the Item (+1, +2 etc...)
+//Skill			- Drop Item with Skill (0 - off,1 - on)
+//Luck			- Drop Item with Luck (0 - off,1 - on)
+//maxZ28		- Maximum Z28 option (1 = +4, 2 = +8, 3 = +12, etc...)
+//maxExOpt		- Maximum number of Exc option in item
+//=============================================================================================================
+//	Type	Index	minLvl	maxLvl	Skill	Luck	maxZ28	maxExOpt		
+//=============================================================================================================
+
+2																		
+										
+	4	19	0	0	1	1	2	2	//Great Reign Crossbow
+	5	9	0	0	1	1	2	2	//Dragon Soul Staff
+	0	14	0	0	1	1	2	2	//Lighting Sword
+	5	5	0	0	1	1	2	2	//Legendary Staff
+	5	19	0	0	1	1	2	2	//Aura Staff
+	4	14	0	0	1	1	2	2	//Aquagold Crossbow
+	4	16	0	0	1	1	2	2	//Saint Crossbow
+	2	9	0	0	1	1	2	2	//Master Scepter
+	2	4	0	0	1	1	2	2	//Crystal Morning Star
+	2	5	0	0	1	1	2	2	//Crystal Sword
+	6	15	0	0	1	0	1	1	//Grand Soul Shield
+	6	12	0	0	1	1	2	2	//Bronze Shield
+	6	16	0	0	1	1	2	2	//Elemental Shield
+									
+	10	16	0	0	1	1	2	2	//Black Dragon Gloves
+	11	16	0	0	1	1	2	2	//Black Dragon Boots
+									
+	10	17	0	0	1	1	2	2	//Dark Phoenix Gloves
+	11	17	0	0	1	1	2	2	//Dark Phoenix Boots
+									
+	10	18	0	0	1	1	2	2	//Grand Soul Gloves
+	11	18	0	0	1	1	2	2	//Grand Soul Boots
+									
+	8	14	0	0	1	1	2	2	//Guardian Armor
+	9	14	0	0	1	1	2	2	//Guardian Pants
+									
+	10	19	0	0	1	1	2	2	//Divine Gloves
+	11	19	0	0	1	1	2	2	//Divine Boots
+									
+	10	15	0	0	1	1	2	2	//Storm Crow Gloves
+	11	15	0	0	1	1	2	2	//Storm Crow Boots
+									
+	10	26	0	0	1	1	2	2	//Adamantine Gloves
+	9	26	0	0	1	1	2	2	//Adamantine Pants
+	11	26	0	0	1	1	2	2	//Adamantine Boots
+									
+	10	43	0	0	1	1	2	2	//Aura Boots Gloves
+	11	43	0	0	1	1	2	2	//Aura Boots Boots
+
+
+end									

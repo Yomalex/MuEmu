@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Skills>
+  <Skill Number="1" Name="Poison" Level="30" Dmg="12" Mana="42" BP="0" Distance="0" Delay="100" Skill="0" Energy="0" Classes="DarkWizard,MagicGladiator,Summoner" />
+  <Skill Number="4" Name="Fire Ball" Level="5" Dmg="8" Mana="3" BP="0" Distance="0" Delay="100" Skill="0" Energy="0" Classes="DarkWizard,MagicGladiator,Summoner" />
+  <Skill Number="17" Name="Energy Ball" Level="2" Dmg="3" Mana="1" BP="0" Distance="0" Delay="100" Skill="0" Energy="0" Classes="DarkWizard" />
+  <Skill Number="11" Name="Power Wave" Level="9" Dmg="14" Mana="5" BP="0" Distance="6" Delay="100" Skill="0" Energy="0" Classes="DarkWizard" />
+</Skills>

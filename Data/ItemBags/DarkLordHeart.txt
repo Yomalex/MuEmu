@@ -1,0 +1,194 @@
+////////////////////////////////////////////////////////////////////////////////
+// Text GS 1.00.18
+// Version 1.04
+// Translated - by Endi
+// Eventitembag15
+// Blue Heart
+// Corregido por Seba
+////////////////////////////////////////////////////////////////////////////////
+7 5 3 1 0 0 //Leather Helm+7+Skill
+7 5 4 1 0 0 //Leather Helm+8+Skill
+8 5 3 1 0 0 //Leather Armor+7+Skill
+8 5 4 1 0 0 //Leather Armor+8+Skill
+9 5 3 1 0 0 //Leather Pants+7+Skill
+9 5 4 1 0 0 //Leather Pants+8+Skill
+10 5 3 1 0 0 //Leather Gloves+7+Skill
+10 5 4 1 0 0 //Leather Gloves+8+Skill
+11 5 3 1 0 0 //Leather Boots+7+Skill
+11 5 4 1 0 0 //Leather Boots+8+Skill
+7 0 3 1 0 0 //Bronze Helm+7+Skill
+7 0 4 1 0 0 //Bronze Helm+8+Skill
+8 0 3 1 0 0 //Bronze Armor+7+Skill
+8 0 4 1 0 0 //Bronze Armor+8+Skill
+9 0 3 1 0 0 //Bronze Pants+7+Skill
+9 0 4 1 0 0 //Bronze Pants+8+Skill
+10 0 3 1 0 0 //Bronze Gloves+7+Skill
+10 0 4 1 0 0 //Bronze Gloves+8+Skill
+11 0 3 1 0 0 //Bronze Boots+7+Skill
+11 0 4 1 0 0 //Bronze Boots+8+Skill
+7 6 3 1 0 0 //Scale Helm+7+Skill
+7 6 4 1 0 0 //Scale Helm+8+Skill
+8 6 3 1 0 0 //Scale Armor+7+Skill
+8 6 4 1 0 0 //Scale Armor+8+Skill
+9 6 3 1 0 0 //Scale Pants+7+Skill
+9 6 4 1 0 0 //Scale Pants+8+Skill
+10 6 3 1 0 0 //Scale Gloves+7+Skill
+10 6 4 1 0 0 //Scale Gloves+8+Skill
+11 6 3 1 0 0 //Scale Boots+7+Skill
+11 6 4 1 0 0 //Scale Boots+8+Skill
+7 8 3 1 0 0 //Brass Helm+7+Skill
+7 8 4 1 0 0 //Brass Helm+8+Skill
+8 8 3 1 0 0 //Brass Armor+7+Skill
+8 8 4 1 0 0 //Brass Armor+8+Skill
+9 8 3 1 0 0 //Brass Pants+7+Skill
+9 8 4 1 0 0 //Brass Pants+8+Skill
+10 8 3 1 0 0 //Brass Gloves+7+Skill
+10 8 4 1 0 0 //Brass Gloves+8+Skill
+11 8 3 1 0 0 //Brass Boots+7+Skill
+11 8 4 1 0 0 //Brass Boots+8+Skill
+
+//Weapon
+0 3 3 1 0 0 //Katache+5+Skill
+0 3 4 1 0 0 //Katache+6+Skill
+0 5 3 1 0 0 //Blade+5+Skill
+0 5 4 1 0 0 //Blade+6+Skill
+0 15 3 1 0 0 //Giant Sword+5+Skill
+0 15 4 1 0 0 //Giant Sword+6+Skill
+
+//Summoner
+7 39 3 1 0 0 //Mistery Helm+7+Skill
+7 39 4 1 0 0 //Mistery Helm+8+Skill
+8 39 3 1 0 0 //Mistery Helm+7+Skill
+8 39 4 1 0 0 //Mistery Helm+8+Skill
+9 39 3 1 0 0 //Mistery Helm+7+Skill
+9 39 4 1 0 0 //Mistery Helm+8+Skill
+10 39 3 1 0 0 //Mistery Helm+7+Skill
+10 39 4 1 0 0 //Mistery Helm+8+Skill
+11 39 3 1 0 0 //Mistery Helm+7+Skill
+11 39 4 1 0 0 //Mistery Helm+8+Skill
+
+7 40 3 1 0 0 //Red Wing Helm+7+Skill
+7 40 4 1 0 0 //Red Wing Helm+8+Skill
+8 40 3 1 0 0 //Red Wing Armor+7+Skill
+8 40 4 1 0 0 //Red Wing Armor+8+Skill
+9 40 3 1 0 0 //Red Wing Pants+7+Skill
+9 40 4 1 0 0 //Red Wing Pants+8+Skill
+10 40 3 1 0 0 //Red Wing Gloves+7+Skill
+10 40 4 1 0 0 //Red Wing Gloves+8+Skill
+11 40 3 1 0 0 //Red Wing Boots+7+Skill
+11 40 4 1 0 0 //Red Wing Boots+8+Skill
+
+7 41 3 1 0 0 //Ancient Helm+7+Skill
+7 41 4 1 0 0 //Ancient Helm+8+Skill
+8 41 3 1 0 0 //Ancient Armor+7+Skill
+8 41 4 1 0 0 //Ancient Armor+8+Skill
+9 41 3 1 0 0 //Ancient Pants+7+Skill
+9 41 4 1 0 0 //Ancient Pants+8+Skill
+10 41 3 1 0 0 //Ancient Gloves+7+Skill
+10 41 4 1 0 0 //Ancient Gloves+8+Skill
+11 41 3 1 0 0 //Ancient Boots+7+Skill
+11 41 4 1 0 0 //Ancient Boots+8+Skill
+
+//DarkWizard
+7 2 3 1 0 0 //Pad Helm+7+Skill
+7 2 4 1 0 0 //Pad Helm+8+Skill
+8 2 3 1 0 0 //Pad Armor+7+Skill
+8 2 4 1 0 0 //Pad Armor+8+Skill
+9 2 3 1 0 0 //Pad Pants+7+Skill
+9 2 4 1 0 0 //Pad Pants+8+Skill
+10 2 3 1 0 0 //Pad Gloves+7+Skill
+10 2 4 1 0 0 //Pad Gloves+8+Skill
+11 2 3 1 0 0 //Pad Boots+7+Skill
+11 2 4 1 0 0 //Pad Boots+8+Skill
+7 4 3 1 0 0 //Bone Helm+7+Skill
+7 4 4 1 0 0 //Bone Helm+8+Skill
+8 4 3 1 0 0 //Bone Armor+7+Skill
+8 4 4 1 0 0 //Bone Armor+8+Skill
+9 4 3 1 0 0 //Bone Pants+7+Skill
+9 4 4 1 0 0 //Bone Pants+8+Skill
+10 4 3 1 0 0 //Bone Gloves+7+Skill
+10 4 4 1 0 0 //Bone Gloves+8+Skill
+11 4 3 1 0 0 //Bone Boots+7+Skill
+11 4 4 1 0 0 //Bone Boots+8+Skill
+7 7 3 1 0 0 //Sphinx Helm+7+Skill
+7 7 4 1 0 0 //Sphinx Helm+8+Skill
+8 7 3 1 0 0 //Sphinx Armor+7+Skill
+8 7 4 1 0 0 //Sphinx Armor+8+Skill
+9 7 3 1 0 0 //Sphinx Pants+7+Skill
+9 7 4 1 0 0 //Sphinx Pants+8+Skill
+10 7 3 1 0 0 //Sphinx Gloves+7+Skill
+10 7 4 1 0 0 //Sphinx Gloves+8+Skill
+11 7 3 1 0 0 //Sphinx Boots+7+Skill
+11 7 4 1 0 0 //Sphinx Boots+8+Skill
+
+//Staff
+5 0 3 1 0 0 //Skull Staff+5+Skill
+5 0 4 1 0 0 //Skull Staff+6+Skill
+5 1 3 1 0 0 //Angelic Staff+5+Skill
+5 1 4 1 0 0 //Angelic Staff+6+Skill
+5 2 3 1 0 0 //Serpent Staff+5+Skill
+5 2 4 1 0 0 //Serpent Staff+6+Skill
+5 3 3 1 0 0 //Lightning Staff+5+Skill
+5 3 4 1 0 0 //Lightning Staff+6+Skill
+5 16 4 1 0 0 //Red Wing Staff
+5 17 4 1 0 0 //Ancient Staff
+
+//Elf Armor
+7 10 3 1 0 0 //Vine Helm+7+Skill
+7 10 4 1 0 0 //Vine Helm+8+Skill
+8 10 3 1 0 0 //Vine Armor+7+Skill
+8 10 4 1 0 0 //Vine Armor+8+Skill
+9 10 3 1 0 0 //Vine Pants+7+Skill
+9 10 4 1 0 0 //Vine Pants+8+Skill
+10 10 3 1 0 0 //Vine Gloves+7+Skill
+10 10 4 1 0 0 //Vine Gloves+8+Skill
+11 10 3 1 0 0 //Vine Boots+7+Skill
+11 10 4 1 0 0 //Vine Boots+8+Skill
+7 11 3 1 0 0 //Silk Helm+7+Skill
+7 11 4 1 0 0 //Silk Helm+8+Skill
+8 11 3 1 0 0 //Silk Armor+7+Skill
+8 11 4 1 0 0 //Silk Armor+8+Skill
+9 11 3 1 0 0 //Silk Pants+7+Skill
+9 11 3 1 0 0 //Silk Pants+8+Skill
+10 11 3 1 0 0 //Silk Gloves+7+Skill
+10 11 4 1 0 0 //Silk Gloves+8+Skill
+11 11 3 1 0 0 //Silk Boots+7+Skill
+11 11 4 1 0 0 //Silk Boots+8+Skill
+7 12 3 1 0 0 //Wind Helm+7+Skill
+7 12 4 1 0 0 //Wind Helm+8+Skill
+8 12 3 1 0 0 //Wind Armor+7+Skill
+8 12 4 1 0 0 //Wind Armor+8+Skill
+9 12 3 1 0 0 //Wind Pants+7+Skill
+9 12 4 1 0 0 //Wind Pants+8+Skill
+10 12 3 1 0 0 //Wind Gloves+7+Skill
+10 12 4 1 0 0 //Wind Gloves+8+Skill
+11 12 3 1 0 0 //Wind Boots+7+Skill
+11 12 4 1 0 0 //Wind Boots+8+Skill
+
+//Elf weapon
+4 2 3 1 0 0 //Fairy Bow+5+Skill
+4 2 4 1 0 0 //Fairy Bow+6+Skill
+4 3 3 1 0 0 //Battle Bow+5+Skill
+4 3 4 1 0 0 //Battle Bow+6+Skill
+4 4 3 1 0 0 //Tiger Bow+5+Skill
+4 4 4 1 0 0 //Tiger Bow+6+Skill
+4 5 3 1 0 0 //Light Bow+5+Skill
+4 5 4 1 0 0 //Light Bow+6+Skill
+
+//Lord
+7 25 3 1 0 0 //Embroidered Helm+7+Skill
+7 25 4 1 0 0 //Embroidered Helm+8+Skill
+8 25 3 1 0 0 //Embroidered Armor+7+Skill
+8 25 4 1 0 0 //Embroidered Armor+8+Skill
+9 25 3 1 0 0 //Embroidered Pants+7+Skill
+9 25 4 1 0 0 //Embroidered Pants+8+Skill
+10 25 3 1 0 0 //Embroidered Gloves+7+Skill
+10 25 4 1 0 0 //Embroidered Gloves+8+Skill
+11 25 3 1 0 0 //Embroidered Boots+7+Skill
+11 25 4 1 0 0 //Embroidered Boots+8+Skill
+
+//Mace
+2 8 3 1 0 0 //Skeleton Mace+5+Skill
+2 8 4 1 0 0 //Skeleton Mace+6+Skill
+
+

@@ -1,0 +1,46 @@
+////////////////////////////////////////////////////////////////////////////////
+// Text GS 1.00.18
+// Version 1.04
+// Translated - by Endi
+// Eventitembag20
+// Hiden Treasure Box
+// Nose que es esto
+////////////////////////////////////////////////////////////////////////////////
+
+// MapIndex Drop Flag Min Monster Level Max MonsterLevel                 
+0
+	0	0	0	1000
+	1	0	0	1000
+	2	0	0	1000
+	3	0	0	1000
+	4	0	0	1000
+	5	0	0	1000
+	6	0	0	1000
+	7	0	0	1000
+	8	0	0	1000
+	9	0	0	1000
+	10	0	0	1000
+end
+
+// EventName DropZen EventItemType EventItemIndex EventItemLevel EventItemDropRate ItemDropRate ExItemDropRate
+1
+	"Hiden Treasure Box"	1000000	0	0	0	0	10	10
+end
+
+//	Type	Index	minLvl	maxLvl	Skill	Luck	maxZ28	maxExOpt		
+//=========================================================================================
+2
+	
+
+	13	8	0	0	0	0	1	1	//	Ring of Ice
+	13	9	0	0	0	0	1	1	//	Ring of Poison
+	13	12	0	0	0	0	1	1	//	Pendant of Lightning
+	13	13	0	0	0	0	1	1	//	Pendant of Fire
+	13	21	0	0	0	0	1	1	//	Ring of Fire
+	13	22	0	0	0	0	1	1	//	Ring of Earth
+	13	23	0	0	0	0	1	1	//	Ring of Wind
+	13	25	0	0	0	0	1	1	//	Pendant of Ice
+	13	26	0	0	0	0	1	1	//	Pendant of Wind
+	13	27	0	0	0	0	1	1	//	Pendant of Water
+	13	28	0	0	0	0	1	1	//	Pendant of Ability
+end

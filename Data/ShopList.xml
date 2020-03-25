@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Shops>
+  <Shop Shop="0" ItemList="Shops/Alex(230).txt" />
+  <Shop Shop="1" ItemList="Shops/Amy_Potion_Girl(253).txt" />
+  <Shop Shop="2" ItemList="Shops/Arena_Guard(239).txt" />
+  <Shop Shop="3" ItemList="Shops/Elegance_Allen(414).txt" />
+  <Shop Shop="4" ItemList="Shops/Elf_Lala(242).txt" />
+  <Shop Shop="5" ItemList="Shops/Eo_Craftsman(243).txt" />
+  <Shop Shop="6" ItemList="Shops/Fireworks_Merchant(379).txt" />
+  <Shop Shop="7" ItemList="Shops/Hanzo_Blacksmith(251).txt" />
+  <Shop Shop="8" ItemList="Shops/Harold_Merchant(250).txt" />
+  <Shop Shop="9" ItemList="Shops/Isabel_Wizard(245).txt" />
+  <Shop Shop="10" ItemList="Shops/Leah(416).txt" />
+  <Shop Shop="11" ItemList="Shops/Leo_Helper(371).txt" />
+  <Shop Shop="12" ItemList="Shops/Liaman_Barmaid(255).txt" />
+  <Shop Shop="13" ItemList="Shops/Lumen_Barmaid(244).txt" />
+  <Shop Shop="14" ItemList="Shops/Marseille(417).txt" />
+  <Shop Shop="15" ItemList="Shops/Martin_Merchant(248).txt" />
+  <!--<Shop Shop="16" ItemList="Shops/Moss(492).txt" />-->
+  <Shop Shop="17" ItemList="Shops/Pasi_Mage(254).txt" />
+  <Shop Shop="18" ItemList="Shops/Priest_Reira(259).txt" />
+  <Shop Shop="19" ItemList="Shops/Silvia(415).txt" />
+  <Shop Shop="20" ItemList="Shops/Supply_Officer_Angella(377).txt" />
+  <Shop Shop="21" ItemList="Shops/Supply_Officer_Pamela(376).txt" />
+  <Shop Shop="22" ItemList="Shops/Thompson_Merchant(231).txt" />
+  <Shop Shop="23" ItemList="Shops/Zienna_Merchant(246).txt" />
+  <!-- <Shop Shop="24" ItemList="Shops/" />
+  <Shop Shop="25" ItemList="Shops/" />
+  <Shop Shop="26" ItemList="Shops/" />
+  <Shop Shop="27" ItemList="Shops/" />
+  <Shop Shop="28" ItemList="Shops/" />
+  <Shop Shop="29" ItemList="Shops/" />
+  <Shop Shop="30" ItemList="Shops/" />
+  <Shop Shop="31" ItemList="Shops/" />
+  <Shop Shop="32" ItemList="Shops/" />
+  <Shop Shop="" ItemList="Shops/" /> -->
+</Shops>

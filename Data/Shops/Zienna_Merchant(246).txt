@@ -1,0 +1,26 @@
+// Set Dragon
+8 	15 	9 	255 0	1 	1 	0 	//Storm Crow Armor
+8 	20 	9 	255 0	1 	1 	0 	//Thunder Hawk Armor
+8 	23 	9 	255 0	1 	1 	0 	//Hurricane Armor
+8 	37 	9 	255 0	1 	1 	0 	//Valiant Armor
+9 	15 	9 	255 0	1 	1 	0 	//Storm Crow Pants
+9 	20 	9 	255 0	1 	1 	0 	//Thunder Hawk Pants
+9 	23 	9 	255 0	1 	1 	0 	//Hurricane Pants
+9 	37 	9 	255 0	1 	1 	0 	//Valiant Pants
+10 	15 	9 	255 0	1 	1 	0 	//Storm Crow Gloves
+10 	20 	9 	255 0	1 	1 	0 	//Thunder Hawk Gloves
+10 	23 	9 	255 0	1 	1 	0 	//Hurricane Gloves
+10 	37 	9 	255 0	1 	1 	0 	//Valiant Gloves
+11 	15 	9 	255 0	1 	1 	0 	//Storm Crow Boots
+11 	20 	9 	255 0	1 	1 	0 	//Thunder Hawk Boots
+11 	23 	9 	255 0	1 	1 	0 	//Hurricane Boots
+11 	37 	9 	255 0	1 	1 	0 	//Valiant Boots
+0 	23 	9 	255 0	1 	0 	0 	//Explosion Blade
+15 	29 	0 	255 0	0 	0 	0 	//Scroll of Lighting Storm
+0 	31 	9 	255 0	1 	0 	0 	//Rune Blade
+0 	21 	9 	255 0	1 	0 	0 	//Dark Reign Blade
+12 	47 	0 	220 0	0 	0 	0 	//Orb of Sword Slash
+12 	16 	0 	255 0	0 	0 	0 	//Power Slash
+12 	47 	0 	220 0	0 	0 	0 	//Orb of Sword Slash
+12 	16 	0 	255 0	0 	0 	0 	//Power Slash
+end

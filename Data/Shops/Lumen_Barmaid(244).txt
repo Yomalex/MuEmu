@@ -1,0 +1,26 @@
+// Bar de Davias
+13 	8 	0 	255 0 	0 	0 	0 		//Ring of Ice
+13 	9 	0 	255 0	0 	0 	0 		//Ring of Poison
+13 	21 	0 	255 0	0 	0 	0 		//Ring of Fire
+13 	22 	0 	255 0	0 	0 	0 		//Ring of Earth
+13 	23 	0 	255 0	0 	0 	0 		//Ring of Wind
+13 	24 	0 	255 0	0 	0 	0 		//Ring of Magic
+13 	12 	0 	255 0	0 	0 	0 		//Pendant of Lightning
+13 	13 	0 	255 0	0 	0 	0 		//Pendant of Fire
+13 	25 	0 	255 0	0 	0 	0 		//Pendant of Ice
+13 	26 	0 	255 0	0 	0 	0 		//Pendant of Wind
+13 	27 	0 	255 0	0 	0 	0 		//Pendant of Water
+13 	28 	0 	255 0	0 	0 	0 		//Pendant of Ability
+13 	10 	0 	255 0	0 	0 	0 		//Budge Dragon Transformation Ring
+13 	10 	1 	255 0	0 	0 	0 		//Giant Transformation Ring
+13 	10 	2 	255 0	0 	0 	0 		//Skeleton Transformation Ring
+13 	10 	3 	255 0	0 	0 	0 		//Thunder Lich Transformation Ring
+13 	10 	4 	255 0	0 	0 	0 		//Poison Bull Transformation Ring
+13 	10 	5 	255 0	0 	0 	0 		//Death Cow Transformation Ring
+13 	39 	0 	255 0	0 	0 	0 		//Elite Skeleton Warrior Ring
+13 	40 	0 	255 0	0 	0 	0 		//Jaekohraenteonbyeonsinbanji
+13 	41 	0 	255 0	0 	0 	0 		//Christmas Ring
+13 	42 	0 	255 0	0 	0 	0 		//Gm Ring
+13 	68 	0 	255 0	0 	0 	0 		//Snowman Ring
+13 53 0 0 0 0 0 0 //Feather of Condor
+end

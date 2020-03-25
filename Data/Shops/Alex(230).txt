@@ -1,0 +1,13 @@
+// Alex
+// type index level
+
+
+3 6 3 0 0 1 1 0 // Double Poleaxe
+3 1 3 0 0 1 1 0 //Spear
+3 3 3 0 0 1 1 0 //giant Trident
+3 7 3 0 1 1 1 0 //Berdysh
+3 4 3 0 1 1 1 0 //Serpent Spear
+3 0 3 0 1 1 1 0 //Light Spear
+0 10 3 0 1 1 1 0 //Light Saber
+2 3 3 0 1 1 1 0 //Great Hammer
+end

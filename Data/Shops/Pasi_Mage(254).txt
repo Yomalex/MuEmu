@@ -1,0 +1,38 @@
+// Parsi mage
+// type index level
+7 	2 	9 	0 0 	0 	1 	0 		//Pad Helm
+7 	3 	9 	0 0 	0 	1 	0 		//Legendary Helm
+15 	3 	0 	0 0 	0 	0 	0 		//Fireball Spell
+15 	10	0 	0 0 	0 	0 	0 		//Power Wave Spell
+15 	1 	0 	0 0 	0 	0 	0 		//Meteorite Spell
+15 	5 	0 	0 0 	0 	0 	0 		//Teleport Spell
+8 	2 	9 	0 0 	0	1 	0 		//Pad Armor
+8 	3 	9 	0 0 	0 	1 	0 		//Legendary Armor
+15 	2 	0 	0 0 	0 	0 	0 		//Lightning Spell
+15 	6 	0 	0 0	0 	0 	0 		//Ice Spell
+15 	0 	0 	0 0 	0 	0 	0 		//Poison Spell
+9 	2 	9 	0 0 	0 	1 	0 		//Pad Pants
+9 	3 	9 	0 0 	0 	1 	0 		//Legendary Pants
+15 	4 	0 	0 0  	0 	0 	0 		//Flame Spell
+15 	8 	0 	0 0  	0 	0 	0 		//Evil Spirits Spell
+15 	9 	0 	0 0  	0 	0 	0 		//Hell Fire Spell
+15 	11 	0 	0 0 	0 	0 	0 		//Aqua Beam Spell
+10 	2 	9 	0 0  	0 	1 	0 		//Pad Gloves
+10 	3 	9 	0 0 	0 	1 	0 		//Legendary Gloves
+15 	12 	0 	0 0  	0 	0 	0 		//Blast Spell
+15 	13 	0 	0 0  	0 	0 	0 		//Scroll of Inferno
+15 	14 	0 	0 0 	0 	0 	0 		//Scroll of Mass Teleport
+15 	15 	0 	0 0  	0 	0 	0 		//Scroll of Mana Shield
+15 	16 	0 	0 0  	0 	0 	0 		//Scroll of Decay
+11 	2 	9 	0 0  	0 	1 	0 		//Pad Boots
+11 	3 	9 	0 0  	0 	1 	0 		//Legendary Boots
+15 	17 	0 	0 0  	0 	0 	0 		//Scroll of Ice Storm
+15 	18 	0 	0 0  	0 	0 	0 		//Scroll of Nova
+15 	28 	0 	0 0 	0 	0 	0 		//Scroll of Electic Storm
+15 	29 	0 	0 0  	0 	0 	0 		//Scroll of Lighting Storm
+5 	12 	11 	0 0  	1 	1 	0		//Grand Viper Staff
+5 	13	9 	0 0  	1 	1 	0		//Platina Wing Staff
+12 	1 	9	0 0 	0 	0 	0 		//Heaven Wings
+
+end
+

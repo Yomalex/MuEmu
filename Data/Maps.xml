@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Maps>
+  <Map Map="0" AttributteFile="./Data/Terrains/Lorencia.att" />
+  <Map Map="1" AttributteFile="./Data/Terrains/Dungeon.att" />
+  <Map Map="2" AttributteFile="./Data/Terrains/Devias.att" />
+  <Map Map="3" AttributteFile="./Data/Terrains/Noria.att" />
+  <Map Map="4" AttributteFile="./Data/Terrains/LostTower.att" />
+  <Map Map="5" AttributteFile="./Data/Terrains/Exile.att" />
+  <Map Map="6" AttributteFile="./Data/Terrains/Stadium.att" />
+  <Map Map="7" AttributteFile="./Data/Terrains/Atlans.att" />
+  <Map Map="8" AttributteFile="./Data/Terrains/Tarkan.att" />
+  <Map Map="9" AttributteFile="./Data/Terrains/DevilSquare.att" />
+  <Map Map="10" AttributteFile="./Data/Terrains/Icarus.att" />
+  <Map Map="11" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="12" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="13" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="14" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="15" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="16" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="17" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="18" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="19" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="20" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="21" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="22" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="23" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="24" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="25" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="26" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="27" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="28" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="29" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="30" AttributteFile="./Data/Terrains/ValleyofLoren.att" />
+  <Map Map="31" AttributteFile="./Data/Terrains/LandofTrial.att" />
+  <Map Map="32" AttributteFile="./Data/Terrains/DevilSquare.att" />
+  <Map Map="33" AttributteFile="./Data/Terrains/Aida.att" />
+  <Map Map="34" AttributteFile="./Data/Terrains/Crywolf.att" />
+  <!-- <Map Map="35" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <Map Map="36" AttributteFile="./Data/Terrains/Kalima.att" />
+  <Map Map="37" AttributteFile="./Data/Terrains/Kantru1.att" />
+  <Map Map="38" AttributteFile="./Data/Terrains/Kantru2.att" />
+  <Map Map="39" AttributteFile="./Data/Terrains/Kantru3.att" />
+  <Map Map="40" AttributteFile="./Data/Terrains/Silent.att" />
+  <Map Map="41" AttributteFile="./Data/Terrains/T42.att" />
+  <Map Map="42" AttributteFile="./Data/Terrains/T43.att" />
+  <!-- <Map Map="43" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="44" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <Map Map="45" AttributteFile="./Data/Terrains/IllusionTemple.att" />
+  <Map Map="46" AttributteFile="./Data/Terrains/IllusionTemple.att" />
+  <Map Map="47" AttributteFile="./Data/Terrains/IllusionTemple.att" />
+  <Map Map="48" AttributteFile="./Data/Terrains/IllusionTemple.att" />
+  <Map Map="49" AttributteFile="./Data/Terrains/IllusionTemple.att" />
+  <Map Map="50" AttributteFile="./Data/Terrains/IllusionTemple.att" />
+  <Map Map="51" AttributteFile="./Data/Terrains/Elbeland.att" />
+  <Map Map="52" AttributteFile="./Data/Terrains/BloodCastle.att" />
+  <Map Map="53" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <!-- <Map Map="54" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="55" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="56" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <Map Map="57" AttributteFile="./Data/Terrains/Raklion.att" />
+  <Map Map="58" AttributteFile="./Data/Terrains/Buhwajang.att" />
+  <!-- <Map Map="59" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="60" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="61" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <Map Map="62" AttributteFile="./Data/Terrains/Santa.att" />
+  <Map Map="63" AttributteFile="./Data/Terrains/Vulcan.att" />
+  <Map Map="64" AttributteFile="./Data/Terrains/Terrain64.att" />
+</Maps>
+

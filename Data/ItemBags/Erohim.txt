@@ -1,0 +1,87 @@
+//#############################################################################################################
+//Drop Settings: Erohim Drops
+//www.darksideofmu.com
+//#############################################################################################################
+
+//=============================================================================================================
+//ItemDropRate	 	- Drop rate of item VS Zen [x/100]
+//ExRate		- Drop rate of excellent item [x/1000]
+//=============================================================================================================
+//	EventName		DropZen		NA	NA 	NA 	  NA 		ItemDropRate	ExRate
+//=============================================================================================================
+1	
+	"ErohimBossDrop"	10000000	0	0	 0	  0		10		50
+end
+
+//=============================================================================================================
+//Type			- Item.TXT index (section) of the Box
+//Index 		- Item.TXT id of the Item
+//minLvl		- Minimal Level of the Item (+1, +2 etc...)
+//maxLvl		- Maximum Level of the Item (+1, +2 etc...)
+//Skill			- Drop Item with Skill (0 - off,1 - on)
+//Luck			- Drop Item with Luck (0 - off,1 - on)
+//maxZ28		- Maximum Z28 option (1 = +4, 2 = +8, 3 = +12, etc...)
+//maxExOpt		- Maximum number of Exc option in item
+//=============================================================================================================
+//	Type	Index	minLvl	maxLvl	Skill	Luck	maxZ28	maxExOpt		
+//=============================================================================================================
+2
+	0	31	0	0	1	1	1	2	//Excellent Rune Blade
+	0	17	0	0	1	1	1	2	//Excellent Spirit Sword
+	0	18	0	0	1	1	1	2	//Excellent Thunder Blade
+
+	2	5	0	0	1	1	1	2	//Excellent Crystal Sword
+	2	10	0	0	1	1	1	2	//Excellent Great Scepter
+	2	7	0	0	1	1	1	2	//Excellent Elemental Mace
+	3	9	0	0	1	1	1	2	//Excellent Bill of Balrog
+	3	10	0	0	1	1	1	2	//Excellent Dragon Spear
+	4	16	0	0	1	1	1	2	//Excellent Saint Crossbow
+	4	17	0	0	1	1	1	2	//Excellent Celestial Bow
+	4	19	0	0	1	1	1	2	//Excellent GreatRain Crossbow
+	5	8	0	0	1	1	1	2	//Excellent Unicorn Staff
+	5	18	0	0	1	1	1	2	//Excellent Black Rose Staff
+	5	9	0	0	1	1	1	2	//Excellent Crystal Staff
+	6	14	0	0	1	1	1	2	//Excellent Legendary Shield
+	6	12	0	0	1	1	1	2	//Excellent Bronze Shield
+	6	13	0	0	1	1	1	2	//Excellent Chaos Dragon Shield
+
+	13	23	0	4	1	1	1	2	//Ring of Wind
+	13	27	0	4	1	1	1	2	//Pendant of Water
+	13	24	0	4	1	1	1	2	//Ring of Magic
+	13	28	0	4	1	1	1	2	//Pendant of Ability
+
+	7	21	6	9	1	1	1	2	//Red Phoenix Helm
+									//Hurricane Helmet [MG]
+	7	22	6	9	1	1	1	2	//DaRK Side Helm
+	7	28	6	9	1	1	1	2	//Adamantine Mask
+	7	24	6	9	1	1	1	2	//Nature Helmet
+	7	43	6	9	1	1	1	2	//Aura Armor
+
+	8	21	6	9	1	1	1	2	//Red Phoenix Armor
+	8	22	6	9	1	1	1	2	//DaRK Side Armor
+	8	23	6	9	1	1	1	2	//Hurricane Armor
+	8	24	6	9	1	1	1	2	//Nature Armor
+	8	28	6	9	1	1	1	2	//Adamantine Armor
+	8	43	6	9	1	1	1	2	//Aura Armor
+
+	9	21	6	9	1	1	1	2	//Red Phoenix Pants
+	9	22	6	9	1	1	1	2	//DaRK Side Pants
+	9	23	6	9	1	1	1	2	//Hurricane Pants
+	9	24	6	9	1	1	1	2	//Nature Pants
+	9	28	6	9	1	1	1	2	//Adamantine Pants
+	9	43	6	9	1	1	1	2	//Aura Armor
+
+	10	21	6	9	1	1	1	2	//Red Phoenix Gloves
+	10	22	6	9	1	1	1	2	//DaRK Side Gloves
+	10	23	6	9	1	1	1	2	//Hurricane Gloves
+	10	24	6	9	1	1	1	2	//Nature Gloves
+	10	28	6	9	1	1	1	2	//Adamantine Gloves
+	10	43	6	9	1	1	1	2	//Aura Armor
+
+	11	21	6	9	1	1	1	2	//Red Phoenix Boots
+	11	22	6	9	1	1	1	2	//DaRK Side Boots
+	11	23	6	9	1	1	1	2	//Hurricane Boots
+	11	24	6	9	1	1	1	2	//Nature Boots
+	11	28	6	9	1	1	1	2	//Adamantine Boots
+	11	43	6	9	1	1	1	2	//Aura Armor
+end

@@ -1,0 +1,41 @@
+//Box Kundum +1
+7 2 0 0  1 1 //Pad Helm
+8 2 0 0  1 1 //Pad Armor
+9 2 0 0  1 1 //Pad Pants
+10 2 0 0 1 1 //Pad Gloves
+11 2 0 0 1 1 //Pad Boots
+
+0 0 0 0  1 1 //Kris
+0 1 0 0  1 1 //Short Sword
+0 2 0 0  1 1 //Rapier
+1 0 0 0  1 1 //Small Axe
+1 1 0 0  1 1 //Hand Axe
+2 0 0 0  1 1 //Mace
+3 0 0 0  1 1 //Light Spear
+3 1 0 0  1 1 //Spear
+4 1 0 0  1 1 //Bow
+4 9 0 0  1 1 //Gold Crossbow
+5 0 0 0  1 1 //Skull Staff
+
+7 5 0  0 1 1 //Leather Helm
+8 5 0  0 1 1 //Leather Armor
+9 5 0  0 1 1 //Leather Pants
+10 5 0  0 1 1 //Leather Gloves
+11 5 0  0 1 1 //Leather Boots
+
+7 10 0  0 1 1 //Vine Helm
+8 10 0  0 1 1 //Vine Armor
+9 10 0  0 1 1 //Vine Pants
+10 10 0 0 1 1 //Vine Gloves
+11 10 0 0 1 1 //Vine Boots
+
+0 2 0 0	1 1 //Rapier
+0 3 0 0	1 1 //Katana
+0 4 0 0	1 1 //Sword of Assassin
+
+7 39 0 0 1 1 //Mistery Helm
+8 39 0 0 1 1 //Mistery Armor
+9 39 0 0 1 1 //Mistery Pants
+10 39 0 0 1 1 //Mistery Gloves
+11 39 0 0 1 1 //Mistery Boots
+5 14 0 0 1 1 //Mistery Staff

@@ -1,0 +1,58 @@
+7 9 0 0 1 1  //Plate Helm
+9 9 0 0 1 1  //Plate Pants
+10 9 0 0 1 1  //Plate Gloves
+11 9 0 0 1 1  //Plate Boots
+
+7 8 0 0  1 1 //Brass Helm
+8 8 0 0  1 1 //Brass Armor
+9 8 0 0  1 1 //Brass Pants
+10 8 0  0 1 1 //Brass Gloves
+11 8 0  0 1 1 //Brass Boots
+
+8 7 0 0 1 1  //Sphinx Armor
+9 7 0 0 1 1  //Sphinx Pants
+10 7 0 0 1 1  //Sphinx Gloves
+11 7 0 0 1 1  //Sphinx Boots
+
+
+7 13 0 0 1 1  //Spirit Helm
+8 13 0 0 1 1  //Spirit Armor
+9 13 0 0 1 1  //Spirit Pants
+10 13 0 0 1 1 //Spirit Gloves
+11 13 0 0 1 1 //Spirit Boots
+
+
+7 42 0 0 1 1 //Black Rose Helm
+8 42 0 0 1 1 //Black Rose Armor
+9 42 0 0 1 1 //Black Rose Pants
+10 42 0 0 1 1 //Black Rose Gloves
+11 42 0 0 1 1 //Black Rose Boot
+
+7 25 0 0 1 1 //Ligth Plate Helm
+8 25 0 0 1 1 //Ligth Plate Armor
+9 25 0 0 1 1 //Ligth Plate Pants
+10 25 0 0 1 1 //Ligth Plate Gloves
+11 25 0 0 1 1 //Ligth Plate Boots
+
+8 15 0 0 1 1 //Unicorn Armor
+9 15 0 0 1 1 //Unicorn Pants
+10 15 0	0 1 1 //Unicorn Gloves
+11 15 0	0 1 1 //Unicorn Boots
+
+
+5 18 0 0 1 1 //Black Rose Staff
+5 5 0 0 1 1 //Legendary Staff
+
+6 13 0 0 1 1 //Dragon Shield
+5 5 0 0	1 1 //Silver Bow
+4 13 0 0 1 1 //Bluewing Crossbow
+2 4 0 0	1 1 //Crystal Morning Star
+3 9 0 0	1 1 //Bill of Balrog
+
+12 15 0	0 0 0	//Jewel of Chaos
+14 14 0	0 0 0	//Jewel of Soul
+14 13 0	0 0 0	//Jewel of Bless
+14 16 0	0 0 0	//Jewel of Life
+
+
+

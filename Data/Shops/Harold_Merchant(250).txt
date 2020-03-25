@@ -1,0 +1,32 @@
+// Peddler
+// type index level
+
+7 	26 	9 	255 0	1 	1 	0 		//Adamantine Mask
+7 	27 	9 	255 0	1 	1 	0 		//Dark Steel Mask
+7 	28 	9 	255 0	1 	1 	0 		//Dark Master Mask
+2 	8 	9 	255 0	1 	1 	0   		//Battle Scepter
+2 	9 	9 	255 0	1 	1 	0   		//Master Scepter
+8 	26 	9 	255 0	1 	1 	0  		//Adamantine Armor
+8 	27 	9 	255 0	1 	1 	0  		//Dark Steel Armor
+8 	28 	9 	255 0	1 	1 	0  		//Dark Master Armor
+2 	10 	9 	255 0	1 	1 	0  		//Great Scepter
+2 	11 	9 	255 0	1 	1 	0  		//Lord Scepter
+9 	26 	9 	255 0	1 	1 	0  		//Adamantine Pants
+9 	27 	9 	255 0	1 	1 	0  		//Dark Steel Pants
+9 	28 	9 	255 0	1 	1 	0  		//Dark Master Pants
+10 	26 	9 	255 0	1 	1 	0  		//Adamantine Gloves
+10 	27 	9 	255 0	1 	1 	0  		//Dark Steel Gloves
+10 	28 	9 	255 0	1 	1 	0  		//Dark Master Gloves
+2 	12 	9 	255 0	1 	1 	0  		//Great Lord Scepter
+2 	14 	9 	255 0	1 	1 	0  		//Solay Scepter
+11 	26 	9 	255 0	1 	1 	0  		//Adamantine Boots
+11 	27 	9 	255 0	1 	1 	0  		//Dark Steel Boots
+11 	28 	9 	255 0	1 	1 	0  		//Dark Master Boots
+12 	21 	0 	255 0	0 	0 	0  		//FireBrust Spell
+12 	23 	0 	255 0	0 	0 	0  		//Critical Damage Spell
+12 	24 	0 	255 0	0 	0 	0  		//Electric Spark Spell
+12 	22 	0 	255 0	0 	0 	0  		//Summon Spell
+12 	35 	0 	255 0	0 	0 	0  		//Fire Scream Scroll
+12 	48 	0 	255 0	0 	0 	0  		//Scroll Of Birds
+
+end

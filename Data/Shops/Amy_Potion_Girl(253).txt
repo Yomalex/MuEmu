@@ -1,0 +1,25 @@
+// Potion Girl
+// type index level
+14 	0 	0 	255 0	0 	0 	0 		//Apple
+14 	8 	0 	255 0	0 	0 	0 		//Antidote
+14 	1 	0 	255 0	0	0 	0 		//Small Healing Potion
+14 	2 	0 	255 0	0 	0 	0 		//Medium Healing Potion
+14 	3 	0 	255 0	0 	0 	0 		//Large Healing Potion
+14 	4 	0 	255 0	0 	0 	0 		//Small Mana Potion
+14 	5 	0 	255 0	0 	0 	0 		//Medium Mana Potion
+14 	6 	0 	255 0	0 	0 	0 		//Large Mana Potion
+14 	35 	0 	255 0	0 	0 	0 		//Small SD Potion
+14 	36 	0 	255 0	0 	0 	0 		//Medium SD Potion
+14 	37 	0 	255 0	0 	0 	0 		//Large SD Potion
+14 	38 	0 	255 0	0 	0 	0 		//Small AG Potion
+14 	39 	0 	255 0	0 	0 	0 		//Medium AG Potion
+14 	40 	0 	255 0	0 	0 	0 		//Large AG Potion
+14 	9 	0 	255 0	0 	0	0 		//Alcohol
+14 	7 	0 	255 0	0 	0 	0 		//Potion of Bless
+14 	7 	1 	255 0	0 	0 	0 		//Potion of Soul
+14 	20 	0 	255 0	0 	0 	0 		//Remedy of Love
+13 	0 	0 	255 0	0 	0 	0 		//Guardian Angel
+13 	1 	0 	255 0	0 	0 	0 		//Imp
+13 	2 	0 	255 0	0	0	0 		//Horn of Uniria
+13 	3 	0 	255 0	0 	0 	0 		//Horn of Dinorant
+end

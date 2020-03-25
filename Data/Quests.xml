@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Type="0" Index="0" SubType="2" NPC="235" Name="Find the 'Scroll of Emperor'!">
+    <Detail Classes="DarkWizard,DarkKnight,FaryElf,Summoner">
+      <NeededItem Type="14" Index="23" Level="0" Count="1" Monster="40-60" Drop="10" />
+      <Reward Type="Statup" SubType="100" />
+      <Message LinkConditionIndex="0" BeforeReg="52" AfterReg="54" CompleteQuest="55" ClearQuest="56" />
+    </Detail>
+    <Detail Classes="MagicGladiator,DarkLord">
+      <NeededItem Type="14" Index="23" Level="0" Count="1" Monster="40-60" Drop="10" />
+      <Reward Type="Statup" SubType="150" />
+      <Message LinkConditionIndex="0" BeforeReg="52" AfterReg="54" CompleteQuest="55" ClearQuest="56" />
+    </Detail>
+    <!-- <Condition Index="1" NeededQuest="0" MinLevel="10000" MaxLevel="10000" NeedStr="0" Cost="0" Message="73" /> -->
+    <Condition Index="-1" NeededQuest="-1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="1000000" Message="51" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="150" MaxLevel="0" NeedStr="0" Cost="0" Message="50" />
+  </Quest>
+  
+  
+  <Quest Type="0" Index="1" SubType="2" NPC="235" Name="Three Treasures of Mu">
+    <Detail Classes="DarkKnight">
+      <NeededItem Type="14" Index="24" Level="0" Count="1" Monster="62-76" Drop="10" />
+      <Reward Type="Changeup" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="60" AfterReg="61" CompleteQuest="62" ClearQuest="72" />
+    </Detail>
+    <Detail Classes="FaryElf">
+      <NeededItem Type="14" Index="25" Level="0" Count="1" Monster="62-76" Drop="10" />
+      <Reward Type="Changeup" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="64" AfterReg="65" CompleteQuest="66" ClearQuest="72" />
+    </Detail>
+    <Detail Classes="DarkWizard">
+      <NeededItem Type="14" Index="26" Level="0" Count="1" Monster="62-76" Drop="10" />
+      <Reward Type="Changeup" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="67" AfterReg="68" CompleteQuest="69" ClearQuest="72" />
+    </Detail>
+    <Detail Classes="Summoner">
+      <NeededItem Type="14" Index="68" Level="0" Count="1" Monster="62-76" Drop="10" />
+      <Reward Type="Changeup" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="67" AfterReg="68" CompleteQuest="69" ClearQuest="72" />
+    </Detail>
+    <Condition Index="-1" NeededQuest="0" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="2000000" Message="71" />
+  </Quest>
+  
+  <Quest Type="0" Index="2" SubType="2" NPC="229" Name="Gain'Hero status">
+    <Detail Classes="SoulMaster,HighElf,BlodySummoner">
+      <NeededItem Type="14" Index="23" Level="1" Count="1" Monster="72-108" Drop="10" />
+      <Reward Type="Plusstat" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="102" AfterReg="105" CompleteQuest="108" ClearQuest="113" />
+    </Detail>
+    <Detail Classes="BladeKnight">
+      <NeededItem Type="14" Index="23" Level="1" Count="1" Monster="72-108" Drop="10" />
+      <Reward Type="Plusstat" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="102" AfterReg="105" CompleteQuest="130" ClearQuest="142" />
+    </Detail>
+    <Condition Index="-1" NeededQuest="-1" MinLevel="220" MaxLevel="0" NeedStr="0" Cost="0" Message="100" />
+    <Condition Index="-1" NeededQuest="1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="116" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="150" MaxLevel="0" NeedStr="0" Cost="3000000" Message="116" />
+  </Quest>
+  
+  <Quest Type="0" Index="3" SubType="2" NPC="229" Name="Secret of'Dark Stone'">
+    <Detail Classes="BladeKnight">
+      <NeededItem Type="14" Index="24" Level="1" Count="1" Monster="72-108" Drop="10" />
+      <Reward Type="Comboskill" SubType="0" />
+      <Message LinkConditionIndex="0" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+    </Detail>
+    <Condition Index="-1" NeededQuest="-1" MinLevel="220" MaxLevel="0" NeedStr="0" Cost="0" Message="115" />
+    <Condition Index="-1" NeededQuest="2" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="117" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="150" MaxLevel="0" NeedStr="0" Cost="2000000" Message="119" />
+  </Quest>
+  
+  <Quest Type="0" Index="4" SubType="2" NPC="406" Name="Certificate of Strength!">
+    <Detail Classes="SoulMaster,HighElf,BlodySummoner">
+      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
+      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
+      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
+      <Reward Type="Statup" SubType="10" />
+      <Message LinkConditionIndex="1" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+    </Detail>
+    <Detail Classes="BladeKnight">
+      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
+      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
+      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
+      <Reward Type="Statup" SubType="10" />
+      <Message LinkConditionIndex="2" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+    </Detail>
+    <Detail Classes="BladeKnight">
+      <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
+      <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
+      <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
+      <Reward Type="Statup" SubType="10" />
+      <Message LinkConditionIndex="0" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+    </Detail>
+    <Condition Index="1" NeededQuest="2" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="166" />
+    <Condition Index="2" NeededQuest="3" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="166" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="5000000" Message="146" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="380" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+  </Quest>
+</Quests>
