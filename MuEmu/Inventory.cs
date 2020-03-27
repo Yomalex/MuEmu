@@ -141,6 +141,8 @@ namespace MuEmu
                     if (pos < (byte)StorageID.Inventory)
                     {
                         sto.Add((Equipament)pos, item);
+                        _defense += item.Defense;
+                        _defenseRate += item.DefenseRate;
                         break;
                     }
                 }
@@ -206,6 +208,8 @@ namespace MuEmu
             _defense += item.Defense;
             _defenseRate += item.BasicInfo.DefRate;
             _criticalRate += item.CriticalDamage;
+
+            Character.ObjCalc();
         }
 
         public Item Unequip(Equipament slot)
@@ -221,6 +225,8 @@ namespace MuEmu
             _defense -= it.Defense;
             _defenseRate -= it.BasicInfo.DefRate;
             _criticalRate -= it.CriticalDamage;
+
+            Character.ObjCalc();
 
             return it;
         }

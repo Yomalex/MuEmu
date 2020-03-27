@@ -64,6 +64,10 @@ namespace MuEmu.Resources
                         Ene = i.NeededEne,
                         Cmd = i.NeededCmd,
                         Level = i.Level,
+                        Def = i.Defense,
+                        DefRate = i.DefenseRate,
+                        Attributes = i.Attributes.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => Enum.Parse<AttributeType>(x)).ToList(),
+                        Zen = i.Zen,
                         Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => Enum.Parse<HeroClass>(x)).ToList(),
                         Skill = Enum.Parse<Spell>(i.Skill),
                         Durability = i.Durability,
@@ -89,15 +93,15 @@ namespace MuEmu.Resources
                     var Item15Regex = new Regex(@"([0-9]+)\s+([\-0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
                     foreach (Match m in ItemRegex.Matches(tr.ReadToEnd()))
                     {
-                        var type = byte.Parse(m.Groups[1].Value);
+                        var type = (ItemType)byte.Parse(m.Groups[1].Value);
                         switch(type)
                         {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 5:
+                            case ItemType.Sword:
+                            case ItemType.Axe:
+                            case ItemType.Scepter:
+                            case ItemType.Spear:
+                            case ItemType.BowOrCrossbow:
+                            case ItemType.Staff:
                                 foreach (Match sm in Item0Regex.Matches(m.Groups[2].Value))
                                 {
                                     var c = new List<HeroClass>();
@@ -138,29 +142,29 @@ namespace MuEmu.Resources
                                     });
                                 }
                                 break;
-                            case 6:
-                            case 7:
-                            case 8:
-                            case 9:
-                            case 10:
-                            case 11:
+                            case ItemType.Shield:
+                            case ItemType.Heml:
+                            case ItemType.Armor:
+                            case ItemType.Pant:
+                            case ItemType.Gloves:
+                            case ItemType.Boots:
                                 foreach (Match sm in Item6Regex.Matches(m.Groups[2].Value))
                                 {
                                     var c = new List<HeroClass>();
-                                    if (byte.Parse(sm.Groups[20].Value) > 0)
-                                        c.Add((HeroClass)(byte.Parse(sm.Groups[20].Value) - 1));
                                     if (byte.Parse(sm.Groups[21].Value) > 0)
-                                        c.Add((HeroClass)(byte.Parse(sm.Groups[21].Value) - 1 + 0x10));
+                                        c.Add((HeroClass)(byte.Parse(sm.Groups[21].Value) - 1));
                                     if (byte.Parse(sm.Groups[22].Value) > 0)
-                                        c.Add((HeroClass)(byte.Parse(sm.Groups[22].Value) - 1 + 0x20));
+                                        c.Add((HeroClass)(byte.Parse(sm.Groups[22].Value) - 1 + 0x10));
                                     if (byte.Parse(sm.Groups[23].Value) > 0)
-                                        c.Add((HeroClass)(byte.Parse(sm.Groups[23].Value) - 1 + 0x30));
+                                        c.Add((HeroClass)(byte.Parse(sm.Groups[23].Value) - 1 + 0x20));
                                     if (byte.Parse(sm.Groups[24].Value) > 0)
-                                        c.Add((HeroClass)(byte.Parse(sm.Groups[24].Value) - 1 + 0x40));
+                                        c.Add((HeroClass)(byte.Parse(sm.Groups[24].Value) - 1 + 0x30));
                                     if (byte.Parse(sm.Groups[25].Value) > 0)
-                                        c.Add((HeroClass)(byte.Parse(sm.Groups[25].Value) - 1 + 0x50));
+                                        c.Add((HeroClass)(byte.Parse(sm.Groups[25].Value) - 1 + 0x40));
+                                    if (byte.Parse(sm.Groups[26].Value) > 0)
+                                        c.Add((HeroClass)(byte.Parse(sm.Groups[26].Value) - 1 + 0x50));
 
-                                    result.Add(new ItemInfo
+                                    var item = new ItemInfo
                                     {
                                         Number = new ItemNumber(type, ushort.Parse(sm.Groups[1].Value)),
                                         Size = new Size(byte.Parse(sm.Groups[4].Value), byte.Parse(sm.Groups[5].Value)),
@@ -178,10 +182,11 @@ namespace MuEmu.Resources
                                         Ene = ushort.Parse(sm.Groups[18].Value),
                                         Cmd = ushort.Parse(sm.Groups[19].Value),
                                         Classes = c
-                                    });
+                                    };
+                                    result.Add(item);
                                 }
                                     break;
-                            case 12:
+                            case ItemType.Wing_Orb_Seed:
                                 foreach (Match sm in Item12Regex.Matches(m.Groups[2].Value))
                                 {
                                     var c = new List<HeroClass>();
@@ -218,7 +223,7 @@ namespace MuEmu.Resources
                                     });
                                 }
                                 break;
-                            case 13:
+                            case ItemType.Missellaneo:
                                 foreach (Match sm in Item13Regex.Matches(m.Groups[2].Value))
                                 {
                                     var c = new List<HeroClass>();
@@ -256,7 +261,7 @@ namespace MuEmu.Resources
                                     });
                                 }
                                 break;
-                            case 14:
+                            case ItemType.Potion:
                                 foreach (Match sm in Item14Regex.Matches(m.Groups[2].Value))
                                 {
                                     result.Add(new ItemInfo
@@ -272,7 +277,7 @@ namespace MuEmu.Resources
                                     });
                                 }
                                 break;
-                            case 15:
+                            case ItemType.Scroll:
                                 foreach (Match sm in Item15Regex.Matches(m.Groups[2].Value))
                                 {
                                     var c = new List<HeroClass>();
@@ -333,6 +338,8 @@ namespace MuEmu.Resources
                     Dmg = $"{x.Damage.X}-{x.Damage.Y}",
                     Drop = x.Drop.ToString(),
                     Level = x.Level,
+                    Defense = x.Def,
+                    DefenseRate = x.DefRate,
                     MagicDur = x.MagicDur,
                     MagicPower = x.MagicPower,
                     Name = x.Name,
@@ -345,9 +352,11 @@ namespace MuEmu.Resources
                     Number = x.Number,
                     Option = x.Option.ToString(),
                     ReqClass = string.Join(",", x.Classes),
+                    Attributes = string.Join(",", x?.Attributes??new List<AttributeType>()),
                     Size = $"{x.Size.Width},{x.Size.Height}",
                     Skill = x.Skill.ToString(),
                     Speed = x.Speed,
+                    Zen = x.Zen,
                 }).ToArray();
 
                 XmlSaver(Path.Combine(_root, "Items.xml"), xml);

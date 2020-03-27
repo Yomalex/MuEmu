@@ -936,6 +936,7 @@ namespace MuEmu.Network.Game
                         break;
                 }
 
+                player?.Character.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
                 monster?.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
             }
         }

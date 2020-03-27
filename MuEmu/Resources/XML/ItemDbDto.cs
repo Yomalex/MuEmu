@@ -32,6 +32,10 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute] public ushort Level { get; set; }
 
+        [XmlAttribute] public ushort Defense { get; set; }
+
+        [XmlAttribute] public ushort DefenseRate { get; set; }
+
         [XmlAttribute] public string Dmg { get; set; }
 
         [XmlAttribute] public int Speed { get; set; }
@@ -55,5 +59,8 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public ushort NeededCmd { get; set; }
 
         [XmlAttribute] public string ReqClass { get; set; }
+        [XmlAttribute] public int Zen { get; set; }
+        
+        [XmlAttribute] public string Attributes { get; set; }        
     }
 }

@@ -72,14 +72,19 @@ namespace MuEmu.Monsters
                 if (_target == value)
                     return;
 
-                if(_target != null)
+                if (_target != null)
+                {
                     _target.Character.PlayerDie -= EnemyDie;
+                    _target.Character.MapChanged -= EnemyDie;
+                }
+
+                _target = value;
 
                 if (value == null)
                     return;
 
-                _target = value;
                 _target.Character.PlayerDie += EnemyDie;
+                _target.Character.MapChanged += EnemyDie;
             }
         }
         public List<Player> ViewPort { get; set; } = new List<Player>();
@@ -171,7 +176,8 @@ namespace MuEmu.Monsters
 
             if (State != ObjectState.Dying)
             {
-                plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
+                //plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
+                SubSystem.Instance.AddDelayedMessage(plr, TimeSpan.FromMilliseconds(100), new SAttackResult(Index, dmgSend, type, 0));
             }
         }
 
@@ -305,7 +311,7 @@ namespace MuEmu.Monsters
             if (Info.Spell != Spell.None)
             {
                 SpellInfo si = ResourceCache.Instance.GetSkills()[Info.Spell];
-                var baseAttack = _rand.Next(si.Damage.X, si.Damage.Y);
+                var baseAttack = _rand.Next(si.Damage.X + Info.DmgMin, si.Damage.Y + Info.DmgMax);
                 type = DamageType.Regular;
                 attack = baseAttack - @char.Defense;
             }

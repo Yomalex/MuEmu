@@ -449,9 +449,9 @@ namespace MuEmu
         public ushort AttackRatePvM => (ushort)_attackRatePvM;
         public ushort AttackRatePvP => (ushort)_attackRatePvP;
 
-        public ushort Defense => (ushort)_defense;
-        public ushort DefenseRatePvM => (ushort)_defenseRatePvM;
-        public ushort DefenseRatePvP => (ushort)_defenseRatePvP;
+        public ushort Defense => (ushort)(_defense + Spells.BuffList.Sum(x => x.DefenseAdd));
+        public ushort DefenseRatePvM => (ushort)(_defenseRatePvM + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
+        public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
 
         private float _attackRatePvM = 0.0f;
         private float _attackRatePvP = 0.0f;
@@ -587,7 +587,7 @@ namespace MuEmu
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
             ObjCalc();
         }
-        private void ObjCalc()
+        public void ObjCalc()
         {
 
             var right = Inventory.Get(Equipament.RightHand);
@@ -682,6 +682,10 @@ namespace MuEmu
                     if (_attackSpeed > 288) _attackSpeed = 288.0f;
                     break;
             }
+
+            _defense += Inventory.Defense;
+            _defenseRatePvP += Inventory.DefenseRate;
+            _defenseRatePvM += Inventory.DefenseRate;
         }
         private async void OnLevelUp()
         {
@@ -1031,9 +1035,25 @@ namespace MuEmu
                 else
                 {
                     await Player.Session.SendAsync(new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID));
-                    await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
+                    //await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
+                    SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
                 }
             }
+        }
+
+        public void GetAttackedDelayed(Player plr, int dmg, DamageType type, TimeSpan time)
+        {
+            var @char = plr.Character;
+            dmg -= @char.Defense;
+
+            if(!@char.MissCheck(this))
+            {
+                type = DamageType.Miss;
+                dmg = 0;
+            }
+
+            Health -= dmg;
+            //SubSystem.Instance.AddDelayedMessage()
         }
 
         public int SkillAttack(SpellInfo spell, Monster target, out DamageType type)

@@ -242,6 +242,12 @@ namespace MuEmu
             Log.Information("Global Announcement: " + text);
         }
 
+        public static async Task MapAnoucement(Maps map, string text)
+        {
+            await ResourceCache.Instance.GetMaps()[map].SendAll(new SNotice(NoticeType.Gold, text));
+            Log.Information($"Map '{map}' Announcement: " + text);
+        }
+
         public static void Close(object a, EventArgs b)
         {
             if (a != null)
