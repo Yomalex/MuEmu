@@ -336,8 +336,11 @@ namespace MuEmu.Monsters
                 var dy = fpt.Y - TPosition.Y;
                 dx = dx != 0 ? dx / Math.Abs(dx) : 0;
                 dy = dy != 0 ? dy / Math.Abs(dy) : 0;
-                foreach (var obj in ViewPort)
-                    obj.Session.SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, _walkDirs[dy + 1, dx + 1]));
+
+                Direction = _walkDirs[dy + 1, dx + 1];
+
+                foreach (var obj in ViewPort.ToList())
+                    obj.Session.SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, Direction));
 
                 _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
                 _monsterState = MonsterState.Walking;

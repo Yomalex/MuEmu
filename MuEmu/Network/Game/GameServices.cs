@@ -4,6 +4,7 @@ using MuEmu.Events.EventChips;
 using MuEmu.Monsters;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
+using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -290,9 +291,9 @@ namespace MuEmu.Network.Game
             var @char = session.Player.Character;
             var inv = @char.Inventory;
 
-            Logger.Debug("CUseItem {0} {1} {2}", message.Source, message.Dest, message.Type);
-
             var Source = inv.Get(message.Source);
+
+            Logger.Debug("CUseItem {0} {1} {2} [{3}]{4}", message.Source, message.Dest, message.Type, Source.Number, Source);
 
             if(Source.BasicInfo.Skill != Spell.None)
             {
@@ -300,12 +301,19 @@ namespace MuEmu.Network.Game
                 {
                     await inv.Delete(message.Source);
                 }
-                @char.HPorSDChanged();
+                @char.HPorSDChanged(RefillInfo.Update);
                 return;
             }
 
             switch(Source.Number)
             {
+                case 12 * 512 + 7:// Orb of Twisting Slash
+                    if (await @char.Spells.TryAdd(Spell.TwistingSlash))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
                 case 14 * 512 + 0:// Apple
                 case 14 * 512 + 1:// Small HP Potion
                 case 14 * 512 + 2:// Medium HP Potion
@@ -322,7 +330,7 @@ namespace MuEmu.Network.Game
                         Source.Durability--;
 
                     @char.Health += AddLife;
-
+                    //session.SendAsync(new SHeatlUpdate(RefillInfo.Drink, (ushort)@char.Health, (ushort)@char.Shield, false));
                     break;
                 case 14 * 512 + 4:// Small MP Potion
                 case 14 * 512 + 5:// Medium MP Potion
@@ -339,6 +347,7 @@ namespace MuEmu.Network.Game
                         Source.Durability--;
 
                     @char.Mana += AddMana;
+                    session.SendAsync(new SManaUpdate(RefillInfo.Drink, (ushort)@char.Mana, (ushort)@char.Stamina));
                     break;
                 case 14 * 512 + 8: // Antidote
                     if (Source.Durability == 1)
@@ -938,6 +947,44 @@ namespace MuEmu.Network.Game
 
                 player?.Character.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
                 monster?.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
+            }
+        }
+
+        [MessageHandler(typeof(CMagicDuration))]
+        public void CMagicDuration(GSSession session, CMagicDuration message)
+        {
+            var @char = session.Player.Character;
+
+            if(!@char.Spells.SpellDictionary.ContainsKey(message.MagicNumber))
+            {
+                Logger.Error("Invalid Magic, user don't own this spell {0}", message.MagicNumber);
+                return;
+            }
+
+            var magic = @char.Spells.SpellDictionary[message.MagicNumber];
+
+            if (@char.Mana < magic.Mana || @char.Stamina < magic.BP)
+                return;
+
+            @char.Mana -= magic.Mana;
+            @char.Stamina -= magic.BP;
+
+            switch (message.MagicNumber)
+            {
+                case Spell.TwistingSlash:
+                    var vp = @char.MonstersVP.ToList()
+                        .Select(x => MonstersMng.Instance.GetMonster(x))
+                        .Where(x => x.Position.Substract(@char.Position).LengthSquared() <= 2.0);
+
+                    foreach (var mob in vp)
+                    {
+                        DamageType type;
+                        var attack = @char.SkillAttack(magic, mob, out type);
+                        mob.GetAttacked(@char.Player, attack, type);
+                    }
+                    @char.Spells.AttackSend(magic.Number, message.Target, true);
+
+                    break;
             }
         }
 

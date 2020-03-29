@@ -335,6 +335,7 @@ namespace MuEmu
 
         public async void AttackSend(Spell spell, ushort Target, bool Success)
         {
+            Target &= 0x7FFF;
             Target = Success ? (ushort)(Target | 0x8000) : Target;
 
             var message = new SMagicAttack(spell, (ushort)Player.Session.ID, Target);

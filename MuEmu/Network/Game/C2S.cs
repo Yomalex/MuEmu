@@ -257,6 +257,35 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class CMagicDuration : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzMagicNumber { get; set; }
+        [WZMember(1)]
+        public byte X { get; set; }
+        [WZMember(2)]
+        public byte Y { get; set; }
+        [WZMember(3)]
+        public byte Dir { get; set; }
+        [WZMember(4)]
+        public byte Dis { get; set; }
+        [WZMember(5)]
+        public byte TargetPos { get; set; }
+
+        [WZMember(6)]
+        public ushort wzTarget { get; set; }
+
+        [WZMember(7)]
+        public byte MagicKey { get; set; }
+
+        [WZMember(8,5)]
+        public byte[] Unk { get; set; }
+
+        public ushort Target => wzTarget.ShufleEnding();
+        public Spell MagicNumber => (Spell)wzMagicNumber.ShufleEnding();
+    }
+
+    [WZContract]
     public class CWarp : IGameMessage
     {
         [WZMember(0)]

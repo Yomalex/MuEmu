@@ -48,6 +48,7 @@ namespace MuEmu.Network.Game
             Register<CPartyRequestResult>(GameOpCode.PartyResult);
             Register<CPartyList>(GameOpCode.PartyList);
             Register<CPartyDelUser>(GameOpCode.PartyDelUser);
+            Register<CMagicDuration>(GameOpCode.MagicDuration);
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);

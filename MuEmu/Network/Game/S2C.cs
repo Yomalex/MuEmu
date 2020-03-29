@@ -351,9 +351,7 @@ namespace MuEmu.Network.Game
 
         [WZMember(1)] public ushort MP { get; set; }
 
-        //[WZMember(2)] public byte Flag { get; set; }
-
-        [WZMember(3)] public ushort BP { get; set; }
+        [WZMember(2)] public ushort BP { get; set; }
 
         public ushort Mana { get => MP.ShufleEnding(); set => MP = value.ShufleEnding(); }
 
@@ -362,12 +360,11 @@ namespace MuEmu.Network.Game
         public SManaUpdate()
         { }
 
-        public SManaUpdate(RefillInfo pos, ushort hp, ushort sd/*, bool flag*/)
+        public SManaUpdate(RefillInfo pos, ushort mana, ushort bp/*, bool flag*/)
         {
             Pos = pos;
-            Mana = hp;
-            Stamina = sd;
-            //Flag = (byte)(flag ? 1 : 0);
+            Mana = mana;
+            Stamina = bp;
         }
     }
 

@@ -102,8 +102,7 @@ namespace MuEmu
                                     PlayerMonsViewport(map, @char);
                                     PlayerItemViewPort(map, @char);
 
-                                    @char.Health += @char.BaseInfo.Attributes.LevelLife * @char.Level * 0.1f;
-                                    @char.Mana += @char.BaseInfo.Attributes.LevelMana * @char.Level * 0.05f;
+                                    @char.Autorecovery();
                                     break;
                                 case ObjectState.Dying:
                                     @char.State = ObjectState.Die;

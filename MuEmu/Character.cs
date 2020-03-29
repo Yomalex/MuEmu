@@ -101,17 +101,14 @@ namespace MuEmu
 
                 if (_hp == value)
                     return;
-
-                _hp = value;
-
-                if (_hp <= 0)
+                if (value <= 0)
                 {
                     _hp = 0;
                     PlayerDie?.Invoke(this, new EventArgs());
-                    //OnDead();
                 }
 
-                HPorSDChanged();
+                HPorSDChanged(_hp > value ? RefillInfo.Update : RefillInfo.Drink);
+                _hp = value;
             }
         }
         public float MaxHealth
@@ -140,9 +137,14 @@ namespace MuEmu
                     value = _sdMax;
                 }
 
-                _sd = value;
+                if (value <= 0)
+                {
+                    _sd = 0;
+                    PlayerDie?.Invoke(this, new EventArgs());
+                }
 
-                HPorSDChanged();
+                HPorSDChanged(_sd > value ? RefillInfo.Update : RefillInfo.Drink);
+                _sd = value;
             }
         }
         public float MaxShield
@@ -171,9 +173,8 @@ namespace MuEmu
                 if (_mp == value)
                     return;
 
+                MPorBPChanged(_mp > value ? RefillInfo.Update : RefillInfo.Drink);
                 _mp = value;
-
-                MPorBPChanged();
             }
         }
         public float MaxMana
@@ -202,9 +203,8 @@ namespace MuEmu
                     value = _bpMax;
                 }
 
+                MPorBPChanged(_bp > value ? RefillInfo.Update : RefillInfo.Drink);
                 _bp = value;
-
-                MPorBPChanged();
             }
         }
         public float MaxStamina
@@ -560,19 +560,19 @@ namespace MuEmu
                 await plr.Session.SendAsync(message);
         }
 
-        public async void HPorSDChanged()
+        public async void HPorSDChanged(RefillInfo info)
         {
             Console.WriteLine($"HP Changed {_hp}/{_hpMax} {_sd}/{_sdMax}");
-            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.Update, (ushort)_hp, (ushort)_sd, false));
+            await Player.Session.SendAsync(new SHeatlUpdate(info, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
         {
             Console.WriteLine($"Max HP Changed {_hpMax} {_sdMax}");
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)_hpMax, (ushort)_sdMax, false));
         }
-        private async void MPorBPChanged()
+        private async void MPorBPChanged(RefillInfo info)
         {
-            await Player.Session.SendAsync(new SManaUpdate(RefillInfo.Update, (ushort)_mp, (ushort)_bp));
+            await Player.Session.SendAsync(new SManaUpdate(info, (ushort)_mp, (ushort)_bp));
         }
         private async void MPorBPMaxChanged()
         {
@@ -1140,6 +1140,31 @@ namespace MuEmu
                 attack += critical ? _leftAttackMax : _rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
 
             return attack;
+        }
+
+        public void Autorecovery()
+        {
+            Health += MaxHealth/30.0f;
+
+            switch(BaseClass)
+            {
+                case HeroClass.DarkKnight:
+                    Mana += MaxMana / 27.5f;
+                    Stamina += 2 + MaxStamina / 20;
+                    break;
+                case HeroClass.DarkWizard:
+                case HeroClass.FaryElf:
+                case HeroClass.Summoner:
+                    Mana += MaxMana / 27.5f;
+                    Stamina += 2 + MaxStamina / 33.333f;
+                    break;
+                case HeroClass.MagicGladiator:
+                case HeroClass.DarkLord:
+                    Mana += MaxMana / 27.5f;
+                    Stamina += 1.9f + MaxStamina / 33;
+                    break;
+
+            }
         }
 
         public static void AddStr(object session, CommandEventArgs eventArgs)
