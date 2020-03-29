@@ -215,7 +215,9 @@ namespace MuEmu
                     .AddCommand(new Command<GSSession>("set")
                         .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
                         .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument)))
-                    /*.AddCommand(new Command<GSSession>("post"))*/))
+                        .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument))))
+                    .AddCommand(new Command<GSSession>("levelup", LevelUp))
+                    /*.AddCommand(new Command<GSSession>("post"))*/)
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
 
@@ -291,6 +293,22 @@ namespace MuEmu
             using (var db = new GameContext())
                 db.Database.EnsureDeleted();
             Log.Information("Dropped DB");
+        }
+        public static void LevelUp(object a, CommandEventArgs b)
+        {
+            var session = a as GSSession;
+
+            if(!string.IsNullOrWhiteSpace(b.Argument))
+            {
+                var lvls = uint.Parse(b.Argument);
+                while(lvls-- > 0)
+                {
+                    session.Player.Character.Experience = session.Player.Character.NextExperience;
+                }
+            }else
+            {
+                session.Player.Character.Experience = session.Player.Character.NextExperience;
+            }
         }
     }
 }

@@ -30,6 +30,7 @@ namespace MuEmu
         private Thread _workerViewPort;
         private Thread _workerEvents;
         private Thread _workerSavePlayers;
+        private Thread _workerIA;
         private List<DelayedMessage> _delayedMessages;
         public static SubSystem Instance { get; set; }
 
@@ -40,6 +41,7 @@ namespace MuEmu
             _workerViewPort = new Thread(WorkerViewPort);
             _workerEvents = new Thread(WorkerEvents);
             _workerSavePlayers = new Thread(WorkerSavePlayers);
+            _workerIA = new Thread(WorkerIA);
         }
 
         public void AddDelayedMessage(Player plr, TimeSpan time, object message)
@@ -132,7 +134,7 @@ namespace MuEmu
                                     obj.State = ObjectState.Live;
                                     break;
                                 case ObjectState.Live:
-                                    obj.Update();
+                                    //obj.Update();
                                     break;
                                 case ObjectState.Dying:
                                     obj.State = ObjectState.Die;
@@ -408,6 +410,24 @@ namespace MuEmu
             }
         }
 
+        private static async void WorkerIA()
+        {
+            while (true)
+            {
+                foreach (var map in ResourceCache.Instance.GetMaps().Values)
+                {
+                    foreach (var obj in map.Monsters)
+                    {
+                        if (obj.State != ObjectState.Live)
+                            continue;
+
+                        obj.Update();
+                    }
+                }
+                Thread.Sleep(100);
+            }
+        }
+
         private static async void WorkerSavePlayers()
         {
             while (true)
@@ -445,6 +465,7 @@ namespace MuEmu
             Instance._workerViewPort.Start();
             Instance._workerEvents.Start();
             Instance._workerSavePlayers.Start();
+            Instance._workerIA.Start();
         }
     }
 }

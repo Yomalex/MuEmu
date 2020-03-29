@@ -191,17 +191,13 @@ namespace MuEmu.Monsters
             var y = 0;
             var z = 0;
             var mMap = ResourceCache.Instance.GetMaps()[map];
-            MapAttributes[] att;
+            MapAttributes[] att = new MapAttributes[] { MapAttributes.Safe, MapAttributes.NoWalk, MapAttributes.Hide};
             do
             {
                 x = _rand.Next(minX, maxX);
                 y = _rand.Next(minY, maxY);
-                att = mMap
-                .GetAttributes(x, y);
             } while (
-                (att.Contains(MapAttributes.Safe) ||
-                att.Contains(MapAttributes.NoWalk) ||
-                att.Contains(MapAttributes.Hide))
+                mMap.ContainsAny(x,y, att)
                 && ++z < 10
                 );
 

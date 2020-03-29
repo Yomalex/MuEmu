@@ -33,14 +33,13 @@ namespace MuEmu.Network.ConnectServer
 
             _client.Client.BeginReceive(_buffer, 0, 1024, SocketFlags.None, ReceiveCallback, this);
 
+            Index = index;
+            _GameServer = server;
+
             var thread = new Thread(Worker);
             thread.Start(this);
 
-            Index = index;
-
             SendAsync(new CRegistryReq { Index = index, Address = server.IPAddress.ToString(), Port = server.Port, Show = show });
-
-            _GameServer = server;
         }
 
         private static void Worker(object param)

@@ -11,17 +11,29 @@ using MuEmu.Data;
 
 namespace MuEmu.Monsters
 {
+    public enum MonsterState
+    {
+        Idle,
+        Walking,
+        Battle,
+    }
+
     public class Monster
     {
+        private static byte[,] _walkDirs;
+        private static MapAttributes[] _cantGo;
         private static ushort[] _maxItemIndex;
         private static Random _rand;
         private float _life;
         private ObjectState _state;
         private DateTimeOffset _regen;
         private Player _target;
+        private DateTimeOffset _nextAction;
+        private MonsterState _monsterState;
+        private List<Point> _path = null;
+        private Point _TPosition;
 
         public ushort Index { get; set; }
-
         public ObjectState State
         {
             get => _state;
@@ -57,14 +69,19 @@ namespace MuEmu.Monsters
         public float MaxLife => Info.HP;
         public float Mana { get; set; }
         public float MaxMana => Info.MP;
-
         public Spells Spells { get; set; }
-
         public Maps MapID { get; set; }
         public MapInfo Map { get; }
         public Point Spawn { get; private set; }
         public Point Position { get; private set; }
-        public Point TPosition { get; private set; }
+        public Point TPosition { get => _TPosition;
+            private set
+            {
+                _TPosition = value;
+                if(Position != _TPosition)
+                    MakePath();
+            }
+        }
         public Player Target {
             get => _target;
             set
@@ -92,22 +109,19 @@ namespace MuEmu.Monsters
         public ushort DeadlyDmg { get; set; }
         public byte Direction { get; set; }
         public List<Item> ItemBag { get; set; }
-
         public bool Active { get; set; }
         public Dictionary<Player, int> DamageSum { get; private set; } = new Dictionary<Player, int>();
-
         public int Attack => Info.Attack + (_rand.Next(Info.DmgMin,Info.DmgMax));
         public int Defense => Info.Defense;
 
         public event EventHandler Die;
-
         public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction)
         {
             Type = type;
             MapID = mapID;
             Spawn = position;
             Position = position;
-            TPosition = position;
+            _TPosition = position;
             Direction = direction;
             Info = MonstersMng.Instance.MonsterInfo[Monster];
             Life = Info.HP;
@@ -118,12 +132,19 @@ namespace MuEmu.Monsters
             Die += OnDie;
             Spells = new Spells(this);
             ItemBag = new List<Item>();
+            _nextAction = DateTimeOffset.Now;
             if (_rand == null)
             {
                 _rand = new Random();
                 _maxItemIndex = new ushort[(int)ItemType.End];
+                _cantGo = new MapAttributes[] { MapAttributes.Hide, MapAttributes.NoWalk, MapAttributes.Safe };
+                _walkDirs = new byte[3, 3]{
+                    { 0, 1, 2 },
+                    { 7, 0, 3 },
+                    { 6, 5, 4 },
+                };
 
-                foreach(var t in Enum.GetValues(typeof(ItemType)))
+                foreach (var t in Enum.GetValues(typeof(ItemType)))
                 {
                     if ((ItemType)t == ItemType.End)
                         break;
@@ -194,7 +215,13 @@ namespace MuEmu.Monsters
             Target = null;
             Killer = null;
             DeadlyDmg = 0;
+            _monsterState = MonsterState.Idle;
             State = ObjectState.Regen;
+        }
+
+        private int Distance(Point A, Point B)
+        {
+            return (int)Math.Sqrt((A.X - B.X) * (A.X - B.X) + (A.Y - B.Y) * (A.Y - B.Y));
         }
 
         public void Update()
@@ -202,97 +229,123 @@ namespace MuEmu.Monsters
             if (Type == ObjectType.NPC)
                 return;
 
-            var movRange = Info.MoveRange;
-            var movSpeed = Info.MoveSpeed;
+            if (_nextAction > DateTimeOffset.Now)
+                return;
 
-            var pt = Position;
-            pt.Offset(15, 15);
-
-            //ViewPort = (from plr in Map.Players
-            //            let rect = new Rectangle(plr.Position, new Size(30, 30))
-            //            where rect.Contains(pt)
-            //            select plr.Player).ToList();
-
-            var validTargets = from plr in ViewPort
-                               from dmg in DamageSum
-                               where plr == dmg.Key
-                               select dmg;
-
-            if (validTargets.Any())
+            if(_monsterState == MonsterState.Walking)
             {
-                var max = validTargets.Select(x => x.Value).Max();
-                Target = validTargets.Where(x => x.Value == max).Select(x => x.Key).FirstOrDefault();
-            }
+                _path.RemoveAt(0);
+                _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
 
-            if (TPosition == Position)
-            {
-                if (Target != null)
+                if (_path.Count == 0)
+                    _monsterState = Target != null ? MonsterState.Battle : MonsterState.Idle;
+                else
                 {
-                    var x = Target.Character.Position.X - Position.X;
-                    var y = Target.Character.Position.Y - Position.Y;
+                    Position = _path[0];
 
-                    var d = Math.Sqrt(x * x + y * y);
-                    if (d > Info.AttackRange)
+                    if (Target != null)
                     {
-                        x = x > 0 ? x - 1 : (x < 0 ? x + 1 : 0);
-                        y = y > 0 ? y - 1 : (y < 0 ? y + 1 : 0);
-
-                        x += Position.X;
-                        y += Position.Y;
-
-                        TPosition = new Point(x, y);
+                        var dis = Distance(Target.Character.Position, Position);
+                        if (dis <= Info.AttackRange)
+                        {
+                            _monsterState = MonsterState.Battle;
+                            _path.Clear();
+                            return;
+                        }
+                        else if (dis > Info.ViewRange)
+                        {
+                            _monsterState = MonsterState.Idle;
+                            _path.Clear();
+                            return;
+                        }
                     }
-                } else
-                {
-                    var rand = new Random();
-                    var x = rand.Next(movRange);
-                    var y = rand.Next(movRange);
-                    TPosition = new Point(Spawn.X+x, Spawn.Y+y);
                 }
             }
-
-            var dx = TPosition.X - Position.X;
-            var dy = TPosition.Y - Position.Y;
-
-            // 0 1 2
-            // 7 X 3
-            // 6 5 4
-
-            var dir = new byte[3, 3]
+            if (_monsterState == MonsterState.Battle && Target != null)
             {
-                { 0, 1, 2 },
-                { 7, 8, 3 },
-                { 6, 5, 4 },
-            };
-            
+                var dis = Distance(Target.Character.Position, Position);
+                if (dis <= Info.AttackRange)
+                {
+                    _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.AttackSpeed);
+                    DamageType type = DamageType.Miss;
+                    Spell isMagic;
+                    var attack = MonsterAttack(out type, out isMagic);
+                    Target.Character.GetAttacked(this, attack, type, isMagic);
+                    TPosition = Position;
+                    return;
+                }else if(dis > Info.ViewRange)
+                {
+                    _monsterState = MonsterState.Idle;
+                    Target = null;
+                    _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.AttackSpeed);
+                    return;
+                }else
+                {
+                    TPosition = Target.Character.Position;
+                }
+            }
+            if(_monsterState == MonsterState.Idle)
+             {
+                var possibleTarget = from plr in ViewPort
+                                     let dist = Distance(plr.Character.Position, Position)
+                                     where dist < Info.ViewRange
+                                     orderby dist ascending
+                                     select plr;
+                var X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.X));
+                var Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.Y));
+                var position = new Point(X, Y);
+                var i = 0;
+                while(Map.ContainsAny(position.X, position.Y, _cantGo)
+                    && i < 10)
+                {
+                    X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.X));
+                    Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.Y));
+                    position = new Point(X, Y);
+                    i++;
+                }
+                if (i == 10)
+                 position = Position;
 
-            dx = dx != 0 ? dx / Math.Abs(dx) : 0;
-            dy = dy != 0 ? dy / Math.Abs(dy) : 0;
+                Target = possibleTarget.FirstOrDefault();
+                TPosition = Target?.Character.Position ?? position;
+            }
+        }
 
-            if (dx == 0 && dy == 0)
+        private void MakePath()
+        {
+            var pf = new PathFinding(Position, TPosition, Map, _cantGo);
+            var fpt = TPosition;
+
+            if (pf.FindPath())
             {
+                _path = pf.GetPath();
+                _path.RemoveAt(0);
+
                 if(Target != null)
-                {
-                    var x = Target.Character.Position.X - Position.X;
-                    var y = Target.Character.Position.Y - Position.Y;
-
-                    var d = Math.Sqrt(x * x + y * y);
-
-                    if(d <= Info.AttackRange)
+                    foreach(var pt in _path)
                     {
-                        DamageType type = DamageType.Miss;
-                        Spell isMagic;
-                        var attack = MonsterAttack(out type, out isMagic);
-                        Target.Character.GetAttacked(this, attack, type, isMagic);
+                        var dis = Distance(Target.Character.Position, pt);
+                        if(dis <= Info.AttackRange)
+                        {
+                            _TPosition = pt;
+                            break;
+                        }
                     }
-                }
+
+                var dx = fpt.X - TPosition.X;
+                var dy = fpt.Y - TPosition.Y;
+                dx = dx != 0 ? dx / Math.Abs(dx) : 0;
+                dy = dy != 0 ? dy / Math.Abs(dy) : 0;
+                foreach (var obj in ViewPort)
+                    obj.Session.SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, _walkDirs[dy + 1, dx + 1]));
+
+                _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
+                _monsterState = MonsterState.Walking;
                 return;
             }
 
-            Position = new Point(Position.X+dx /** movSpeed*/, Position.Y+dy /** movSpeed*/);
-
-            foreach(var obj in ViewPort)
-                obj.Session.SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, dir[dy+1, dx+1]));
+            _TPosition = Position;
+            _monsterState = MonsterState.Idle;
         }
 
         private int MonsterAttack(out DamageType type, out Spell isMagic)

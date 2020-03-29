@@ -144,6 +144,18 @@ namespace MuEmu.Resources.Map
             }
         }
 
+        public bool ContainsAny(int X, int Y, MapAttributes[] attrs)
+        {
+            var info = Layer[Y * 256 + X];
+            byte @byte = 0;
+            foreach(var att in attrs)
+            {
+                @byte |= (byte)att;
+            }
+
+            return (info & @byte) != 0;
+        }
+
         public MapAttributes[] GetAttributes(int X, int Y)
         {
             var info = Layer[Y*256 + X];
