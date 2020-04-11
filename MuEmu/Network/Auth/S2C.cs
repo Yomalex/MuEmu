@@ -81,6 +81,43 @@ namespace MuEmu.Network.Auth
     }
 
     [WZContract]
+    public class SCharacterListS12 : IAuthMessage
+    {
+        [WZMember(0)]
+        public byte MaxClass { get; set; }
+
+        [WZMember(1)]
+        public byte MoveCount { get; set; }
+
+        [WZMember(2)]
+        public byte Count { get; set; }
+
+        [WZMember(3)]
+        public byte CharacterSlotCount { get; set; }
+
+        [WZMember(4)]
+        public byte WhExpansion { get; set; }
+
+        [WZMember(5, SerializerType = typeof(ArraySerializer))]
+        public CharacterPreviewS12Dto[] CharacterList { get; set; }
+
+        public SCharacterListS12()
+        {
+            CharacterList = Array.Empty<CharacterPreviewS12Dto>();
+        }
+
+        public SCharacterListS12(byte maxClas, byte moveCnt, CharacterPreviewS12Dto[] chars, byte CharSlotCount, byte WhSlotCount)
+        {
+            MaxClass = maxClas;
+            MoveCount = moveCnt;
+            CharacterList = chars;
+            Count = (byte)chars.Length;
+            CharacterSlotCount = CharSlotCount;
+            WhExpansion = WhSlotCount;
+        }
+    }
+
+    [WZContract]
     public class SCharacterCreate : IAuthMessage
     {
         [WZMember(0)]
@@ -169,6 +206,44 @@ namespace MuEmu.Network.Auth
             ControlCode = cc;
             CharSet = charSet;
             GuildStatus = gStatus;
+        }
+    }
+
+    [WZContract]
+    public class CharacterPreviewS12Dto
+    {
+        [WZMember(0)]
+        public byte ID { get; set; }
+
+        [WZMember(1, 11)]
+        public byte[] btName { get; set; }
+
+        [WZMember(2)]
+        public ushort Level { get; set; }
+
+        [WZMember(3)]
+        public ControlCode ControlCode { get; set; }
+
+        [WZMember(4, 18)]
+        public byte[] CharSet { get; set; }
+
+        [WZMember(5)]
+        public GuildStatus GuildStatus { get; set; }
+
+        [WZMember(6)]
+        public byte PKLevel { get; set; }
+
+        public CharacterPreviewS12Dto() { }
+
+        public CharacterPreviewS12Dto(byte Id, string name, ushort level, ControlCode cc, byte[] charSet, GuildStatus gStatus, byte pkLevel)
+        {
+            ID = Id;
+            btName = name.GetBytes();
+            Level = level;
+            ControlCode = cc;
+            CharSet = charSet;
+            GuildStatus = gStatus;
+            PKLevel = pkLevel;
         }
     }
 

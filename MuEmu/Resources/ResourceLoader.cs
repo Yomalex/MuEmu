@@ -368,54 +368,15 @@ namespace MuEmu.Resources
         public IEnumerable<SpellInfo> LoadSkills()
         {
             var result = new List<SpellInfo>();
+            SpellDbDto xml;
             try
             {
-                var xml = XmlLoader<SpellDbDto>(Path.Combine(_root, "Skills.xml"));
-
-                foreach (var i in xml.skills)
-                {
-                    var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
-
-                    var tmp = new SpellInfo
-                    {
-                        Number = (Spell)i.Number,
-                        Name = i.Name,
-                        AG = i.AG,
-                        Agility = i.Agility,
-                        Attribute = i.Attribute,
-                        BP = i.BP,
-                        Brand = i.Brand,
-                        Command = i.Command,
-                        Delay = i.Delay,
-                        Distance = i.Distance,
-                        Duration = i.Duration,
-                        Group = i.Group,
-                        Icon = i.Icon,
-                        IsDamage = i.IsDamage,
-                        Item = i.Item,
-                        KillCount = i.KillCount,
-                        MasterP = i.MasterP,
-                        Rank = i.Rank,
-                        ReqLevel = i.ReqLevel,
-                        SD = i.SD,
-                        Status = i.Status.Split(",").Select(x => int.Parse(x)).ToList(),
-                        Str = i.Str,
-                        Type = i.Type,
-                        UseType = i.UseType,
-                        UseType2 = i.UseType2,
-                        Mana = i.Mana,
-                        Energy = i.Energy,
-                        Damage = new Point(Dmg[0], Dmg[1]),
-                        Classes = i.Classes.Split(",").Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x)).ToList()
-                    };
-
-                    result.Add(tmp);
-                }
+                xml = XmlLoader<SpellDbDto>(Path.Combine(_root, "Skills.xml"));
             }catch(FileNotFoundException)
             {
                 using (var tr = File.OpenText(Path.Combine(_root, "Skill.txt")))
                 {
-                    var SkillRegex = new Regex(@"([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
+                    var SkillRegex = new Regex(@"([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(-?[0-9]+)\s+(-?[0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
                     foreach(Match m in SkillRegex.Matches(tr.ReadToEnd()))
                     {
                         var c = new List<HeroClass>();
@@ -457,8 +418,8 @@ namespace MuEmu.Resources
                             Delay = uint.Parse(m.Groups[8].Value),
                             Energy = ushort.Parse(m.Groups[9].Value),
                             Command = ushort.Parse(m.Groups[10].Value),
-                            Attribute = byte.Parse(m.Groups[11].Value),
-                            Type = ushort.Parse(m.Groups[12].Value),
+                            Attribute = sbyte.Parse(m.Groups[11].Value),
+                            Type = short.Parse(m.Groups[12].Value),
                             UseType = byte.Parse(m.Groups[13].Value),
                             Brand = int.Parse(m.Groups[14].Value),
                             KillCount = int.Parse(m.Groups[15].Value),
@@ -480,7 +441,7 @@ namespace MuEmu.Resources
 
                         result.Add(tmp);
                     }
-                    var xml = new SpellDbDto();
+                    xml = new SpellDbDto();
                     xml.skills = result.Select(x => new SkillDto
                     {
                         AG = x.AG,
@@ -515,7 +476,56 @@ namespace MuEmu.Resources
                     }).ToArray();
 
                     XmlSaver(Path.Combine(_root, "Skills.xml"), xml);
+                    return result;
                 }
+            }
+
+            foreach (var i in xml.skills)
+            {
+                //Logger.Debug("Spell {0} {1}", (Spell)i.Number, i.Number);
+                var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
+
+
+                var classList = i.Classes
+                    .Split(",")
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x))
+                    .ToList();
+
+                var tmp = new SpellInfo
+                {
+                    Number = (Spell)i.Number,
+                    Name = i.Name,
+                    AG = i.AG,
+                    Agility = i.Agility,
+                    Attribute = i.Attribute,
+                    BP = i.BP,
+                    Brand = i.Brand,
+                    Command = i.Command,
+                    Delay = i.Delay,
+                    Distance = i.Distance,
+                    Duration = i.Duration,
+                    Group = i.Group,
+                    Icon = i.Icon,
+                    IsDamage = i.IsDamage,
+                    Item = i.Item,
+                    KillCount = i.KillCount,
+                    MasterP = i.MasterP,
+                    Rank = i.Rank,
+                    ReqLevel = i.ReqLevel,
+                    SD = i.SD,
+                    Status = i.Status.Split(",").Select(x => int.Parse(x)).ToList(),
+                    Str = i.Str,
+                    Type = i.Type,
+                    UseType = i.UseType,
+                    UseType2 = i.UseType2,
+                    Mana = i.Mana,
+                    Energy = i.Energy,
+                    Damage = new Point(Dmg[0], Dmg[1]),
+                    Classes = classList
+                };
+
+                result.Add(tmp);
             }
 
             return result;
@@ -823,7 +833,11 @@ namespace MuEmu.Resources
                         foreach (var it in sq.NeededItem)
                         {
                             stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), 0, new { Plus = (byte)it.Level, Durability = (byte)it.Count }));
+                            var mon = it.Monster.Split("-").Where(x => !string.IsNullOrEmpty(x)).Select(x => ushort.Parse(x));
+                            stmp.MonsterMin = mon.FirstOrDefault();
+                            stmp.MonsterMax = mon.LastOrDefault();
                             stmp.Count = it.Count;
+                            stmp.Drop = (ushort)it.Drop;
                         }
                     }
 

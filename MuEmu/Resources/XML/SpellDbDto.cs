@@ -27,8 +27,8 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public uint Delay { get; set; }
         [XmlAttribute] public ushort Energy { get; set; }
         [XmlAttribute] public ushort Command { get; set; }
-        [XmlAttribute] public byte Attribute { get; set; }
-        [XmlAttribute] public ushort Type { get; set; }
+        [XmlAttribute] public sbyte Attribute { get; set; }
+        [XmlAttribute] public short Type { get; set; }
         [XmlAttribute] public byte UseType { get; set; }
         [XmlAttribute] public int Brand { get; set; }
         [XmlAttribute] public int KillCount { get; set; }

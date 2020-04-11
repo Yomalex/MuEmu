@@ -196,6 +196,17 @@ namespace MuEmu
                 return false;
             }
 
+            var classList = spell.Classes.Select(x => new { BaseClass = (HeroClass)(((byte)x) & 0xF0), Class = (byte)x });
+            var canUse = classList
+                .Where(x => x.BaseClass == Character.BaseClass && x.Class <= (byte)Character.Class)
+                .Any();
+
+            if (!canUse)
+            {
+                await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"Only {string.Join(", ", spell.Classes)} can use this skill"));
+                return false;
+            }
+
             var pos = _spellList.Count;
 
             Add(skill);
@@ -268,7 +279,8 @@ namespace MuEmu
                     buff.AttackAdd = source.EnergyTotal / 7;
                     break;
                 case SkillStates.SwellLife:
-                    buff.LifeAdd = 0;
+                    buff.LifeAdd = 12 + source.EnergyTotal / 10 + source.VitalityTotal / 100;
+                    Character.MaxHealth += buff.LifeAdd;
                     break;
                 case SkillStates.HAttackPower:
                     buff.AttackAdd = 25;
@@ -294,6 +306,13 @@ namespace MuEmu
             await Player.SendV2Message(m);
         }
 
+        public async Task ClearBuffByEffect(SkillStates effect)
+        {
+            var rem = _buffs.Where(x => x.State == effect);
+            _buffs = _buffs.Except(rem).ToList();
+            await DelBuff(rem.First());
+        }
+
         public async void ClearBuffTimeOut()
         {
             var b = _buffs.Where(x => x.EndAt > DateTimeOffset.Now);
@@ -303,7 +322,7 @@ namespace MuEmu
             try
             {
                 foreach (var r in rem)
-                    await DelBuff(r.State);
+                    await DelBuff(r);
             }catch(Exception)
             {
                 _buffs.Clear();
@@ -316,7 +335,7 @@ namespace MuEmu
             try
             {
                 foreach (var r in _buffs)
-                    await DelBuff(r.State);
+                    await DelBuff(r);
             }
             catch (Exception)
             {
@@ -325,9 +344,16 @@ namespace MuEmu
             }
         }
 
-        public async Task DelBuff(SkillStates effect)
+        public async Task DelBuff(Buff effect)
         {
-            var m = new SViewSkillState(0, (ushort)Player.Session.ID, (byte)effect);
+            var m = new SViewSkillState(0, (ushort)Player.Session.ID, (byte)effect.State);
+
+            switch(effect.State)
+            {
+                case SkillStates.SwellLife:
+                    Character.MaxHealth -= effect.LifeAdd;
+                    break;
+            }
 
             await Player.Session.SendAsync(m);
             await Player.SendV2Message(m);

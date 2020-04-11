@@ -221,11 +221,11 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                var reduce = _durability > value;
+                //var reduce = _durability > value;
                 _durability = value;
-                OnDurabilityChange(reduce);
+                OnDurabilityChange(false);
                 NeedSave = true;
-                OnItemChange();
+                //OnItemChange();
             }
         }
         public byte Option28

@@ -47,11 +47,15 @@ namespace MuEmu.Network
                         @char.Map.DelPlayer(Session.Player.Character);
                         @char.Party?.Remove(Session.Player);
                         @char.Party = null;
+                        foreach(var m in @char.MonstersVP.Select(x => Monsters.MonstersMng.Instance.GetMonster(x)).Where(x => x.Target == Session.Player))
+                        {
+                            m.Target = null;
+                        }
                     }
 
                     Session.Player.Status = LoginStatus.NotLogged;
                     Logger.ForAccount(Session).Information("Saving...");
-                    Session.Player.Save(db);
+                    Session.Player.Save(db).Wait();
                     Logger.ForAccount(Session).Information("Saved!");
                 }
                 if(Session.Player.Account != null)

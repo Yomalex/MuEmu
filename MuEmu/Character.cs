@@ -53,10 +53,25 @@ namespace MuEmu
         private byte _pkLevel;
         private ushort _levelUpPoints;
         private readonly Random _rand = new Random();
+        private float _attackRatePvM = 0.0f;
+        private float _attackRatePvP = 0.0f;
+        private float _leftAttackMin = 0.0f;
+        private float _leftAttackMax = 0.0f;
+        private float _rightAttackMin = 0.0f;
+        private float _rightAttackMax = 0.0f;
+        private float _magicAttackMin = 0.0f;
+        private float _magicAttackMax = 0.0f;
+        private float _defense = 0.0f;
+        private float _defenseRatePvM = 0.0f;
+        private float _defenseRatePvP = 0.0f;
+        private float _attackSpeed = 0.0f;
+        private ushort _killerId;
+        private int _deadlyDmg;
 
         public int Id => _characterId;
         public Player Player { get; }
         public Account Account => Player.Account;
+        public ushort Index => (ushort)Player.Session.ID;
         public Quests Quests { get; }
         public Guild Guild { get; set; }
         public Inventory Inventory { get; }
@@ -77,6 +92,7 @@ namespace MuEmu
             {
                 Class &= (HeroClass)(0xF0);
                 Class |= (HeroClass)(value ? 1 : 0);
+                _needSave = true;
             }
         }
         public bool MasterClass
@@ -86,6 +102,7 @@ namespace MuEmu
             {
                 Class &= (HeroClass)(0xF0);
                 Class |= (HeroClass)(value ? 2 : 0);
+                _needSave = true;
             }
         }
         public CharacterInfo BaseInfo { get; private set; }
@@ -113,7 +130,7 @@ namespace MuEmu
         }
         public float MaxHealth
         {
-            get => _hpMax;
+            get => _hpMax + _hpAdd;
             set
             {
                 if (value == _hpMax + _hpAdd)
@@ -453,24 +470,8 @@ namespace MuEmu
         public ushort DefenseRatePvM => (ushort)(_defenseRatePvM + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
         public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
 
-        private float _attackRatePvM = 0.0f;
-        private float _attackRatePvP = 0.0f;
-        private float _leftAttackMin = 0.0f;
-        private float _leftAttackMax = 0.0f;
-        private float _rightAttackMin = 0.0f;
-        private float _rightAttackMax = 0.0f;
-        private float _magicAttackMin = 0.0f;
-        private float _magicAttackMax = 0.0f;
-        private float _defense = 0.0f;
-        private float _defenseRatePvM = 0.0f;
-        private float _defenseRatePvP = 0.0f;
-        private float _attackSpeed = 0.0f;
-
         public ObjectState State { get; set; }
         public DateTimeOffset RegenTime { get; private set; }
-
-        private ushort _killerId;
-        private int _deadlyDmg;
         public byte ClientClass => GetClientClass(Class);
 
         public static byte GetClientClass(HeroClass dbClass)
@@ -567,8 +568,8 @@ namespace MuEmu
         }
         private async void HPorSDMaxChanged()
         {
-            Console.WriteLine($"Max HP Changed {_hpMax} {_sdMax}");
-            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)_hpMax, (ushort)_sdMax, false));
+            Console.WriteLine($"Max HP Changed {MaxHealth} {MaxShield}");
+            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
         }
         private async void MPorBPChanged(RefillInfo info)
         {
@@ -1020,7 +1021,7 @@ namespace MuEmu
 
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
 
-            //DeadlyDmg = dmgSend;
+            _deadlyDmg = dmgSend;
             _killerId = source.Index;
             Health -= dmg;
 
@@ -1029,14 +1030,12 @@ namespace MuEmu
                 if (isMagic == Spell.None)
                 {
                     await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
-                    //await Player.Session.SendAsync(new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID));
-                    await Player.Session.SendAsync(new SAction((ushort)source.Index, source.Direction, 120, (ushort)Player.Session.ID));
+                    await Player.Session.SendAsync(new SAction(source.Index, source.Direction, 120, Index));
                 }
                 else
                 {
                     await Player.Session.SendAsync(new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID));
-                    //await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
-                    SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
+                    SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), new SAttackResult(Index, dmgSend, type, 0));
                 }
             }
         }

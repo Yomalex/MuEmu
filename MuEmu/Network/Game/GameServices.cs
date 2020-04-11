@@ -293,7 +293,7 @@ namespace MuEmu.Network.Game
 
             var Source = inv.Get(message.Source);
 
-            Logger.Debug("CUseItem {0} {1} {2} [{3}]{4}", message.Source, message.Dest, message.Type, Source.Number, Source);
+            Logger.Debug("CUseItem {0} {1} {2} {3}", message.Source, message.Dest, message.Type, Source);
 
             if(Source.BasicInfo.Skill != Spell.None)
             {
@@ -309,6 +309,55 @@ namespace MuEmu.Network.Game
             {
                 case 12 * 512 + 7:// Orb of Twisting Slash
                     if (await @char.Spells.TryAdd(Spell.TwistingSlash))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 8:// Orb of Healing
+                    if (await @char.Spells.TryAdd(Spell.Heal))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 9:// Orb of Greater Defense
+                    if (await @char.Spells.TryAdd(Spell.GreaterDefense))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 10:// Orb of Greater Damage
+                    if (await @char.Spells.TryAdd(Spell.GreaterDamage))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 11:// Orb of Summoning
+                    if (await @char.Spells.TryAdd(Spell.Summon))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 12:// Orb of Rageful Blow
+                    if (await @char.Spells.TryAdd(Spell.RagefulBlow))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 13:// Orb of Impale
+                    if (await @char.Spells.TryAdd(Spell.Impale))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 14:// Orb of Greater Fortitude
+                    if (await @char.Spells.TryAdd(Spell.GreaterFortitude))
                     {
                         await inv.Delete(message.Source);
                     }
@@ -330,7 +379,6 @@ namespace MuEmu.Network.Game
                         Source.Durability--;
 
                     @char.Health += AddLife;
-                    //session.SendAsync(new SHeatlUpdate(RefillInfo.Drink, (ushort)@char.Health, (ushort)@char.Shield, false));
                     break;
                 case 14 * 512 + 4:// Small MP Potion
                 case 14 * 512 + 5:// Medium MP Potion
@@ -347,15 +395,14 @@ namespace MuEmu.Network.Game
                         Source.Durability--;
 
                     @char.Mana += AddMana;
-                    session.SendAsync(new SManaUpdate(RefillInfo.Drink, (ushort)@char.Mana, (ushort)@char.Stamina));
                     break;
                 case 14 * 512 + 8: // Antidote
                     if (Source.Durability == 1)
                         await inv.Delete(message.Source);
                     else
                         Source.Durability--;
-                    await @char.Spells.DelBuff(SkillStates.Ice);
-                    await @char.Spells.DelBuff(SkillStates.Poison);
+                    await @char.Spells.ClearBuffByEffect(SkillStates.Ice);
+                    await @char.Spells.ClearBuffByEffect(SkillStates.Poison);
                     break;
                 case 14 * 512 + 46: // Haloween Scroll
                     if (Source.Durability == 1)
@@ -972,9 +1019,10 @@ namespace MuEmu.Network.Game
             switch (message.MagicNumber)
             {
                 case Spell.TwistingSlash:
-                    var vp = @char.MonstersVP.ToList()
+                    var vp = @char.MonstersVP
+                        .ToList() // clone for preveen collection changes
                         .Select(x => MonstersMng.Instance.GetMonster(x))
-                        .Where(x => x.Position.Substract(@char.Position).LengthSquared() <= 2.0);
+                        .Where(x => x.Position.Substract(@char.Position).Length() <= 2.0 && x.Type == ObjectType.Monster);
 
                     foreach (var mob in vp)
                     {
@@ -982,7 +1030,7 @@ namespace MuEmu.Network.Game
                         var attack = @char.SkillAttack(magic, mob, out type);
                         mob.GetAttacked(@char.Player, attack, type);
                     }
-                    @char.Spells.AttackSend(magic.Number, message.Target, true);
+                    session.SendAsync(new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis));
 
                     break;
             }

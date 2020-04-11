@@ -18,6 +18,7 @@ namespace MuEmu.Network.QuestSystem
             // S2C
             Register<SSetQuest>(QuestOpCode.SetQuest);
             Register<SSendQuestPrize>(QuestOpCode.QuestPrize);
+            Register<SSetQuestState>(QuestOpCode.SetQuestState);
         }
     }
 }

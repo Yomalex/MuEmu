@@ -17,8 +17,8 @@ namespace MuEmu.Data
         public uint Delay { get; set; }
         public ushort Energy { get; set; }
         public ushort Command { get; set; }
-        public byte Attribute { get; set; }
-        public ushort Type { get; set; }
+        public sbyte Attribute { get; set; }
+        public short Type { get; set; }
         public byte UseType { get; set; }
         public int Brand { get; set; }
         public int KillCount { get; set; }

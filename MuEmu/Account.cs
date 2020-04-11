@@ -50,9 +50,6 @@ namespace MuEmu
         {
             foreach (var vault in _vaults.Values)
             {
-                if (!vault.NeedSave)
-                    continue;
-
                 foreach (var it in vault.Items.Values)
                     await it.Save(db);
             }
@@ -63,7 +60,6 @@ namespace MuEmu
             var accDto = db.Accounts.First(x => x.AccountId == ID);
             accDto.VaultMoney = VaultMoney;
             db.Accounts.Update(accDto);
-
             NeedSave = false;
         }
     }

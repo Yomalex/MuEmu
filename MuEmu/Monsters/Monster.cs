@@ -409,6 +409,9 @@ namespace MuEmu.Monsters
             gObjGiveItemSearch(Level);
 
             var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
+
+            Killer.Character.Quests.OnMonsterDie(this);
+
             foreach (var plr in ViewPort)
                 plr.Session.SendAsync(die);
 

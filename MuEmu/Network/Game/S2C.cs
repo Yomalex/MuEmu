@@ -1015,7 +1015,7 @@ namespace MuEmu.Network.Game
     public class SMagicDuration : IGameMessage
     {
         [WZMember(0)]
-        public Spell MagicNumber { get; set; }
+        public ushort MagicNumber { get; set; }
 
         [WZMember(1)]
         public ushort wzNumber { get; set; }
@@ -1033,7 +1033,7 @@ namespace MuEmu.Network.Game
 
         public SMagicDuration(Spell magic, ushort Number, byte x, byte y, byte dis)
         {
-            MagicNumber = magic;
+            MagicNumber = ((ushort)magic).ShufleEnding();
             wzNumber = Number.ShufleEnding();
             X = x;
             Y = y;

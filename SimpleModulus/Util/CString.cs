@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace WebZen.Util
 {
@@ -8,7 +9,10 @@ namespace WebZen.Util
     {
         public static string MakeString(this byte[] stringBytes)
         {
-            return Encoding.ASCII.GetString(stringBytes).TrimEnd((char)0);
+            var id = Array.FindIndex(stringBytes, x => x == (byte)0);
+            //var id = stringBytes.FirstOrDefault(x => x == 0);
+            if (id == -1) id = (byte)stringBytes.Length;
+            return Encoding.ASCII.GetString(stringBytes, 0, id);
         }
 
         public static byte[] GetBytes(this string String)

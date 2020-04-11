@@ -13,7 +13,15 @@ namespace MuEmu.Network.Auth
         public AuthMessageFactory()
         {
             // C2S
-            Register<CIDAndPass>(CSOpCode.Login);
+            if (Program.Season12)
+            {
+                Register<CIDAndPassS12>(CSOpCode.Login);
+            }
+            else
+            {
+                Register<CIDAndPass>(CSOpCode.Login);
+            }
+            
             Register<CCharacterList>(CSOpCode.CharacterList);
             Register<CCharacterCreate>(CSOpCode.CharacterCreate);
             Register<CCharacterDelete>(CSOpCode.CharacterDelete);
@@ -24,6 +32,7 @@ namespace MuEmu.Network.Auth
             Register<SJoinResult>(CSOpCode.JoinResult);
             Register<SLoginResult>(CSOpCode.Login);
             Register<SCharacterList>(CSOpCode.CharacterList);
+            Register<SCharacterListS12>(CSOpCode.CharacterList);
             Register<SCharacterCreate>(CSOpCode.CharacterCreate);
             Register<SCharacterDelete>(CSOpCode.CharacterDelete);
             Register<SCharacterMapJoin>(CSOpCode.JoinMap);

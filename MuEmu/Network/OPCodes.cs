@@ -14,7 +14,12 @@ namespace MuEmu.Network
 
     public enum GlobalOpCode : ushort
     {
-        LiveClient = 0x000E,
+        LiveClient = 0xFF0E,
+    }
+
+    public enum AHOpCode : ushort
+    {
+        AHCheck = 0x11FA,
     }
 
     public enum CSOpCode : ushort

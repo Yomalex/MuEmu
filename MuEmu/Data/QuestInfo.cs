@@ -20,10 +20,13 @@ namespace MuEmu.Data
         public HeroClass[] Allowed { get; set; }
         public List<Item> Requeriment { get; set; }
         public ushort Monster { get; set; }
+        public ushort MonsterMin { get; set; }
+        public ushort MonsterMax { get; set; }
         public int Count { get; set; }
         public Dictionary<QuestState, ushort> Messages { get; set; }
         public QuestCompensation CompensationType { get; set; }
         public byte Amount { get; set; }
+        public ushort Drop { get; set; }
     }
 
     public class RunConditions

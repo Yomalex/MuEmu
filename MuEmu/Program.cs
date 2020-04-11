@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using MuEmu.Entity;
 using System.Linq;
 using MuEmu.Network.Guild;
+using MuEmu.Network.AntiHack;
 
 namespace MuEmu
 {
@@ -40,12 +41,14 @@ namespace MuEmu
         public static float Experience { get; set; }
         public static float Zen { get; set; }
         public static int DropRate { get; set; }
+        public static bool Season12 { get; set; }
 
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
             Predicate<GSSession> MustBeLoggedIn = session => session.Player.Status == LoginStatus.Logged;
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
+            Predicate<GSSession> MustBeLoggedOrPlaying = session => session.Player.Status == LoginStatus.Logged || session.Player.Status == LoginStatus.Playing;
 
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
@@ -99,6 +102,7 @@ namespace MuEmu
             Experience = xml.Experience;
             Zen = xml.Zen;
             DropRate = xml.DropRate;
+            Season12 = xml.Rijndael;
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<GSSession>()
@@ -109,12 +113,16 @@ namespace MuEmu
                     .AddHandler(new EventServices())
                     .AddHandler(new QuestSystemServices())
                     .AddHandler(new GuildServices())
+                    .AddHandler(new AntiHackServices())
                     .RegisterRule<CIDAndPass>(MustNotBeLoggedIn)
                     .RegisterRule<CCharacterList>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin2>(MustBeLoggedIn)
+                    .RegisterRule<CCloseWindow>(MustBePlaying)
+                    .RegisterRule<CDataLoadOK>(MustBePlaying)
+                    .RegisterRule<CClientClose>(MustBeLoggedOrPlaying)
+                    .RegisterRule<CAction>(MustBePlaying)
             };
-
             var mf = new MessageFactory[]
             {
                 new AuthMessageFactory(),
@@ -124,6 +132,7 @@ namespace MuEmu
                 new EventMessageFactory(),
                 new QuestSystemMessageFactory(),
                 new GuildMessageFactory(),
+                new AntiHackMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf, xml.Rijndael);
             server.ClientVersion = xml.Version;

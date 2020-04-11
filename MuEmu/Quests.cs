@@ -1,5 +1,6 @@
 ﻿using MU.DataBase;
 using MuEmu.Data;
+using MuEmu.Monsters;
 using MuEmu.Network.Data;
 using MuEmu.Network.Game;
 using MuEmu.Network.QuestSystem;
@@ -12,6 +13,7 @@ namespace MuEmu
 {
     public class Quests
     {
+        private static Random _rand = new Random();
         public byte[] QuestStates { get; set; }
         public Player Player { get; set; }
         private List<Quest> _quests;
@@ -31,9 +33,35 @@ namespace MuEmu
             await Player.Session.SendAsync(new SNewQuestInfo { QuestList = Array.Empty<NewQuestInfoDto>() });
         }
 
-        public void OnMonsterDie(ushort type)
+        public void OnMonsterDie(Monster monster)
         {
-            
+            var runningQuests = _quests.Where(x => x.State == QuestState.Reg);
+
+            foreach(var q in runningQuests)
+            {
+                foreach(var sq in q.Details.Sub.Where(x => x.Allowed.Contains(Player.Character.Class)))
+                {
+                    if (sq.MonsterMin > monster.Level ||
+                        sq.MonsterMax < monster.Level)
+                        continue;
+                    if(sq.Drop > _rand.Next(100))
+                    {
+                        Item dropItem = null;
+                        foreach(var it in sq.Requeriment)
+                        {
+                            var cantDrop = Player.Character.Inventory.FindAll(it.Number).Count() == it.Durability;
+                            if (cantDrop)
+                                continue;
+
+                            dropItem = new Item(it.Number, 0, new { it.Plus });
+                            break;
+                        }
+
+                        if(dropItem != null)
+                            Player.Character.Map.AddItem(monster.Position.X, monster.Position.Y, dropItem);
+                    }
+                }
+            }
         }
 
         public Quest GetByIndex(int Index)

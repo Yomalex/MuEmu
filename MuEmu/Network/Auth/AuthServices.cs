@@ -21,6 +21,22 @@ namespace MuEmu.Network.Auth
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(AuthServices));
 
+
+        [MessageHandler(typeof(CIDAndPassS12))]
+        public async Task CIDAndPassS12(GSSession session, CIDAndPassS12 message)
+        {
+            await CIDAndPass(session, new CIDAndPass
+            {
+                btAccount = message.btAccount,
+                btClientSerial = message.btClientSerial,
+                btClientVersion = message.btClientVersion,
+                btPassword = message.btPassword,
+                TickCount = message.TickCount
+            });
+
+            Logger.Information("Hardware ID: {0} & season {1}", message.HardwareID, message.ServerSeason);
+        }
+
         [MessageHandler(typeof(CIDAndPass))]
         public async Task CIDAndPass(GSSession session, CIDAndPass message)
         {
@@ -129,17 +145,35 @@ namespace MuEmu.Network.Auth
                                    select item).ToList();
                 }
 
-                var charList = session.Player.Account.Characters
-                    .Select(x => new CharacterPreviewDto(
-                        x.Key, 
-                        x.Value.Name, 
-                        x.Value.Level, 
-                        ControlCode.Normal, 
-                        Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)), 
-                        GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank?? GuildStatus.NoMember))
-                    .ToArray();
+                if (Program.Season12)
+                {
+                    var charList = session.Player.Account.Characters
+                        .Select(x => new CharacterPreviewS12Dto(
+                            x.Key,
+                            x.Value.Name,
+                            x.Value.Level,
+                            ControlCode.Normal,
+                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)),
+                            GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember,
+                            3))
+                        .ToArray();
 
-                await session.SendAsync(new SCharacterList(5, 0, charList));
+                    await session.SendAsync(new SCharacterListS12(5, 0, charList, 5, 3));
+                }
+                else
+                {
+                    var charList = session.Player.Account.Characters
+                        .Select(x => new CharacterPreviewDto(
+                            x.Key,
+                            x.Value.Name,
+                            x.Value.Level,
+                            ControlCode.Normal,
+                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)),
+                            GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember))
+                        .ToArray();
+
+                    await session.SendAsync(new SCharacterList(5, 0, charList));
+                }
             }
         }
 

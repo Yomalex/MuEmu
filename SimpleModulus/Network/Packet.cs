@@ -63,25 +63,53 @@ namespace WebZen.Network
                     case 0xC3:
                         tmp = new byte[size - 2];
                         rawPacket.Read(tmp, 0, tmp.Length);
-                        dec = _packetRijndael ? PacketEncrypt.Decrypt(tmp) : SimpleModulus.Decoder(tmp);
-                        serial = dec[0];
-                        decPacket.WriteByte(0xC1);
-                        decPacket.WriteByte((byte)(dec.Length + 1));
-                        decPacket.Write(dec, 1, dec.Length - 1);
+
+                        if(_packetRijndael)
+                        {
+                            dec = PacketEncrypt.Decrypt(tmp);
+                            if (dec.Length == 0)
+                                return size;
+
+                            decPacket.WriteByte(0xC1);
+                            decPacket.WriteByte((byte)(dec.Length + 2));
+                            decPacket.Write(dec, 0, dec.Length);
+                        }else
+                        {
+                            dec = SimpleModulus.Decoder(tmp);
+                            serial = dec[0];
+                            decPacket.WriteByte(0xC1);
+                            decPacket.WriteByte((byte)(dec.Length + 1));
+                            decPacket.Write(dec, 1, dec.Length - 1);
+                        }
                         break;
                     case 0xC4:
                         tmp = new byte[size - 3];
                         rawPacket.Read(tmp, 0, tmp.Length);
-                        dec = _packetRijndael ? PacketEncrypt.Decrypt(tmp) : SimpleModulus.Decoder(tmp);
-                        serial = dec[0];
-                        decPacket.WriteByte(0xC2);
-                        decPacket.WriteByte((byte)((dec.Length + 2) >> 8));
-                        decPacket.WriteByte((byte)((dec.Length + 2) & 255));
-                        decPacket.Write(dec, 1, dec.Length - 1);
+
+                        if (_packetRijndael)
+                        {
+                            dec = PacketEncrypt.Decrypt(tmp);
+                            if (dec.Length == 0)
+                                return size;
+
+                            decPacket.WriteByte(0xC2);
+                            decPacket.WriteByte((byte)((dec.Length + 3) >> 8));
+                            decPacket.WriteByte((byte)((dec.Length + 3) & 255));
+                            decPacket.Write(dec, 0, dec.Length);
+                        }
+                        else
+                        {
+                            dec = SimpleModulus.Decoder(tmp);
+                            serial = dec[0];
+                            decPacket.WriteByte(0xC2);
+                            decPacket.WriteByte((byte)((dec.Length + 2) >> 8));
+                            decPacket.WriteByte((byte)((dec.Length + 2) & 255));
+                            decPacket.Write(dec, 1, dec.Length - 1);
+                        }
                         break;
                 }
                 
-                using (var spe = new StreamPacketEngine())
+                using (var spe = new StreamPacketEngine(_packetRijndael))
                 {
                     spe.AddData(decPacket.ToArray());
                     var posProcess = spe.ExtractPacket();
@@ -508,7 +536,7 @@ namespace WebZen.Network
                 Array.Copy(head, result, headLen);
                 Array.Copy(body, 0, result, headLen, body.Length);
 
-                using (var spe = new StreamPacketEngine())
+                using (var spe = new StreamPacketEngine(false))
                 {
                     spe.AddData(result);
                     result = spe.ExtractData();

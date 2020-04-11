@@ -143,7 +143,7 @@ namespace WebZen.Network
                 }
             }catch(Exception e)
             {
-                Logger.Error(e, $"packet decode pSize:{TotalRecv} pType:{type}");
+                Logger.Error(e, $"packet decode pSize:{TotalRecv} pType:{type:X}");
                 sender.Disconnect();
                 return;
             }

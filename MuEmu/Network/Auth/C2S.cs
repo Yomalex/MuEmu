@@ -36,6 +36,40 @@ namespace MuEmu.Network.Auth
     }
 
     [WZContract]
+    public class CIDAndPassS12 : IAuthMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] btAccount { get; set; }
+
+        [WZMember(1, 20)]
+        public byte[] btPassword { get; set; }
+
+        [WZMember(2, 100)]
+        public byte[] btHWID { get; set; }
+
+        [WZMember(3)]
+        public uint TickCount { get; set; }
+
+        /*[WZMember(3)]
+        public ushort Padding { get; set; }*/
+
+        [WZMember(4, 5)]
+        public byte[] btClientVersion { get; set; }
+
+        [WZMember(5, 16)]
+        public byte[] btClientSerial { get; set; }
+
+        [WZMember(6)]
+        public uint ServerSeason { get; set; }
+
+        public string Account => btAccount.MakeString();
+        public string Password => btPassword.MakeString();
+        public string ClientVersion => btClientVersion.MakeString();
+        public string ClientSerial => btClientSerial.MakeString();
+        public string HardwareID => btHWID.MakeString();
+    }
+
+    [WZContract]
     public class CCharacterList : IAuthMessage
     { }
 
