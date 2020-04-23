@@ -174,7 +174,10 @@ namespace MuEmu.Network.Game
             session.Player.Status = message.Type==ClientCloseType.SelectChar?LoginStatus.Logged:LoginStatus.NotLogged;
 
             using (var db = new GameContext())
+            {
                 await session.Player.Save(db);
+                await db.SaveChangesAsync();
+            }
         }
 
         [MessageHandler(typeof(CMoveItem))]
@@ -669,66 +672,63 @@ namespace MuEmu.Network.Game
             var @char = session.Player.Character;
             if (npcs.TryGetValue(obj.Info.Monster, out var npc))
             {
-                if (npc.Shop != null)
+                switch(npc.Class)
                 {
-                    session.Player.Window = npc.Shop.Storage;
-                    await session.SendAsync(new STalk { Result = 0 });
-                    await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
-                    await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
-                }
-                else if (npc.Warehouse)
-                {
-                    session.Player.Window = session.Player.Account.Vault;
-                    session.Player.Character.Inventory.Lock = true;
-
-                    await session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
-                    await session.SendAsync(new STalk { Result = 2 });
-                    await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
-                    await session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
-                }
-                else if(npc.GuildMaster)
-                {
-                    GuildManager.NPCTalk(session.Player);
-                }
-                else if (npc.EventChips)
-                {
-                    EventChips.NPCTalk(session.Player);
-                }
-                else if (npc.MessengerAngel)
-                {
-                    BloodCastles.MessengerAngelTalk(session.Player);
-                }
-                else if (npc.KingAngel)
-                {
-                    BloodCastles.AngelKingTalk(session.Player);
-                }
-                else if (npc.Window != 0)
-                {
-                    await session.SendAsync(new STalk { Result = npc.Window });
-
-                    if (npc.Window == 3) // ChaosMachine
-                    {
+                    case NPCAttributeType.Shop:
+                        if (npc.Data == 0xffff)
+                            break;                        
+                        session.Player.Window = npc.Shop.Storage;
+                        await session.SendAsync(new STalk { Result = 0 });
+                        await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
+                        await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });                        
+                        break;
+                    case NPCAttributeType.Warehouse:
+                        session.Player.Window = session.Player.Account.Vault;
                         session.Player.Character.Inventory.Lock = true;
-                        session.Player.Window = session.Player.Character.Inventory.ChaosBox;
-                    }
 
-                } else if (npc.Buff != 0)
-                {
-                    @char.Spells.SetBuff((SkillStates)npc.Buff, TimeSpan.FromSeconds(120));
-                } else if (npc.Quest != 0xffff)
-                {
-                    var quest = @char.Quests.Find(obj.Info.Monster);
+                        await session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
+                        await session.SendAsync(new STalk { Result = NPCWindow.Warehouse });
+                        await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
+                        await session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
+                        break;
+                    case NPCAttributeType.GuildMaster:
+                        GuildManager.NPCTalk(session.Player);
+                        break;
+                    case NPCAttributeType.EventChips:
+                        EventChips.NPCTalk(session.Player);
+                        break;
+                    case NPCAttributeType.MessengerAngel:
+                        BloodCastles.MessengerAngelTalk(session.Player);
+                        break;
+                    case NPCAttributeType.KingAngel:
+                        BloodCastles.AngelKingTalk(session.Player);
+                        break;
+                    case NPCAttributeType.Window:
+                        await session.SendAsync(new STalk { Result = (NPCWindow)npc.Data });
 
-                    if (quest == null)
-                    {
-                        await session.SendAsync(new SChatTarget(ObjectIndex, "I don't have Quest for you"));
-                        return;
-                    }
+                        if ((NPCWindow)npc.Data == NPCWindow.ChaosMachine) // ChaosMachine
+                        {
+                            session.Player.Character.Inventory.Lock = true;
+                            session.Player.Window = session.Player.Character.Inventory.ChaosBox;
+                        }
+                        break;
+                    case NPCAttributeType.Buff:
+                        @char.Spells.SetBuff((SkillStates)npc.Data, TimeSpan.FromSeconds(120));
+                        break;
+                    case NPCAttributeType.Quest:
+                        var quest = @char.Quests.Find(obj.Info.Monster);
 
-                    var details = quest.Details;
-                    Logger.ForAccount(session)
-                        .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", obj.Info.Name, details.Name, quest.State);
-                    await session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
+                        if (quest == null)
+                        {
+                            await session.SendAsync(new SChatTarget(ObjectIndex, "I don't have Quest for you"));
+                            return;
+                        }
+
+                        var details = quest.Details;
+                        Logger.ForAccount(session)
+                            .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", obj.Info.Name, details.Name, quest.State);
+                        await session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
+                        break;
                 }
             }
             else
@@ -1311,7 +1311,7 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CPartyDelUser))]
-        public async Task CPartyDelUser(GSSession session, CPartyDelUser message)
+        public void CPartyDelUser(GSSession session, CPartyDelUser message)
         {
             var party = session.Player.Character.Party;
             if(party == null)

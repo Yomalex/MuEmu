@@ -104,7 +104,7 @@ namespace MuEmu.Monsters
             {
                 var contents = tf.ReadToEnd();
                 var NPCRegex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)\nend");
-                var NPCSubRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*");
+                var NPCSubRegex = new Regex(@"([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*(?s)(.*?)\n");
                 var SpotRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s+([0-9]+)\s*");
 
                 foreach (Match m in NPCRegex.Matches(contents))
@@ -171,7 +171,7 @@ namespace MuEmu.Monsters
                             break;
                     }
                 }
-                Logger.Information(Monsters.Count + " Monsters Loaded");
+                Logger.Information("{0} Monsters Loaded", Monsters.Count);
             }
         }
 

@@ -345,10 +345,10 @@ namespace MuEmu.Network.Auth
         public short MaxMinusPoints { get; set; }//40
 
         [WZMember(28)]
-        public byte ExpandedInv { get; set; }//41
+        public ushort ExpandedInv { get; set; }//41
 
-        //[WZMember(29)]
-        //public ushort Unk { get; set; }//42
+        [WZMember(29)]
+        public int Ruud { get; set; }//42
 
         //[WZMember(30)]
         //public byte ExpandedVault { get; set; }//44

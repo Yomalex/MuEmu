@@ -28,6 +28,7 @@ namespace MuEmu.Resources.XML
     [XmlType(AnonymousType =true)]
     public class DetailDto
     {
+        [XmlAttribute] public int Index { get; set; }
         [XmlAttribute] public string Classes { get; set; }
         [XmlElement] public NeededItemDto[] NeededItem { get; set; }
         [XmlElement] public NeededMonsterDto NeededMonster { get; set; }

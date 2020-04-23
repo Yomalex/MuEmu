@@ -1,34 +1,69 @@
 ﻿using MU.DataBase;
 using MuEmu.Data;
+using MuEmu.Entity;
 using MuEmu.Monsters;
 using MuEmu.Network.Data;
 using MuEmu.Network.Game;
 using MuEmu.Network.QuestSystem;
+using MuEmu.Resources;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
     public class Quests
     {
         private static Random _rand = new Random();
+        private List<Quest> _quests;
+
+        internal static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Quests));
+        internal Dictionary<uint, byte> _questMonsterKillCount = new Dictionary<uint, byte>();
+
         public byte[] QuestStates { get; set; }
         public Player Player { get; set; }
-        private List<Quest> _quests;
         public Quests(Character @char, CharacterDto characterDto)
         {
-            _quests = new List<Quest>();
-            Player = @char.Player;
             QuestStates =  new byte[20];
+            _quests = new List<Quest>();
             Array.Fill<byte>(QuestStates, 0xff);
+
+            Player = @char.Player;
+            foreach(var q in characterDto.Quests)
+            {
+                var nq = new Quest
+                {
+                    Manager = this,
+                    Index = q.Quest,
+                    State = (QuestState)q.State,
+                    _dbId = q.QuestId,
+                };
+
+                nq._needSave = false;
+                _quests.Add(nq);
+                var details = q.Details
+                    .Split(";")
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .Select(x => x.Split("="))
+                    .ToDictionary(x => uint.Parse(x[0]), y => byte.Parse(y[1]));
+
+                _logger
+                    .ForAccount(Player.Session)
+                    .Information("Quest Found:{0} State:{1}", nq.Details.Name, nq.State);
+
+                foreach(var d in details)
+                    _questMonsterKillCount.Add(d.Key, d.Value);
+            }
         }
 
         public async void SendList()
         {
             var standarQuest = _quests.Where(x => x.Standar).ToArray();
-            await Player.Session.SendAsync(new SQuestInfo { Count = (byte)standarQuest.Length, State = Array.Empty<byte>() });
+            await Player.Session.SendAsync(new SQuestInfo { Count = (byte)standarQuest.Length, State = QuestStates });
             var customQuest = _quests.Where(x => !x.Standar).ToArray();
             await Player.Session.SendAsync(new SNewQuestInfo { QuestList = Array.Empty<NewQuestInfoDto>() });
         }
@@ -41,9 +76,33 @@ namespace MuEmu
             {
                 foreach(var sq in q.Details.Sub.Where(x => x.Allowed.Contains(Player.Character.Class)))
                 {
+                    if(sq.Monster != 0 && sq.Drop == 0)
+                    {
+                        var key = (sq.Monster | (uint)(q.Index << 16));
+
+                        if (_questMonsterKillCount.ContainsKey(key))
+                        {
+                            if(_questMonsterKillCount[key] >= sq.Count)
+                            {
+                                continue;
+                            }
+                            _questMonsterKillCount[key]++;
+                        }
+                        else
+                            _questMonsterKillCount.Add(key, 1);
+
+                        Player
+                            .Session
+                            .SendAsync(new SNotice(NoticeType.Blue, $"{monster.Info.Name}: {_questMonsterKillCount[key]}/{sq.Count}"))
+                            .Wait();
+
+                        continue;
+                    }
+
                     if (sq.MonsterMin > monster.Level ||
                         sq.MonsterMax < monster.Level)
                         continue;
+
                     if(sq.Drop > _rand.Next(100))
                     {
                         Item dropItem = null;
@@ -71,23 +130,25 @@ namespace MuEmu
 
         public Quest Find(ushort npc)
         {
-            var quests = (from q in _quests
-                        from sq in q.Details.Conditions
-                        where q.Details.NPC == npc
-                        select q.Details)
-                        .OrderByDescending( x => x.Index );
+            var NPCQuests = from q in ResourceCache.Instance.GetQuests().Values
+                            where q.NPC == npc
+                            select q;
 
-            var newQuests = (from q in Resources.ResourceCache.Instance.GetQuests()
-                             let qs = q.Value
-                             from sq in qs.Conditions
-                             where qs.NPC == npc && sq.CanRun(Player.Character)
-                             select q.Value)
-                            .OrderByDescending(x => x.Index)
-                            .Except(quests);
+            var listed = from q in _quests
+                        where NPCQuests.Any(x => x.Index == q.Index)
+                        select q;
 
-            if(newQuests.Count() > 0)
+            var running = listed.Where(x => x.State == QuestState.Reg || x.State == QuestState.Unreg);
+            if (running.Any())
+                return running.First();
+
+            var newQ = from q in NPCQuests
+                       where !listed.Any(x => x.Index == q.Index) && q.CanRun(Player.Character)
+                       select q;
+
+            if (newQ.Any())
             {
-                var nq = newQuests.First();
+                var nq = newQ.First();
                 var newQuest = new Quest
                 {
                     Index = nq.Index,
@@ -99,10 +160,6 @@ namespace MuEmu
                 _quests.Add(newQuest);
                 return newQuest;
             }
-
-            var active = quests.FirstOrDefault();
-            if (active != null)
-                return _quests.First(x => x.Index == active.Index);
 
             return null;
         }
@@ -120,7 +177,13 @@ namespace MuEmu
 
         public byte SetState(int Index)
         {
-           return GetByIndex(Index)?.NextStep() ?? 0xff;
+            return GetByIndex(Index)?.NextStep() ?? 0xff;
+        }
+
+        public async Task Save(GameContext db)
+        {
+            foreach (var q in _quests)
+                await q.Save(db);
         }
     }
 
@@ -128,7 +191,10 @@ namespace MuEmu
     {
         private int _index;
         private int _questByte;
-        private int _shift;
+        private byte _killCount;
+
+        internal int _dbId;
+        internal bool _needSave;
 
         public byte StateByte => Manager.QuestStates[_questByte];
         public QuestState State
@@ -142,6 +208,20 @@ namespace MuEmu
                 curState &= curMask;
                 curState |= (byte)(((byte)value) << Shift);
                 Manager.QuestStates[_questByte] = curState;
+                _needSave = true;
+            }
+        }
+
+        public byte KillCount
+        {
+            get => _killCount;
+            set
+            {
+                if (value == _killCount)
+                    return;
+
+                _needSave = true;
+                _killCount = value;
             }
         }
 
@@ -151,18 +231,18 @@ namespace MuEmu
             {
                 _index = value;
                 _questByte = _index / 4;
-                _shift = (_index % 4) * 2;
+                Shift = (_index % 4) * 2;
                 Details = Resources.ResourceCache.Instance.GetQuests()[_index];
             }
         }
-        public int Shift => _shift;
+        public int Shift { get; private set; }
         public QuestInfo Details { get; private set; }
         public Quests Manager { get; set; }
         public Character Character => Manager.Player.Character;
 
         public uint Cost => (uint)Details.Conditions.Sum(x => x.Cost);
 
-        public byte NextStep()
+        internal byte NextStep()
         {
             byte result = 0xff;
             switch(State)
@@ -264,6 +344,41 @@ namespace MuEmu
         {
             return (byte)(Details.Conditions
                 .LastOrDefault(x => !x.CanRun(Character))?.Message ?? 0);
+        }
+
+        internal async Task Save(GameContext db)
+        {
+            if (!_needSave)
+                return;
+            _needSave = false;
+
+            var details = string.Join(";",Manager._questMonsterKillCount
+                .Where(x => (x.Key & 0xFF00) >> 16 == Index)
+                .Select(x => x.Key+"="+x.Value));
+
+            var dto =
+                    new QuestDto
+                    {
+                        QuestId = _dbId,
+                        Quest = Index,
+                        State = (byte)State,
+                        Details = details,
+                        CharacterId = Manager.Player.Character.Id,
+                    };
+
+            var msg = _dbId == 0 ? "Added" : "Updated";
+            Quests._logger
+                    .ForAccount(Manager.Player.Session)
+                    .Information("Quest:{0} {1} State:{2}", Details.Name, msg, State);
+
+            if (_dbId == 0)
+                db.Quests.Add(dto);
+            else
+                db.Quests.Update(dto);
+
+            await db.SaveChangesAsync();
+
+            _dbId = dto.QuestId;
         }
     }
 }

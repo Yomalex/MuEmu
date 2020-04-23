@@ -13,6 +13,7 @@ using Serilog.Core;
 using MuEmu.Entity;
 using WebZen.Util;
 using MuEmu.Resources.Map;
+using MuEmu.Network.QuestSystem;
 
 namespace MuEmu
 {
@@ -125,7 +126,7 @@ namespace MuEmu
                         }
 
                         // update monster section
-                        foreach(var obj in map.Monsters)
+                        foreach(var obj in map.Monsters.Where(x => x.Active))
                         {
                             switch(obj.State)
                             {
@@ -242,7 +243,7 @@ namespace MuEmu
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)
         {
             var oldVP = plr.MonstersVP;
-            var targetVP = Map.Monsters;
+            var targetVP = Map.Monsters.Where(x => x.Active);
             var pos = plr.Position;
             pos.Offset(15, 15);
 
@@ -413,6 +414,7 @@ namespace MuEmu
         {
             while (true)
             {
+                Marlon.Run();
                 foreach (var map in ResourceCache.Instance.GetMaps().Values)
                 {
                     foreach (var obj in map.Monsters)

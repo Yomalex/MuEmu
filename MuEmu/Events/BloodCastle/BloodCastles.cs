@@ -13,6 +13,7 @@ namespace MuEmu.Events.BloodCastle
     {
         Close,
         Open,
+        BeforeStart,
         Started,
         Ended,
     }
@@ -95,6 +96,15 @@ namespace MuEmu.Events.BloodCastle
             Instance = new BloodCastles();
         }
 
+        private static IEnumerable<Player> PlayersOut()
+        {
+            return Program.server.Clients
+                                .Where(x => x.Player != null)
+                                .Where(x => x.Player.Character != null)
+                                .Select(x => x.Player)
+                                .Where(x => (x.Character.MapID < Maps.BloodCastle1 || x.Character.MapID > Maps.BloodCastle7) && x.Character.MapID != Maps.BloodCastle8);
+        }
+
         public static void Update()
         {
             switch(Instance._state)
@@ -111,21 +121,27 @@ namespace MuEmu.Events.BloodCastle
                     var start = Instance._next.Add(r_EnterPeriod);
                     if (start <= DateTimeOffset.Now)
                     {
-                        Instance.State = BCState.Started;
-                    }else
+                        Instance.State = BCState.BeforeStart;
+
+                        var plrs = PlayersOut().ToList();
+                        plrs.ForEach(x => x.Session.SendAsync(new SNotice(NoticeType.Gold, "Blood castle Entrance Closed")));
+                    }
+                    else
                     {
                         try
                         {
                             var m = Instance._messages.First(x => x < DateTimeOffset.Now);
                             Instance._messages.Remove(m);
                             var time = start - DateTimeOffset.Now;
-                            Program.GlobalAnoucement($"Blood castle will start in {(int)Math.Ceiling(time.TotalMinutes)} minutes");
+                            Program.GlobalAnoucement($"{(int)Math.Ceiling(time.TotalMinutes)} minute(s) left to enter Blood castle.");
                         }
                         catch(Exception)
                         {
 
                         }
                     }
+                    break;
+                case BCState.BeforeStart:
                     break;
                 case BCState.Started:
                     break;
@@ -150,26 +166,27 @@ namespace MuEmu.Events.BloodCastle
             plr.Session.SendAsync(new STalk { Result = 0x06 });
         }
 
-        public static void AngelKingTalk(Player plr)
+        public static async void AngelKingTalk(Player plr)
         {
             var session = plr.Session;
             var bridge = Instance._bridges.FirstOrDefault(x => x.Players.Any(y => y == plr));
 
             if (bridge == null)
             {
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC));
+                await session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC));
                 return;
             }
 
-            if(bridge.State != BCState.Started || bridge._nextStateIn > TimeSpan.FromMinutes(3))
+            if(bridge.State == BCState.BeforeStart || (bridge.State == BCState.Started && bridge._nextStateIn > TimeSpan.FromMinutes(3)))
             {
-                session.SendAsync(new SNotice(NoticeType.Blue, $"When the clock has 3:00 for finish give the weapon, not now."));
+                //await session.SendAsync(new SNotice(NoticeType.Blue, $"When the clock has 3:00 for finish give the weapon, not now."));
+                await session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC));
                 return;
             }
 
             if(bridge.State == BCState.Ended)
             {
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.CompletedBC));
+                await session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.CompletedBC));
                 return;
             }
 
@@ -177,13 +194,14 @@ namespace MuEmu.Events.BloodCastle
 
             if (item == null)
             {
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC));
+                await session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC));
                 return;
             }
 
-            plr.Character.Inventory.Delete(item);
+            await plr.Character.Inventory.Delete(item);
 
-            session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.SucceedBC));
+            await session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.SucceedBC));
+            bridge.Winner = plr;
         }
 
         public static byte RemainTime()

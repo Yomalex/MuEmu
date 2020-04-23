@@ -159,6 +159,7 @@ namespace MuEmu
                 MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
                 GuildManager.Initialize();
                 SubSystem.Initialize();
+                Marlon.Initialize();
             }catch(MySql.Data.MySqlClient.MySqlException)
             {
                 Migrate(null, new EventArgs());

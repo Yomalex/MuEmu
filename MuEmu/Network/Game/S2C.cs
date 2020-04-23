@@ -581,7 +581,7 @@ namespace MuEmu.Network.Game
     public class STalk : IGameMessage
     {
         [WZMember(0)]
-        public byte Result { get; set; }
+        public NPCWindow Result { get; set; }
 
         [WZMember(1)]
         public byte Level1 { get; set; }

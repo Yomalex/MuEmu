@@ -129,11 +129,14 @@ namespace MuEmu.Network
         LuckyCoinsRegistre = 0x0CBF,
 
         DevilSquareSet = 0xFF92,
+        BloodCastleReward = 0xFF93,
         EventChipInfo = 0xFF94,
         BloodCastleEnter = 0xFF9A,
         BloodCastleState = 0xFF9B,
 
         CrywolfBenefit = 0x09BD,
+
+        KanturuState = 0x00D1,
     }
 
     public enum CashOpCode : ushort

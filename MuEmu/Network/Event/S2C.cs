@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
+using WebZen.Util;
 
 namespace MuEmu.Network.Event
 {
@@ -122,6 +123,46 @@ namespace MuEmu.Network.Event
         }
     }
 
+    [WZContract]
+    public class BCScore
+    {
+        [WZMember(0, 12)]
+        public byte[] btName { get; set; }
+
+        [WZMember(1)]
+        public int Score { get; set; }
+
+        [WZMember(2)]
+        public int Experience { get; set; }
+
+        [WZMember(3)]
+        public int Zen { get; set; }
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
+
+    [WZContract]
+    public class SBloodCastleReward : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Winner { get; set; }
+
+        [WZMember(1)]
+        public byte Type { get; set; }
+
+        [WZMember(2, SerializerType = typeof(ArraySerializer))]
+        public BCScore[] ScoreTable { get; set; }
+
+        public SBloodCastleReward() { ScoreTable = Array.Empty<BCScore>(); }
+
+        public SBloodCastleReward(bool winner, byte type, BCScore[] scores)
+        {
+            Winner = (byte)(winner?0x01:0x00);
+            Type = type;
+            ScoreTable = scores;
+        }
+    }
+
     // Devil Square
     [WZContract]
     public class SDevilSquareSet : IEventMessage
@@ -150,5 +191,16 @@ namespace MuEmu.Network.Event
         {
             PlusChaosRate = pcr;
         }
+    }
+
+    // Kanturu
+    [WZContract]
+    public class SKanturuStateInfo : IEventMessage
+    {
+        [WZMember(0)] public KanturuState State { get; set; }
+        [WZMember(1)] public byte btDetailState { get; set; } // 5
+        [WZMember(2)] public byte btEnter { get; set; }   // 6
+        [WZMember(3)] public byte btUserCount { get; set; }   // 7
+        [WZMember(4)] public int iRemainTime { get; set; }	// 8
     }
 }

@@ -69,21 +69,21 @@
   </Quest>
   
   <Quest Type="0" Index="4" SubType="2" NPC="406" Name="Certificate of Strength!">
-    <Detail Classes="SoulMaster,HighElf,BlodySummoner">
+    <Detail Index="1" Classes="SoulMaster,HighElf,BlodySummoner">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="1" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
-    <Detail Classes="BladeKnight">
+    <Detail Index="1" Classes="BladeKnight">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="2" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
-    <Detail Classes="BladeKnight">
+    <Detail Index="1" Classes="BladeKnight">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />

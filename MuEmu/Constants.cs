@@ -263,6 +263,21 @@ namespace MuEmu
         GuildMaster,
     }
 
+    public enum NPCWindow : byte
+    {
+        Shop = 0,
+        Warehouse = 2,
+        ChaosMachine = 3,
+        JewelMixer = 9,
+        ChaosCard = 21,
+        BlossomGovernor = 22,
+        SokcetMaster = 23,
+        SokcetResearcher = 24,
+        LuckyCoins = 32,
+        GateKeeper = 33,
+        Sartigan = 35,
+    }
+
     public enum AttributeType
     {
         Ice,
@@ -466,6 +481,9 @@ namespace MuEmu
 
     public enum DevilSquareState : byte
     {
+        Unk3 = 3,
+        BeforeStart = 4,
+        BeforeEnd = 5,
         Quit = 6
     }
 
@@ -543,5 +561,14 @@ namespace MuEmu
         PlayerOffline = 0x03,
         InAnotherParty = 0x04,
         RestrictedLevel = 0x05
+    }
+
+    public enum KanturuState : byte
+    {
+        None,
+        BattleStandBy,
+        BattleOfMaya,
+        BattleOfNightmare,
+        TowerOfRefinery,
     }
 }

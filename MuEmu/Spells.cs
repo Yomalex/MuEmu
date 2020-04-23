@@ -107,7 +107,7 @@ namespace MuEmu
     }
     public class Spells
     {
-        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ResourceCache));
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Spells));
         private Dictionary<Spell, SpellInfo> _spellList;
         private List<Buff> _buffs;
         private List<Spell> _newSpell = new List<Spell>();
@@ -139,7 +139,7 @@ namespace MuEmu
                 _spellList.Add(skill, spell);
                 Logger
                     .ForAccount(Player.Session)
-                    .Information($"Class Skill Added: {spell.Name}");
+                    .Information("Class Skill Added: {0}", spell.Name);
             }
 
             foreach (var skill in character.Spells.Select(x => (Spell)x.Magic))
@@ -148,7 +148,7 @@ namespace MuEmu
                 _spellList.Add(skill, spell);
                 Logger
                     .ForAccount(Player.Session)
-                    .Information($"Learned {spell.Name} Skill Added");
+                    .Information("Learned {0} Skill Added", spell.Name);
             }
         }
 

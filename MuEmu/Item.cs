@@ -221,11 +221,12 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                //var reduce = _durability > value;
+                if (value > BasicInfo.Durability)
+                    value = BasicInfo.Durability;
+
                 _durability = value;
                 OnDurabilityChange(false);
                 NeedSave = true;
-                //OnItemChange();
             }
         }
         public byte Option28
@@ -349,6 +350,7 @@ namespace MuEmu
             Harmony.Item = this;
 
             CalcItemAttributes();
+            NeedSave = false;
         }
 
         public byte[] GetBytes()

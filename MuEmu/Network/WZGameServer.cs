@@ -67,9 +67,9 @@ namespace MuEmu.Network
                     acc.IsConnected = false;
 
                     db.Accounts.Update(acc);
-                    db.SaveChanges();
                     Logger.ForAccount(Session).Information("Disconnecting...");
                 }
+                db.SaveChanges();
             }
             base.OnDisconnect(session);
         }

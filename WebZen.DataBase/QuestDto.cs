@@ -14,7 +14,9 @@ namespace MU.DataBase
         public int QuestId { get; set; }
 
         public int Quest { get; set; }
-        public int State { get; set; }
+        public byte State { get; set; }
+
+        public string Details { get; set; }
 
         public int CharacterId { get; set; }
         public CharacterDto Character { get; set; }

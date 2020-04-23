@@ -231,6 +231,8 @@ namespace WebZen.Network
         {
             var valid = serial == _inSerial;
             _inSerial++;
+            if (_inSerial > 255)
+                _inSerial = 0;
             return valid;
         }
 

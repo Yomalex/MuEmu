@@ -32,12 +32,16 @@ namespace MuEmu.Network.Event
             // BloodCastle
             Register<SBloodCastleMove>(EventOpCode.BloodCastleEnter);
             Register<SBloodCastleState>(EventOpCode.BloodCastleState);
+            Register<SBloodCastleReward>(EventOpCode.BloodCastleReward);
 
             //DevilSquare
             Register<SDevilSquareSet>(EventOpCode.DevilSquareSet);
 
             // Crywolf
             Register<SCrywolfBenefit>(EventOpCode.CrywolfBenefit);
+
+            // Kanturu
+            Register<SKanturuStateInfo>(EventOpCode.KanturuState);
         }
     }
 }

@@ -638,43 +638,32 @@ namespace MuEmu.Resources
                 NPCInfo info = new NPCInfo
                 {
                     NPC = npc.NPC,
-                    ShopNumber = 0xffff,
+                    Data = 0xffff,
+                    Class = type,
                 };
                 switch (type)
                 {
-                    case NPCAttributeType.Quest:
-                        info.Quest = 1;
-                        break;
                     case NPCAttributeType.Shop:
                         var shops = ResourceCache.Instance.GetShops();
                         var shopNum = ushort.Parse(npc.Data);
 
                         if (shops.ContainsKey(shopNum))
-                            info.ShopNumber = shopNum;
+                            info.Data = shopNum;
                         else
-                            Logger.Error("Shop {0} no found", shopNum);
-
+                            Logger.Error("Shop {0} not found", shopNum);
                         break;
+                    case NPCAttributeType.Quest:
                     case NPCAttributeType.Warehouse:
-                        info.Warehouse = true;
-                        break;
                     case NPCAttributeType.MessengerAngel:
-                        info.MessengerAngel = true;
-                        break;
                     case NPCAttributeType.KingAngel:
-                        info.KingAngel = true;
+                    case NPCAttributeType.EventChips:
+                    case NPCAttributeType.GuildMaster:
                         break;
                     case NPCAttributeType.Window:
-                        info.Window = byte.Parse(npc.Data);
-                        break;
-                    case NPCAttributeType.EventChips:
-                        info.EventChips = true;
-                        break;
-                    case NPCAttributeType.GuildMaster:
-                        info.GuildMaster = true;
+                        info.Data = byte.Parse(npc.Data);
                         break;
                     case NPCAttributeType.Buff:
-                        info.Buff = ushort.Parse(npc.Data);
+                        info.Data = ushort.Parse(npc.Data);
                         break;
                 }
                 yield return info;
@@ -822,11 +811,12 @@ namespace MuEmu.Resources
                 {
                     var stmp = new SubQuest
                     {
+                        Index = sq.Index,
                         Allowed = sq.Classes.Split(",").Select(x => Enum.Parse<HeroClass>(x)).ToArray(),
                         Messages = new Dictionary<QuestState, ushort>(),
                         CompensationType = Enum.Parse<QuestCompensation>(sq.Reward.Type),
                         Amount = sq.Reward.SubType,
-                        Requeriment = new List<Item>(),
+                        Requeriment = new List<Item>()
                     };
                     if (sq.NeededItem != null)
                     {
@@ -859,6 +849,7 @@ namespace MuEmu.Resources
                 {
                     var ctmp = new RunConditions
                     {
+                        Index = c.Index,
                         NeededQuestIndex = c.NeededQuest,
                         Cost = c.Cost,
                         MaxLevel = c.MaxLevel,

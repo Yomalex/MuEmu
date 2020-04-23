@@ -360,23 +360,33 @@ namespace MuEmu.Network.Auth
             using (var db = new GameContext())
             {
                 var res = db.Config.FirstOrDefault(x => x.SkillKeyId == session.Player.Character.Id);
-
-                var New = new MU.DataBase.SkillKeyDto
+                if(res == null)
                 {
-                    SkillKeyId = session.Player.Character.Id,
-                    SkillKey = message.SkillKey,
-                    QkeyDefine = message.Q_Key,
-                    EkeyDefine = message.E_Key,
-                    WkeyDefine = message.W_Key,
-                    GameOption = message.GameOption,
-                    ChatWindow = message.ChatWindow,
-                    RkeyDefine = message.R_Key,
-//                    QWERLevelDefine = message.q
-                };
-                if (res == null)
-                    db.Config.Add(New);
+                    db.Config.Add(new MU.DataBase.SkillKeyDto
+                    {
+                        SkillKeyId = session.Player.Character.Id,
+                        SkillKey = message.SkillKey,
+                        QkeyDefine = message.Q_Key,
+                        EkeyDefine = message.E_Key,
+                        WkeyDefine = message.W_Key,
+                        GameOption = message.GameOption,
+                        ChatWindow = message.ChatWindow,
+                        RkeyDefine = message.R_Key,
+                        //                    QWERLevelDefine = message.q
+                    });
+                }
                 else
+                {
+                    //res.SkillKeyId = session.Player.Character.Id;
+                    res.SkillKey = message.SkillKey;
+                    res.QkeyDefine = message.Q_Key;
+                    res.EkeyDefine = message.E_Key;
+                    res.WkeyDefine = message.W_Key;
+                    res.GameOption = message.GameOption;
+                    res.ChatWindow = message.ChatWindow;
+                    res.RkeyDefine = message.R_Key;
                     db.Config.Update(res);
+                }
 
                 db.SaveChanges();
             }

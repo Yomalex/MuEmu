@@ -563,12 +563,10 @@ namespace MuEmu
 
         public async void HPorSDChanged(RefillInfo info)
         {
-            Console.WriteLine($"HP Changed {_hp}/{_hpMax} {_sd}/{_sdMax}");
             await Player.Session.SendAsync(new SHeatlUpdate(info, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
         {
-            Console.WriteLine($"Max HP Changed {MaxHealth} {MaxShield}");
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
         }
         private async void MPorBPChanged(RefillInfo info)
@@ -846,8 +844,14 @@ namespace MuEmu
 
             var rand = new Random();
 
-            var randX = rand.Next(g.Door.Left, g.Door.Right);
-            var randY = rand.Next(g.Door.Top, g.Door.Bottom);
+            var left = g.Door.Left < g.Door.Right ? g.Door.Left : g.Door.Right;
+            var right = g.Door.Left < g.Door.Right ? g.Door.Right : g.Door.Left;
+
+            var top = g.Door.Top < g.Door.Bottom ? g.Door.Top : g.Door.Bottom;
+            var bottom = g.Door.Top < g.Door.Bottom ? g.Door.Bottom : g.Door.Top;
+
+            var randX = rand.Next(left, right);
+            var randY = rand.Next(top, bottom);
 
             await WarpTo(g.Map, new Point(randX, randY), g.Dir);
         }
@@ -862,6 +866,7 @@ namespace MuEmu
         {
             await Inventory.Save(db);
             await Spells.Save(db);
+            await Quests.Save(db);
 
             if (_needSave == false)
                 return;
@@ -959,7 +964,6 @@ namespace MuEmu
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
 
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
-            attack -= target.Defense;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -973,6 +977,7 @@ namespace MuEmu
             if (attack < 0)
                 attack = 0;
 
+            attack -= target.Defense;
             return (int)attack;
         }
 
@@ -1072,7 +1077,6 @@ namespace MuEmu
             attack = BaseAttack(type != DamageType.Regular);
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
             attack += _rand.Next(spell.Damage.X, spell.Damage.Y);
-            attack -= target.Defense;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1085,6 +1089,7 @@ namespace MuEmu
 
             attack *= (200.0f + EnergyTotal / 10.0f) / 100.0f;
 
+            attack -= target.Defense;
             return (int)attack;
         }
         
@@ -1111,7 +1116,6 @@ namespace MuEmu
             attack += (type != DamageType.Regular) ? spell.Damage.Y + Energy / 4 : _rand.Next(spell.Damage.X + Energy / 9, spell.Damage.Y + Energy / 4);
             attack *= 1.0f + magicAdd / 100.0f;
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
-            attack -= target.Defense;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1125,6 +1129,7 @@ namespace MuEmu
             if (attack < 0)
                 attack = 0.0f;
 
+            attack -= target.Defense;
             return (int)attack;
         }
 

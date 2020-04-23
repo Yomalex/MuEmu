@@ -69,6 +69,7 @@ namespace MuEmu.Resources.Map
             return id;
         }
 
+        public event EventHandler PlayerJoins;
         public event EventHandler PlayerLeaves;
         public event EventHandler MonsterAdd;
         
@@ -191,6 +192,7 @@ namespace MuEmu.Resources.Map
             var pos = @char.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
             Players.Add(@char);
+            PlayerJoins?.Invoke(@char.Player, new EventArgs());
         }
 
         public void AddMonster(Monster mons)
@@ -240,8 +242,17 @@ namespace MuEmu.Resources.Map
         
         public void DelPlayer(Character @char)
         {
+            var pos = @char.Position;
+            ClearAttribute(pos.X, pos.Y, MapAttributes.Stand);
             Players.Remove(@char);
             PlayerLeaves?.Invoke(@char.Player, new EventArgs());
+        }
+        public void DelMonster(Monster mons)
+        {
+            var pos = mons.Position;
+            ClearAttribute(pos.X, pos.Y, MapAttributes.Stand);
+            Monsters.Remove(mons);
+            
         }
 
         public void PositionChanged(Point prev, Point current)

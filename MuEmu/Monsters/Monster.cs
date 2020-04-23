@@ -71,7 +71,7 @@ namespace MuEmu.Monsters
         public float MaxMana => Info.MP;
         public Spells Spells { get; set; }
         public Maps MapID { get; set; }
-        public MapInfo Map { get; }
+        public MapInfo Map { get; private set; }
         public Point Spawn { get; private set; }
         public Point Position { get; private set; }
         public Point TPosition { get => _TPosition;
@@ -126,6 +126,7 @@ namespace MuEmu.Monsters
             Info = MonstersMng.Instance.MonsterInfo[Monster];
             Life = Info.HP;
             Mana = Info.MP;
+            Active = true;
             Map = ResourceCache.Instance.GetMaps()[MapID];
             Map.AddMonster(this);
             State = ObjectState.Regen;
@@ -228,6 +229,9 @@ namespace MuEmu.Monsters
         {
             if (Type == ObjectType.NPC)
                 return;
+
+            if (Life == 0 && State == ObjectState.Live)
+                Life = MaxLife;
 
             if (_nextAction > DateTimeOffset.Now)
                 return;
@@ -643,6 +647,15 @@ namespace MuEmu.Monsters
                     }
                 }
             }
+        }
+
+        public void Warp(Maps map, byte x, byte y)
+        {
+            Map.DelMonster(this);
+            Map = ResourceCache.Instance.GetMaps()[map];
+            Map.AddMonster(this);
+            Position = new Point(x,y);
+            _TPosition = new Point(x, y);
         }
     }
 }
