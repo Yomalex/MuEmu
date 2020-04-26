@@ -1,6 +1,8 @@
 ﻿using MuEmu.Entity;
 using MuEmu.Events.BloodCastle;
+using MuEmu.Events.DevilSquare;
 using MuEmu.Events.EventChips;
+using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
@@ -150,10 +152,25 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CCloseWindow))]
-        public void CCloseWindow(GSSession session)
+        public static void CCloseWindow(GSSession session)
         {
-            if(session.Player.Window != null)
-                Logger.Debug("Player close window:{0}", session.Player.Window.GetType().ToString());
+            if (session.Player.Window == null)
+                return;
+
+            if(session.Player.Window.GetType() == typeof(Monster))
+            {
+                var mob = session.Player.Window as Monster;
+                if (mob == null)
+                    return;
+
+                if(mob.Info.Monster == 229)
+                    Marlon.RemRef();
+
+                Logger.Debug("Player close window:{0}", mob.Info.Name);
+            }else if(session.Player.Window.GetType() == typeof(Character))
+            {
+
+            }
             session.Player.Window = null;
         }
 
@@ -672,20 +689,18 @@ namespace MuEmu.Network.Game
             var @char = session.Player.Character;
             if (npcs.TryGetValue(obj.Info.Monster, out var npc))
             {
-                switch(npc.Class)
+                session.Player.Window = obj;
+                switch (npc.Class)
                 {
                     case NPCAttributeType.Shop:
                         if (npc.Data == 0xffff)
                             break;                        
-                        session.Player.Window = npc.Shop.Storage;
                         await session.SendAsync(new STalk { Result = 0 });
                         await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
                         await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });                        
                         break;
                     case NPCAttributeType.Warehouse:
-                        session.Player.Window = session.Player.Account.Vault;
                         session.Player.Character.Inventory.Lock = true;
-
                         await session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
                         await session.SendAsync(new STalk { Result = NPCWindow.Warehouse });
                         await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
@@ -703,13 +718,23 @@ namespace MuEmu.Network.Game
                     case NPCAttributeType.KingAngel:
                         BloodCastles.AngelKingTalk(session.Player);
                         break;
+                    case NPCAttributeType.Kanturu:
+                        Kanturu.NPCTalk(session.Player);
+                        break;
+                    case NPCAttributeType.DevilSquare:
+                        Program.EventManager
+                            .GetEvent<DevilSquares>()
+                            .NPCTalk(session.Player);
+                        break;
+                    case NPCAttributeType.ServerDivision:
+                        await session.SendAsync(new SCommand(ServerCommandType.ServerDivision));
+                        break;
                     case NPCAttributeType.Window:
                         await session.SendAsync(new STalk { Result = (NPCWindow)npc.Data });
 
                         if ((NPCWindow)npc.Data == NPCWindow.ChaosMachine) // ChaosMachine
                         {
                             session.Player.Character.Inventory.Lock = true;
-                            session.Player.Window = session.Player.Character.Inventory.ChaosBox;
                         }
                         break;
                     case NPCAttributeType.Buff:
@@ -745,73 +770,99 @@ namespace MuEmu.Network.Game
             var plr = session.Player;
             var @char = plr.Character;
 
-            if (plr.Window == null)
-            {
-                throw new ArgumentException("Player isn't in buy/trade/box/Quest", nameof(session.Player.Window));
-            }
-
-            if(plr.Window.GetType() != typeof(Storage))
-            {
-                throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
-            }
-
-            var shop = plr.Window as Storage;
-            var item = shop.Items[message.Position];
             var bResult = new SBuy
             {
                 Result = 0xff,
-                ItemInfo = item.GetBytes()
+                ItemInfo = Array.Empty<byte>(),
             };
 
-            if(item.BuyPrice > @char.Money)
+            if (plr.Window == null)
             {
-                Logger
-                    .ForAccount(session)
-                    .Information("Insuficient Money");
                 await session.SendAsync(bResult);
-                return;
+                throw new ArgumentException("Player isn't in buy/trade/box/Quest", nameof(session.Player.Window));
             }
 
-            bResult.Result = @char.Inventory.Add(item);
-            if(bResult.Result == 0xff)
+            if(plr.Window.GetType() != typeof(Monster))
             {
-                Logger
-                    .ForAccount(session)
-                    .Information("Insuficient Space");
                 await session.SendAsync(bResult);
-                return;
+                throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
             }
 
-            @char.Money -= item.BuyPrice;
+            var npcs = ResourceCache.Instance.GetNPCs();
+            var obj = plr.Window as Monster;
+            if (npcs.TryGetValue(obj.Info.Monster, out var npc))
+            {
+                if (npc.Class != NPCAttributeType.Shop)
+                {
+                    await session.SendAsync(bResult);
+                    throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
+                }
 
-            Logger
-                .ForAccount(session)
-                .Information("Buy {0} for {1}", item.ToString(), item.BuyPrice);
+                var item = npc.Shop.Storage.Items[message.Position];
+                bResult.ItemInfo = item.GetBytes();
 
-            await session.SendAsync(bResult);
+                if (item.BuyPrice > @char.Money)
+                {
+                    Logger
+                        .ForAccount(session)
+                        .Information("Insuficient Money");
+                    await session.SendAsync(bResult);
+                    return;
+                }
+
+                bResult.Result = @char.Inventory.Add(item);
+                if (bResult.Result == 0xff)
+                {
+                    Logger
+                        .ForAccount(session)
+                        .Information("Insuficient Space");
+                    await session.SendAsync(bResult);
+                    return;
+                }
+
+                @char.Money -= item.BuyPrice;
+
+                Logger
+                    .ForAccount(session)
+                    .Information("Buy {0} for {1}", item.ToString(), item.BuyPrice);
+
+                await session.SendAsync(bResult);
+            }
         }
 
         [MessageHandler(typeof(CSell))]
         public async Task CSell(GSSession session, CSell message)
         {
-            if (session.Player.Window == null)
+            var plr = session.Player;
+            var result = new SSell { Result = 0, Money = session.Player.Character.Money };
+
+            if (plr.Window == null)
             {
+                await session.SendAsync(result);
                 throw new ArgumentException("Player isn't in buy/trade/box", nameof(session.Player.Window));
             }
 
-            if (session.Player.Window.GetType() != typeof(Storage))
+            if (plr.Window.GetType() != typeof(Monster))
             {
+                await session.SendAsync(result);
                 throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
             }
 
-            var shop = session.Player.Window as Storage;
-            var inve = session.Player.Character.Inventory;
-            var item = inve.Get(message.Position);
-            inve.Remove(message.Position);
+            var npcs = ResourceCache.Instance.GetNPCs();
+            var obj = plr.Window as Monster;
+            if (npcs.TryGetValue(obj.Info.Monster, out var npc))
+            {
+                if(npc.Class == NPCAttributeType.Shop)
+                {
+                    result.Result = 1;
+                    var inve = plr.Character.Inventory;
+                    var item = inve.Get(message.Position);
+                    inve.Remove(message.Position);
 
-            session.Player.Character.Money += item.SellPrice;
-            var result = new SSell { Result = 1, Money = session.Player.Character.Money };
-
+                    plr.Character.Money += item.SellPrice;
+                    result.Money = session.Player.Character.Money;
+                }
+            }
             await session.SendAsync(result);
         }
 

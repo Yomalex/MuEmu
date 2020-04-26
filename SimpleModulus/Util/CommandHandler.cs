@@ -23,6 +23,9 @@ namespace WebZen.Util
 
         public bool ProcessCommands(TSession source, string text)
         {
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
             foreach(var cmd in _commands)
             {
                 if(cmd.Process(source, text))

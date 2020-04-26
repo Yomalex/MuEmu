@@ -324,7 +324,9 @@ namespace MuEmu
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
 
             if (addObj.Any())
+            {
                 await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = addObj.ToArray() });
+            }
         }
 
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)
@@ -334,10 +336,10 @@ namespace MuEmu
             var pos = plr.Position;
             pos.Offset(15, 15);
 
-            var playerVP = from obj in targetVP
+            var playerVP = (from obj in targetVP
                            let rect = new Rectangle(obj.Position, new Size(30, 30))
                            where rect.Contains(pos)
-                           select obj;
+                           select obj).ToList();
 
             if (!playerVP.Any())
             {
@@ -401,6 +403,7 @@ namespace MuEmu
                 try
                 {
                     BloodCastles.Update();
+                    Program.EventManager.Update();
                     Thread.Sleep(1000);
                 }
                 catch(Exception e)

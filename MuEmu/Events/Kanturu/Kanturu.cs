@@ -15,7 +15,7 @@ namespace MuEmu.Events.Kanturu
                 s_instance = new Kanturu();
         }
 
-        public async void NPCTalk(Player plr)
+        public static async void NPCTalk(Player plr)
         {
             var msg = new SKanturuStateInfo
             {

@@ -208,6 +208,7 @@ namespace MuEmu.Monsters
             if (_regen > DateTimeOffset.Now)
                 return;
 
+            DamageSum.Clear();
             Life = MaxLife;
             Mana = MaxMana;
             Position = Spawn;
@@ -456,8 +457,6 @@ namespace MuEmu.Monsters
                     Map.AddItem(Position.X, Position.Y, reward);
                 }
             }
-
-            DamageSum.Clear();
         }
 
         private void EnemyDie(object obj, EventArgs args)

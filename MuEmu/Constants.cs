@@ -261,6 +261,9 @@ namespace MuEmu
         MessengerAngel,
         KingAngel,
         GuildMaster,
+        Kanturu,
+        DevilSquare,
+        ServerDivision,
     }
 
     public enum NPCWindow : byte
@@ -268,6 +271,8 @@ namespace MuEmu
         Shop = 0,
         Warehouse = 2,
         ChaosMachine = 3,
+        DevilSquared = 4,
+        MessengerAngel = 6,
         JewelMixer = 9,
         ChaosCard = 21,
         BlossomGovernor = 22,
@@ -276,6 +281,7 @@ namespace MuEmu
         LuckyCoins = 32,
         GateKeeper = 33,
         Sartigan = 35,
+        LeoTheHelper = 38,
     }
 
     public enum AttributeType
@@ -307,7 +313,7 @@ namespace MuEmu
         ChaosCastlePK,
     }
 
-    public enum EventMsg
+    public enum EventMsg : byte
     {
         YouNeedInvitationDS = 2,
         DevilStarted, //???
@@ -481,7 +487,10 @@ namespace MuEmu
 
     public enum DevilSquareState : byte
     {
-        Unk3 = 3,
+        Close = 0,
+        Open = 1,
+        Playing = 2,
+        None = 3,
         BeforeStart = 4,
         BeforeEnd = 5,
         Quit = 6

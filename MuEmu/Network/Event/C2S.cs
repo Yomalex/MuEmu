@@ -40,4 +40,12 @@ namespace MuEmu.Network.Event
     [WZContract]
     public class CCrywolfBenefit : IEventMessage
     { }
+
+    // DevilSquare
+    [WZContract]
+    public class CDevilSquareMove : IEventMessage
+    {
+        [WZMember(0)] public byte SquareNumber { get; set; }  // 3
+        [WZMember(1)] public byte InvitationItemPos { get; set; }	// 4
+    }
 }

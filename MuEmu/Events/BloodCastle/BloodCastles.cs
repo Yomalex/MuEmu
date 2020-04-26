@@ -163,7 +163,7 @@ namespace MuEmu.Events.BloodCastle
                 return;
             }
 
-            plr.Session.SendAsync(new STalk { Result = 0x06 });
+            plr.Session.SendAsync(new STalk { Result = NPCWindow.MessengerAngel });
         }
 
         public static async void AngelKingTalk(Player plr)

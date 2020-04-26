@@ -1755,26 +1755,26 @@ end
 //Mob	Map	Radio	CordX	CordY	CordX2	CordY2	Dir	Quant	Name	
 1										
 //DevilSquare 1 Mobs										
-17	9	30	119	80	150	115	-1	40	//Cyclops
-15	9	30	119	80	150	115	-1	40	//Skeleton Archer
+//17	9	30	119	80	150	115	-1	40	//Cyclops
+//15	9	30	119	80	150	115	-1	40	//Skeleton Archer
 //DevilSquare 2 Mobs										
-10	9	30	121	152	151	184	-1	40	//Dark Knight
-39	9	30	121	152	151	184	-1	40	//Poison Shadow
+//10	9	30	121	152	151	184	-1	40	//Dark Knight
+//39	9	30	121	152	151	184	-1	40	//Poison Shadow
 //DevilSquare 3 Mobs										
-41	9	30	49	138	79	173	-1	40	//Death Cow
-37	9	30	49	138	79	173	-1	40	//Devil
+//41	9	30	49	138	79	173	-1	40	//Death Cow
+//37	9	30	49	138	79	173	-1	40	//Devil
 //DevilSquare 4 Mobs										
-64	9	30	53	74	83	109	-1	40	//Orc Archer
-65	9	30	53	74	83	109	-1	40	//Elite Orc
+//64	9	30	53	74	83	109	-1	40	//Orc Archer
+//65	9	30	53	74	83	109	-1	40	//Elite Orc
 //DevilSquare 5 Mobs										
-294	32	30	120	80	150	115	-1	40	//Axe Warrior
-60	32	30	120	80	150	115	-1	40	//Bloody Wolf
+//294	32	30	120	80	150	115	-1	40	//Axe Warrior
+//60	32	30	120	80	150	115	-1	40	//Bloody Wolf
 //DevilSquare 6 Mobs										
-290	32	30	122	152	151	184	-1	40	//Lizard Warrior
-57	32	30	122	152	151	184	-1	40	//Iron Wheel
+//290	32	30	122	152	151	184	-1	40	//Lizard Warrior
+//57	32	30	122	152	151	184	-1	40	//Iron Wheel
 //DevilSquare 7 Mobs										
-290	32	30	49	138	79	173	-1	40	//Lizard Warrior
-57	32	30	49	138	79	173	-1	40	//Iron Wheel
+//290	32	30	49	138	79	173	-1	40	//Lizard Warrior
+//57	32	30	49	138	79	173	-1	40	//Iron Wheel
 end
 
 //=========================================================================================										

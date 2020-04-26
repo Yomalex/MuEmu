@@ -1,4 +1,5 @@
 ﻿using MuEmu.Events.BloodCastle;
+using MuEmu.Events.DevilSquare;
 using MuEmu.Events.LuckyCoins;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace MuEmu.Network.Event
             switch (message.EventType)
             {
                 case EventEnterType.DevilSquare:
-                    res.RemainTime = 0;
+                    res.RemainTime = Program.EventManager.GetEvent<DevilSquares>().RemainTime;
                     break;
                 case EventEnterType.BloodCastle:
                     res.RemainTime = BloodCastles.RemainTime();
@@ -82,6 +83,27 @@ namespace MuEmu.Network.Event
         public void CCrywolfBenefit(GSSession session)
         {
             session.SendAsync(new SCrywolfBenefit());
+        }
+
+        [MessageHandler(typeof(CDevilSquareMove))]
+        public async Task CDevilSquareMove(GSSession session, CDevilSquareMove message)
+        {
+            var plr = session.Player;
+            var @char = plr.Character;
+
+            var itemPos = (byte)(message.InvitationItemPos - 12);
+            var item = @char.Inventory.Get(itemPos);
+            if (item.Plus != message.SquareNumber+1)
+                return;
+
+            var dsm = Program.EventManager.GetEvent<DevilSquares>();
+            if (dsm.GetPlayerDS(plr) != message.SquareNumber+1)
+                return;
+
+            if (!dsm.TryAdd(plr))
+                return;
+
+            await @char.Inventory.Delete(itemPos);
         }
     }
 }

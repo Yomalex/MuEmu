@@ -27,6 +27,9 @@ using MuEmu.Entity;
 using System.Linq;
 using MuEmu.Network.Guild;
 using MuEmu.Network.AntiHack;
+using MuEmu.Events.DevilSquare;
+using MuEmu.Events;
+using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -43,6 +46,7 @@ namespace MuEmu
         public static int DropRate { get; set; }
         public static bool Season12 { get; set; }
 
+        public static EventManagement EventManager;
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
@@ -120,9 +124,11 @@ namespace MuEmu
                     .RegisterRule<CCharacterMapJoin2>(MustBeLoggedIn)
                     .RegisterRule<CCloseWindow>(MustBePlaying)
                     .RegisterRule<CDataLoadOK>(MustBePlaying)
-                    .RegisterRule<CClientClose>(MustBeLoggedOrPlaying)
                     .RegisterRule<CAction>(MustBePlaying)
             };
+
+            
+
             var mf = new MessageFactory[]
             {
                 new AuthMessageFactory(),
@@ -243,6 +249,8 @@ namespace MuEmu
 
         static void EventInitialize()
         {
+            EventManager = new EventManagement();
+            EventManager.AddEvent(Events.Events.DevilSquared, new DevilSquares());
             LuckyCoins.Initialize();
             EventChips.Initialize();
             BloodCastles.Initialize();
@@ -258,6 +266,37 @@ namespace MuEmu
         {
             await ResourceCache.Instance.GetMaps()[map].SendAll(new SNotice(NoticeType.Gold, text));
             Log.Information($"Map '{map}' Announcement: " + text);
+        }
+
+        public static async Task NoEventMapAnoucement(string text)
+        {
+            Maps[] disabled = new Maps[]
+            {
+                Maps.BloodCastle1,
+                Maps.BloodCastle2,
+                Maps.BloodCastle3,
+                Maps.BloodCastle4,
+                Maps.BloodCastle5,
+                Maps.BloodCastle6,
+                Maps.BloodCastle7,
+                Maps.BloodCastle8,
+                Maps.DevilSquare,
+                Maps.DevilSquare2,
+                Maps.ChaosCastle1,
+                Maps.ChaosCastle2,
+                Maps.ChaosCastle3,
+                Maps.ChaosCastle4,
+                Maps.ChaosCastle5,
+                Maps.ChaosCastle6,
+                Maps.ChaosCastle7,
+            };
+
+            await server
+                .Clients
+                .Where(x => !disabled.Any(y => y == (x.Player?.Character.MapID ?? Maps.BloodCastle1)))
+                .SendAsync(new SNotice(NoticeType.Gold, text));
+
+            Log.Information($"No Events Announcement: " + text);
         }
 
         public static void Close(object a, EventArgs b)

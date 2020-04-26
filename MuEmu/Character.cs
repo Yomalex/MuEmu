@@ -835,7 +835,9 @@ namespace MuEmu
             }
             Position = position;
             Direction = dir;
-            await Player.Session.SendAsync(new STeleport(256, MapID, Position, Direction));
+
+            if(State == ObjectState.Live)
+                await Player.Session.SendAsync(new STeleport(256, MapID, Position, Direction));
         }
 
         public async Task WarpTo(int gate)

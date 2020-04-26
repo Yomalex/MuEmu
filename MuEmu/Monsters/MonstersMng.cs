@@ -35,7 +35,7 @@ namespace MuEmu.Monsters
             Monsters = new List<Monster>();
         }
 
-        private ushort GetNewIndex()
+        public ushort GetNewIndex()
         {
             var clearIndex = _clearIndex.FirstOrDefault();
             if (clearIndex != 0)

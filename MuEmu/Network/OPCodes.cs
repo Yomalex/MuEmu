@@ -128,9 +128,13 @@ namespace MuEmu.Network
         LuckyCoinsCount = 0x0BBF,
         LuckyCoinsRegistre = 0x0CBF,
 
+        DevilSquareMove = 0xFF90,
         DevilSquareSet = 0xFF92,
+
         BloodCastleReward = 0xFF93,
+
         EventChipInfo = 0xFF94,
+
         BloodCastleEnter = 0xFF9A,
         BloodCastleState = 0xFF9B,
 

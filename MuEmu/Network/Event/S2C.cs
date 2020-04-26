@@ -178,6 +178,29 @@ namespace MuEmu.Network.Event
         }
     }
 
+    [WZContract]
+    public class DevilSquareScoreInfo
+    {
+        public byte rank;
+        public object player;
+        [WZMember(0,12)] public byte[] btName { get; set; }  // 0
+        [WZMember(1)] public int TotalScore { get; set; } // C
+        [WZMember(2)] public int BonusExp { get; set; }   // 10
+        [WZMember(3)] public int BonusZen { get; set; }	// 14
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
+
+    [WZContract]
+    public class SDevilSquareResult :IEventMessage
+    {
+        [WZMember(0)]
+        public byte MyRank { get; set; }    // 3
+        //public byte Count; // 4
+        [WZMember(1, typeof(ArrayWithScalarSerializer<byte>))]
+        public DevilSquareScoreInfo[] Score { get; set; }	// 5
+    }
+
     // Crywolf
     [WZContract]
     public class SCrywolfBenefit : IEventMessage

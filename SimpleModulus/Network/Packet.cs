@@ -8,6 +8,7 @@ using WebZen.Handlers;
 using WebZen.Serialization;
 using Serilog;
 using Serilog.Core;
+using WebZen.Util;
 
 namespace WebZen.Network
 {
@@ -574,20 +575,16 @@ namespace WebZen.Network
         public byte Type { get; set; }
 
         [BlubMember(1)]
-        public byte SizeH { get; set; }
-
-        [BlubMember(2)]
-        public byte SizeL { get; set; }
+        public ushort wzSize { get; set; }
 
         [BlubMember(3)]
         public ushort Operation { get; set; }
 
         public ushort Size {
-            get => (byte)(SizeH << 8 | SizeL);
+            get => wzSize.ShufleEnding();
             set
             {
-                SizeH = (byte)(value >> 8);
-                SizeL = (byte)(value & 0xff);
+                wzSize = value.ShufleEnding();
             }
         }
     }
