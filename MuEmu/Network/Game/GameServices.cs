@@ -719,7 +719,9 @@ namespace MuEmu.Network.Game
                         BloodCastles.AngelKingTalk(session.Player);
                         break;
                     case NPCAttributeType.Kanturu:
-                        Kanturu.NPCTalk(session.Player);
+                        Program.EventManager
+                            .GetEvent<Kanturu>()
+                            .NPCTalk(session.Player);
                         break;
                     case NPCAttributeType.DevilSquare:
                         Program.EventManager

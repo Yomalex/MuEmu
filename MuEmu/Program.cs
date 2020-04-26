@@ -30,6 +30,7 @@ using MuEmu.Network.AntiHack;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events;
 using MuEmu.Util;
+using MuEmu.Events.Kanturu;
 
 namespace MuEmu
 {
@@ -250,7 +251,9 @@ namespace MuEmu
         static void EventInitialize()
         {
             EventManager = new EventManagement();
-            EventManager.AddEvent(Events.Events.DevilSquared, new DevilSquares());
+            EventManager
+                .AddEvent(Events.Events.DevilSquared, new DevilSquares())
+                .AddEvent(Events.Events.Kanturu, new Kanturu());
             LuckyCoins.Initialize();
             EventChips.Initialize();
             BloodCastles.Initialize();
@@ -264,7 +267,7 @@ namespace MuEmu
 
         public static async Task MapAnoucement(Maps map, string text)
         {
-            await ResourceCache.Instance.GetMaps()[map].SendAll(new SNotice(NoticeType.Gold, text));
+            await ResourceCache.Instance.GetMaps()[map].SendAsync(new SNotice(NoticeType.Gold, text));
             Log.Information($"Map '{map}' Announcement: " + text);
         }
 

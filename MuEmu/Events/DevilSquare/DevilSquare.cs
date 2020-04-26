@@ -150,7 +150,7 @@ namespace MuEmu.Events.DevilSquare
                     _players.Clear();
                     break;
                 case EventState.Open:
-                    Trigger(EventState.Playing, _openedTime);
+                    Trigger(EventState.Playing, _openTime);
                     break;
                 case EventState.Playing:
                     if (_players.Any(x => x.Eventer))

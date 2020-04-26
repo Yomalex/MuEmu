@@ -261,14 +261,6 @@ namespace MuEmu.Resources.Map
             SetAttribute(current.X, current.Y, MapAttributes.Stand);
         }
 
-        public async Task SendAll(object message)
-        {
-            foreach(var plr in Players)
-            {
-                await plr.Player.Session.SendAsync(message);
-            }
-        }
-
         public async Task AddAttribute(MapAttributes att, Rectangle area)
         {
             for (int y = area.Top; y < area.Bottom; y++)

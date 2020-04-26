@@ -179,7 +179,7 @@ namespace MuEmu.Events.DevilSquare
                     Trigger(EventState.Open, _closedTime);
                     break;
                 case EventState.Open:
-                    Trigger(EventState.Playing, _openedTime);
+                    Trigger(EventState.Playing, _openTime);
                     foreach (var ds in _devilSquares)
                         ds.Trigger(EventState.Open);
                     break;

@@ -23,7 +23,7 @@ namespace MuEmu.Events
     {
         protected ILogger _logger;
         protected TimeSpan _closedTime = TimeSpan.FromMinutes(2 * 60);
-        protected TimeSpan _openedTime = TimeSpan.FromMinutes(5);
+        protected TimeSpan _openTime = TimeSpan.FromMinutes(5);
         protected TimeSpan _playingTime = TimeSpan.FromMinutes(15);
         protected List<PlayerEventInfo> _players = new List<PlayerEventInfo>();
 
@@ -46,13 +46,13 @@ namespace MuEmu.Events
         public Event(TimeSpan close, TimeSpan open, TimeSpan playing)
         {
             _closedTime = close;
-            _openedTime = open;
+            _openTime = open;
             _playingTime = playing;
         }
 
         public override void Initialize()
         {
-            _closedTime -= _openedTime + _playingTime;
+            _closedTime -= _openTime + _playingTime;
             Trigger(EventState.Closed);
         }
         public abstract void NPCTalk(Player plr);
