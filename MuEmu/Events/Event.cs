@@ -2,6 +2,7 @@
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MuEmu.Events
@@ -19,6 +20,11 @@ namespace MuEmu.Events
         public int Score { get; set; }
         public bool Eventer { get; set; }
     }
+    public class EventLevelReq
+    {
+        public int Min { get; set; }
+        public int Max { get; set; }
+    }
     public abstract class Event : StateMachine<EventState>
     {
         protected ILogger _logger;
@@ -26,6 +32,8 @@ namespace MuEmu.Events
         protected TimeSpan _openTime = TimeSpan.FromMinutes(5);
         protected TimeSpan _playingTime = TimeSpan.FromMinutes(15);
         protected List<PlayerEventInfo> _players = new List<PlayerEventInfo>();
+        protected List<EventLevelReq> _eventLevelReqs;
+        protected Random _random = new Random();
 
         public byte RemainTime { get
             {
@@ -42,6 +50,10 @@ namespace MuEmu.Events
                 return 0;
             }
         }
+
+        public byte Count => (byte)_players.Count(x => x.Eventer);
+        public Event()
+        { }
 
         public Event(TimeSpan close, TimeSpan open, TimeSpan playing)
         {
@@ -60,5 +72,20 @@ namespace MuEmu.Events
         public abstract void OnPlayerDead(object sender, EventArgs eventArgs);
         public abstract void OnPlayerLeave(object sender, EventArgs eventArgs);
         public abstract void OnMonsterDead(object sender, EventArgs eventArgs);
+
+        public int GetEventNumber(Player plr)
+        {
+            var lvl = plr.Character.Level;
+            if (plr.Character.MasterClass)
+                return _eventLevelReqs.Count;
+
+            if (plr.Character.BaseClass == HeroClass.MagicGladiator || plr.Character.BaseClass == HeroClass.DarkLord)
+            {
+                lvl = (ushort)(lvl * 3.0f / 2.0f);
+                lvl = Math.Min(lvl, (ushort)400);
+            }
+
+            return _eventLevelReqs.FindIndex(x => x.Min <= lvl && x.Max >= lvl)+1;
+        }
     }
 }

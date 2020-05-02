@@ -252,22 +252,16 @@ namespace MuEmu
                            where rect.Contains(pos)
                            select obj;
 
-            if (!playerVP.Any())
-            {
-                oldVP.Clear();
-                return;
-            }
-
             var newObj = (from obj in playerVP
-                         where obj.State == ObjectState.Regen
+                         where obj.State == ObjectState.Regen && obj.Active
                          select obj).ToList();
 
             var existObj = (from obj in playerVP
-                           where !oldVP.Contains(obj.Index) && obj.State == ObjectState.Live
-                           select obj).ToList();
+                           where !oldVP.Contains(obj.Index) && obj.State == ObjectState.Live && obj.Active
+                            select obj).ToList();
 
             var deadObj = (from obj in playerVP
-                          where obj.State == ObjectState.WaitRegen
+                          where obj.State == ObjectState.WaitRegen || obj.Active == false
                           select obj).ToList();
 
             var lostObj = (from obj in targetVP
@@ -297,24 +291,28 @@ namespace MuEmu
             oldVP.AddRange(existObj.Select(x => x.Index));
 
             var addObj = new List<VPMCreateDto>();
-            addObj.AddRange(newObj.Select(x => new VPMCreateDto
-            {
-                Number = (ushort)(x.Index|0x8000),
-                Position = x.Position,
-                TPosition = x.TPosition,
-                Type = x.Info.Monster,
-                ViewSkillState = Array.Empty<byte>(),
-                Path = (byte)(x.Direction << 4)
-            }));
-            addObj.AddRange(existObj.Select(x => new VPMCreateDto
-            {
-                Number = x.Index,
-                Position = x.Position,
-                TPosition = x.TPosition,
-                Type = x.Info.Monster,
-                ViewSkillState = Array.Empty<byte>(),
-                Path = (byte)(x.Direction << 4)
-            }));
+
+            if(newObj.Any())
+                addObj.AddRange(newObj.Select(x => new VPMCreateDto
+                {
+                    Number = (ushort)(x.Index|0x8000),
+                    Position = x.Position,
+                    TPosition = x.TPosition,
+                    Type = x.Info.Monster,
+                    ViewSkillState = Array.Empty<byte>(),
+                    Path = (byte)(x.Direction << 4)
+                }));
+
+            if (existObj.Any())
+                addObj.AddRange(existObj.Select(x => new VPMCreateDto
+                {
+                    Number = x.Index,
+                    Position = x.Position,
+                    TPosition = x.TPosition,
+                    Type = x.Info.Monster,
+                    ViewSkillState = Array.Empty<byte>(),
+                    Path = (byte)(x.Direction << 4)
+                }));
 
             var remObj = new List<VPDestroyDto>();
             remObj.AddRange(deadObj.Select(x => new VPDestroyDto(x.Index)));
@@ -324,9 +322,7 @@ namespace MuEmu
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
 
             if (addObj.Any())
-            {
                 await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = addObj.ToArray() });
-            }
         }
 
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)

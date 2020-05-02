@@ -32,6 +32,7 @@ namespace MuEmu.Monsters
         private MonsterState _monsterState;
         private List<Point> _path = null;
         private Point _TPosition;
+        private bool _active;
 
         public ushort Index { get; set; }
         public ObjectState State
@@ -109,7 +110,9 @@ namespace MuEmu.Monsters
         public ushort DeadlyDmg { get; set; }
         public byte Direction { get; set; }
         public List<Item> ItemBag { get; set; }
-        public bool Active { get; set; }
+        public bool Active { get => _active; set { _active = value; State = ObjectState.Regen; } }
+
+        public bool CanDrop { get; set; }
         public Dictionary<Player, int> DamageSum { get; private set; } = new Dictionary<Player, int>();
         public int Attack => Info.Attack + (_rand.Next(Info.DmgMin,Info.DmgMax));
         public int Defense => Info.Defense;
@@ -127,6 +130,7 @@ namespace MuEmu.Monsters
             Life = Info.HP;
             Mana = Info.MP;
             Active = true;
+            CanDrop = true;
             Map = ResourceCache.Instance.GetMaps()[MapID];
             Map.AddMonster(this);
             State = ObjectState.Regen;
@@ -411,6 +415,7 @@ namespace MuEmu.Monsters
 
         private void OnDie(object obj, EventArgs args)
         {
+
             gObjGiveItemSearch(Level);
 
             var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
@@ -444,7 +449,7 @@ namespace MuEmu.Monsters
                 pair.Key.Session.SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
 
                 Item reward;
-                if (_rand.Next(100) < Program.DropRate)
+                if (_rand.Next(100) < Program.DropRate && CanDrop)
                 {
                     if (_rand.Next(2) == 0 && ItemBag.Count > 0)
                     {
@@ -466,7 +471,7 @@ namespace MuEmu.Monsters
 
         private void gObjGiveItemSearch(int maxlevel)
         {
-            if (ItemBag.Count != 0)
+            if (ItemBag.Count != 0 || !CanDrop)
                 return;
 
             var items = ResourceCache.Instance.GetItems();
@@ -496,7 +501,7 @@ namespace MuEmu.Monsters
             {
                 if(_rand.Next(20) == 0)
                 {
-                    if(_rand.Next(2) == 0)
+                    if(_rand.Next(2) != 0)
                     {
                         itNum.Type = ItemType.Scroll;
                         itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type]+1);
@@ -510,7 +515,7 @@ namespace MuEmu.Monsters
                     itNum.Type = (ItemType)_rand.Next((int)ItemType.End);
                     itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type] + 1);
 
-                    if (itNum.Type == ItemType.Scroll || (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15))
+                    if (itNum.Type == ItemType.Scroll || (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index != 15))
                         continue;
                 }
 
@@ -538,7 +543,7 @@ namespace MuEmu.Monsters
                 }
 
                 if ((itNum.Type == ItemType.Missellaneo && itNum.Index < 8) || // Pets
-                ((itNum.Type == ItemType.Potion) && (itNum.Index == 9 || itNum.Index == 10 || itNum.Index == 13 || itNum.Index == 14 || itNum.Index == 16 || itNum.Index == 17 || itNum.Index == 18 || itNum.Index == 22)) || // Misc
+                (itNum.Type == ItemType.Potion && (itNum.Index == 9 || itNum.Index == 10 || itNum.Index == 13 || itNum.Index == 14 || itNum.Index == 16 || itNum.Index == 17 || itNum.Index == 18 || itNum.Index == 22)) || // Misc
                 (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15) || // Jewel of Chaos
                 (itNum.Type == ItemType.Missellaneo && itNum.Index == 14) || // Loch's Feather
                 (itNum.Type == ItemType.Potion && itNum.Index == 31)) // Jewel of Guardian
@@ -571,7 +576,7 @@ namespace MuEmu.Monsters
                     {
                         if(itNum.Type == ItemType.Potion && (itNum.Index == 17 || itNum.Index == 18))
                         {
-                            byte Plus = 0;
+                            byte Plus;
 
                             if (Level < 3)
                                 Plus = 0;

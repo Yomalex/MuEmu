@@ -138,6 +138,8 @@ namespace MuEmu.Network
         BloodCastleEnter = 0xFF9A,
         BloodCastleState = 0xFF9B,
 
+        ChaosCastleMove = 0x01AF,
+
         CrywolfBenefit = 0x09BD,
 
         KanturuState = 0x00D1,

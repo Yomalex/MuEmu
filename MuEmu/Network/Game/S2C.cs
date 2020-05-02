@@ -458,13 +458,15 @@ namespace MuEmu.Network.Game
     public class SPositionSet : IGameMessage
     {
         [WZMember(0)]
-        public ushort Number { get; set; }
+        public ushort wzNumber { get; set; }
 
         [WZMember(1)]
         public byte X { get; set; }
 
         [WZMember(2)]
         public byte Y { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
     }
 
     [WZContract]

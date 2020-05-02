@@ -141,6 +141,7 @@ namespace MuEmu
     public class Item
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
+        private static Random _rand = new Random();
         private byte _plus;
         private byte _durability;
         private byte _option;
@@ -1020,7 +1021,6 @@ namespace MuEmu
 
         public byte GetLevel(int level)
         {
-            var _rand = new Random();
             ushort itemlevel;
             if (level < 0)
                 level = 0;
@@ -1050,8 +1050,6 @@ namespace MuEmu
 
                 if (_rand.Next(10) == 0)
                 {
-                    ilevel = 0;
-
                     if (level < 0)
                         level = 0;
 
@@ -1075,8 +1073,6 @@ namespace MuEmu
 
                 if (_rand.Next(10) == 0)
                 {
-                    ilevel = 0;
-
                     if (level < 0)
                         level = 0;
 

@@ -1,5 +1,6 @@
 ﻿using MuEmu.Monsters;
 using MuEmu.Network.Game;
+using MuEmu.Util;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -35,6 +36,7 @@ namespace MuEmu.Resources.Map
     };
     public class MapInfo
     {
+        private List<byte[]> _shadowLayer = new List<byte[]>();
         private byte[] Layer { get; }
         private List<Point> SafePoints { get; set; }
 
@@ -347,6 +349,17 @@ namespace MuEmu.Resources.Map
         {
             foreach(var @char in Players)
                 await @char.Player.Session.SendAsync(message);
+        }
+
+        public void Push()
+        {
+            _shadowLayer.Add(Layer.ToArray());
+        }
+
+        public void Pop()
+        {
+            var last = _shadowLayer.PopBack();
+            Array.Copy(last, Layer, Layer.Length);
         }
     }
 }

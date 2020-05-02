@@ -1,4 +1,5 @@
 ﻿using MuEmu.Events.BloodCastle;
+using MuEmu.Events.ChaosCastle;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events.LuckyCoins;
 using System;
@@ -19,13 +20,17 @@ namespace MuEmu.Network.Event
             switch (message.EventType)
             {
                 case EventEnterType.DevilSquare:
-                    res.RemainTime = Program.EventManager.GetEvent<DevilSquares>().RemainTime;
+                    var evds = Program.EventManager.GetEvent<DevilSquares>();
+                    res.RemainTime = evds.RemainTime;
+                    res.EnteredUser = evds.Count;
                     break;
                 case EventEnterType.BloodCastle:
                     res.RemainTime = BloodCastles.RemainTime();
                     break;
                 case EventEnterType.ChaosCastle:
-                    res.RemainTime = 0;
+                    var ev = Program.EventManager.GetEvent<ChaosCastles>();
+                    res.RemainTime = ev.RemainTime;
+                    res.EnteredUser = ev.Count;
                     break;
                 case EventEnterType.IllusionTemple:
                     res.RemainTime = 0;
@@ -104,6 +109,22 @@ namespace MuEmu.Network.Event
                 return;
 
             await @char.Inventory.Delete(itemPos);
+        }
+
+        [MessageHandler(typeof(CChaosCastleMove))]
+        public async Task CChaosCastleMove(GSSession session, CChaosCastleMove message)
+        {
+            var plr = session.Player;
+            var @char = plr.Character;
+
+            var item = @char.Inventory.Get(message.InvitationItemPos);
+
+            var dsm = Program.EventManager.GetEvent<ChaosCastles>();
+
+            if (!dsm.TryAdd(plr))
+                return;
+
+            await @char.Inventory.Delete(item);
         }
     }
 }

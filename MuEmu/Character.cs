@@ -46,7 +46,7 @@ namespace MuEmu
         private ushort _cmd;
         private ushort _cmdAdd;
         private uint _zen;
-        private Maps _map;
+        private Maps _map = Maps.InvalidMap;
         private bool _needSave;
         private HeroClass _class;
         private ushort _level;
@@ -258,12 +258,7 @@ namespace MuEmu
             set {
                 if (_map == value)
                     return;
-
                 _map = value;
-                Map?.DelPlayer(this);
-                MapChanged?.Invoke(this, new EventArgs());
-                Map = ResourceCache.Instance.GetMaps()[_map];
-                Map.AddPlayer(this);
                 _needSave = true;
             }
         }
@@ -496,10 +491,11 @@ namespace MuEmu
             PlayersVP = new List<Player>();
             State = ObjectState.Regen;
 
-            MapID = (Maps)characterDto.Map;
+            _position = new Point(characterDto.X, characterDto.Y);
+            _map = (Maps)characterDto.Map;
             Map = ResourceCache.Instance.GetMaps()[_map];
             Map.AddPlayer(this);
-            _position = new Point(characterDto.X, characterDto.Y);
+            Map.SetAttribute(_position.X, _position.Y, MapAttributes.Stand);
 
             Experience = (ulong)characterDto.Experience;
             _str = characterDto.Str;
@@ -529,7 +525,7 @@ namespace MuEmu
                 Direccion = Direction,
                 Experience = Experience.ShufleEnding(),
                 NextExperience = NextExperience.ShufleEnding(),
-                Position = Position,
+                Position = _position,
                 Life = (ushort)Health,
                 MaxLife = (ushort)_hpMax,
                 Mana = (ushort)Mana,
@@ -819,25 +815,29 @@ namespace MuEmu
                 Shield = MaxShield;
                 Stamina = MaxStamina;
                 State = ObjectState.Regen;
-                Position = Map.GetRespawn();
-                var regen = new SCharRegen(MapID, (byte)Position.X, (byte)Position.Y, 1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, Money);
-                Player.Session.SendAsync(regen);
+                _position = Map.GetRespawn();
+                var regen = new SCharRegen(MapID, (byte)_position.X, (byte)_position.Y, 1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, Money);
+                Player.Session.SendAsync(regen).Wait();
             }
         }
 
         public async Task WarpTo(Maps map, Point position, byte dir)
         {
-            if (MapID != map)
+            if(MapID != map)
             {
-                Map.DelPlayer(this);
-                MapID = map;
+                _map = map;
+                Map?.ClearAttribute(_position.X, _position.Y, MapAttributes.Stand);
+                Map?.DelPlayer(this);
+                MapChanged?.Invoke(this, new EventArgs());
+                Map = ResourceCache.Instance.GetMaps()[_map];
                 Map.AddPlayer(this);
+                _position = position;
+                Map.SetAttribute(_position.X, _position.Y, MapAttributes.Stand);
             }
-            Position = position;
             Direction = dir;
 
             if(State == ObjectState.Live)
-                await Player.Session.SendAsync(new STeleport(256, MapID, Position, Direction));
+                await Player.Session.SendAsync(new STeleport(256, MapID, _position, Direction));
         }
 
         public async Task WarpTo(int gate)
@@ -860,8 +860,8 @@ namespace MuEmu
 
         public async void TeleportTo(Point position)
         {
-            Position = position;
-            await Player.Session.SendAsync(new STeleport(0, MapID, Position, Direction));
+            _position = position;
+            await Player.Session.SendAsync(new STeleport(0, MapID, _position, Direction));
         }
 
         public async Task Save(GameContext db)

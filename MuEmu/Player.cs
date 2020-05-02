@@ -22,6 +22,7 @@ namespace MuEmu
         public GSSession Session { get; set; }
 
         public object Window { get; set; }
+        public object Killer { get; internal set; }
 
         public Player(GSSession session)
         {

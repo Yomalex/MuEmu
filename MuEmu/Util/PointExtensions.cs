@@ -21,5 +21,10 @@ namespace MuEmu.Util
         {
             return Math.Sqrt(a.X * a.X + a.Y * a.Y);
         }
+        public static PointF Normalize(this Point a)
+        {
+            var ls = (float)a.LengthSquared();
+            return new PointF(a.X / ls, a.Y / ls);
+        }
     }
 }

@@ -48,4 +48,12 @@ namespace MuEmu.Network.Event
         [WZMember(0)] public byte SquareNumber { get; set; }  // 3
         [WZMember(1)] public byte InvitationItemPos { get; set; }	// 4
     }
+
+    // ChaosCastle
+    [WZContract]
+    public class CChaosCastleMove : IEventMessage
+    {
+        [WZMember(0)] public byte SquareNumber { get; set; }  // 3
+        [WZMember(1)] public byte InvitationItemPos { get; set; }	// 4
+    }
 }

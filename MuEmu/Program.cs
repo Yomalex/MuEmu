@@ -31,6 +31,7 @@ using MuEmu.Events.DevilSquare;
 using MuEmu.Events;
 using MuEmu.Util;
 using MuEmu.Events.Kanturu;
+using MuEmu.Events.ChaosCastle;
 
 namespace MuEmu
 {
@@ -253,7 +254,8 @@ namespace MuEmu
             EventManager = new EventManagement();
             EventManager
                 .AddEvent(Events.Events.DevilSquared, new DevilSquares())
-                .AddEvent(Events.Events.Kanturu, new Kanturu());
+                .AddEvent(Events.Events.Kanturu, new Kanturu())
+                .AddEvent(Events.Events.ChaosCastle, new ChaosCastles());
             LuckyCoins.Initialize();
             EventChips.Initialize();
             BloodCastles.Initialize();
@@ -267,11 +269,13 @@ namespace MuEmu
 
         public static async Task MapAnoucement(Maps map, string text)
         {
-            await ResourceCache.Instance.GetMaps()[map].SendAsync(new SNotice(NoticeType.Gold, text));
-            Log.Information($"Map '{map}' Announcement: " + text);
+            await ResourceCache.Instance
+                .GetMaps()[map]
+                .SendAsync(new SNotice(NoticeType.Gold, text));
+            Log.Information("Map {0} Announcement: " + text, map);
         }
 
-        public static async Task NoEventMapAnoucement(string text)
+        public static async Task NoEventMapSendAsync(object message)
         {
             Maps[] disabled = new Maps[]
             {
@@ -296,9 +300,12 @@ namespace MuEmu
 
             await server
                 .Clients
-                .Where(x => !disabled.Any(y => y == (x.Player?.Character.MapID ?? Maps.BloodCastle1)))
-                .SendAsync(new SNotice(NoticeType.Gold, text));
-
+                .Where(x => x.Player.Status == LoginStatus.Playing && !disabled.Any(y => y == x.Player.Character.MapID))
+                .SendAsync(message);
+        }
+        public static async Task NoEventMapAnoucement(string text)
+        {
+            await NoEventMapSendAsync(new SNotice(NoticeType.Gold, text));
             Log.Information($"No Events Announcement: " + text);
         }
 

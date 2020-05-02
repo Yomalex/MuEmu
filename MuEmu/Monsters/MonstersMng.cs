@@ -140,7 +140,7 @@ namespace MuEmu.Monsters
                                     }
                                     catch (Exception)
                                     {
-                                        Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
+                                        //Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
                                     }
                                 }       
                             }

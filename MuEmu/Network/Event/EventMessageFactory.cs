@@ -25,6 +25,9 @@ namespace MuEmu.Network.Event
             // DevilSquare
             Register<CDevilSquareMove>(EventOpCode.DevilSquareMove);
 
+            // ChaosCastle
+            Register<CChaosCastleMove>(EventOpCode.ChaosCastleMove);
+
             // S2C
             Register<SEventRemainTime>(EventOpCode.RemainTime);
             //LuckyCoins

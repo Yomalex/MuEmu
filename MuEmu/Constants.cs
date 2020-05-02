@@ -112,6 +112,7 @@ namespace MuEmu
         Buhwajang,
         SantaTown = 62,
         Vulcan,
+        InvalidMap = 255,
     }
 
     public enum MapEvents : byte
@@ -493,7 +494,10 @@ namespace MuEmu
         None = 3,
         BeforeStart = 4,
         BeforeEnd = 5,
-        Quit = 6
+        Quit = 6,
+        CCBeforeEnter = 10,
+        CCBeforePlay = 11,
+        CCBeforeEnd = 12
     }
 
     public enum ChaosBoxMixResult : byte

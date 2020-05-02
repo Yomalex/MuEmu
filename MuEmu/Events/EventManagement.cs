@@ -11,6 +11,7 @@ namespace MuEmu.Events
         DevilSquared,
         BloodCastle,
         Kanturu,
+        ChaosCastle,
     }
     internal class EventInfo
     {
