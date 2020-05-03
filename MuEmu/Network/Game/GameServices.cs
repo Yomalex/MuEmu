@@ -844,7 +844,7 @@ namespace MuEmu.Network.Game
                 throw new ArgumentException("Player isn't in buy/trade/box", nameof(session.Player.Window));
             }
 
-            if (plr.Window.GetType() != typeof(Monster))
+            if (plr.Window is Monster)
             {
                 await session.SendAsync(result);
                 throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
@@ -859,10 +859,10 @@ namespace MuEmu.Network.Game
                     result.Result = 1;
                     var inve = plr.Character.Inventory;
                     var item = inve.Get(message.Position);
-                    inve.Remove(message.Position);
 
                     plr.Character.Money += item.SellPrice;
                     result.Money = session.Player.Character.Money;
+                    await inve.Delete(item, false);
                 }
             }
             await session.SendAsync(result);
@@ -1095,24 +1095,25 @@ namespace MuEmu.Network.Game
             var gates = ResourceCache.Instance.GetGates();
 
             var gate = (from g in gates
-                        where g.Value.GateType != GateType.Exit && g.Value.Move == message.MoveNumber
+                        where /*g.Value.GateType != GateType.Exit &&*/ g.Value.Move == message.MoveNumber
                         select g.Value).FirstOrDefault();
+
+            var log = Logger.ForAccount(session);
 
             if (gate == null)
             {
-                Logger.ForAccount(session)
-                    .Error("Invalid Gate {0}", message.MoveNumber);
+                log.Error("Invalid Gate {0}", message.MoveNumber);
 
                 await session.SendAsync(new SNotice(NoticeType.Blue, "You can't go there"));
                 return;
             }
 
+            log.Information("Warp request to {0}", gate.Name);
             var @char = session.Player.Character;
 
             if(gate.ReqLevel > @char.Level)
             {
-                Logger.ForAccount(session)
-                .Error("Level too low");
+                log.Error("Level too low");
 
                 await session.SendAsync(new SNotice(NoticeType.Blue, $"Try again at Level {gate.ReqLevel}"));
                 return;
@@ -1120,8 +1121,7 @@ namespace MuEmu.Network.Game
 
             if(gate.ReqZen > @char.Money)
             {
-                Logger.ForAccount(session)
-                .Error("Money too low");
+                log.Error("Money too low");
 
                 await session.SendAsync(new SNotice(NoticeType.Blue, $"Try again with more Zen"));
                 return;

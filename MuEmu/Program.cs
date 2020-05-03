@@ -32,6 +32,7 @@ using MuEmu.Events;
 using MuEmu.Util;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.ChaosCastle;
+using MuEmu.Resources.BMD;
 
 namespace MuEmu
 {
@@ -218,6 +219,8 @@ namespace MuEmu
                 .AddCommand(new Command<GSSession>("reload")
                     .AddCommand(new Command<GSSession>("shops", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadShops()))
                     .AddCommand(new Command<GSSession>("gates", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadGates())))
+                .AddCommand(new Command<GSSession>("create")
+                    .AddCommand(new Command<GSSession>("movereq", DumpMoveReq)))
                 .AddCommand(new Command<GSSession>("db")
                     .AddCommand(new Command<GSSession>("migrate", Migrate))
                     .AddCommand(new Command<GSSession>("create", Create))
@@ -246,6 +249,51 @@ namespace MuEmu
                     break;
 
                 Handler.ProcessCommands(null, input);
+            }
+        }
+
+        private static void MakeXOR(byte[] data, int offset, int length)
+        {
+            var xor = new byte[] { 0xFC, 0xCF, 0xAB };
+            for(var i = 0; i < data.Length- offset; i++)
+            {
+                data[i+ offset] ^= xor[(i % length) % xor.Length];
+            }
+        }
+
+        private static void DumpMoveReq(object sender, CommandEventArgs e)
+        {
+            var gates = ResourceCache.Instance.GetGates();
+            var moves = gates
+                .Where(x => x.Value.Move != -1)
+                .OrderBy(x => x.Value.Move)
+                .Select(x => x.Value);
+
+            using(var fs = new FileStream("./MoveReq.bmd", FileMode.Create))
+            {
+                var num = BitConverter.GetBytes(moves.Count());
+                fs.Write(num, 0, 4);
+
+                var data = new byte[0xFA0];
+                using (var ms = new MemoryStream(data))
+                {
+                    foreach (var mov in moves)
+                    {
+                        var bmdData = new MoveReqBMD
+                        {
+                            Gate = mov.Number,
+                            Level = mov.ReqLevel,
+                            MoveNumber = mov.Move,
+                            Zen = mov.ReqZen,
+                            ClientName = mov.Name,
+                            ServerName = mov.Name,
+                        };
+                        Serializer.Serialize(ms, bmdData);
+                    }
+                }
+
+                MakeXOR(data, 0, 80);
+                fs.Write(data, 0, data.Length);
             }
         }
 

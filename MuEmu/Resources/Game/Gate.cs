@@ -27,6 +27,8 @@ namespace MuEmu.Resources.Game
 
         public int Move { get; set; }
 
+        public string Name { get; set; }
+
         public byte Dir { get; set; }
 
         public ushort ReqLevel { get; set; }

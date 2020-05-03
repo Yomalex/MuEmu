@@ -768,6 +768,7 @@ namespace MuEmu.Resources
                             continue;
                         gate.ReqZen = ushort.Parse(m.Groups[4].Value);
                         gate.Move = int.Parse(m.Groups[1].Value);
+                        gate.Name = m.Groups[2].Value;
                     }
                 }
 
@@ -785,6 +786,7 @@ namespace MuEmu.Resources
                     ReqLevel = g.ReqLevel,
                     Target = g.Target,
                     Move = g.Move,
+                    Name = g.Name,
                     Dir = g.Dir,
                     Door = new Rectangle(g.X1, g.Y1, g.X2 - g.X1, g.Y2 - g.Y1),
                     ReqZen = g.ReqZen,

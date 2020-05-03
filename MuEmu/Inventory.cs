@@ -360,11 +360,9 @@ namespace MuEmu
             {
                 _equipament.Remove((Equipament)from);
             }
-
-            _needSave = true;
         }
 
-        public async Task Delete(byte target)
+        public async Task Delete(byte target, bool send = true)
         {
             _needSave = true;
             var session = Character.Player.Session;
@@ -383,31 +381,33 @@ namespace MuEmu
             }
 
             Remove(target);
-            await session.SendAsync(new SInventoryItemDelete(target, 1));
+
+            if(send)
+                await session.SendAsync(new SInventoryItemDelete(target, 1));
         }
 
-        public async Task Delete(Item item)
+        public async Task Delete(Item item, bool send = true)
         {
             if (_equipament.ContainsValue(item))
             {
-                await Delete((byte)_equipament.First(x => x.Value == item).Key);
+                await Delete((byte)_equipament.First(x => x.Value == item).Key, send);
             }
             else
             if (_inventory.Items.Any(x => x.Value == item))
             {
-                await Delete((byte)(_inventory.Items.First(x => x.Value == item).Key + _inventory.IndexTranslate));
+                await Delete((byte)(_inventory.Items.First(x => x.Value == item).Key + _inventory.IndexTranslate), send);
             }
             else if (_chaosBox.Items.Any(x => x.Value == item))
             {
-                await Delete((byte)(_chaosBox.Items.First(x => x.Value == item).Key + _chaosBox.IndexTranslate));
+                await Delete((byte)(_chaosBox.Items.First(x => x.Value == item).Key + _chaosBox.IndexTranslate), send);
             }
             else if (_personalShop.Items.Any(x => x.Value == item))
             {
-                await Delete((byte)(_personalShop.Items.First(x => x.Value == item).Key + _personalShop.IndexTranslate));
+                await Delete((byte)(_personalShop.Items.First(x => x.Value == item).Key + _personalShop.IndexTranslate), send);
             }
             else if (_tradeBox.Items.Any(x => x.Value == item))
             {
-                await Delete((byte)(_tradeBox.Items.First(x => x.Value == item).Key + _tradeBox.IndexTranslate));
+                await Delete((byte)(_tradeBox.Items.First(x => x.Value == item).Key + _tradeBox.IndexTranslate), send);
             }
         }
         
