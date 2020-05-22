@@ -56,4 +56,8 @@ namespace MuEmu.Network.Event
         [WZMember(0)] public byte SquareNumber { get; set; }  // 3
         [WZMember(1)] public byte InvitationItemPos { get; set; }	// 4
     }
+
+    [WZContract]
+    public class CKanturuStateInfo : IEventMessage
+    { }
 }

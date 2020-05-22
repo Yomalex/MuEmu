@@ -28,6 +28,8 @@ namespace MuEmu.Network.Event
             // ChaosCastle
             Register<CChaosCastleMove>(EventOpCode.ChaosCastleMove);
 
+            Register<CKanturuStateInfo>(EventOpCode.KanturuState);
+
             // S2C
             Register<SEventRemainTime>(EventOpCode.RemainTime);
             //LuckyCoins

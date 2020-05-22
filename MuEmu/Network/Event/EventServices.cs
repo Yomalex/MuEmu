@@ -1,6 +1,7 @@
 ﻿using MuEmu.Events.BloodCastle;
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Events.DevilSquare;
+using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
 using System;
 using System.Collections.Generic;
@@ -125,6 +126,13 @@ namespace MuEmu.Network.Event
                 return;
 
             await @char.Inventory.Delete(item);
+        }
+
+        [MessageHandler(typeof(CKanturuStateInfo))]
+        public void CKanturuStateInfo(GSSession session)
+        {
+            var kanturu = Program.EventManager.GetEvent<Kanturu>();
+            kanturu.NPCTalk(session.Player);
         }
     }
 }
