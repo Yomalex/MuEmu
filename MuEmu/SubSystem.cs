@@ -99,7 +99,7 @@ namespace MuEmu
                                     // Clear dead buffers
                                     @char.Spells.ClearBuffTimeOut();
 
-                                    //PlayerPlrViewport(map, @char);
+                                    PlayerPlrViewport(map, @char);
                                     PlayerMonsViewport(map, @char);
                                     PlayerItemViewPort(map, @char);
 
@@ -182,55 +182,58 @@ namespace MuEmu
             var pos = plr.Position;
             pos.Offset(15, 15);
 
+            PartyManager.SendAll(plr.Party);
+
             var playerVP = from obj in Map.Players
                            let rect = new Rectangle(obj.Position, new Size(30, 30))
-                           where rect.Contains(pos) && obj != plr
+                           where rect.Contains(pos) && obj.Player.Session.ID != plr.Player.Session.ID
                            select obj;
-
-            if (!playerVP.Any())
-                return;
 
             var newPlr = (from obj in playerVP
                           where obj.State == ObjectState.Regen
                           select obj).ToList();
 
-            var existPlr = from obj in playerVP
-                            where !plr.PlayersVP.Contains(obj.Player) && obj.State == ObjectState.Live
-                           select obj;
+            var existPlr = (from obj in playerVP
+                           where !plr.PlayersVP.Contains(obj.Player) && obj.State == ObjectState.Live
+                           select obj).ToList();
 
             var deadPlr = (from obj in playerVP
                            where obj.State == ObjectState.WaitRegen
-                           select obj).ToList();
+                           select obj.Player).ToList();
 
-            var lostPlr = from obj in playerVP
-                           where plr.PlayersVP.Contains(obj.Player)
-                           select obj.Player;
+            var lostPlr = (from obj in plr.PlayersVP
+                          where !playerVP.Contains(obj.Character)
+                          select obj).ToList();
 
-            //plr.PlayersVP.AddRange(newPlr.Select(x => x..Player));
+            plr.PlayersVP.AddRange(newPlr.Select(x => x.Player));
             plr.PlayersVP.AddRange(existPlr.Select(x => x.Player));
+            foreach (var it in deadPlr)
+                plr.PlayersVP.Remove(it);
             foreach (var it in lostPlr)
                 plr.PlayersVP.Remove(it);
 
             var addPlr = new List<VPCreateDto>();
-            /*addMons.AddRange(newItem.Select(x => new VPMCreateDto
+            addPlr.AddRange(newPlr.Select(x => new VPCreateDto
             {
-                Number = x.Index|0x8000,
+                CharSet = x.Inventory.GetCharset(),
+                DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                Name = x.Name,
+                Number = (ushort)(x.Player.Session.ID|0x8000),
                 Position = x.Position,
-                TPosition = x.Position,
-                Type = x.Info.Monster,
-                ViewSkillState = Array.Empty<byte>(),
-                Path = (byte)(x.Direction << 4)
-            }));*/
+                TPosition = x.TPosition,
+                ViewSkillState = x.Spells.ViewSkillStates,
+                Player = x.Player
+            }));
             addPlr.AddRange(existPlr.Select(x => new VPCreateDto
             {
-                CharSet = plr.Inventory.GetCharset(),
-                DirAndPkLevel = (byte)((plr.Direction << 4) | 0),
-                Name = plr.Name,
-                Number = (ushort)plr.Player.Session.ID,
-                Position = plr.Position,
-                TPosition = plr.Position,
-                ViewSkillState = plr.Spells.ViewSkillStates,
-                Player = plr.Player
+                CharSet = x.Inventory.GetCharset(),
+                DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                Name = x.Name,
+                Number = (ushort)x.Player.Session.ID,
+                Position = x.Position,
+                TPosition = x.TPosition,
+                ViewSkillState = x.Spells.ViewSkillStates,
+                Player = x.Player
             }));
 
             if (addPlr.Any())

@@ -94,6 +94,7 @@ namespace MuEmu.Network
         PartyResult = 0xFF41,
         PartyList = 0xFF42,
         PartyDelUser = 0x0FF43,
+        PartyLifeUpdate = 0x0FF44,
         ViewPortChange = 0xFF45,
         SetMapAtt = 0xFF46,
         Effect = 0xFF48,

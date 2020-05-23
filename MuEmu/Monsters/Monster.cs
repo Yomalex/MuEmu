@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using MuEmu.Data;
+using System.Threading;
 
 namespace MuEmu.Monsters
 {
@@ -157,8 +158,6 @@ namespace MuEmu.Monsters
                     _maxItemIndex[(int)(ItemType)t] = (ushort)ResourceCache.Instance.GetItems().Where(x => (new ItemNumber(x.Key)).Type == (ItemType)(t)).Count();
                 }
             }
-
-            //gObjGiveItemSearch(Level);
         }
 
         public async Task GetAttacked(Player plr, int dmg, DamageType type)
@@ -382,7 +381,9 @@ namespace MuEmu.Monsters
             }
             else
             {
-                var baseAttack = _rand.Next(Info.DmgMin, Info.DmgMax);
+                var M = Math.Max(Info.DmgMin, Info.DmgMax);
+                var m = Math.Min(Info.DmgMin, Info.DmgMax);
+                var baseAttack = _rand.Next(m, M);
                 attack = baseAttack - @char.Defense;
             }
 
@@ -415,7 +416,6 @@ namespace MuEmu.Monsters
 
         private void OnDie(object obj, EventArgs args)
         {
-
             gObjGiveItemSearch(Level);
 
             var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
@@ -423,12 +423,39 @@ namespace MuEmu.Monsters
             Killer.Character.Quests.OnMonsterDie(this);
 
             foreach (var plr in ViewPort)
-                plr.Session.SendAsync(die);
+                plr.Session.SendAsync(die).Wait();
 
+            var baseEXP = ((Level + 10) * Level) / 4;
 
-            foreach (var pair in DamageSum)
+            var partys = DamageSum
+                .Where(x => x.Key.Character.Party != null)
+                .GroupBy(x => x.Key.Character.Party);
+
+            float Zen = 0;
+
+            // Party EXP division based on WebZen
+            foreach(var p in partys)
             {
-                float EXP = ((Level + 10) * Level) / 4;
+                var dmg = p.Sum(x => x.Value);
+                float EXP = baseEXP;
+                if (Level + 10 < p.Key.MaxLevel)
+                    EXP = EXP * (Level + 10) / p.Key.MaxLevel;
+
+                if (EXP / 2.0f > 1.0f)
+                    EXP += _rand.Next((int)(EXP / 2.0f));
+
+                EXP *= dmg / MaxLife;
+                Zen = EXP;
+                EXP *= Program.Experience;
+                Zen *= Program.Zen;
+
+                p.Key.ExpDivision(Index, EXP, Killer, DeadlyDmg);
+            }
+
+            // Monster EXP division based on DMG excluding Partys
+            foreach (var pair in DamageSum.Where(x => x.Key.Character.Party == null))
+            {
+                float EXP = baseEXP;
                 if (Level + 10 < pair.Key.Character.Level)
                     EXP = EXP * (Level + 10) / pair.Key.Character.Level;
 
@@ -436,31 +463,29 @@ namespace MuEmu.Monsters
                     EXP += _rand.Next((int)(EXP / 2.0f));
 
                 EXP *= pair.Value / MaxLife;
-                var Zen = EXP;
+                Zen = EXP;
                 EXP *= Program.Experience;
                 Zen *= Program.Zen;
 
                 pair.Key.Character.Experience += (ulong)EXP;
+                pair.Key.Session
+                    .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
+                    .Wait();
+            }
 
-                if (EXP > ushort.MaxValue)
-                    EXP = ushort.MaxValue;
-
-                //SubSystem.Instance.AddDelayedMessage(pair.Key, TimeSpan.FromMilliseconds(1000), new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
-                pair.Key.Session.SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0));
-
-                Item reward;
-                if (_rand.Next(100) < Program.DropRate && CanDrop)
+            Item reward;
+            if (_rand.Next(100) < Program.DropRate && CanDrop)
+            {
+                if (_rand.Next(2) == 0 && ItemBag.Count > 0)
                 {
-                    if (_rand.Next(2) == 0 && ItemBag.Count > 0)
-                    {
-                        reward = ItemBag[_rand.Next(ItemBag.Count)];
-                    } else
-                    {
-                        reward = Item.Zen((uint)Zen);
-                    }
-
-                    Map.AddItem(Position.X, Position.Y, reward);
+                    reward = ItemBag[_rand.Next(ItemBag.Count)];
                 }
+                else
+                {
+                    reward = Item.Zen((uint)Zen);
+                }
+
+                Map.AddItem(Position.X, Position.Y, reward);
             }
         }
 
@@ -471,7 +496,7 @@ namespace MuEmu.Monsters
 
         private void gObjGiveItemSearch(int maxlevel)
         {
-            if (ItemBag.Count != 0 || !CanDrop)
+            if (ItemBag.Count == 100 || !CanDrop)
                 return;
 
             var items = ResourceCache.Instance.GetItems();
@@ -497,8 +522,9 @@ namespace MuEmu.Monsters
             BallTable[15] = 24;
             BallTable[16] = 35;
 
-            while(ItemBag.Count < 1000)
+            if(ItemBag.Count < 100)
             {
+                start:
                 if(_rand.Next(20) == 0)
                 {
                     if(_rand.Next(2) != 0)
@@ -516,11 +542,11 @@ namespace MuEmu.Monsters
                     itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type] + 1);
 
                     if (itNum.Type == ItemType.Scroll || (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index != 15))
-                        continue;
+                        goto start;
                 }
 
                 if (itNum.Type == ItemType.Missellaneo && itNum.Index == 3) //Horn of Dinorant
-                    continue;
+                    goto start;
 
                 if ((itNum.Type == ItemType.Missellaneo && itNum.Index == 32) // Fenrrir Items
                       || (itNum.Type == ItemType.Missellaneo && itNum.Index == 33)
@@ -529,7 +555,7 @@ namespace MuEmu.Monsters
                       || (itNum.Type == ItemType.Missellaneo && itNum.Index == 36)
                       || (itNum.Type == ItemType.Missellaneo && itNum.Index == 37))
                 {
-                    continue;
+                    goto start;
                 }
 
                 if ((itNum.Type == ItemType.Potion && itNum.Index == 35) // Potion SD
@@ -539,7 +565,7 @@ namespace MuEmu.Monsters
                   || (itNum.Type == ItemType.Potion && itNum.Index == 39)
                   || (itNum.Type == ItemType.Potion && itNum.Index == 40))
                 {
-                    continue;
+                    goto start;
                 }
 
                 if ((itNum.Type == ItemType.Missellaneo && itNum.Index < 8) || // Pets
@@ -598,7 +624,7 @@ namespace MuEmu.Monsters
                         else
                         {
                             if (!items.ContainsKey(itNum))
-                                continue;
+                                goto start;
 
                             var it = items[itNum];
                             if (it.Level < Level)
@@ -609,7 +635,7 @@ namespace MuEmu.Monsters
                 else
                 {
                     if (!items.ContainsKey(itNum))
-                        continue;
+                        goto start;
 
                     var it = new Item(itNum);
                     var result = it.GetLevel(Level);

@@ -6,6 +6,7 @@ using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
+using MuEmu.Resources.Map;
 using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
@@ -46,15 +47,13 @@ namespace MuEmu.Network.Game
         public void CAction(GSSession session, CAction message)
         {
             session.Player.Character.Direction = message.Dir;
-            var ans = new SAction((ushort)session.Player.Account.ID, message.Dir, message.ActionNumber, message.Target);
-            session.SendAsync(ans);
-
-            foreach (var plr in session.Player.Character.PlayersVP)
-                plr.Session.SendAsync(ans);
+            var ans = new SAction((ushort)session.ID, message.Dir, message.ActionNumber, message.Target);
+            //session.SendAsync(ans).Wait();
+            session.Player.SendV2Message(ans).Wait();
         }
 
         [MessageHandler(typeof(CMove))]
-        public void CMove(GSSession session, CMove message)
+        public async Task CMove(GSSession session, CMove message)
         {
             var dirs = new List<Point>
             {
@@ -72,20 +71,18 @@ namespace MuEmu.Network.Game
 
             var @char = session.Player.Character;
             var count = message.Path[0] & 0x0F;
-            var solvedPath = new List<Point>();
             var Cpos = new Point(message.X, message.Y);
-            solvedPath.Add(Cpos);
 
             var valid = true;
+            byte ld = 0;
 
             for (int i = 1; i <= count; i++)
             {
-                var a = (message.Path[(i + 1) / 2] >> (((i % 2) == 1) ? 4 : 0)) & 0x0F;
-                Cpos.Offset(dirs[a]);
-                solvedPath.Add(Cpos);
-                //Logger.Debug("Path solved [{0}] X:{1} Y:{2}", i, Cpos.X, Cpos.Y);
+                ld = (byte)((message.Path[(i + 1) / 2] >> (((i % 2) == 1) ? 4 : 0)) & 0x07);
+
+                Cpos.Offset(dirs[ld]);
                 var att = @char.Map.GetAttributes(Cpos);
-                if (att.Where(y => y == Resources.Map.MapAttributes.NoWalk || y == Resources.Map.MapAttributes.Hide).Count() > 0)
+                if (att.Where(y => y == MapAttributes.NoWalk || y == MapAttributes.Hide).Count() > 0)
                 {
                     valid = false;
                 }
@@ -93,7 +90,9 @@ namespace MuEmu.Network.Game
 
             if (!valid)
             {
-                session.SendAsync(new SPositionSet { Number = (ushort)session.Player.Account.ID.ShufleEnding(), X = (byte)@char.Position.X, Y = (byte)@char.Position.Y });
+                var msgp = new SPositionSet((ushort)session.ID, @char.Position);
+                await session.SendAsync(msgp);
+                await session.Player.SendV2Message(msgp);
                 Logger
                     .ForAccount(session)
                     .Error("Invalid path");
@@ -102,7 +101,10 @@ namespace MuEmu.Network.Game
 
             @char.Position = Cpos;
 
-            session.SendAsync(new SMove((ushort)session.Player.Account.ID, (byte)Cpos.X, (byte)Cpos.Y, message.Path[0]));
+            var msg = new SMove((ushort)session.ID, (byte)Cpos.X, (byte)Cpos.Y, ld);
+            await session.SendAsync(msg);
+            await session.Player.SendV2Message(msg);
+            session.Player.Character.TPosition = Cpos;
         }
 
         // 0xC1 0x00
@@ -1051,7 +1053,7 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CMagicDuration))]
-        public void CMagicDuration(GSSession session, CMagicDuration message)
+        public async Task CMagicDuration(GSSession session, CMagicDuration message)
         {
             var @char = session.Player.Character;
 
@@ -1081,9 +1083,11 @@ namespace MuEmu.Network.Game
                     {
                         DamageType type;
                         var attack = @char.SkillAttack(magic, mob, out type);
-                        mob.GetAttacked(@char.Player, attack, type);
+                        await mob.GetAttacked(@char.Player, attack, type);
                     }
-                    session.SendAsync(new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis));
+                    var msg = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis);
+                    await session.SendAsync(msg);
+                    await session.Player.SendV2Message(msg);
 
                     break;
             }
@@ -1343,7 +1347,7 @@ namespace MuEmu.Network.Game
                 await session.SendAsync(new SPartyResult(PartyResults.Fail));
                 return;
             }
-            PartyManager.CreateLink(session.Player, trg.Player);
+            PartyManager.CreateLink(trg.Player, session.Player);
         }
 
         [MessageHandler(typeof(CPartyList))]

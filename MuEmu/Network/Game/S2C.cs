@@ -431,7 +431,7 @@ namespace MuEmu.Network.Game
     public class SMove : IGameMessage
     {
         [WZMember(0)]
-        public ushort Number { get; set; }   // 3,4
+        public ushort wzNumber { get; set; }   // 3,4
 
         [WZMember(1)]
         public byte X { get; set; } // 5
@@ -447,7 +447,7 @@ namespace MuEmu.Network.Game
 
         public SMove(ushort number, byte x, byte y, byte path)
         {
-            Number = number.ShufleEnding();
+            wzNumber = number.ShufleEnding();
             X = x;
             Y = y;
             Path = path;
@@ -467,6 +467,15 @@ namespace MuEmu.Network.Game
         public byte Y { get; set; }
 
         public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+
+        public SPositionSet() { }
+
+        public SPositionSet(ushort number, Point pos)
+        {
+            Number = number;
+            X = (byte)pos.X;
+            Y = (byte)pos.Y;
+        }
     }
 
     [WZContract]
@@ -1133,6 +1142,30 @@ namespace MuEmu.Network.Game
     public class SPartyDelUser : IGameMessage
     {
     }
+
+    [WZContract]
+    public class SPartyLife
+    {
+        [WZMember(0)] public byte Life { get; set; }
+        [WZMember(1)] public byte Mana { get; set; }
+        [WZMember(2, 10)] public byte[] btName { get; set; }
+        [WZMember(3)] public byte Channel { get; set; }
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+}
+
+    [WZContract]
+    public class SPartyLifeAll : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public SPartyLife[] PartyLives { get; set; }
+
+        public SPartyLifeAll()
+        {
+            PartyLives = Array.Empty<SPartyLife>();
+        }
+    }
+
 
     [WZContract]
     public class SCharRegen : IGameMessage

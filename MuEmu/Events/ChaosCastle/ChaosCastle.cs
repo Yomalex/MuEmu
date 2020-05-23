@@ -77,7 +77,7 @@ namespace MuEmu.Events.ChaosCastle
                 var norma = distance.Normalize();
                 var direction = new Point((int)(norma.X * 3 / ls), (int)(norma.Y * 3 / ls));
                 plr.Position = new Point(plr.Position.X + direction.X, plr.Position.Y + direction.Y);
-                var msg = new SPositionSet { Number = (ushort)plr.Player.Session.ID, X = (byte)plr.Position.X, Y = (byte)plr.Position.Y };
+                var msg = new SPositionSet((ushort)plr.Player.Session.ID, plr.Position);
                 var dmg = 15 / ls;
                 plr.Health -= (float)dmg;
                 plr.Player.Session.SendAsync(msg).Wait();

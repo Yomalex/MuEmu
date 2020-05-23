@@ -112,6 +112,7 @@ namespace MuEmu.Network.Game
             Register<SPartyResult>(GameOpCode.PartyResult);
             Register<SPartyList>(GameOpCode.PartyList);
             Register<SPartyDelUser>(GameOpCode.PartyDelUser);
+            Register<SPartyLifeAll>(GameOpCode.PartyLifeUpdate);
         }
     }
 }

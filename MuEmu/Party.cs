@@ -1,4 +1,6 @@
-﻿using MuEmu.Network.Game;
+﻿using MuEmu.Network.Data;
+using MuEmu.Network.Game;
+using MuEmu.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,7 @@ namespace MuEmu
     public class PartyManager
     {
         private static PartyManager _instance;
-        private List<Party> _parties;
+        private List<Party> _parties = new List<Party>();
         public static ushort MaxLevelDiff { get; private set; }
 
         public static void Initialzie(ushort maxLevelDiff)
@@ -54,6 +56,9 @@ namespace MuEmu
 
         public static void SendAll(Party party)
         {
+            if (party == null)
+                return;
+
             var data = new SPartyList
             {
                 Result = PartyResults.Success,
@@ -85,8 +90,8 @@ namespace MuEmu
     public class Party
     {
         List<Player> _members;
-        ushort _minLevel;
-        ushort _maxLevel;
+
+        public ushort MaxLevel => _members.Max(x => x.Character.Level);
 
         public Player Master => _members.First();
         public int Count => _members.Count();
@@ -103,6 +108,8 @@ namespace MuEmu
 
             plr.Character.Party = this;
             memb.Character.Party = this;
+
+            LifeUpdate();
         }
 
         public bool Any(Player plr)
@@ -116,7 +123,7 @@ namespace MuEmu
                 return false;
 
             _members.Add(plr);
-            plr.Character.Party = this;
+            LifeUpdate();
             return true;
         }
 
@@ -128,6 +135,15 @@ namespace MuEmu
             _members.Remove(plr);
             plr.Character.Party = null;
             plr.Session.SendAsync(new SPartyDelUser()).Wait();
+            LifeUpdate();
+
+            if (_members.Count == 1)
+            {
+                plr = _members.First();
+                plr.Session.SendAsync(new SPartyDelUser()).Wait();
+                plr.Character.Party = null;
+                _members.Clear();
+            }
 
             return true;
         }
@@ -144,7 +160,7 @@ namespace MuEmu
             _members.Clear();
         }
 
-        public Network.Data.PartyDto[] List()
+        public PartyDto[] List()
         {
             byte i = 0;
             var data = _members.Select(x => new Network.Data.PartyDto
@@ -159,6 +175,35 @@ namespace MuEmu
             });
 
             return data.ToArray();
+        }
+
+        public async void LifeUpdate()
+        {
+            var msg = new SPartyLifeAll();
+
+                msg.PartyLives = _members.Select(x => new SPartyLife
+                {
+                    Name = x.Character.Name,
+                    Life = (byte)((float)x.Character.Health / (float)x.Character.MaxHealth * 255.0f),
+                    Mana = (byte)((float)x.Character.Mana / (float)x.Character.MaxMana * 255.0f),
+                }).ToArray();
+
+            await _members
+                .Select(x => x.Session)
+                .SendAsync(msg);
+        }
+
+        public async void ExpDivision(ushort TargetID, float EXP, Player killer, ushort dmg)
+        {
+            EXP *= _members.Count * 0.01f + 1.0f;
+            var totalLevel = _members.Sum(x => x.Character.Level);
+
+            foreach(var plr in _members)
+            {
+                var subEXP = (ulong)(EXP * plr.Character.Level / totalLevel);
+                plr.Character.Experience += subEXP;
+                await plr.Session.SendAsync(new SKillPlayer(TargetID, (ushort)subEXP, killer == plr ? dmg : (ushort)0));
+            }
         }
     }
 }

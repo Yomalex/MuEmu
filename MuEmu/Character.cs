@@ -274,6 +274,7 @@ namespace MuEmu
                 _needSave = true;
             }
         }
+        public Point TPosition { get; set; }
         public byte Direction { get; set; }
         public byte Action { get; set; }
 
@@ -492,6 +493,7 @@ namespace MuEmu
             State = ObjectState.Regen;
 
             _position = new Point(characterDto.X, characterDto.Y);
+            TPosition = _position;
             _map = (Maps)characterDto.Map;
             Map = ResourceCache.Instance.GetMaps()[_map];
             Map.AddPlayer(this);
@@ -559,6 +561,9 @@ namespace MuEmu
 
         public async void HPorSDChanged(RefillInfo info)
         {
+            if (Party != null)
+                Party.LifeUpdate();
+
             await Player.Session.SendAsync(new SHeatlUpdate(info, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
@@ -833,8 +838,13 @@ namespace MuEmu
                 Map.AddPlayer(this);
                 _position = position;
                 Map.SetAttribute(_position.X, _position.Y, MapAttributes.Stand);
+            }else
+            {
+                Map.PositionChanged(Position, position);
+                _position = position;
             }
             Direction = dir;
+            TPosition = _position;
 
             if(State == ObjectState.Live)
                 await Player.Session.SendAsync(new STeleport(256, MapID, _position, Direction));
@@ -1036,12 +1046,16 @@ namespace MuEmu
             {
                 if (isMagic == Spell.None)
                 {
+                    var msg = new SAction(source.Index, source.Direction, 120, Index);
                     await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
-                    await Player.Session.SendAsync(new SAction(source.Index, source.Direction, 120, Index));
+                    await Player.Session.SendAsync(msg);
+                    await Player.SendV2Message(msg);
                 }
                 else
                 {
-                    await Player.Session.SendAsync(new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID));
+                    var msg2 = new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID);
+                    await Player.Session.SendAsync(msg2);
+                    await Player.SendV2Message(msg2);
                     SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), new SAttackResult(Index, dmgSend, type, 0));
                 }
             }

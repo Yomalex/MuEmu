@@ -65,10 +65,22 @@ namespace MuEmu.Resources.Map
                     }
                 }
             }
+            if (SafePoints.Any())
+            {
+                var rand = new Random().Next(SafePoints.Count());
+                var id = SafePoints[rand];
+                return id;
+            }
+            else
+            {
+                var p = ResourceCache.Instance.GetGates().Values
+                    .First(x => x.Map == (Maps)Map)
+                    .Door.Location;
 
-            var rand = new Random().Next(SafePoints.Count());
-            var id = SafePoints[rand];
-            return id;
+                SafePoints.Add(p);
+            }
+
+            return new Point();
         }
 
         public event EventHandler PlayerJoins;
