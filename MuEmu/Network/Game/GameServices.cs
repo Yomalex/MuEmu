@@ -736,9 +736,14 @@ namespace MuEmu.Network.Game
                     case NPCAttributeType.Window:
                         await session.SendAsync(new STalk { Result = (NPCWindow)npc.Data });
 
-                        if ((NPCWindow)npc.Data == NPCWindow.ChaosMachine) // ChaosMachine
+                        switch((NPCWindow)npc.Data)
                         {
-                            session.Player.Character.Inventory.Lock = true;
+                            case NPCWindow.ChaosMachine:
+                                session.Player.Character.Inventory.Lock = true;
+                                break;
+                            case NPCWindow.GateKeeper:
+                                DuelSystem.NPCTalk(session.Player);
+                                break;
                         }
                         break;
                     case NPCAttributeType.Buff:
@@ -1096,6 +1101,9 @@ namespace MuEmu.Network.Game
         [MessageHandler(typeof(CWarp))]
         public async Task CWarp(GSSession session, CWarp message)
         {
+            if (session.Player.Character.Duel != null)
+                return;
+
             var gates = ResourceCache.Instance.GetGates();
 
             var gate = (from g in gates
@@ -1388,6 +1396,72 @@ namespace MuEmu.Network.Game
             }
 
             PartyManager.Remove(memb);
+        }
+
+        [MessageHandler(typeof(CDuelRequest))]
+        public void CDuelRequest(GSSession session, CDuelRequest message)
+        {
+            var targetId = message.wzNumber.ShufleEnding();
+            var target = Program.server.Clients.FirstOrDefault(x => x.ID == targetId);
+
+            if (session.Player.Character.Duel != null)
+            {
+                session.SendAsync(new SDuelAnsDuelInvite(DuelResults.AlreadyDuelling, 0, "")).Wait();
+                return;
+            }
+            if(target.Player.Character.Duel != null)
+            {
+                session.SendAsync(new SDuelAnsDuelInvite(DuelResults.AlreadyDuelling1, 0, "")).Wait();
+                return;
+            }
+
+            if(!DuelSystem.CreateDuel(session.Player, target.Player))
+            {
+                session.SendAsync(new SDuelAnsDuelInvite(DuelResults.DuelMax, 0, "")).Wait();
+                return;
+            }
+            target.SendAsync(new SDuelAnswerReq((ushort)session.ID, session.Player.Character.Name)).Wait();
+            //session.SendAsync(new SDuelAnsDuelInvite(DuelResults.NoError, 0, "")).Wait();
+        }
+
+        [MessageHandler(typeof(CDuelAnswer))]
+        public void CDuelAnswer(GSSession session, CDuelAnswer message)
+        {
+            if(message.DuelOK == 0)
+            {
+                session.SendAsync(new SDuelAnsDuelInvite(DuelResults.RefuseInvitated, (ushort)session.ID, session.Player.Character.Name)).Wait();
+                return;
+            }
+
+            session.Player.Character.Duel.Join();
+        }
+
+        [MessageHandler(typeof(CDuelLeave))]
+        public void CDuelLeave(GSSession session)
+        {
+            try
+            {
+                session.Player.Character.Duel.Leave(session.Player);
+            }catch(Exception)
+            {
+                session.SendAsync(new SDuelAnsExit(DuelResults.Failed)).Wait();
+            }
+        }
+
+        [MessageHandler(typeof(CDuelJoinRoom))]
+        public void CDuelJoinRoom(GSSession session, CDuelJoinRoom message)
+        {
+            var msg = new SDuelRoomJoin();
+            msg.Results = DuelSystem.TryJoinRoom(session.Player, message.Room);
+            session.SendAsync(msg).Wait();
+        }
+
+        [MessageHandler(typeof(CDuelLeaveRoom))]
+        public void CDuelLeaveRoom(GSSession session, CDuelLeaveRoom message)
+        {
+            var msg = new SDuelRoomLeave();
+            msg.Results = DuelSystem.LeaveRoom(session.Player, message.Room);
+            session.SendAsync(msg).Wait();
         }
     }
 }

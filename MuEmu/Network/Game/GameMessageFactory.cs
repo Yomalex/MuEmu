@@ -16,13 +16,18 @@ namespace MuEmu.Network.Game
             Register<CCheckSum>(GameOpCode.GameSecurity);
             Register<CClientMessage>(GameOpCode.ClientMessage);
             Register<CCloseWindow>(GameOpCode.CloseWindow);
+
             Register<CAction>(GameOpCode.Rotation);
             Register<CMove>(GameOpCode.Move);
+            Register<CPositionSet>(GameOpCode.Position);
+
+            #region Client ChatMessages
             Register<CChatNickname>(GameOpCode.GeneralChat0);
             Register<CChatNumber>(GameOpCode.GeneralChat1);
             Register<CChatWhisper>(GameOpCode.WhisperChat);
+            #endregion
+
             Register<CNewQuestInfo>(GameOpCode.QuestDetails);
-            Register<CPositionSet>(GameOpCode.Position);
             Register<CPointAdd>(GameOpCode.PointAdd);
             Register<CClientClose>(GameOpCode.ClientClose);
             Register<CMoveItem>(GameOpCode.MoveItem);
@@ -32,8 +37,6 @@ namespace MuEmu.Network.Game
             Register<CWarehouseUseEnd>(GameOpCode.WarehouseUseEnd);
             Register<CBuy>(GameOpCode.Buy);
             Register<CSell>(GameOpCode.Sell);
-            //Register<CAttackS5E2>(GameOpCode.Attack);
-            Register<CAttack>(GameOpCode.Attack);
             Register<CWarp>(GameOpCode.Warp);
             Register<CDataLoadOK>(GameOpCode.DataLoadOK);
             Register<CJewelMix>(GameOpCode.JewelMix);
@@ -42,13 +45,29 @@ namespace MuEmu.Network.Game
             Register<CChaosBoxUseEnd>(GameOpCode.ChaosBoxUseEnd);
             Register<CItemThrow>(GameOpCode.ItemThrow);
             Register<CItemGet>(GameOpCode.ItemGet);
-            Register<CMagicAttack>(GameOpCode.MagicAttack);
             Register<CItemModify>(GameOpCode.ItemModify);
+
+            #region Client AttackMessages
+            //Register<CAttackS5E2>(GameOpCode.Attack);
+            Register<CAttack>(GameOpCode.Attack);
+            Register<CMagicAttack>(GameOpCode.MagicAttack);
+            Register<CMagicDuration>(GameOpCode.MagicDuration);
+            #endregion
+
+            #region Client PartyMessages
             Register<CPartyRequest>(GameOpCode.PartyRequest);
             Register<CPartyRequestResult>(GameOpCode.PartyResult);
             Register<CPartyList>(GameOpCode.PartyList);
             Register<CPartyDelUser>(GameOpCode.PartyDelUser);
-            Register<CMagicDuration>(GameOpCode.MagicDuration);
+            #endregion
+
+            #region Client DuelMessages
+            Register<CDuelRequest>(GameOpCode.DuelRequest);
+            Register<CDuelAnswer>(GameOpCode.DuelAnswer);
+            Register<CDuelLeave>(GameOpCode.DuelLeave);
+            Register<CDuelJoinRoom>(GameOpCode.DuelRoomJoin);
+            Register<CDuelLeaveRoom>(GameOpCode.DuelRoomLeave);
+            #endregion
 
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
@@ -59,11 +78,15 @@ namespace MuEmu.Network.Game
             Register<SQuestInfo>(GameOpCode.QuestInfo);
             Register<SFriends>(GameOpCode.FriendList);
             Register<SKillCount>(GameOpCode.KillCount);
+
+            #region Server ViewPortMessages
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
             Register<SViewPortMonCreate>(GameOpCode.ViewPortMCreate);
             Register<SViewPortDestroy>(GameOpCode.ViewPortDestroy);
             Register<SViewPortItemDestroy>(GameOpCode.ViewPortItemDestroy);
+            #endregion
+
             Register<SNotice>(GameOpCode.Notice);
             Register<SEventState>(GameOpCode.EventState);
             Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
@@ -109,10 +132,29 @@ namespace MuEmu.Network.Game
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);
             Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);
+
+            #region Server PartyMessages
             Register<SPartyResult>(GameOpCode.PartyResult);
             Register<SPartyList>(GameOpCode.PartyList);
             Register<SPartyDelUser>(GameOpCode.PartyDelUser);
             Register<SPartyLifeAll>(GameOpCode.PartyLifeUpdate);
+            #endregion
+
+            #region Server DuelMessages
+            Register<SDuelAnsDuelInvite>(GameOpCode.DuelRequest);
+            Register<SDuelAnswerReq>(GameOpCode.DuelAnswer);
+            Register<SDuelAnsExit>(GameOpCode.DuelLeave);
+            Register<SDuelBroadcastScore>(GameOpCode.DuelScoreBroadcast);
+            Register<SDuelBroadcastHP>(GameOpCode.DuelHPBroadcast);
+            Register<SDuelChannelList>(GameOpCode.DuelChannelList);
+            Register<SDuelRoomJoin>(GameOpCode.DuelRoomJoin);
+            Register<SDuelRoomBroadcastJoin>(GameOpCode.DuelRoomJoinBroadcast);
+            Register<SDuelRoomLeave>(GameOpCode.DuelRoomLeave);
+            Register<SDuelRoomBroadcastLeave>(GameOpCode.DuelRoomLeaveBroadcast);
+            Register<SDuelRoomBroadcastObservers>(GameOpCode.DuelRoomObserversBroadcast);
+            Register<SDuelBroadcastResult>(GameOpCode.DuelResultBroadcast);
+            Register<SDuelBroadcastRound>(GameOpCode.DuelRoundBroadcast);
+            #endregion
         }
     }
 }

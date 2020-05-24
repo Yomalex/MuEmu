@@ -584,4 +584,39 @@ namespace MuEmu
         BattleOfNightmare,
         TowerOfRefinery,
     }
+
+    public enum DuelResults : byte
+    {
+        NoError,
+        Failed,
+        InvalidUser,
+        NonPKServer,
+        NonDuelCSServer,
+        ConnectionClosing,
+        NotDuelMurderer,
+        AlreadyDuelled,
+        InvalidMap,
+        LimitPacketTime,
+        InvitedMyself,
+        InvalidIndex,
+        Disconnected,
+        SelfDefense,
+        GuildWar,
+        RefuseInvitated,
+        DuelMax,
+        InvalidStatus,
+        AlreadyDuelRequested,
+        AlreadyDuelReserved,
+        AlreadyDuelling,
+        AlreadyDuelRequested1,
+        AlreadyDuelReserved1,
+        AlreadyDuelling1,
+        InvalidChannelId,
+        FailedEnter,
+        NotExistUser,
+        ObserverMax,
+        LimitLevel,
+        NotFoundMoveReqData,
+        NotEnoughMoney
+    }
 }

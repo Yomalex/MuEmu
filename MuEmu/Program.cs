@@ -61,7 +61,7 @@ namespace MuEmu
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
                 .WriteTo.File("GameServer.txt")
-                .WriteTo.Console(outputTemplate: "[{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}")
+                .WriteTo.Console(outputTemplate: "{Timestamp:yyyy/MM/dd HH:mm:ss} [{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}")
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
@@ -168,6 +168,7 @@ namespace MuEmu
                 MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
                 GuildManager.Initialize();
                 PartyManager.Initialzie(400);
+                DuelSystem.Initialize();
                 SubSystem.Initialize();
                 Marlon.Initialize();
             }catch(MySql.Data.MySqlClient.MySqlException)

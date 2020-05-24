@@ -282,6 +282,7 @@ namespace MuEmu
 
         public event EventHandler MapChanged;
         public event EventHandler PlayerDie;
+        public event EventHandler CharacterRegen;
 
         // Experience
         public ulong Experience { get => _exp;
@@ -470,6 +471,8 @@ namespace MuEmu
         public DateTimeOffset RegenTime { get; private set; }
         public byte ClientClass => GetClientClass(Class);
 
+        public Duel Duel { get; set; }
+
         public static byte GetClientClass(HeroClass dbClass)
         {
             int @class = (int)dbClass;
@@ -568,6 +571,9 @@ namespace MuEmu
         }
         private async void HPorSDMaxChanged()
         {
+            if (Party != null)
+                Party.LifeUpdate();
+
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
         }
         private async void MPorBPChanged(RefillInfo info)
@@ -821,6 +827,7 @@ namespace MuEmu
                 Stamina = MaxStamina;
                 State = ObjectState.Regen;
                 _position = Map.GetRespawn();
+                CharacterRegen?.Invoke(this, new EventArgs());
                 var regen = new SCharRegen(MapID, (byte)_position.X, (byte)_position.Y, 1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, Money);
                 Player.Session.SendAsync(regen).Wait();
             }
@@ -854,18 +861,17 @@ namespace MuEmu
         {
             var g = ResourceCache.Instance.GetGates()[gate];
 
-            var rand = new Random();
+            if (g.Door.Left<g.Door.Right && g.Door.Top<g.Door.Bottom)
+            {
+                var rand = new Random();
+                var randX = rand.Next(g.Door.Left, g.Door.Right);
+                var randY = rand.Next(g.Door.Top, g.Door.Bottom);
 
-            var left = g.Door.Left < g.Door.Right ? g.Door.Left : g.Door.Right;
-            var right = g.Door.Left < g.Door.Right ? g.Door.Right : g.Door.Left;
-
-            var top = g.Door.Top < g.Door.Bottom ? g.Door.Top : g.Door.Bottom;
-            var bottom = g.Door.Top < g.Door.Bottom ? g.Door.Bottom : g.Door.Top;
-
-            var randX = rand.Next(left, right);
-            var randY = rand.Next(top, bottom);
-
-            await WarpTo(g.Map, new Point(randX, randY), g.Dir);
+                await WarpTo(g.Map, new Point(randX, randY), g.Dir);
+            }else
+            {
+                await WarpTo(g.Map, new Point(g.Door.Left, g.Door.Top), g.Dir);
+            }
         }
 
         public async void TeleportTo(Point position)

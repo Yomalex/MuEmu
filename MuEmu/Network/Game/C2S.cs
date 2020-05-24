@@ -422,4 +422,42 @@ namespace MuEmu.Network.Game
         [WZMember(0)]
         public byte Index { get; set; }
     }
+
+    [WZContract]
+    public class CDuelRequest : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1, 10)] public byte[] btName { get; set; }
+
+        public CDuelRequest() { }
+        public CDuelRequest(ushort number, string name)
+        {
+            wzNumber = number.ShufleEnding();
+            btName = name.GetBytes();
+        }
+    }
+
+    [WZContract]
+    public class CDuelAnswer : IGameMessage
+    {
+        [WZMember(0)] public byte DuelOK { get; set; }
+        [WZMember(1)] public ushort wzNumber { get; set; }
+
+        public ushort Number => wzNumber.ShufleEnding();
+    }
+
+    [WZContract]
+    public class CDuelLeave : IGameMessage { }
+
+    [WZContract]
+    public class CDuelJoinRoom : IGameMessage 
+    {
+        [WZMember(0)] public byte Room { get; set; }
+    }
+
+    [WZContract]
+    public class CDuelLeaveRoom : IGameMessage
+    {
+        [WZMember(0)] public byte Room { get; set; }
+    }
 }

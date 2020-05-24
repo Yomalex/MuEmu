@@ -46,6 +46,7 @@ namespace MuEmu.Network
                         var @char = Session.Player.Character;
                         @char.Map.DelPlayer(Session.Player.Character);
                         @char.Party?.Remove(Session.Player);
+                        @char.Duel?.Leave(@char.Player);
                         @char.Party = null;
                         Game.GameServices.CCloseWindow(Session);
                         foreach(var m in @char.MonstersVP.Select(x => Monsters.MonstersMng.Instance.GetMonster(x)).Where(x => x.Target == Session.Player))

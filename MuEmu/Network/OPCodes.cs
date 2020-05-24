@@ -36,6 +36,21 @@ namespace MuEmu.Network
     public enum GameOpCode : ushort
     {
         Warp = 0x028E,
+
+        DuelRequest = 0x01AA,
+        DuelAnswer = 0x02AA,
+        DuelLeave = 0x03AA,
+        DuelScoreBroadcast = 0x04AA,
+        DuelHPBroadcast = 0x05AA,
+        DuelChannelList = 0x06AA,
+        DuelRoomJoin = 0x07AA,
+        DuelRoomJoinBroadcast = 0x08AA,
+        DuelRoomLeave = 0x09AA,
+        DuelRoomLeaveBroadcast = 0x0AAA,
+        DuelRoomObserversBroadcast = 0x0BAA,
+        DuelResultBroadcast = 0x0CAA,
+        DuelRoundBroadcast = 0x0DAA,
+
         Tax = 0x1AB2,
         KillCount = 0x01B8,
         ClientClose = 0x02F1,

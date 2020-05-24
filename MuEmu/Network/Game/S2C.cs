@@ -3,6 +3,7 @@ using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using WebZen.Serialization;
 using WebZen.Util;
@@ -321,7 +322,7 @@ namespace MuEmu.Network.Game
     public class SHeatlUpdate : IGameMessage
     {
         [WZMember(0)] public RefillInfo Pos { get; set; }
-        
+
         [WZMember(1)] public ushort HP { get; set; }
 
         [WZMember(2)] public byte Flag { get; set; }
@@ -538,7 +539,7 @@ namespace MuEmu.Network.Game
         public ClientCloseType Type { get; set; }
     }
 
-    [WZContract(Serialized =true)]
+    [WZContract(Serialized = true)]
     public class SMoveItem : IGameMessage
     {
         [WZMember(0)]
@@ -547,12 +548,12 @@ namespace MuEmu.Network.Game
         [WZMember(1)]
         public byte Position { get; set; }
 
-        [WZMember(2,12)]
+        [WZMember(2, 12)]
         public byte[] ItemInfo { get; set; }
     }
 
     [WZContract]
-    public class SEventEnterCount :IGameMessage
+    public class SEventEnterCount : IGameMessage
     {
         [WZMember(0)]
         public EventEnterType Type { get; set; }
@@ -561,7 +562,7 @@ namespace MuEmu.Network.Game
         public byte Left { get; set; }
     }
 
-    [WZContract(Serialized =true)]
+    [WZContract(Serialized = true)]
     public class SCloseMsg : IGameMessage
     {
         [WZMember(0)]
@@ -569,7 +570,7 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract(LongMessage = true)]
-    public class SShopItemList:IGameMessage
+    public class SShopItemList : IGameMessage
     {
         [WZMember(0)]
         public byte ListType { get; set; }
@@ -588,7 +589,7 @@ namespace MuEmu.Network.Game
         }
     }
 
-    [WZContract(Serialized =true)]
+    [WZContract(Serialized = true)]
     public class STalk : IGameMessage
     {
         [WZMember(0)]
@@ -651,7 +652,7 @@ namespace MuEmu.Network.Game
         }
     }
 
-    [WZContract(Serialized =true)]
+    [WZContract(Serialized = true)]
     public class SQuestWindow : IGameMessage
     {
         [WZMember(0)]
@@ -688,7 +689,7 @@ namespace MuEmu.Network.Game
             Type = type;
             if (args.Length > 0)
                 Arg1 = args[0];
-            if(args.Length > 1)
+            if (args.Length > 1)
                 Arg1 = args[1];
         }
     }
@@ -699,7 +700,7 @@ namespace MuEmu.Network.Game
         [WZMember(0)]
         public byte Result { get; set; }
 
-        [WZMember(1,12)]
+        [WZMember(1, 12)]
         public byte[] ItemInfo { get; set; }
     }
 
@@ -714,7 +715,7 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
-    public class SItemGet :IGameMessage
+    public class SItemGet : IGameMessage
     {
         /// <summary>
         /// 0xFE: Zen
@@ -722,7 +723,7 @@ namespace MuEmu.Network.Game
         [WZMember(0)]
         public byte Result { get; set; }
 
-        [WZMember(1,12)]
+        [WZMember(1, 12)]
         public byte[] ItemInfo { get; set; }
 
         public uint Money { get => BitConverter.ToUInt32(ItemInfo, 0).ShufleEnding(); set => ItemInfo = BitConverter.GetBytes(value.ShufleEnding()); }
@@ -757,7 +758,7 @@ namespace MuEmu.Network.Game
         }
     }
 
-    [WZContract(Serialized =true)]
+    [WZContract(Serialized = true)]
     public class STeleport : IGameMessage
     {
         // C3:1C
@@ -799,7 +800,7 @@ namespace MuEmu.Network.Game
         public byte State { get; set; }
 
         [WZMember(1)]
-        public ushort Number { get; set; } 
+        public ushort Number { get; set; }
 
         [WZMember(2)]
         public byte SkillIndex { get; set; }
@@ -929,7 +930,7 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
-    public class SDamage :IGameMessage
+    public class SDamage : IGameMessage
     {
         [WZMember(0)]
         public ushort wzDamage { get; set; }
@@ -945,7 +946,7 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract(Serialized = true)]
-    public class SKillPlayer :IGameMessage
+    public class SKillPlayer : IGameMessage
     {
         [WZMember(0)]
         public ushort wzNumber { get; set; }
@@ -1152,7 +1153,7 @@ namespace MuEmu.Network.Game
         [WZMember(3)] public byte Channel { get; set; }
 
         public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
-}
+    }
 
     [WZContract]
     public class SPartyLifeAll : IGameMessage
@@ -1165,7 +1166,6 @@ namespace MuEmu.Network.Game
             PartyLives = Array.Empty<SPartyLife>();
         }
     }
-
 
     [WZContract]
     public class SCharRegen : IGameMessage
@@ -1218,6 +1218,265 @@ namespace MuEmu.Network.Game
             Exp = exp.ShufleEnding();
             Money = money.ShufleEnding();
         }
+    }
+
+    // 0xC1 0xAA 0x01
+    [WZContract]
+    public class SDuelAnsDuelInvite : IGameMessage
+    {
+        [WZMember(0)] public DuelResults Result { get; set; }
+        [WZMember(1)] public ushort wzNumber { get; set; }
+        [WZMember(2, 10)] public byte[] btName { get; set; }
+
+        public SDuelAnsDuelInvite() { }
+        public SDuelAnsDuelInvite(DuelResults result, ushort number, string name)
+        {
+            Result = result;
+            wzNumber = number.ShufleEnding();
+            btName = name.GetBytes();
+        }
+    }
+
+    // 0xC1 0xAA 0x02
+    [WZContract]
+    public class SDuelAnswerReq : CDuelRequest
+    {
+        public SDuelAnswerReq() { }
+        public SDuelAnswerReq(ushort number, string name)
+        {
+            wzNumber = number.ShufleEnding();
+            btName = name.GetBytes();
+        }
+    }
+
+    // 0xC1 0xAA 0x03
+    [WZContract]
+    public class SDuelAnsExit : SDuelAnsDuelInvite
+    {
+        public SDuelAnsExit() { }
+        public SDuelAnsExit(DuelResults results)
+        {
+            Result = results;
+        }
+        public SDuelAnsExit(DuelResults results, ushort id, string name)
+        {
+            Result = results;
+            wzNumber = id.ShufleEnding();
+            btName = name.GetBytes();
+        }
+    }
+
+    // 0xC1 0xAA 0x04
+    [WZContract]
+    public class SDuelBroadcastScore : IGameMessage
+    {
+        [WZMember(0)] public ushort wzChallenger { get; set; }
+        [WZMember(1)] public ushort wzChallenged { get; set; }
+        [WZMember(2)] public byte ChallengerScore { get; set; }
+        [WZMember(3)] public byte ChallengedScore { get; set; }
+
+        public SDuelBroadcastScore() { }
+        public SDuelBroadcastScore(ushort challenger, ushort challenged, byte challengerScore, byte challengedScore)
+        {
+            wzChallenger = challenger.ShufleEnding();
+            wzChallenged = challenged.ShufleEnding();
+            ChallengerScore = challengerScore;
+            ChallengedScore = challengedScore;
+        }
+    }
+
+    // 0xC1 0xAA 0x05
+    [WZContract]
+    public class SDuelBroadcastHP : IGameMessage
+    {
+        [WZMember(0)] public ushort wzChallenger { get; set; }
+        [WZMember(1)] public ushort wzChallenged { get; set; }
+        [WZMember(2)] public byte ChallengerHP { get; set; }
+        [WZMember(3)] public byte ChallengedHP { get; set; }
+        [WZMember(4)] public byte ChallengerShield { get; set; }
+        [WZMember(5)] public byte ChallengedShield { get; set; }
+
+        public SDuelBroadcastHP() { }
+        public SDuelBroadcastHP(ushort challenger, ushort challenged, byte challengerHP, byte challengedHP, byte challengerShield, byte challengedShield)
+        {
+            wzChallenger = challenger.ShufleEnding();
+            wzChallenged = challenged.ShufleEnding();
+            ChallengerHP = challengerHP;
+            ChallengedHP = challengedHP;
+            ChallengerShield = challengerShield;
+            ChallengedShield = challengedShield;
+        }
+    }
+
+    [WZContract]
+    public class DuelChannel
+    {
+        [WZMember(0, 10)]
+        public byte[] btNameA { get; set; }
+        [WZMember(1, 10)]
+        public byte[] btNameB { get; set; }
+        [WZMember(2)]
+        public byte bStart { get; set; }
+        [WZMember(3, 10)]
+        public byte bWatch { get; set; }
+
+        public DuelChannel()
+        {
+            btNameA = Array.Empty<byte>();
+            btNameB = Array.Empty<byte>();
+        }
+
+        public DuelChannel(string nameA, string nameB, bool start, bool watch)
+        {
+            btNameA = nameA.GetBytes();
+            btNameB = nameB.GetBytes();
+            bStart = (byte)(start ? 1 : 0);
+            bWatch = (byte)(watch ? 1 : 0);
+        }
+    }
+
+    // 0xC1 0xAA 0x06
+    [WZContract]
+    public class SDuelChannelList : IGameMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))]
+        public DuelChannel[] Channels { get; set; }
+
+        public SDuelChannelList()
+        {
+            Channels = new DuelChannel[4];
+        }
+        public SDuelChannelList(DuelChannel[] channels)
+        {
+            if (channels.Length != 4)
+                throw new Exception("Channels != 4");
+
+            Channels = channels;
+        }
+    }
+
+    // 0xC1 0xAA 0x07
+    [WZContract]
+    public class SDuelRoomJoin : IGameMessage
+    {
+        [WZMember(0)]
+        public DuelResults Results { get; set; }
+        [WZMember(1)]
+        public byte Room { get; set; }
+        [WZMember(2,10)]
+        public byte[] btChallenger { get; set; }
+        [WZMember(3,10)]
+        public byte[] btChallenged { get; set; }
+        [WZMember(4)]
+        public ushort wzChallenger { get; set; }
+        [WZMember(5)]
+        public ushort wzChallenged { get; set; }
+
+        public SDuelRoomJoin() { }
+        public SDuelRoomJoin(DuelResults result, byte room, string challengerName, string challengedName, ushort challengerId, ushort challengedId)
+        {
+            Results = result;
+            Room = room;
+            btChallenged = challengedName.GetBytes();
+            btChallenger = challengerName.GetBytes();
+            wzChallenged = challengedId.ShufleEnding();
+            wzChallenger = challengerId.ShufleEnding();
+        }
+    }
+
+    // 0xC1 0xAA 0x08
+    [WZContract]
+    public class SDuelRoomBroadcastJoin : IGameMessage
+    {
+        [WZMember(0,10)]
+        public byte[] btObserver { get; set; }
+
+        public SDuelRoomBroadcastJoin() { }
+        public SDuelRoomBroadcastJoin(string observer)
+        {
+            btObserver = observer.GetBytes();
+        }
+    }
+
+    // 0xC1 0xAA 0x09
+    [WZContract]
+    public class SDuelRoomLeave : IGameMessage
+    {
+        [WZMember(0)]
+        public DuelResults Results { get; set; }
+
+        public SDuelRoomLeave() { }
+        public SDuelRoomLeave(DuelResults result)
+        {
+            Results = result;
+        }
+    }
+
+    // 0xC1 0xAA 0x0A
+    [WZContract]
+    public class SDuelRoomBroadcastLeave : IGameMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] btObserver { get; set; }
+
+        public SDuelRoomBroadcastLeave() { }
+        public SDuelRoomBroadcastLeave(string observer)
+        {
+            btObserver = observer.GetBytes();
+        }
+    }
+
+    [WZContract]
+    public class SDuelRoomObserver
+    {
+        [WZMember(0, 10)]
+        public byte[] btObserver { get; set; }
+
+        public SDuelRoomObserver()
+        {
+            btObserver = Array.Empty<byte>();
+        }
+    }
+
+    // 0xC1 0xAA 0x0B
+    [WZContract]
+    public class SDuelRoomBroadcastObservers : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public SDuelRoomObserver[] Observers { get; set; }
+        public SDuelRoomBroadcastObservers()
+        {
+            Array.Empty<SDuelRoomObserver>();
+        }
+        public SDuelRoomBroadcastObservers(string[] observer)
+        {
+            Observers = observer.Select(x => new SDuelRoomObserver() { btObserver = x.GetBytes() }).ToArray();
+        }
+    }
+
+    // 0xC1 0xAA 0x0C
+    [WZContract]
+    public class SDuelBroadcastResult : IGameMessage
+    {
+        [WZMember(0, 10)] public byte[] btWinner { get; set; }
+        [WZMember(1, 10)] public byte[] btLoser { get; set; }
+        public SDuelBroadcastResult()
+        { 
+            btWinner = Array.Empty<byte>();
+            btLoser = Array.Empty<byte>();
+        }
+        public SDuelBroadcastResult(string winner, string loser)
+        {
+            btWinner = winner.GetBytes();
+            btLoser = loser.GetBytes();
+        }
+    }
+
+    // 0xC1 0xAA 0x0D
+    [WZContract]
+    public class SDuelBroadcastRound : IGameMessage
+    {
+        [WZMember(0)] public byte Flag { get; set; }
     }
 }
 
