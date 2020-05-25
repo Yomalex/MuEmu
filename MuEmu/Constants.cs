@@ -150,6 +150,9 @@ namespace MuEmu
         GrowLancer = 0x70,
         MirageLancer,
         ShinningLancer,
+        RuneWizard = 0x80,
+        RuneSpellMaster,
+        GrandRuneMaster
     }
 
     public enum Equipament

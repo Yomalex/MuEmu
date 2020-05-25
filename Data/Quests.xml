@@ -69,21 +69,21 @@
   </Quest>
   
   <Quest Type="0" Index="4" SubType="2" NPC="406" Name="Certificate of Strength!">
-    <Detail Index="1" Classes="SoulMaster,HighElf,BlodySummoner">
+    <Detail Classes="SoulMaster,HighElf,BlodySummoner">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="1" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
-    <Detail Index="1" Classes="BladeKnight">
+    <Detail Classes="BladeKnight">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
       <Reward Type="Statup" SubType="10" />
       <Message LinkConditionIndex="2" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
     </Detail>
-    <Detail Index="1" Classes="BladeKnight">
+    <Detail Classes="BladeKnight">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
@@ -94,5 +94,29 @@
     <Condition Index="2" NeededQuest="3" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="166" />
     <Condition Index="-1" NeededQuest="-1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="5000000" Message="146" />
     <Condition Index="-1" NeededQuest="-1" MinLevel="380" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+  </Quest>
+  
+  <Quest Type="0" Index="5" SubType="2" NPC="406" Name="Infiltration Of 'Barrack'">
+    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner">
+      <NeededMonster Type="409" Count="10" />
+      <NeededMonster Type="410" Count="10" />
+      <NeededMonster Type="411" Count="10" />
+      <Reward Type="Statup" SubType="20" />
+      <Message LinkConditionIndex="1" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+    </Detail>
+    <Condition Index="1" NeededQuest="-1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="7000000" Message="157" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="400" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+    <Condition Index="-1" NeededQuest="4" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="145" />
+  </Quest>
+  
+  <Quest Type="0" Index="6" SubType="2" NPC="406" Name="Infiltration Of 'Refuge'">
+    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner">
+      <NeededMonster Type="412" Count="1" />
+      <Reward Type="Master" SubType="200" />
+      <Message LinkConditionIndex="0" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+    </Detail>
+    <Condition Index="-1" NeededQuest="-1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="10000000" Message="167" />
+    <Condition Index="-1" NeededQuest="-1" MinLevel="400" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+    <Condition Index="-1" NeededQuest="5" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="145" />
   </Quest>
 </Quests>

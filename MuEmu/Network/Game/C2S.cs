@@ -218,13 +218,15 @@ namespace MuEmu.Network.Game
     public class CAttack : IGameMessage
     {
         [WZMember(0)]
-        public ushort Number { get; set; }   // 3,4
+        public ushort wzNumber { get; set; }   // 3,4
 
         [WZMember(1)]
         public byte AttackAction { get; set; }  // 5
 
         [WZMember(2)]
         public byte DirDis { get; set; }    // 6
+
+        public ushort Number => wzNumber.ShufleEnding();
     }
 
     [WZContract]

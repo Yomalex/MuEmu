@@ -33,6 +33,7 @@ using MuEmu.Util;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Resources.BMD;
+using Serilog.Sinks.RollingFile;
 
 namespace MuEmu
 {
@@ -57,11 +58,13 @@ namespace MuEmu
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
             Predicate<GSSession> MustBeLoggedOrPlaying = session => session.Player.Status == LoginStatus.Logged || session.Player.Status == LoginStatus.Playing;
 
+            string output = "{Timestamp: HH:mm:ss} [{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}";
+
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
-                .WriteTo.File("GameServer.txt")
-                .WriteTo.Console(outputTemplate: "{Timestamp:yyyy/MM/dd HH:mm:ss} [{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}")
+                .WriteTo.RollingFile("GameServer_{Date}.txt", outputTemplate: output)
+                .WriteTo.Console(outputTemplate: output)
                 .MinimumLevel.Debug()
                 .CreateLogger();
 

@@ -20,7 +20,7 @@ namespace MuEmu
 {
     public class Character
     {
-        private int _characterId;
+        #region Private
         private float _hp;
         private float _hpMax;
         private float _hpAdd;
@@ -67,8 +67,9 @@ namespace MuEmu
         private float _attackSpeed = 0.0f;
         private ushort _killerId;
         private int _deadlyDmg;
+        #endregion
 
-        public int Id => _characterId;
+        public int Id { get; }
         public Player Player { get; }
         public Account Account => Player.Account;
         public ushort Index => (ushort)Player.Session.ID;
@@ -83,6 +84,7 @@ namespace MuEmu
         public List<Player> PlayersVP { get; set; }
         public List<ushort> ItemsVP { get; set; }
 
+        #region Basic Info
         // Basic Info
         public HeroClass Class { get => _class; set { _class = value; _needSave = true; BaseInfo = ResourceCache.Instance.GetDefChar()[BaseClass]; } }
         public HeroClass BaseClass => (HeroClass)(((int)Class) & 0xF0);
@@ -251,7 +253,9 @@ namespace MuEmu
             }
         }
         public byte PKLevel { get => _pkLevel; set { _pkLevel = value; _needSave = true; } }
+        #endregion
 
+        #region MapInfo
         // Map
         public Maps MapID {
             get => _map;
@@ -279,6 +283,7 @@ namespace MuEmu
         public byte Action { get; set; }
 
         public MapInfo Map { get; private set; }
+        #endregion
 
         public event EventHandler MapChanged;
         public event EventHandler PlayerDie;
@@ -305,6 +310,7 @@ namespace MuEmu
         public ulong BaseExperience => GetExperienceFromLevel((ushort)(Level - 1));
         public ulong NextExperience => GetExperienceFromLevel(Level);
 
+        #region Stats
         // Points
         public ushort LevelUpPoints { get => _levelUpPoints;
             set
@@ -459,6 +465,7 @@ namespace MuEmu
         public short MaxAddPoints => 100;
         public short MinusPoints => 0;
         public short MaxMinusPoints => 100;
+        #endregion
 
         public ushort AttackRatePvM => (ushort)_attackRatePvM;
         public ushort AttackRatePvP => (ushort)_attackRatePvP;
@@ -482,7 +489,7 @@ namespace MuEmu
         public Character(Player plr, CharacterDto characterDto)
         {
             PlayerDie += OnDead;
-            _characterId = characterDto.CharacterId;
+            Id = characterDto.CharacterId;
             Player = plr;
             Name = characterDto.Name;
             Class = (HeroClass)characterDto.Class;
@@ -562,6 +569,7 @@ namespace MuEmu
                 await plr.Session.SendAsync(message);
         }
 
+        #region EventHandlers
         public async void HPorSDChanged(RefillInfo info)
         {
             if (Party != null)
@@ -583,115 +591,6 @@ namespace MuEmu
         private async void MPorBPMaxChanged()
         {
             await Player.Session.SendAsync(new SManaUpdate(RefillInfo.MaxChanged, (ushort)MaxMana, (ushort)MaxStamina));
-        }
-        private void CalcStats()
-        {
-            var att = BaseInfo.Attributes;
-            _hpMax = (att.Life + att.LevelLife * (Level - 1) + att.VitalityToLife * Vitality);
-            _mpMax = (att.Mana + att.LevelMana * (Level - 1) + att.EnergyToMana * Energy);
-            _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
-            _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
-            ObjCalc();
-        }
-        public void ObjCalc()
-        {
-
-            var right = Inventory.Get(Equipament.RightHand);
-            var left = Inventory.Get(Equipament.LeftHand);
-
-            switch(BaseClass)
-            {
-                //case HeroClass.DarkWizard:
-                //    break;
-                case HeroClass.DarkKnight:
-                    _leftAttackMin = (StrengthTotal / 6);
-                    _leftAttackMax = (StrengthTotal / 4);
-                    _rightAttackMin = (StrengthTotal / 6);
-                    _rightAttackMax = (StrengthTotal / 4);
-                    break;
-                case HeroClass.FaryElf:
-                    if ((right?.Number.Type ?? ItemType.Invalid) == ItemType.BowOrCrossbow || (left?.Number.Type ?? ItemType.Invalid) == ItemType.BowOrCrossbow)
-                    {
-                        _leftAttackMin = AgilityTotal / 8;
-                        _leftAttackMax = AgilityTotal / 4;
-                        _rightAttackMin = AgilityTotal / 8;
-                        _rightAttackMax = AgilityTotal / 4;
-                    }
-                    else
-                    {
-                        _leftAttackMin = (StrengthTotal + AgilityTotal) / 7;
-                        _leftAttackMax = (StrengthTotal + AgilityTotal) / 4;
-                        _rightAttackMin = (StrengthTotal + AgilityTotal) / 7;
-                        _rightAttackMax = (StrengthTotal + AgilityTotal) / 4;
-                    }
-                    break;
-                case HeroClass.MagicGladiator:
-                    _leftAttackMin = (StrengthTotal / 6) + (EnergyTotal / 12);
-                    _leftAttackMax = (StrengthTotal / 4) + (EnergyTotal / 8);
-                    _rightAttackMin = (StrengthTotal / 6) + (EnergyTotal / 12);
-                    _rightAttackMax = (StrengthTotal / 4) + (EnergyTotal / 8);
-                    break;
-                case HeroClass.DarkLord:
-                    _leftAttackMin = (StrengthTotal / 7) + (EnergyTotal / 14);
-                    _leftAttackMax = (StrengthTotal / 5) + (EnergyTotal / 10);
-                    _rightAttackMin = (StrengthTotal / 7) + (EnergyTotal / 14);
-                    _rightAttackMax = (StrengthTotal / 5) + (EnergyTotal / 10);
-                    break;
-                //case HeroClass.Summoner:
-                //    break;
-                //case HeroClass.RageFighter:
-                //    break;
-                //case HeroClass.GrowLancer:
-                //    break;
-                default:
-                    _leftAttackMin = (StrengthTotal / 8);
-                    _leftAttackMax = (StrengthTotal / 4);
-                    _rightAttackMin = (StrengthTotal / 8);
-                    _rightAttackMax = (StrengthTotal / 4);
-                    break;
-            }
-
-            
-
-            if (right?.Attack ?? false)
-            {
-                _rightAttackMin += right.AttackMin;
-                _rightAttackMax += right.AttackMax;
-            }
-
-            if (left?.Attack ?? false)
-            {
-                _leftAttackMin += left.AttackMin;
-                _leftAttackMax += left.AttackMax;
-            }
-
-            if (BaseClass == HeroClass.DarkKnight || BaseClass == HeroClass.MagicGladiator)
-            {
-                if ((right?.Number ?? ItemNumber.Invalid) == (left?.Number ?? ItemNumber.Invalid) && (right?.Number ?? ItemNumber.Invalid) != ItemNumber.Invalid)
-                {
-                    _rightAttackMin *= 0.55f;
-                    _rightAttackMax *= 0.55f;
-                    _leftAttackMin *= 0.55f;
-                    _leftAttackMax *= 0.55f;
-                }
-            }
-
-            switch(BaseClass)
-            {
-                case HeroClass.DarkKnight:
-                    _defense = AgilityTotal / 3.0f;
-                    _defenseRatePvM = AgilityTotal / 3.0f;
-                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
-                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal * 4;
-                    _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
-                    _attackSpeed = AgilityTotal / 15.0f;
-                    if (_attackSpeed > 288) _attackSpeed = 288.0f;
-                    break;
-            }
-
-            _defense += Inventory.Defense;
-            _defenseRatePvP += Inventory.DefenseRate;
-            _defenseRatePvM += Inventory.DefenseRate;
         }
         private async void OnLevelUp()
         {
@@ -735,10 +634,6 @@ namespace MuEmu
         private async void OnMoneyChange()
         {
             await Player.Session.SendAsync(new SItemGet { Result = 0xFE, Money = Money });
-        }
-        private ulong GetExperienceFromLevel(ushort level)
-        {
-            return (((level + 9ul) * level) * level) * 10ul + ((level > 255) ? ((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul : 0ul);
         }
         private void OnDead(object obj, EventArgs args)
         {
@@ -816,6 +711,182 @@ namespace MuEmu
             var expReduced = Experience * EXPPenalty;
             Experience -= (ulong)expReduced;
         }
+        #endregion
+
+        private void CalcStats()
+        {
+            var att = BaseInfo.Attributes;
+            _hpMax = (att.Life + att.LevelLife * (Level - 1) + att.VitalityToLife * Vitality);
+            _mpMax = (att.Mana + att.LevelMana * (Level - 1) + att.EnergyToMana * Energy);
+            _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
+            _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
+            ObjCalc();
+        }
+        public void ObjCalc()
+        {
+
+            var right = Inventory.Get(Equipament.RightHand);
+            var left = Inventory.Get(Equipament.LeftHand);
+
+            switch(BaseClass)
+            {
+                case HeroClass.DarkWizard:
+                    _leftAttackMin = (StrengthTotal / 8);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 8);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
+                case HeroClass.DarkKnight:
+                    _leftAttackMin = (StrengthTotal / 6);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 6);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
+                case HeroClass.FaryElf:
+                    if ((right?.Number.Type ?? ItemType.Invalid) == ItemType.BowOrCrossbow || (left?.Number.Type ?? ItemType.Invalid) == ItemType.BowOrCrossbow)
+                    {
+                        _leftAttackMin = AgilityTotal / 8;
+                        _leftAttackMax = AgilityTotal / 4;
+                        _rightAttackMin = AgilityTotal / 8;
+                        _rightAttackMax = AgilityTotal / 4;
+                    }
+                    else
+                    {
+                        _leftAttackMin = (StrengthTotal + AgilityTotal) / 7;
+                        _leftAttackMax = (StrengthTotal + AgilityTotal) / 4;
+                        _rightAttackMin = (StrengthTotal + AgilityTotal) / 7;
+                        _rightAttackMax = (StrengthTotal + AgilityTotal) / 4;
+                    }
+                    break;
+                case HeroClass.MagicGladiator:
+                    _leftAttackMin = (StrengthTotal / 6) + (EnergyTotal / 12);
+                    _leftAttackMax = (StrengthTotal / 4) + (EnergyTotal / 8);
+                    _rightAttackMin = (StrengthTotal / 6) + (EnergyTotal / 12);
+                    _rightAttackMax = (StrengthTotal / 4) + (EnergyTotal / 8);
+                    break;
+                case HeroClass.DarkLord:
+                    _leftAttackMin = (StrengthTotal / 7) + (EnergyTotal / 14);
+                    _leftAttackMax = (StrengthTotal / 5) + (EnergyTotal / 10);
+                    _rightAttackMin = (StrengthTotal / 7) + (EnergyTotal / 14);
+                    _rightAttackMax = (StrengthTotal / 5) + (EnergyTotal / 10);
+                    break;
+                case HeroClass.Summoner:
+                    _leftAttackMin = (StrengthTotal / 8);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 8);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
+                //case HeroClass.RageFighter:
+                //    break;
+                //case HeroClass.GrowLancer:
+                //    break;
+                default:
+                    _leftAttackMin = (StrengthTotal / 8);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 8);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
+            }
+
+            
+
+            if (right?.Attack ?? false)
+            {
+                _rightAttackMin += right.AttackMin;
+                _rightAttackMax += right.AttackMax;
+            }
+
+            if (left?.Attack ?? false)
+            {
+                _leftAttackMin += left.AttackMin;
+                _leftAttackMax += left.AttackMax;
+            }
+
+            if (BaseClass == HeroClass.DarkKnight || BaseClass == HeroClass.MagicGladiator)
+            {
+                if ((right?.Number ?? ItemNumber.Invalid) == (left?.Number ?? ItemNumber.Invalid) && (right?.Number ?? ItemNumber.Invalid) != ItemNumber.Invalid)
+                {
+                    _rightAttackMin *= 0.55f;
+                    _rightAttackMax *= 0.55f;
+                    _leftAttackMin *= 0.55f;
+                    _leftAttackMax *= 0.55f;
+                }
+            }
+
+            switch(BaseClass)
+            {
+                case HeroClass.DarkKnight:
+                    _defense = AgilityTotal / 3.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
+                    _attackSpeed = AgilityTotal / 15.0f;
+                    break;
+                case HeroClass.DarkWizard:
+                    _defense = AgilityTotal / 5.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.25f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 3 + AgilityTotal * 4.0f;
+                    _attackSpeed = AgilityTotal / 10.0f;
+                    _magicAttackMin = EnergyTotal / 9.0f;
+                    _magicAttackMax = EnergyTotal / 4.0f;
+                    break;
+                case HeroClass.FaryElf:
+                    _defense = AgilityTotal / 10.0f;
+                    _defenseRatePvM = AgilityTotal / 4.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.1f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 0.6f;
+                    _attackSpeed = AgilityTotal / 50.0f;
+                    break;
+                case HeroClass.MagicGladiator:
+                    _defense = AgilityTotal / 5.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.25f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 3.5f;
+                    _attackSpeed = AgilityTotal / 15.0f;
+                    break;
+                case HeroClass.DarkLord:
+                    _defense = AgilityTotal / 7.0f;
+                    _defenseRatePvM = AgilityTotal / 7.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 2.5f + StrengthTotal / 4 + CommandTotal / 10;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 4.0f;
+                    _attackSpeed = AgilityTotal / 10.0f;
+                    break;
+                case HeroClass.Summoner:
+                    _defense = AgilityTotal / 3.0f;
+                    _defenseRatePvM = AgilityTotal / 4.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 3.5f;
+                    _attackSpeed = AgilityTotal / 20.0f;
+                    _magicAttackMin = EnergyTotal / 9.0f;
+                    _magicAttackMax = EnergyTotal / 4.0f;
+                    break;
+                //case HeroClass.RageFighter:
+                //    _defense = AgilityTotal / 3.0f;
+                //    _defenseRatePvM = AgilityTotal / 3.0f;
+                //    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                //    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal * 4;
+                //    _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
+                //    _attackSpeed = AgilityTotal / 15.0f;
+                //    if (_attackSpeed > 288) _attackSpeed = 288.0f;
+                //    break;
+            }
+
+            if (_attackSpeed > 288) _attackSpeed = 288.0f;
+            _defense += Inventory.Defense;
+            _defenseRatePvP += Inventory.DefenseRate;
+            _defenseRatePvM += Inventory.DefenseRate;
+        }
+        private ulong GetExperienceFromLevel(ushort level)
+        {
+            return (((level + 9ul) * level) * level) * 10ul + ((level > 255) ? ((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul : 0ul);
+        }
 
         public void TryRegen()
         {
@@ -889,7 +960,7 @@ namespace MuEmu
             if (_needSave == false)
                 return;
 
-            var charDto = db.Characters.First(x => x.CharacterId == _characterId);
+            var charDto = db.Characters.First(x => x.CharacterId == Id);
             charDto.Class = (byte)_class;
             charDto.Level = _level;
             charDto.LevelUpPoints = _levelUpPoints;
@@ -912,6 +983,7 @@ namespace MuEmu
             _needSave = false;
         }
 
+        #region Battle
         public int Attack(Character target, out DamageType type, out int Reflect)
         {
             var leftHand = Inventory.Get(Equipament.LeftHand);
@@ -929,7 +1001,7 @@ namespace MuEmu
             if (MissCheck(target))
             {
                 type = DamageType.Miss;
-                return 0;
+                return (int)attack;
             }
 
             if (excellentRate > _rand.Next(100))
@@ -938,8 +1010,8 @@ namespace MuEmu
                 type = DamageType.Critical;
 
             attack = BaseAttack(type != DamageType.Regular);
-
-            attack -= target.Inventory.Defense;
+            attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
+            attack += Spells.BuffList.Sum(x => x.AttackAdd);
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -953,6 +1025,7 @@ namespace MuEmu
             if (twing != null) // Wings decrease Dmg 12%+(Level*2)%
                 attack *= 0.88f - twing.Plus * 0.02f;
 
+            attack -= target.Inventory.Defense;
             Reflect = (int)(attack * tReflect / 100.0f);
 
             return (int)attack;
@@ -1037,7 +1110,7 @@ namespace MuEmu
             return true;
         }
 
-        public async Task GetAttacked(Monster source, int dmg, DamageType type, Spell isMagic)
+        public async Task GetAttacked(ushort source, byte dir, int dmg, DamageType type, Spell isMagic)
         {
             if (State != ObjectState.Live)
                 return;
@@ -1045,21 +1118,21 @@ namespace MuEmu
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
 
             _deadlyDmg = dmgSend;
-            _killerId = source.Index;
+            _killerId = source;
             Health -= dmg;
 
             if (State != ObjectState.Dying)
             {
                 if (isMagic == Spell.None)
                 {
-                    var msg = new SAction(source.Index, source.Direction, 120, Index);
+                    var msg = new SAction(source, dir, 120, Index);
                     await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
                     await Player.Session.SendAsync(msg);
                     await Player.SendV2Message(msg);
                 }
                 else
                 {
-                    var msg2 = new SMagicAttack(isMagic, source.Index, (ushort)Player.Session.ID);
+                    var msg2 = new SMagicAttack(isMagic, source, (ushort)Player.Session.ID);
                     await Player.Session.SendAsync(msg2);
                     await Player.SendV2Message(msg2);
                     SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), new SAttackResult(Index, dmgSend, type, 0));
@@ -1082,7 +1155,7 @@ namespace MuEmu
             //SubSystem.Instance.AddDelayedMessage()
         }
 
-        public int SkillAttack(SpellInfo spell, Monster target, out DamageType type)
+        public int SkillAttack(SpellInfo spell, int targetDefense, out DamageType type)
         {
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
@@ -1111,11 +1184,11 @@ namespace MuEmu
 
             attack *= (200.0f + EnergyTotal / 10.0f) / 100.0f;
 
-            attack -= target.Defense;
+            attack -= targetDefense;
             return (int)attack;
         }
         
-        public int MagicAttack(SpellInfo spell, Monster target, out DamageType type)
+        public int MagicAttack(SpellInfo spell, int targetDefense, out DamageType type)
         {
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
@@ -1135,7 +1208,8 @@ namespace MuEmu
             else if (criticalRate > _rand.Next(100))
                 type = DamageType.Critical;
 
-            attack += (type != DamageType.Regular) ? spell.Damage.Y + Energy / 4 : _rand.Next(spell.Damage.X + Energy / 9, spell.Damage.Y + Energy / 4);
+            attack += (type != DamageType.Regular) ? spell.Damage.Y + _magicAttackMax : _rand.Next((int)(spell.Damage.X + _magicAttackMin), (int)(spell.Damage.Y + _magicAttackMax));
+            attack += Spells.BuffList.Sum(x => x.AttackAdd);
             attack *= 1.0f + magicAdd / 100.0f;
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
 
@@ -1151,7 +1225,7 @@ namespace MuEmu
             if (attack < 0)
                 attack = 0.0f;
 
-            attack -= target.Defense;
+            attack -= targetDefense;
             return (int)attack;
         }
 
@@ -1167,6 +1241,7 @@ namespace MuEmu
 
             return attack;
         }
+        #endregion
 
         public void Autorecovery()
         {
@@ -1193,6 +1268,7 @@ namespace MuEmu
             }
         }
 
+        #region Commands
         public static void AddStr(object session, CommandEventArgs eventArgs)
         {
             var Session = session as GSSession;
@@ -1320,5 +1396,6 @@ namespace MuEmu
 
             Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
+        #endregion
     }
 }

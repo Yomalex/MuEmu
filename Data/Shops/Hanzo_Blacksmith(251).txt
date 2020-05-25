@@ -1,26 +1,26 @@
 //Herrero Lorencia
-7 1 9 0 0 1 1 0	//Dragon Helm
-7 16 9 0 0 1 1 0 //Black Dragon Helm
-7 17 9 0 0 1 1 0 //Dark Phoenix Helm
-0 14 9 0 0 1 1 0 //Lightning Sword
-0 16 9 0 0 1 1 0 //Sword of Destruction
-8 1 9 0 0 1 1 0 //Dragon Armor
-8 16 9 0 0 1 1 0 //Black Dragon Armor
-8 17 9 0 0 1 1 0 //Dark Phoenix Armor
-0 19 9 0 0 1 1 0 //Divine Sword of Archangel
-0 20 9 0 0 1 1 0 //Knight Blade
-9 1 9 0 0 1 1 0 //Dragon Pants
-9 16 9 0 0 1 1 0 //Black Dragon Pants
-9 17 9 0 0 1 1 0 //Dark Phoenix Pants
-10 1 9 0 0 1 1 0 //Dragon Gloves
-10 16 9 0 0 1 1 0 //Black Dragon Gloves
-10 17 9 0 0 1 1 0 //Dark Phoenix Gloves
-0 22 9 0 0 1 1 0 //Bone Blade
-11 1 9 0 0 1 1 0 //Dragon Boots
-11 16 9 0 0 1 1	0 //Black Dragon Boots
-11 17 9	0 0 1 1	0 //Dark Phoenix Boots
-0 13 9 0 0 1 1 0 //Double Blade
-12 2 9 0 0 1 1 0 //Satan Wings
+7 1 9 255 0 1 1 0	//Dragon Helm
+7 16 9 255 0 1 1 0 //Black Dragon Helm
+7 17 9 255 0 1 1 0 //Dark Phoenix Helm
+0 14 9 255 0 1 1 0 //Lightning Sword
+0 16 9 255 0 1 1 0 //Sword of Destruction
+8 1 9 255 0 1 1 0 //Dragon Armor
+8 16 9 255 0 1 1 0 //Black Dragon Armor
+8 17 9 255 0 1 1 0 //Dark Phoenix Armor
+0 19 9 255 0 1 1 0 //Divine Sword of Archangel
+0 20 9 255 0 1 1 0 //Knight Blade
+9 1 9 255 0 1 1 0 //Dragon Pants
+9 16 9 255 0 1 1 0 //Black Dragon Pants
+9 17 9 255 0 1 1 0 //Dark Phoenix Pants
+10 1 9 255 0 1 1 0 //Dragon Gloves
+10 16 9 255 0 1 1 0 //Black Dragon Gloves
+10 17 9 255 0 1 1 0 //Dark Phoenix Gloves
+0 22 9 255 0 1 1 0 //Bone Blade
+11 1 9 255 0 1 1 0 //Dragon Boots
+11 16 9 255 0 1 1	0 //Black Dragon Boots
+11 17 9	255 0 1 1	0 //Dark Phoenix Boots
+0 13 9 255 0 1 1 0 //Double Blade
+12 2 9 255 0 1 1 0 //Satan Wings
 12 7 0 0 0 1 1 0 //Twisting Splash
 12 12 0 0 0 1 1 0 //Rageful Blow
 12 19 0 0 0 1 1	0 //Death Stab

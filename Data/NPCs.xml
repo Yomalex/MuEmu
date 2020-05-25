@@ -8,9 +8,11 @@
   <NPC NPC="232" Type="KingAngel" Data="0" />
   <!-- Messenger Angel -->
   <NPC NPC="233" Type="MessengerAngel" Data="0" />
-  <NPC NPC="234" Type="ServerDivision" Data="0">
+  <NPC NPC="234" Type="ServerDivision" Data="0" />
   <NPC NPC="235" Type="Quest" Data="0" />  
   <NPC NPC="236" Type="EventChips" Data="0" />
+  <!-- Charon -->
+  <NPC NPC="237" Type="DevilSquare" Data="0" />
   <!-- Chaos Goblin -->
   <NPC NPC="238" Type="Window" Data="3" />
   <NPC NPC="239" Type="Shop" Data="2" />

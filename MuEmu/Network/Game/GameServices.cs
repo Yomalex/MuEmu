@@ -107,6 +107,7 @@ namespace MuEmu.Network.Game
             session.Player.Character.TPosition = Cpos;
         }
 
+        #region Chat MessageHandlers
         // 0xC1 0x00
         [MessageHandler(typeof(CChatNickname))]
         public async Task CChatNickname(GSSession session, CChatNickname message)
@@ -143,6 +144,7 @@ namespace MuEmu.Network.Game
 
             await target.SendAsync(message);
         }
+        #endregion
 
         [MessageHandler(typeof(CNewQuestInfo))]
         public void CNewQuestInfo(GSSession session, CNewQuestInfo message)
@@ -875,34 +877,32 @@ namespace MuEmu.Network.Game
             await session.SendAsync(result);
         }
 
+        #region Battle MessageHandlers
         [MessageHandler(typeof(CAttackS5E2))]
         public async Task CAttackS5E2(GSSession session, CAttackS5E2 message)
         {
-            await CAttack(session, new CAttack { AttackAction = message.AttackAction, DirDis = message.DirDis, Number = message.Number });
+            await CAttack(session, new CAttack { AttackAction = message.AttackAction, DirDis = message.DirDis, wzNumber = message.Number });
         }
 
         [MessageHandler(typeof(CAttack))]
         public async Task CAttack(GSSession session, CAttack message)
         {
-            var target = message.Number.ShufleEnding();
+            var targetId = message.Number;
             var Dir = message.DirDis & 0x0F;
             var Dis = (message.DirDis & 0xF0) >> 4;
 
-            //Logger.ForAccount(session)
-            //    .Debug("Attack {0} {1}:{2} {3}", message.AttackAction, Dir, Dis, target);
-
             session.Player.Character.Direction = message.DirDis;
 
-            if (target >= MonstersMng.MonsterStartIndex) // Is Monster
+            if (message.Number >= MonstersMng.MonsterStartIndex) // Is Monster
             {
                 try
                 {
-                    var monster = MonstersMng.Instance.GetMonster(target);
+                    var monster = MonstersMng.Instance.GetMonster(targetId);
 
                     if (monster.Life <= 0)
                         return;
 
-                    await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, target));
+                    await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));
                     if (monster.Type == ObjectType.NPC)
                     {
                         Logger.ForAccount(session)
@@ -917,12 +917,37 @@ namespace MuEmu.Network.Game
                 catch(Exception ex)
                 {
                     Logger.ForAccount(session)
-                        .Error(ex, "Invalid monster #{0}", target);
+                        .Error(ex, "Invalid monster #{0}", targetId);
                 }
             }
             else
             {
+                try
+                {
+                    var target = Program.server.Clients.First(x => x.ID == targetId);
+                    if (target.Player.Character.Health <= 0.0f)
+                        return;
 
+                    await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));
+                    DamageType type;
+                    int reflect = 0;
+                    var attack = session.Player.Character.Attack(target.Player.Character, out type, out reflect);
+                    target.Player.Character
+                        .GetAttacked((ushort)session.ID, session.Player.Character.Direction, attack, type, Spell.None)
+                        .Wait();
+
+                    if (reflect != 0)
+                    {
+                        session.Player.Character
+                            .GetAttacked((ushort)target.ID, target.Player.Character.Direction, reflect, DamageType.Reflect, Spell.None)
+                            .Wait();
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Logger.ForAccount(session)
+                        .Error(ex, "Invalid player #{0}", targetId);
+                }
             }
         }
 
@@ -935,6 +960,7 @@ namespace MuEmu.Network.Game
             Spells spells = null;
             Monster monster = null;
             Player player = null;
+            int defense = 0;
 
             if (!@char.Spells.SpellDictionary.ContainsKey(message.MagicNumber))
             {
@@ -950,11 +976,13 @@ namespace MuEmu.Network.Game
                 {
                     monster = MonstersMng.Instance.GetMonster(target);
                     spells = monster.Spells;
+                    defense = monster.Defense;
                 }
                 else
                 {
                     player = Program.server.Clients.First(x => x.ID == target).Player;
                     spells = player.Character.Spells;
+                    defense = player.Character.Defense;
                 }
             }catch(Exception)
             {
@@ -1033,21 +1061,18 @@ namespace MuEmu.Network.Game
                     case Spell.CrescentMoonSlash:
                     case Spell.Impale:
                     case Spell.FireBreath:
-                        if (monster != null)
-                            attack = @char.SkillAttack(spell, monster, out type);
+                        attack = @char.SkillAttack(spell, defense, out type);
                         //else
                         //    @char.SkillAttack(spell, player, out type);
                         break;
                     default:
                         if(@char.BaseClass == HeroClass.Summoner || @char.BaseClass == HeroClass.DarkWizard || @char.BaseClass == HeroClass.MagicGladiator)
                         {
-                            if (monster != null)
-                                attack = @char.MagicAttack(spell, monster, out type);
+                            attack = @char.MagicAttack(spell, defense, out type);
                         }
                         else
                         {
-                            if (monster != null)
-                                attack = @char.SkillAttack(spell, monster, out type);
+                            attack = @char.SkillAttack(spell, defense, out type);
                         }
                         break;
                 }
@@ -1087,7 +1112,7 @@ namespace MuEmu.Network.Game
                     foreach (var mob in vp)
                     {
                         DamageType type;
-                        var attack = @char.SkillAttack(magic, mob, out type);
+                        var attack = @char.SkillAttack(magic, mob.Defense, out type);
                         await mob.GetAttacked(@char.Player, attack, type);
                     }
                     var msg = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis);
@@ -1097,6 +1122,7 @@ namespace MuEmu.Network.Game
                     break;
             }
         }
+        #endregion
 
         [MessageHandler(typeof(CWarp))]
         public async Task CWarp(GSSession session, CWarp message)
@@ -1312,6 +1338,7 @@ namespace MuEmu.Network.Game
             session.SendAsync(res);
         }
 
+        #region Party MessageHandlers
         [MessageHandler(typeof(CPartyRequest))]
         public async Task CPartyRequest(GSSession session, CPartyRequest message)
         {
@@ -1397,7 +1424,9 @@ namespace MuEmu.Network.Game
 
             PartyManager.Remove(memb);
         }
+        #endregion
 
+        #region Duel MessageHandlers
         [MessageHandler(typeof(CDuelRequest))]
         public void CDuelRequest(GSSession session, CDuelRequest message)
         {
@@ -1463,5 +1492,6 @@ namespace MuEmu.Network.Game
             msg.Results = DuelSystem.LeaveRoom(session.Player, message.Room);
             session.SendAsync(msg).Wait();
         }
+        #endregion
     }
 }

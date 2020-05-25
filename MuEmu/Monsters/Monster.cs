@@ -278,7 +278,9 @@ namespace MuEmu.Monsters
                     DamageType type = DamageType.Miss;
                     Spell isMagic;
                     var attack = MonsterAttack(out type, out isMagic);
-                    Target.Character.GetAttacked(this, attack, type, isMagic);
+                    Target.Character
+                        .GetAttacked((ushort)Index, Direction, attack, type, isMagic)
+                        .Wait();
                     TPosition = Position;
                     return;
                 }else if(dis > Info.ViewRange)

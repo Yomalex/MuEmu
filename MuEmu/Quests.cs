@@ -353,7 +353,7 @@ namespace MuEmu
             _needSave = false;
 
             var details = string.Join(";",Manager._questMonsterKillCount
-                .Where(x => (x.Key & 0xFF00) >> 16 == Index)
+                .Where(x => (x.Key & 0xFF0000) >> 16 == Index)
                 .Select(x => x.Key+"="+x.Value));
 
             var dto =
