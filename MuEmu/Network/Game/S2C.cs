@@ -243,6 +243,19 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class VPPShopDto
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1, 36)] public byte[] btName { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SViewPortPShop : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public VPPShopDto[] VPShops { get; set; }
+    }
+
+    [WZContract]
     public class SNotice : IGameMessage
     {
         [WZMember(0)]
@@ -1477,6 +1490,146 @@ namespace MuEmu.Network.Game
     public class SDuelBroadcastRound : IGameMessage
     {
         [WZMember(0)] public byte Flag { get; set; }
+    }
+
+    [WZContract]
+    public class SPShopSetItemPrice : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+        [WZMember(1)] public byte Position { get; set; }
+
+        public SPShopSetItemPrice()
+        { }
+
+        public SPShopSetItemPrice(PShopResult res, byte pos)
+        {
+            Result = res;
+            Position = pos;
+        }
+    }
+
+    [WZContract]
+    public class SPShopRequestOpen : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+
+        public SPShopRequestOpen()
+        { }
+
+        public SPShopRequestOpen(PShopResult res)
+        {
+            Result = res;
+        }
+    }
+
+    [WZContract]
+    public class SPShopRequestClose : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+
+        [WZMember(1)] public ushort wzNumber { get; set; }
+
+        public SPShopRequestClose()
+        { }
+
+        public SPShopRequestClose(PShopResult res, ushort numb)
+        {
+            Result = res;
+            wzNumber = numb.ShufleEnding();
+        }
+    }
+
+
+    [WZContract]
+    public class PShopItem
+    {
+        [WZMember(0)] public byte Pos { get; set; }
+        [WZMember(1, 12)] public byte[] Item { get; set; }
+        [WZMember(2)] public uint wzPrice { get; set; }
+    }
+
+    [WZContract]
+    public class SPShopRequestList : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+
+        [WZMember(1)] public ushort wzNumber { get; set; }
+        [WZMember(2,10)] public byte[] btName { get; set; }
+        [WZMember(3,36)] public byte[] btShopName { get; set; }
+        [WZMember(4, typeof(ArrayWithScalarSerializer<byte>))] public PShopItem[] Items { get; set; }
+
+        public SPShopRequestList()
+        {
+            Result = PShopResult.Disabled;
+            wzNumber = 0xffff;
+            Items = Array.Empty<PShopItem>();
+        }
+        public SPShopRequestList(PShopResult res)
+        {
+            Result = res;
+            wzNumber = 0xffff;
+            Items = Array.Empty<PShopItem>();
+        }
+
+        public SPShopRequestList(PShopResult res, ushort numb, string name, string shopName, PShopItem[] it)
+        {
+            btName = name.GetBytes();
+            btShopName = shopName.GetBytes();
+            Result = res;
+            wzNumber = numb.ShufleEnding();
+            Items = it;
+        }
+    }
+
+    [WZContract]
+    public class SPShopRequestBuy : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+
+        [WZMember(1)] public ushort wzNumber { get; set; }
+        [WZMember(2, 12)] public byte[] Item { get; set; }
+
+        public SPShopRequestBuy()
+        {
+            Result = PShopResult.Disabled;
+            wzNumber = 0xffff;
+            Item = Array.Empty<byte>();
+        }
+        public SPShopRequestBuy(PShopResult res)
+        {
+            Result = res;
+            wzNumber = 0xffff;
+            Item = Array.Empty<byte>();
+        }
+
+        public SPShopRequestBuy(PShopResult res, ushort numb, byte[] it)
+        {
+            Result = res;
+            wzNumber = numb.ShufleEnding();
+            Item = it;
+        }
+    }
+
+    [WZContract]
+    public class SPShopRequestSold : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+
+        [WZMember(1)] public ushort wzNumber { get; set; }
+        [WZMember(2, 10)] public byte[] btName { get; set; }
+
+        public SPShopRequestSold()
+        {
+            Result = PShopResult.Disabled;
+            wzNumber = 0xffff;
+            btName = Array.Empty<byte>();
+        }
+        public SPShopRequestSold(PShopResult res, ushort numb, string name)
+        {
+            Result = res;
+            wzNumber = numb.ShufleEnding();
+            btName = name.GetBytes();
+        }
     }
 }
 

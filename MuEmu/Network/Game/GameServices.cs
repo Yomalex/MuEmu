@@ -1511,5 +1511,155 @@ namespace MuEmu.Network.Game
             session.SendAsync(msg).Wait();
         }
         #endregion
+
+        #region PersonalShop MessageHandlers
+        [MessageHandler(typeof(CPShopSetItemPrice))]
+        public async Task CPShopSetItemPrice(GSSession session, CPShopSetItemPrice message)
+        {
+            var @char = session.Player.Character;
+            if(@char.Level < 6)
+            {
+                await session.SendAsync(new SPShopSetItemPrice(PShopResult.LevelTooLow, message.Position));
+                return;
+            }
+
+            if(message.Price == 0)
+            {
+                await session.SendAsync(new SPShopSetItemPrice(PShopResult.InvalidPrice, message.Position));
+                return;
+            }
+
+            var item = @char.Inventory.ItemMoved;
+
+            if(item == null)
+            {
+                await session.SendAsync(new SPShopSetItemPrice(PShopResult.InvalidItem, message.Position));
+                return;
+            }
+
+            item.PShopValue = message.Price;
+
+            await session.SendAsync(new SPShopSetItemPrice(PShopResult.Success, message.Position));
+        }
+
+        [MessageHandler(typeof(CPShopRequestOpen))]
+        public async Task CPShopRequestOpen(GSSession session, CPShopRequestOpen message)
+        {
+            var @char = session.Player.Character;
+
+            if(@char.Map.IsEvent)
+            {
+                await session.SendAsync(new SPShopRequestOpen(PShopResult.Disabled));
+                return;
+            }
+
+            if (@char.Level < 6)
+            {
+                await session.SendAsync(new SPShopRequestOpen(PShopResult.LevelTooLow));
+                return;
+            }
+
+            if (!@char.Shop.Open)
+            {
+                @char.Shop.Name = message.Name;
+                @char.Shop.Open = true;
+            }else
+            {
+                
+            }
+
+            await session.SendAsync(new SPShopRequestOpen(PShopResult.Success));
+        }
+
+        [MessageHandler(typeof(CPShopRequestClose))]
+        public async Task CPShopRequestClose(GSSession session)
+        {
+            var @char = session.Player.Character;
+            if (!@char.Shop.Open)
+            {
+                return;
+            }
+
+            @char.Shop.Open = false;
+            var msg = new SPShopRequestClose(PShopResult.Success, (ushort)session.ID);
+            await session.SendAsync(msg);
+            await @char.SendV2Message(msg);
+        }
+
+        [MessageHandler(typeof(CPShopRequestList))]
+        public async Task CPShopRequestList(GSSession session, CPShopRequestList message)
+        {
+            var seller = Program.server.Clients.FirstOrDefault(x => x.ID == message.Number);
+
+            if(seller == null)
+            {
+                await session.SendAsync(new SPShopRequestList(PShopResult.InvalidPosition));
+                return;
+            }
+
+            if(seller == session)
+            {
+                await session.SendAsync(new SPShopRequestList(PShopResult.Disabled));
+                return;
+            }
+
+            await session.SendAsync(new SPShopRequestList(PShopResult.Success, message.Number, seller.Player.Character.Name, seller.Player.Character.Shop.Name, seller.Player.Character.Shop.Items));
+            return;
+        }
+
+        [MessageHandler(typeof(CPShopRequestBuy))]
+        public async Task CPShopRequestBuy(GSSession session, CPShopRequestBuy message)
+        {
+            var seller = Program.server.Clients.FirstOrDefault(x => x.ID == message.Number);
+
+            if (seller == null)
+            {
+                await session.SendAsync(new SPShopRequestBuy(PShopResult.InvalidPosition));
+                return;
+            }
+
+            if (seller == session)
+            {
+                await session.SendAsync(new SPShopRequestBuy(PShopResult.Disabled));
+                return;
+            }
+
+            var @char = seller.Player.Character;
+            if(!@char.Shop.Open)
+            {
+                await session.SendAsync(new SPShopRequestBuy(PShopResult.Disabled));
+                return;
+            }
+
+            var item = @char.Inventory.PersonalShop.Get(message.Position);
+
+            if (item == null)
+            {
+                await session.SendAsync(new SPShopRequestBuy(PShopResult.InvalidItem));
+                return;
+            }
+
+            if(item.PShopValue < session.Player.Character.Money)
+            {
+                await session.SendAsync(new SPShopRequestBuy(PShopResult.LackOfZen));
+                return;
+            }
+
+            if(@char.Money+item.PShopValue>uint.MaxValue)
+            {
+                await session.SendAsync(new SPShopRequestBuy(PShopResult.ExceedingZen));
+                return;
+            }
+
+            @char.Money += item.PShopValue;
+            session.Player.Character.Money -= item.PShopValue;
+            @char.Inventory.Remove(message.Position);
+            session.Player.Character.Inventory.Add(item);
+
+            await session.SendAsync(new SPShopRequestBuy(PShopResult.Success, message.Number, item.GetBytes()));
+            await @char.Player.Session.SendAsync(new SPShopRequestSold(PShopResult.Success, (ushort)session.ID, session.Player.Character.Name));
+        }
+
+        #endregion
     }
 }

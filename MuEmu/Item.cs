@@ -59,27 +59,26 @@ namespace MuEmu
     }
     public struct ItemNumber
     {
-        private ushort _number;
-        public ushort Number { get => _number; set => _number = value; } 
-        public ushort Index { get => (ushort)(_number % 512); set => _number = (ushort)((_number& ~511)|value); }
-        public ItemType Type { get => (ItemType)(_number / 512); set => _number = (ushort)((_number & 511) | (int)value * 512); }
+        public ushort Number { get; set; }
+        public ushort Index { get => (ushort)(Number % 512); set => Number = (ushort)((Number& ~511)|value); }
+        public ItemType Type { get => (ItemType)(Number / 512); set => Number = (ushort)((Number & 511) | (int)value * 512); }
         public const ushort Invalid = 0xFFFF;
 
         public static readonly ItemNumber Zen = FromTypeIndex(14, 15);
 
         public ItemNumber(ushort number)
         {
-            _number = number;
+            Number = number;
         }
 
         public ItemNumber(ItemType type, ushort index)
         {
-            _number = (ushort)((byte)type * 512 + (index & 0x1FF));
+            Number = (ushort)((byte)type * 512 + (index & 0x1FF));
         }
 
         public ItemNumber(byte type, ushort index)
         {
-            _number = (ushort)(type * 512 + (index & 0x1FF));
+            Number = (ushort)(type * 512 + (index & 0x1FF));
         }
 
         public static implicit operator ItemNumber(ushort num)
@@ -266,6 +265,8 @@ namespace MuEmu
                 NeedSave = true;
             }
         }
+
+        public uint PShopValue { get; set; }
 
         public bool NeedSave { get; set; }
 

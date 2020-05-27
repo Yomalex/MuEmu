@@ -330,30 +330,9 @@ namespace MuEmu
 
         public static async Task NoEventMapSendAsync(object message)
         {
-            Maps[] disabled = new Maps[]
-            {
-                Maps.BloodCastle1,
-                Maps.BloodCastle2,
-                Maps.BloodCastle3,
-                Maps.BloodCastle4,
-                Maps.BloodCastle5,
-                Maps.BloodCastle6,
-                Maps.BloodCastle7,
-                Maps.BloodCastle8,
-                Maps.DevilSquare,
-                Maps.DevilSquare2,
-                Maps.ChaosCastle1,
-                Maps.ChaosCastle2,
-                Maps.ChaosCastle3,
-                Maps.ChaosCastle4,
-                Maps.ChaosCastle5,
-                Maps.ChaosCastle6,
-                Maps.ChaosCastle7,
-            };
-
             await server
                 .Clients
-                .Where(x => x.Player.Status == LoginStatus.Playing && !disabled.Any(y => y == x.Player.Character.MapID))
+                .Where(x => x.Player.Status == LoginStatus.Playing && !x.Player.Character.Map.IsEvent)
                 .SendAsync(message);
         }
         public static async Task NoEventMapAnoucement(string text)

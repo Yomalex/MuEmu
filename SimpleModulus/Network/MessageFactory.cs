@@ -37,7 +37,13 @@ namespace WebZen.Network
             if (!_typeLookup.TryGetValue(opCode, out type))
                 throw new Exception($"No type found for opcode {opCode}");
 
-            return Serializer.Deserialize(stream, type);
+            try
+            {
+                return Serializer.Deserialize(stream, type);
+            }catch(Exception ex)
+            {
+                throw new Exception("Type: " + type + "OPCode: " + opCode, ex);
+            }
         }
 
         public object GetMessage(ushort opCode, BinaryReader reader)

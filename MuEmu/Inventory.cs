@@ -42,6 +42,8 @@ namespace MuEmu
         public Storage PersonalShop => _personalShop;
         public Storage TradeBox => _tradeBox;
 
+        public Item ItemMoved { get; private set; }
+
         public bool Lock { get; set; }
 
         public byte[] FindAll(ItemNumber num)
@@ -314,6 +316,7 @@ namespace MuEmu
                     return false;
                 }
             }
+            ItemMoved = it;
             _needSave = true;
             return true;
         }

@@ -47,6 +47,8 @@ namespace MuEmu.Resources.Map
         public List<Character> Players { get; }
         public List<ItemInMap> Items { get; }
         public int Map { get; }
+
+        public bool IsEvent { get; }
         public byte Weather { get; set; }
         public Rectangle SafeArea { get; private set; }
         public Point GetRespawn()
@@ -90,6 +92,29 @@ namespace MuEmu.Resources.Map
         
         public MapInfo(int map, string attFile)
         {
+            Maps[] disabled = new Maps[]
+            {
+                Maps.BloodCastle1,
+                Maps.BloodCastle2,
+                Maps.BloodCastle3,
+                Maps.BloodCastle4,
+                Maps.BloodCastle5,
+                Maps.BloodCastle6,
+                Maps.BloodCastle7,
+                Maps.BloodCastle8,
+                Maps.DevilSquare,
+                Maps.DevilSquare2,
+                Maps.ChaosCastle1,
+                Maps.ChaosCastle2,
+                Maps.ChaosCastle3,
+                Maps.ChaosCastle4,
+                Maps.ChaosCastle5,
+                Maps.ChaosCastle6,
+                Maps.ChaosCastle7,
+            };
+
+            IsEvent = disabled.Any(x => (int)x == map);
+
             using (var fr = File.OpenRead(attFile))
             {
                 var type = fr.ReadByte();

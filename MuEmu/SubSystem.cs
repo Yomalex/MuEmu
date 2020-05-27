@@ -82,7 +82,7 @@ namespace MuEmu
             }
         }
 
-        private static async void WorkerViewPort()
+        private static void WorkerViewPort()
         {
             while(true)
             {
@@ -193,6 +193,10 @@ namespace MuEmu
                            where rect.Contains(pos) && obj.Player.Session.ID != plr.Player.Session.ID
                            select obj;
 
+            var PShop = (from obj in playerVP
+                        where obj.Shop.Open
+                        select obj).ToList();
+
             var newPlr = (from obj in playerVP
                           where obj.State == ObjectState.Regen
                           select obj).ToList();
@@ -245,6 +249,9 @@ namespace MuEmu
 
             if (lostPlr.Any())
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
+
+            if(PShop.Any())
+                await plr.Player.Session.SendAsync(new SViewPortPShop { VPShops = PShop.Select(x => new VPPShopDto { btName = x.Shop.Name.GetBytes(), wzNumber = x.Index.ShufleEnding() }).ToArray() });
         }
 
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)
@@ -399,7 +406,7 @@ namespace MuEmu
                 await plr.Player.Session.SendAsync(new SViewPortItemDestroy { ViewPort = remItem.ToArray() });
         }
 
-        private static async void WorkerEvents()
+        private static void WorkerEvents()
         {
             while (true)
             {
@@ -415,7 +422,7 @@ namespace MuEmu
             }
         }
 
-        private static async void WorkerIA()
+        private static void WorkerIA()
         {
             while (true)
             {

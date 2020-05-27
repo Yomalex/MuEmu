@@ -11,6 +11,7 @@ namespace MuEmu
 {
     public class Player
     {
+        public ushort ID => (ushort)Session.ID;
         public Account Account { get; set; }
 
         public Character Character { get; set; }

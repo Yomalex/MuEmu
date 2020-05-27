@@ -18,6 +18,21 @@ using WebZen.Util;
 
 namespace MuEmu
 {
+    public class PShop
+    {
+        private Character _char;
+        public bool Open { get; set; }
+        public string Name { get; set; }
+
+        public PShopItem[] Items => _char.Inventory.PersonalShop.Items
+            .Select(x => new PShopItem() { Pos = x.Key, Item = x.Value.GetBytes(), wzPrice = x.Value.PShopValue.ShufleEnding() })
+            .ToArray();
+        
+        public PShop(Character @char)
+        {
+            _char = @char;
+        }
+    }
     public class Character
     {
         #region Private
@@ -79,6 +94,8 @@ namespace MuEmu
         public Spells Spells { get; }
         public bool Change { get; set; }
         public Party Party { get; set; }
+
+        public PShop Shop { get; set; }
 
         public List<ushort> MonstersVP { get; set; }
         public List<Player> PlayersVP { get; set; }
@@ -500,6 +517,7 @@ namespace MuEmu
             MonstersVP = new List<ushort>();
             ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
+            Shop = new PShop(this);
             State = ObjectState.Regen;
 
             _position = new Point(characterDto.X, characterDto.Y);

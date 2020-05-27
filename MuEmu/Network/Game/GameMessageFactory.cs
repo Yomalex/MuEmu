@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuEmu.Network.Event;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Network;
@@ -27,6 +28,7 @@ namespace MuEmu.Network.Game
             Register<CChatWhisper>(GameOpCode.WhisperChat);
             #endregion
 
+            Register<CInventory>(GameOpCode.Inventory);
             Register<CNewQuestInfo>(GameOpCode.QuestDetails);
             Register<CPointAdd>(GameOpCode.PointAdd);
             Register<CClientClose>(GameOpCode.ClientClose);
@@ -46,6 +48,14 @@ namespace MuEmu.Network.Game
             Register<CItemThrow>(GameOpCode.ItemThrow);
             Register<CItemGet>(GameOpCode.ItemGet);
             Register<CItemModify>(GameOpCode.ItemModify);
+
+            #region Client PersonalShopMessages
+            Register<CPShopSetItemPrice>(GameOpCode.PShopSetItemPrice);
+            Register<CPShopRequestOpen>(GameOpCode.PShopRequestOpen);
+            Register<CPShopRequestClose>(GameOpCode.PShopRequestClose);
+            Register<CPShopRequestList>(GameOpCode.PShopRequestList);
+            Register<CPShopRequestBuy>(GameOpCode.PShopRequestBuy);
+            #endregion
 
             #region Client AttackMessages
             //Register<CAttackS5E2>(GameOpCode.Attack);
@@ -120,6 +130,7 @@ namespace MuEmu.Network.Game
             Register<SSetMapAttribute>(GameOpCode.SetMapAtt);
             Register<SItemThrow>(GameOpCode.ItemThrow);
             Register<SViewPortItemCreate>(GameOpCode.ViewPortItemCreate);
+            Register<SViewPortPShop>(GameOpCode.ViewPortPShop);
             Register<SInventoryItemSend>(GameOpCode.OneItemSend);
             Register<SInventoryItemDurSend>(GameOpCode.InventoryItemDurUpdate);
             Register<SChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
@@ -132,6 +143,13 @@ namespace MuEmu.Network.Game
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);
             Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);
+
+            Register<SPShopSetItemPrice>(GameOpCode.PShopSetItemPrice);
+            Register<SPShopRequestOpen>(GameOpCode.PShopRequestOpen);
+            Register<SPShopRequestClose>(GameOpCode.PShopRequestClose);
+            Register<SPShopRequestList>(GameOpCode.PShopRequestList);
+            Register<SPShopRequestBuy>(GameOpCode.PShopRequestBuy);
+            Register<SPShopRequestSold>(GameOpCode.PShopRequestSold);
 
             #region Server PartyMessages
             Register<SPartyResult>(GameOpCode.PartyResult);

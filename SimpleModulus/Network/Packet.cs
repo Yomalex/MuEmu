@@ -160,24 +160,30 @@ namespace WebZen.Network
                 //posPacket.Seek(0, SeekOrigin.Begin);
 
                 var factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
-                if (factory != null)
+                try
                 {
-                    messages.Add(factory.GetMessage(opCode, posPacket));
-                }
-                else
-                {
-                    var orgOpCode = opCode;
-                    opCode |= 0xFF00;
-                    factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
                     if (factory != null)
                     {
-                        posPacket.Position--;
                         messages.Add(factory.GetMessage(opCode, posPacket));
                     }
                     else
                     {
-                        Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X4}", orgOpCode, opCode);
+                        var orgOpCode = opCode;
+                        opCode |= 0xFF00;
+                        factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));
+                        if (factory != null)
+                        {
+                            posPacket.Position--;
+                            messages.Add(factory.GetMessage(opCode, posPacket));
+                        }
+                        else
+                        {
+                            Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X2}", orgOpCode, opCode & 0xff);
+                        }
                     }
+                }catch(Exception ex)
+                {
+                    throw new Exception("Factory: " + factory, ex);
                 }
 
                 return size;

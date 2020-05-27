@@ -622,4 +622,17 @@ namespace MuEmu
         NotFoundMoveReqData,
         NotEnoughMoney
     }
+
+    public enum PShopResult : byte
+    {
+        Disabled,
+        Success,
+        InvalidPosition,
+        InvalidItem,
+        InvalidPrice,
+        LevelTooLow,
+        ItemBlocked,
+        LackOfZen,
+        ExceedingZen,
+    }
 }

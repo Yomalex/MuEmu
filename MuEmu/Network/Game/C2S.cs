@@ -343,6 +343,10 @@ namespace MuEmu.Network.Game
     { }
 
     [WZContract]
+    public class CInventory : IGameMessage
+    { }
+
+    [WZContract]
     public class CSkillKey : IGameMessage
     {
         [WZMember(0)]
@@ -392,6 +396,45 @@ namespace MuEmu.Network.Game
         [WZMember(0)] public byte Position { get; set; }
 
         [WZMember(1)] public byte ReqPosition { get; set; }
+    }
+
+    [WZContract]
+    public class CPShopSetItemPrice : IGameMessage
+    {
+        [WZMember(0)] public byte Position { get; set; }
+        [WZMember(1)] public uint Price { get; set; }
+    }
+
+    [WZContract]
+    public class CPShopRequestOpen : IGameMessage
+    {
+        [WZMember(0, 36)] public byte[] btName { get; set; }
+
+        public string Name => btName.MakeString();
+    }
+
+    [WZContract]
+    public class CPShopRequestClose : IGameMessage
+    { }
+
+    [WZContract]
+    public class CPShopRequestList : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1,10)] public byte[] btName { get; set; }
+        public ushort Number => wzNumber.ShufleEnding();
+        public string Name => btName.MakeString();
+    }
+
+    [WZContract]
+    public class CPShopRequestBuy : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1, 10)] public byte[] btName { get; set; }
+        [WZMember(2)] public byte Position { get; set; }
+
+        public ushort Number => wzNumber.ShufleEnding();
+        public string Name => btName.MakeString();
     }
 
     [WZContract]
