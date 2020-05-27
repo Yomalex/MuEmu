@@ -14,6 +14,7 @@ using MuEmu.Entity;
 using WebZen.Util;
 using MuEmu.Resources.Map;
 using MuEmu.Network.QuestSystem;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
@@ -47,6 +48,9 @@ namespace MuEmu
 
         public void AddDelayedMessage(Player plr, TimeSpan time, object message)
         {
+            if (plr == null)
+                return;
+
             _delayedMessages.Add(new DelayedMessage { Player = plr, Message = message, Time = DateTimeOffset.Now.Add(time) });
         }
 
@@ -401,7 +405,6 @@ namespace MuEmu
             {
                 try
                 {
-                    BloodCastles.Update();
                     Program.EventManager.Update();
                     Thread.Sleep(1000);
                 }

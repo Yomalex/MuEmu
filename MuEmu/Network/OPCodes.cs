@@ -79,6 +79,7 @@ namespace MuEmu.Network
         EventState = 0xFF0B,
         Notice = 0xFF0D,
         Weather = 0xFF0F,
+        PositionSet = 0xFF10,
         ViewPortCreate = 0xFF12,
         ViewPortMCreate = 0xFF13,
         ViewPortDestroy = 0xFF14,
@@ -124,7 +125,6 @@ namespace MuEmu.Network
         FriendRequest = 0xFFC2,
         AddLetter = 0xFFC6,
         Move = 0xFFD3,
-        PositionSet = 0xFFD6,
         Attack = 0xFFD7,
         Position = 0xFFDF,
     }

@@ -276,10 +276,10 @@ namespace MuEmu.Monsters
                 {
                     _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.AttackSpeed);
                     DamageType type = DamageType.Miss;
-                    Spell isMagic;
-                    var attack = MonsterAttack(out type, out isMagic);
+
+                    var attack = MonsterAttack(out type, out Spell isMagic);
                     Target.Character
-                        .GetAttacked((ushort)Index, Direction, attack, type, isMagic)
+                        .GetAttacked(Index, Direction, 120, attack, type, isMagic)
                         .Wait();
                     TPosition = Position;
                     return;

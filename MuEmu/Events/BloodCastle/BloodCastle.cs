@@ -14,13 +14,8 @@ using System.Threading.Tasks;
 
 namespace MuEmu.Events.BloodCastle
 {
-    public class BloodCastle
+    public class BloodCastle : Event
     {
-        private readonly ILogger Logger;
-        private readonly TimeSpan r_BCPlayTime = TimeSpan.FromSeconds(5*60);
-        private readonly TimeSpan r_BCBeforePlayTime = TimeSpan.FromSeconds(60);
-        private readonly TimeSpan r_BCBeforeCloseTime = TimeSpan.FromSeconds(30);
-
         private static List<int> s_BCRewardZenIn = new List<int>
         {
             20000,
@@ -36,28 +31,10 @@ namespace MuEmu.Events.BloodCastle
 
         private MapInfo _map;
         private BloodCastles _manager;
-        private BCState _state;
-        private BCState _nextState;
         private List<Player> _playerForReward = new List<Player>();
         private Player _winner;
 
-        internal TimeSpan _nextStateIn;
-
         public Maps MapID { get; set; }
-
-        internal BCState State { get => _state;
-            set
-            {
-                if(_state != value)
-                {
-                    if (_manager.State != value)
-                        Logger.Information("State: {0} -> {1}", _state, value);
-                    _state = value;
-
-                    OnTransition(value);
-                }
-            }
-        }
 
         public const int MaxPlayers = 10;
         public int Bridge { get; }
@@ -67,8 +44,6 @@ namespace MuEmu.Events.BloodCastle
             set
             {
                 _winner = value;
-                _nextState = BCState.Ended;
-                _nextStateIn = TimeSpan.Zero;
             }
         }
 
@@ -83,9 +58,10 @@ namespace MuEmu.Events.BloodCastle
         public ushort BossCount { get; set; }
         public ushort BossKill { get; set; }
         
-        public BloodCastle(BloodCastles mng, int bridge)
+        public BloodCastle(BloodCastles mng, int bridge, TimeSpan closed, TimeSpan open, TimeSpan playing)
+            :base(closed, open, playing)
         {
-            Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(BloodCastle) + " " + (bridge+1));
+            _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(BloodCastle) + " " + (bridge+1));
 
             _manager = mng;
             Bridge = bridge;
@@ -94,13 +70,13 @@ namespace MuEmu.Events.BloodCastle
             MapID = (bridge < 8 ? (Maps)((int)Maps.BloodCastle1 + bridge) : Maps.BloodCastle8);
             _map = ResourceCache.Instance.GetMaps()[MapID];
             _map.PlayerJoins += PlayerAdded;
-            _map.PlayerLeaves += Remove;
+            _map.PlayerLeaves += OnPlayerLeave;
             _map.MonsterAdd += AddMonster;
         }
 
-        public bool TryAdd(Player plr)
+        public override bool TryAdd(Player plr)
         {
-            if (_state != BCState.Open)
+            if (CurrentState != EventState.Open)
                 return false;
 
             if (Players.Count >= MaxPlayers)
@@ -109,24 +85,26 @@ namespace MuEmu.Events.BloodCastle
             Players.Add(plr);
             if(Bridge < 6)
             {
-                plr.Character.WarpTo(66 + Bridge);
+                plr.Character.WarpTo(66 + Bridge).Wait();
             }else if(Bridge == 6)
             {
-                plr.Character.WarpTo(80);
+                plr.Character.WarpTo(80).Wait();
             }
             else if (Bridge == 7)
             {
-                plr.Character.WarpTo(271);
+                plr.Character.WarpTo(271).Wait();
             }else
             {
                 Players.Remove(plr);
                 return false;
             }
 
+            plr.Character.PlayerDie += OnPlayerDead;
+
             return true;
         }
 
-        private void Remove(object sender, EventArgs e)
+        public override void OnPlayerLeave(object sender, EventArgs eventArgs)
         {
             var plr = sender as Player;
             Players.Remove(plr);
@@ -136,8 +114,8 @@ namespace MuEmu.Events.BloodCastle
                 _map.AddItem(plr.Character.Position.X, plr.Character.Position.Y, s_reward);
             }
 
-            if (Players.Count == 0 && _state == BCState.Started)
-                State = BCState.Close;
+            if (Players.Count == 0 && CurrentState == EventState.Playing)
+                Trigger(EventState.Closed);
         }
 
         private void PlayerAdded(object sender, EventArgs e)
@@ -170,7 +148,7 @@ namespace MuEmu.Events.BloodCastle
                 // Castle Gate
                 case 131:
                     mons.Die += GateDead;
-                    Logger.Information("Gate Added");
+                    _logger.Information("Gate Added");
                     Gate = mons;
                     mons.Active = true;
                     break;
@@ -179,11 +157,11 @@ namespace MuEmu.Events.BloodCastle
                 case 133:
                 case 134:
                     mons.Die += StatueDead;
-                    Logger.Information("Statue Added");
+                    _logger.Information("Statue Added");
                     Statue = mons;
                     break;
                 case 232:
-                    Logger.Information("Archangel Added");
+                    _logger.Information("Archangel Added");
                     mons.Active = true;
                     Archangel = mons;
                     break;
@@ -246,108 +224,99 @@ namespace MuEmu.Events.BloodCastle
             StatueWinner = null;
         }
 
-        public async Task Update()
+        public override void Update()
         {
-            switch(_state)
+            switch(CurrentState)
             {
-                case BCState.Open:
+                case EventState.Open:
                     break;
-                case BCState.BeforeStart:
-                    if (_nextStateIn == TimeSpan.FromSeconds(30))
-                        await SendAsync(new SDevilSquareSet(DevilSquareState.BeforeStart));
-                    break;
-                case BCState.Started:
-                    if(MonsterKill < MonsterCount)
+                case EventState.Playing:
+                    if ((int)Time.TotalSeconds == 30)
+                        SendAsync(new SDevilSquareSet(DevilSquareState.BeforeStart)).Wait();
+
+                    if ((int)Time.TotalSeconds < 60)
+                        return;
+
+                    if ((int)Time.TotalSeconds == 60)
                     {
-                        await SendAsync(new SBloodCastleState(1, (ushort)_nextStateIn.TotalSeconds, MonsterCount, MonsterKill, 0xffff, 1));
-                    }
-                    else if(DoorWinner == null)
-                    {
-                        await SendAsync(new SBloodCastleState(1, (ushort)_nextStateIn.TotalSeconds, MonsterCount, MonsterKill, 0xffff, 1));
-                    }
-                    else if(BossKill < BossCount)
-                    {
-                        await SendAsync(new SBloodCastleState(4, (ushort)_nextStateIn.TotalSeconds, BossCount, BossKill, 0xffff, 1));
-                    }else if(StatueWinner == null)
-                    {
-                        await SendAsync(new SBloodCastleState(4, (ushort)_nextStateIn.TotalSeconds, BossCount, BossKill, 0xffff, 1));
-                    }
-                    else
-                    {
-                        if(WeaponOwner == null)
+                        SendAsync(new SBloodCastleState(0, (ushort)(TimeLeft.TotalSeconds - 60), 0, 0, 0xffff, 1)).Wait();
+                        SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.GoAheadBC)).Wait();
+                        foreach (var mons in Monsters)
                         {
-                            WeaponOwner = Players.FirstOrDefault(x => x.Character.Inventory.FindAllItems(s_reward.Number).Any());
+                            mons.State = ObjectState.Regen;
+                            mons.Active = true;
+                        }
+                        // Bridge Start
+                        CastleEntrace(true);
+                    }
+
+                    if (TimeLeft.TotalSeconds > 60)
+                    {
+                        var timeleft = (ushort)(TimeLeft.TotalSeconds - 60);
+
+                        var msg = new SBloodCastleState(4, timeleft, MonsterCount, MonsterKill, (ushort)(WeaponOwner?.Session.ID ?? 0xffff), 1);
+
+                        if (MonsterKill < MonsterCount || DoorWinner == null)
+                        {
+                            msg.State = 1;
+                        }
+                        else if (BossKill < BossCount || StatueWinner == null)
+                        {
+                            msg.State = 4;
+                            msg.MaxKillMonster = BossCount;
+                            msg.CurKillMonster = BossKill;
+                        }
+                        else
+                        {
+                            if (WeaponOwner == null)
+                            {
+                                WeaponOwner = Players
+                                    .FirstOrDefault(x => x.Character.Inventory.FindAllItems(s_reward.Number).Any());
+                            }
                         }
 
-                        await SendAsync(new SBloodCastleState(4, (ushort)_nextStateIn.TotalSeconds, BossCount, BossKill, (byte)(WeaponOwner?.Session.ID??0xffff), 1));
+                        SendAsync(msg).Wait();
+
+                        if(timeleft == 30)
+                            SendAsync(new SDevilSquareSet(DevilSquareState.BeforeEnd)).Wait();
                     }
 
-                    if (_nextStateIn == TimeSpan.FromSeconds(30))
-                        await SendAsync(new SDevilSquareSet(DevilSquareState.BeforeEnd));
-                    break;
-                case BCState.Ended:
-                    if (_nextStateIn == TimeSpan.FromSeconds(30))
-                        await SendAsync(new SDevilSquareSet(DevilSquareState.Quit));
+                    if((int)TimeLeft.TotalSeconds == 60)
+                    {
+                        GiveReward();
+                        Clear();
+                    }
+
+                    if (TimeLeft == TimeSpan.FromSeconds(30))
+                        SendAsync(new SDevilSquareSet(DevilSquareState.Quit)).Wait();
                     break;
             }
-
-            if (_nextStateIn <= TimeSpan.Zero)
-                State = _nextState;
-            else
-                _nextStateIn -= TimeSpan.FromSeconds(1);
+            base.Update();
         }
 
-        private async void OnTransition(BCState next)
+        public override void OnTransition(EventState NextState)
         {
-            switch(next)
+            _logger.Information("State:{0}->{1}", CurrentState, NextState);
+            switch (NextState)
             {
-                case BCState.Open:
-                    _nextState = BCState.BeforeStart;
-                    _nextStateIn = TimeSpan.FromMinutes(10);
-                    break;
-                case BCState.BeforeStart:
-                    await SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.GoAheadBC));
-                    await SendAsync(new SNotice(NoticeType.Blue, "Blood castle will start in 60 seconds"));
-                    _nextStateIn = r_BCBeforePlayTime;
-                    _nextState = BCState.Started;
-                    if (Players.Count == 0)
-                    {
-                        _nextState = BCState.Ended;
-                        _nextStateIn = TimeSpan.Zero;
-                        return;
-                    }
-                    break;
-                case BCState.Started:
-                    await SendAsync(new SNotice(NoticeType.Blue, $"Blood castle {Bridge+1} start!"));
-                    _playerForReward = Players.ToList();
-                    MonsterCount = (ushort)(Players.Count * 40);
-                    BossCount = (ushort)(10 * Players.Count);
-                    _nextStateIn = r_BCPlayTime;
-                    _nextState = BCState.Ended;
-                    foreach (var mons in Monsters)
-                    {
-                        mons.State = ObjectState.Regen;
-                        mons.Active = true;
-                    }
-                    await SendAsync(new SBloodCastleState(0, (ushort)_nextStateIn.TotalSeconds, 0, 0, 0xffff, 1));
-                    // Bridge Start
-                    CastleEntrace(true);
-                    break;
-                case BCState.Ended:
-                    GiveReward();
-                    _nextStateIn = r_BCBeforeCloseTime;
-                    _nextState = BCState.Close;
-                    Clear();
-                    break;
-                case BCState.Close:
+                case EventState.Closed:
                     CastleEntrace(false);
                     CastleDoor(false);
                     CastleBridge(false);
 
                     foreach (var plr in Players.ToArray())
-                        await plr.Character.WarpTo(22);
+                        plr.Character.WarpTo(22).Wait();
 
                     Players.Clear();
+                    Trigger(EventState.Open, _closedTime);
+                    break;
+                case EventState.Open:
+                    break;
+                case EventState.Playing:
+                    _playerForReward = Players.ToList();
+                    MonsterCount = (ushort)(Players.Count * 40);
+                    BossCount = (ushort)(10 * Players.Count);
+                    Trigger(EventState.Closed, _playingTime);
                     break;
             }
         }
@@ -409,7 +378,7 @@ namespace MuEmu.Events.BloodCastle
                     {
                         var mult = plr == Winner ? 1.0f : 0.5f;
                         experience += (5000 + Bridge * 5000) * mult;
-                        experience += (float)(_nextStateIn.TotalSeconds * (160 + 20 * Bridge)) * mult;
+                        experience += (float)(TimeLeft.TotalSeconds * (160 + 20 * Bridge)) * mult;
                     }
 
                     if (plr == DoorWinner || DoorWinner.Character.Party == plr.Character.Party)
@@ -484,6 +453,21 @@ namespace MuEmu.Events.BloodCastle
             _playerForReward.ForEach(x => x.Session.SendAsync(bc).Wait());*/
 
             _playerForReward.Clear();
+        }
+
+        public override void NPCTalk(Player plr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnPlayerDead(object sender, EventArgs eventArgs)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnMonsterDead(object sender, EventArgs eventArgs)
+        {
+            throw new NotImplementedException();
         }
     }
 }

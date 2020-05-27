@@ -18,6 +18,7 @@ namespace MuEmu.Resources.Map
         Stand = 2,
         NoWalk = 4,
         Hide = 8,
+        Unknow = 16,
     }
     public enum ItemState : byte
     {

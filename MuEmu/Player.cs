@@ -37,12 +37,12 @@ namespace MuEmu
             Status = LoginStatus.Logged;
         }
 
-        public async Task SendV2Message(object message)
+        public async Task SendV2Message(object message, Player exclude = null)
         {
             if (Status != LoginStatus.Playing)
                 throw new InvalidOperationException("Player is not playing");
 
-            await Character.SendV2Message(message);
+            await Character.SendV2Message(message, exclude);
         }
 
         public async Task Save(GameContext db)

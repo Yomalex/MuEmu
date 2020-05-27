@@ -563,9 +563,9 @@ namespace MuEmu
             Spells.SendList();
         }
 
-        public async Task SendV2Message(object message)
+        public async Task SendV2Message(object message, Player exclude = null)
         {
-            foreach (var plr in PlayersVP)
+            foreach (var plr in PlayersVP.Where(x => x != exclude))
                 await plr.Session.SendAsync(message);
         }
 
@@ -1110,49 +1110,41 @@ namespace MuEmu
             return true;
         }
 
-        public async Task GetAttacked(ushort source, byte dir, int dmg, DamageType type, Spell isMagic)
+        public async Task GetAttacked(ushort source, byte dirdis, byte aa, int dmg, DamageType type, Spell isMagic)
         {
             if (State != ObjectState.Live)
                 return;
 
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
 
+            GSSession sourceSession = source >= MonstersMng.MonsterStartIndex ? null : Program.server.Clients.FirstOrDefault(x => x.ID == source);
+
             _deadlyDmg = dmgSend;
             _killerId = source;
             Health -= dmg;
+            var message = new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0);
 
             if (State != ObjectState.Dying)
             {
                 if (isMagic == Spell.None)
                 {
-                    var msg = new SAction(source, dir, 120, Index);
-                    await Player.Session.SendAsync(new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0));
+                    var msg = new SAction(source, dirdis, aa, (ushort)Player.Session.ID);
+                    await Player.Session.SendAsync(message);
+                    if(sourceSession != null)
+                        await sourceSession.SendAsync(message);
                     await Player.Session.SendAsync(msg);
-                    await Player.SendV2Message(msg);
+                    await Player.SendV2Message(msg, sourceSession?.Player);
                 }
                 else
                 {
+                    SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), message);
+                    SubSystem.Instance.AddDelayedMessage(sourceSession?.Player, TimeSpan.FromMilliseconds(100), message);
+
                     var msg2 = new SMagicAttack(isMagic, source, (ushort)Player.Session.ID);
                     await Player.Session.SendAsync(msg2);
                     await Player.SendV2Message(msg2);
-                    SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), new SAttackResult(Index, dmgSend, type, 0));
                 }
             }
-        }
-
-        public void GetAttackedDelayed(Player plr, int dmg, DamageType type, TimeSpan time)
-        {
-            var @char = plr.Character;
-            dmg -= @char.Defense;
-
-            if(!@char.MissCheck(this))
-            {
-                type = DamageType.Miss;
-                dmg = 0;
-            }
-
-            Health -= dmg;
-            //SubSystem.Instance.AddDelayedMessage()
         }
 
         public int SkillAttack(SpellInfo spell, int targetDefense, out DamageType type)

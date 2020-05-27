@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Handlers;
@@ -85,6 +86,7 @@ namespace MuEmu.Network.Game
                 if (att.Where(y => y == MapAttributes.NoWalk || y == MapAttributes.Hide).Count() > 0)
                 {
                     valid = false;
+                    break;
                 }
             }
 
@@ -102,9 +104,21 @@ namespace MuEmu.Network.Game
             @char.Position = Cpos;
 
             var msg = new SMove((ushort)session.ID, (byte)Cpos.X, (byte)Cpos.Y, ld);
-            await session.SendAsync(msg);
             await session.Player.SendV2Message(msg);
             session.Player.Character.TPosition = Cpos;
+        }
+
+        [MessageHandler(typeof(CPositionSet))]
+        public async Task CPositionSet(GSSession session, CPositionSet message)
+        {
+            var pos = message.Position;
+            Logger.ForAccount(session).Debug("Position set Recv {0}", pos);
+            var @char = session.Player.Character;
+            var msg = new SPositionSet((ushort)session.ID, pos);
+            @char.Position = pos;
+            @char.TPosition = pos;
+            await session.SendAsync(msg);
+            await @char.SendV2Message(msg);
         }
 
         #region Chat MessageHandlers
@@ -717,10 +731,12 @@ namespace MuEmu.Network.Game
                         EventChips.NPCTalk(session.Player);
                         break;
                     case NPCAttributeType.MessengerAngel:
-                        BloodCastles.MessengerAngelTalk(session.Player);
+                        Program.EventManager.GetEvent<BloodCastles>()
+                            .MessengerAngelTalk(session.Player);
                         break;
                     case NPCAttributeType.KingAngel:
-                        BloodCastles.AngelKingTalk(session.Player);
+                        Program.EventManager.GetEvent<BloodCastles>()
+                            .AngelKingTalk(session.Player);
                         break;
                     case NPCAttributeType.Kanturu:
                         Program.EventManager
@@ -928,18 +944,20 @@ namespace MuEmu.Network.Game
                     if (target.Player.Character.Health <= 0.0f)
                         return;
 
-                    await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));
-                    DamageType type;
-                    int reflect = 0;
-                    var attack = session.Player.Character.Attack(target.Player.Character, out type, out reflect);
+                    /*await session.Player
+                        .SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));*/
+
+                    var attack = session.Player.Character
+                        .Attack(target.Player.Character, out DamageType type, out int reflect);
+
                     target.Player.Character
-                        .GetAttacked((ushort)session.ID, session.Player.Character.Direction, attack, type, Spell.None)
+                        .GetAttacked((ushort)session.ID, message.DirDis, message.AttackAction, attack, type, Spell.None)
                         .Wait();
 
                     if (reflect != 0)
                     {
                         session.Player.Character
-                            .GetAttacked((ushort)target.ID, target.Player.Character.Direction, reflect, DamageType.Reflect, Spell.None)
+                            .GetAttacked((ushort)target.ID, target.Player.Character.Direction, 0, reflect, DamageType.Reflect, Spell.None)
                             .Wait();
                     }
                 }
@@ -1077,7 +1095,7 @@ namespace MuEmu.Network.Game
                         break;
                 }
 
-                player?.Character.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
+                player?.Character.GetAttacked((ushort)@char.Player.Session.ID, @char.Direction, 0, (int)attack, type, spell.Number);
                 monster?.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
             }
         }
@@ -1311,7 +1329,7 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CItemModify))]
-        public void CItemModify(GSSession session, CItemModify message)
+        public async Task CItemModify(GSSession session, CItemModify message)
         {
             if(message.Position == 0xff)
             {
@@ -1335,7 +1353,7 @@ namespace MuEmu.Network.Game
             res.Money = cost;
             it.Durability = it.BasicInfo.Durability;
             session.Player.Character.Money -= cost;
-            session.SendAsync(res);
+            await session.SendAsync(res);
         }
 
         #region Party MessageHandlers

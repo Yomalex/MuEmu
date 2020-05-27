@@ -306,12 +306,12 @@ namespace MuEmu
         {
             EventManager = new EventManagement();
             EventManager
+                .AddEvent(Events.Events.BloodCastle, new BloodCastles())
                 .AddEvent(Events.Events.DevilSquared, new DevilSquares())
                 .AddEvent(Events.Events.Kanturu, new Kanturu())
                 .AddEvent(Events.Events.ChaosCastle, new ChaosCastles());
             LuckyCoins.Initialize();
             EventChips.Initialize();
-            BloodCastles.Initialize();
         }
 
         public static async Task GlobalAnoucement(string text)

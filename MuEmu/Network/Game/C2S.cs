@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using WebZen.Serialization;
 using WebZen.Util;
@@ -125,6 +126,8 @@ namespace MuEmu.Network.Game
 
         [WZMember(1)]
         public byte Y { get; set; }
+
+        public Point Position => new Point(X, Y);
     }
 
     [WZContract]

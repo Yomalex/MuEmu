@@ -15,7 +15,7 @@ namespace MuEmu.Network.Event
     public class EventServices : MessageHandler
     {
         [MessageHandler(typeof(CEventRemainTime))]
-        public void CEventRemainTime(GSSession session, CEventRemainTime message)
+        public async Task CEventRemainTime(GSSession session, CEventRemainTime message)
         {
             var res = new SEventRemainTime { EventType = message.EventType };
             switch (message.EventType)
@@ -26,7 +26,8 @@ namespace MuEmu.Network.Event
                     res.EnteredUser = evds.Count;
                     break;
                 case EventEnterType.BloodCastle:
-                    res.RemainTime = BloodCastles.RemainTime();
+                    var evbc = Program.EventManager.GetEvent<DevilSquares>();
+                    res.RemainTime = evbc.RemainTime;
                     break;
                 case EventEnterType.ChaosCastle:
                     var ev = Program.EventManager.GetEvent<ChaosCastles>();
@@ -38,7 +39,7 @@ namespace MuEmu.Network.Event
                     break;
             }
 
-            session.SendAsync(res);
+            await session.SendAsync(res);
         }
 
         [MessageHandler(typeof(CLuckyCoinsCount))]
@@ -62,7 +63,8 @@ namespace MuEmu.Network.Event
             var @char = session.Player.Character;
 
             var invisibleCloack = @char.Inventory.Get(message.ItemPos);
-            var itemLevel = BloodCastles.GetNeededLevel(plr);
+            var evbc = Program.EventManager.GetEvent<BloodCastles>();
+            var itemLevel = evbc.GetEventNumber(plr);
 
             if(invisibleCloack.Plus != message.Bridge && invisibleCloack.Number != ItemNumber.FromTypeIndex(13,47))
             {
@@ -76,13 +78,13 @@ namespace MuEmu.Network.Event
                 return;
             }
 
-            if (!BloodCastles.TryAdd(message.Bridge, plr))
+            if (!evbc.TryAdd(plr))
             {
                 await session.SendAsync(new SBloodCastleMove(5));
                 return;
             }
 
-            @char.Inventory.Delete(message.ItemPos);
+            await @char.Inventory.Delete(message.ItemPos);
         }
 
         [MessageHandler(typeof(CCrywolfBenefit))]

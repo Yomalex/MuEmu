@@ -10,8 +10,10 @@ namespace MuEmu.Util
         protected T CurrentState { get; private set; }
         private T _nextState;
         private DateTimeOffset _nextStateIn;
+        private DateTimeOffset _currentState;
 
         public TimeSpan TimeLeft => _nextStateIn - DateTimeOffset.Now;
+        public TimeSpan Time => DateTimeOffset.Now - _currentState;
 
         public abstract void Initialize();
 
@@ -31,11 +33,13 @@ namespace MuEmu.Util
         {
             _nextState = nextSate;
             _nextStateIn = DateTimeOffset.Now;
+            _currentState = DateTimeOffset.Now;
         }
 
         public void Trigger(T nextSate, TimeSpan @in)
         {
             _nextState = nextSate;
+            _currentState = DateTimeOffset.Now;
             _nextStateIn = DateTimeOffset.Now.Add(@in);
         }
     }

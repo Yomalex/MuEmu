@@ -26,7 +26,6 @@ namespace MuEmu
         {
             Player = player;
             ActiveVault = 0;
-            byte y = 0;
 
             _vaults = new Dictionary<byte, Storage>();
             ID = accountDto.AccountId;
