@@ -12,7 +12,7 @@ namespace MuEmu.Network.Data
         [WZMember(0, 10)] public byte[] btName { get; set; }  // 0
         [WZMember(1)] public byte Number { get; set; }    // A
         [WZMember(2)] public byte ConnectAServer { get; set; }    // B
-        [WZMember(3)] public byte btGuildStatus{ get; set; }   // C
+        [WZMember(3)] public GuildStatus btGuildStatus{ get; set; }   // C
 
         public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
     }

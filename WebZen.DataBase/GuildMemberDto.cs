@@ -14,6 +14,6 @@ namespace MU.DataBase
 
         public int GuildId { get; set; }
 
-        public byte Rank { get; set; }
+        public int Rank { get; set; }
     }
 }

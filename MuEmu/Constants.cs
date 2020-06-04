@@ -180,7 +180,49 @@ namespace MuEmu
     public enum GuildStatus : byte
     {
         Member,
+        BattleMaster = 0x20,
+        Assistant = 0x40,
+        GuildMaster = 0x80,
         NoMember = 0xff
+    }
+
+    public enum GuildResult : byte
+    {
+        Fail = 0x00,
+        Success = 0x01,
+        CannotAcceptMoreMembers = 0x02,
+        PlayerOffline = 0x03,
+        NotGuildMaster = 0x04,
+        HaveGuild = 0x05,
+        InTransaction = 0x06,
+        InsuficientLevel = 0x07,
+        NotExist = 0x10,
+        //UnionFail,
+        NotExistPermission,
+        NotExistExtraStatus,
+        NotExistExtraType,
+        ExistRelationshipUnion = 0x15,
+        ExistRealtionshipRival,
+        ExistUnion,
+        ExistRival,
+        NotExistUnion,
+        NotExistRival,
+        NotUnionMaster,
+        NotRival,
+        CannotBeUnionMaster,
+        ExceedMaxUnionMembers,
+        CancelRequest = 0x20,
+        AllyMasterNoGems = 0xA1,
+        DifferentGens = 0xA3,
+    }
+
+    public enum GuildRelation : byte
+    {
+        None,
+        Union,
+        Rival,
+        UnionMaster = 4,
+        RivalMaster = 8,
     }
 
     public enum LetterStatus : byte

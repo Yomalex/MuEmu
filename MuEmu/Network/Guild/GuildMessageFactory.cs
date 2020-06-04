@@ -13,9 +13,14 @@ namespace MuEmu.Network.Guild
         public GuildMessageFactory()
         {
             // C2S
+            Register<CGuildRequest>(GuildOpCode.GuildRequest);
             Register<CGuildInfoSave>(GuildOpCode.GuildSaveInfo);
             Register<CGuildReqViewport>(GuildOpCode.GuildReqViewport);
             Register<CGuildListAll>(GuildOpCode.GuildListAll);
+            Register<CGuildRequestAnswer>(GuildOpCode.GuildResult);
+            Register<CGuildSetStatus>(GuildOpCode.GuildSetStatus);
+            Register<CGuildRemoveUser>(GuildOpCode.RemoveUser);
+
 
             // S2C
             Register<SGuildMasterQuestion>(GuildOpCode.MasterQuestion);
@@ -23,6 +28,9 @@ namespace MuEmu.Network.Guild
             Register<SGuildAnsViewport>(GuildOpCode.GuildReqViewport);
             Register<SGuildList>(GuildOpCode.GuildListAll);
             Register<SGuildCreateResult>(GuildOpCode.GuildSaveInfo);
+            Register<SGuildResult>(GuildOpCode.GuildResult);
+            Register<SGuildSetStatus>(GuildOpCode.GuildSetStatus);
+            Register<SGuildRemoveUser>(GuildOpCode.RemoveUser);
         }
     }
 }

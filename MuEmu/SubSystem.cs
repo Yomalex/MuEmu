@@ -15,6 +15,7 @@ using WebZen.Util;
 using MuEmu.Resources.Map;
 using MuEmu.Network.QuestSystem;
 using System.Threading.Tasks;
+using MuEmu.Network.Guild;
 
 namespace MuEmu
 {
@@ -215,6 +216,31 @@ namespace MuEmu
 
             plr.PlayersVP.AddRange(newPlr.Select(x => x.Player));
             plr.PlayersVP.AddRange(existPlr.Select(x => x.Player));
+
+            var guildVP = newPlr
+                .Where(x => x.Guild != null)
+                .Select(x => new GuildViewPortDto
+            {
+                ID = x.Guild.Index,
+                Number = x.Index,
+                RelationShip = plr.Guild?.GetRelation(x.Guild) ?? GuildRelation.None,
+                CastleState = 0,
+                Status = x.Guild.Find(x.Name).Rank,
+                Type = x.Guild.Type,
+            }).ToList();
+
+            guildVP.AddRange(existPlr
+                .Where(x => x.Guild != null)
+                .Select(x => new GuildViewPortDto
+                {
+                    ID = x.Guild.Index,
+                    Number = x.Index,
+                    RelationShip = plr.Guild?.GetRelation(x.Guild) ?? GuildRelation.None,
+                    CastleState = 0,
+                    Status = x.Guild.Find(x.Name).Rank,
+                    Type = x.Guild.Type,
+                }));
+
             foreach (var it in deadPlr)
                 plr.PlayersVP.Remove(it);
             foreach (var it in lostPlr)
@@ -252,6 +278,9 @@ namespace MuEmu
 
             if(PShop.Any())
                 await plr.Player.Session.SendAsync(new SViewPortPShop { VPShops = PShop.Select(x => new VPPShopDto { btName = x.Shop.Name.GetBytes(), wzNumber = x.Index.ShufleEnding() }).ToArray() });
+
+            if (guildVP.Any())
+                await plr.Player.Session.SendAsync(new SGuildViewPort { Guilds = guildVP.ToArray() });
         }
 
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)

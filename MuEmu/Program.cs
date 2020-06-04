@@ -174,10 +174,11 @@ namespace MuEmu
                 DuelSystem.Initialize();
                 SubSystem.Initialize();
                 Marlon.Initialize();
-            }catch(MySql.Data.MySqlClient.MySqlException)
+            }catch(MySql.Data.MySqlClient.MySqlException ex)
             {
-                Migrate(null, new EventArgs());
-                Log.Information("Server needs restart to reload all changes");
+                Log.Error(ex, "DB Error");
+                //Migrate(null, new EventArgs());
+                //Log.Information("Server needs restart to reload all changes");
                 Task.Delay(10000);
                 return;
             }

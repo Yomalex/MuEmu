@@ -9,6 +9,7 @@ using Serilog.Core;
 using MuEmu.Entity;
 using MU.DataBase;
 using MuEmu.Network.Game;
+using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -60,8 +61,8 @@ namespace MuEmu
 
             var g = new Guild(name, Mark, Type);
             Instance.Guilds.Add(g.Index,g);
-            master.Session.SendAsync(new SGuildCreateResult { Result = 1, GuildType = Type });
-            g.Add(master, 0);
+            master.Session.SendAsync(new SGuildCreateResult { Result = 1, GuildType = Type }).Wait();
+            g.Add(master, GuildStatus.GuildMaster);
             Logger.Information("New guild added:{0} Master:{1}", name, master.Character.Name);
         }
 
@@ -121,17 +122,17 @@ namespace MuEmu
             }
 
             pMsg.Result = 1;
-            pMsg.Members = guild.ActiveMembers.Select(x => new GuildListDto
+            pMsg.Members = guild.Members.Select((x,i) => new GuildListDto
             {
                 Name = x.Name,
                 ConnectAServer = 0x80,
-                Number = 0,
-                btGuildStatus = 1,
+                Number = (byte)i,
+                btGuildStatus = x.Rank,
             }).ToArray();
             pMsg.Count = (byte)pMsg.Members.Length;
 
-            plr.Session.SendAsync(pMsg);
-            Logger.Debug("Player List:{0}", string.Join(", ", guild.ActiveMembers.Select(x => x.Name)));
+            plr.Session.SendAsync(pMsg).Wait();
+            Logger.Debug("Player List:{0}", string.Join(", ", guild.Members.Select(x => x.Name)));
         }
     }
 
@@ -144,7 +145,13 @@ namespace MuEmu
         public string Name { get; private set; }
         public byte[] Mark { get; private set; }
         public byte Type { get; private set; }
-        public GuildMember Master => Members.First(x => x.Rank == 0);
+
+        public Guild Union { get; set; }
+        public Guild Rival { get; set; }
+
+        public GuildMember Master => Members.First(x => x.Rank == GuildStatus.GuildMaster);
+        public GuildMember Assistant => Members.FirstOrDefault(x => x.Rank == GuildStatus.Assistant);
+        public IEnumerable<GuildMember> BattleMasters => Members.Where(x => x.Rank == GuildStatus.BattleMaster);
         public List<GuildMember> Members { get; set; }
 
         public List<GuildMember> ActiveMembers => Members.Where(x => x.Player != null).ToList();
@@ -175,15 +182,19 @@ namespace MuEmu
             Index = guildDto.GuildId;
             Name = guildDto.Name;
             Mark = guildDto.Mark;
-            Type = guildDto.GuildType;
 
             using (var game = new GameContext())
             {
-                Members = (from memb in game.GuildMembers
-                           join @char in game.Characters on memb.MembId equals @char.CharacterId
-                           where memb.GuildId == Index
-                           select new GuildMember(this, @char.Name, (GuildStatus)memb.Rank)).ToList();
+                var membsDb = (from memb in game.GuildMembers
+                                where memb.GuildId == Index
+                                select memb).ToList();
+
+                Members = (from @char in game.Characters
+                          from memb in membsDb
+                          where @char.CharacterId == memb.MembId
+                          select new GuildMember(this, @char.Name, (GuildStatus)memb.Rank)).ToList();
             }
+            Type = guildDto.GuildType;
         }
 
         public GuildMember Add(Player plr, GuildStatus rank)
@@ -198,19 +209,8 @@ namespace MuEmu
                 memb.Player = plr;
             }
 
-            var status = ((Master?.Player??plr) == plr ? 0x80 : 0x00);
-
-            plr.Session.SendAsync(new SGuildViewPort
-            {
-                Guilds = new Network.Data.GuildViewPortDto[] {
-                    new Network.Data.GuildViewPortDto {
-                        ID = Index,
-                        Type = Type,
-                        Status = (byte)status,
-                        RelationShip = 0,
-                        Number = plr.Session.ID | status
-                    } }
-            });
+            plr.Character.Guild = this;
+            memb.ViewPort();
 
             return memb;
         }
@@ -222,14 +222,17 @@ namespace MuEmu
 
         public void ConnectMember(Player plr)
         {
-            Members.First(x => x.Name == plr.Character.Name).Player = plr;
+            var conMemb = Find(plr.Character.Name);
+            conMemb.Player = plr;
+            conMemb.ViewPort();
+            plr.Character.Guild = this;
 
             var notice = new SNotice(NoticeType.Guild, $"Welcome back {plr.Character.Name}");
 
-            foreach(var memb in Members.Where(x => x.Player != null))
-            {
-                memb.Player.Session.SendAsync(notice);
-            }
+            ActiveMembers
+                .Select(x => x.Player.Session)
+                .SendAsync(notice)
+                .Wait();
         }
 
         public void Remove(Player plr)
@@ -238,8 +241,50 @@ namespace MuEmu
                 .Where(x => x.Name == plr.Character.Name)
                 .FirstOrDefault();
 
+            Remove(memb);
+        }
+
+        public void Remove(GuildMember memb)
+        {
             if (memb == null)
                 throw new Exception("GUILD: Try to remove an Invalid Member");
+
+            Members.Remove(memb);
+            using (var game = new GameContext())
+            {
+                var charId = (from row in game.Characters where row.Name == memb.Name select row.CharacterId).FirstOrDefault();
+                var dto = (from row in game.GuildMembers where row.MembId == charId select row).FirstOrDefault();
+
+                game.Remove(dto);
+                game.SaveChanges();
+            }
+        }
+
+        public GuildRelation GetRelation(Guild guild)
+        {
+            if (Union == guild)
+                return GuildRelation.Union;
+
+            if (Rival == guild)
+                return GuildRelation.Rival;
+
+            return GuildRelation.None;
+        }
+
+        internal bool CanAdd()
+        {
+            var max = Master.Player.Character.Level / 10;
+            if(Master.Player.Character.BaseClass == HeroClass.DarkLord)
+            {
+                max += Master.Player.Character.CommandTotal / 10;
+            }
+
+            if(max > 100)
+            {
+                max = 100;
+            }
+
+            return max > Members.Count();
         }
     }
 
@@ -251,7 +296,7 @@ namespace MuEmu
 
         public string Name { get; }
 
-        public GuildStatus Rank { get; }
+        public GuildStatus Rank { get; private set; }
 
         public GuildMember()
         {
@@ -271,7 +316,7 @@ namespace MuEmu
                 {
                     GuildId = guild.Index,
                     MembId = plr.Character.Id,
-                    Rank = (byte)rank,
+                    Rank = (int)rank,
                 };
                 game.Add(guildMember);
                 game.SaveChanges();
@@ -283,6 +328,41 @@ namespace MuEmu
             Name = name;
             Rank = rank;
             Guild = guild;
+        }
+
+        public void ViewPort()
+        {
+            var vp = new SGuildViewPort
+            {
+                Guilds = new GuildViewPortDto[] { new GuildViewPortDto {
+                    ID = Guild.Index,
+                    Number = (ushort)(Player.ID /*| (Rank == GuildStatus.GuildMaster ? 0x80 : 0x00)*/),
+                    RelationShip = GuildRelation.None,
+                    CastleState = 0,
+                    Status = Rank,
+                    Type = Guild.Type,
+                } }
+            };
+
+            Player.SendV2Message(vp).Wait();
+            Player.Session.SendAsync(vp).Wait();
+        }
+
+        public void UpdateRank(GuildStatus newStatus)
+        {
+            if (Rank == newStatus)
+                return;
+
+            using (var game = new GameContext())
+            {
+                var charId = (from row in game.Characters where row.Name == Name select row.CharacterId).FirstOrDefault();
+                var guildMember = (from row in game.GuildMembers where row.MembId == charId select row).FirstOrDefault();
+                guildMember.Rank = (int)Rank;
+                game.Update(guildMember);
+                game.SaveChanges();
+            }
+
+            Rank = newStatus;
         }
     }
 }

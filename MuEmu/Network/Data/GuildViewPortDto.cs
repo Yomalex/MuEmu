@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
+using WebZen.Util;
 
 namespace MuEmu.Network.Data
 {
@@ -12,20 +13,20 @@ namespace MuEmu.Network.Data
         public int ID { get; set; }
 
         [WZMember(1)]
-        public byte Status { get; set; }
+        public GuildStatus Status { get; set; }
 
         [WZMember(2)]
         public byte Type { get; set; }
 
         [WZMember(3)]
-        public byte RelationShip { get; set; }
+        public GuildRelation RelationShip { get; set; }
 
         [WZMember(4)]
-        public byte NumberH { get; private set; }
+        public ushort wzNumber { get; set; }
 
         [WZMember(5)]
-        public byte NumberL { get; private set; }
+        public byte CastleState { get; set; }
 
-        public int Number { get => (NumberH << 8 | NumberL); set { NumberH = (byte)(value >> 8); NumberL = (byte)(value & 0xFF); } }
+        public ushort Number { get => wzNumber.ShufleEnding(); set { wzNumber = value.ShufleEnding(); } }
     }
 }

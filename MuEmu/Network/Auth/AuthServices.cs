@@ -127,7 +127,7 @@ namespace MuEmu.Network.Auth
         }
 
         [MessageHandler(typeof(CCharacterList))]
-        public async Task CCharacterList(GSSession session, CCharacterList listReq)
+        public async Task CCharacterList(GSSession session)
         {
             using (var db = new GameContext())
             {
@@ -227,8 +227,6 @@ namespace MuEmu.Network.Auth
             await session.SendAsync(new SFriends { MemoCount = 0, Friends = new Data.FriendDto[] { new Data.FriendDto { Name = "Yomalex2".GetBytes() } } });
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
-
-            GuildManager.Instance.AddPlayer(session.Player);
             
             if (charDto.SkillKey != null)
             {
@@ -243,6 +241,8 @@ namespace MuEmu.Network.Auth
                 });
             }
             session.Player.Status = LoginStatus.Playing;
+
+            GuildManager.Instance.AddPlayer(session.Player);
         }
 
         [MessageHandler(typeof(CCharacterCreate))]

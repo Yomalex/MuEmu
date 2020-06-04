@@ -36,11 +36,15 @@ namespace MuEmu.Network.Guild
     [WZContract]
     public class SGuildAnsViewport : IGuildMessage
     {
-        [WZMember(0)] public int GuildNumber { get; set; }    // 4
-        [WZMember(1)] public byte btGuildType { get; set; }   // 8
-        [WZMember(2,8)] public byte[] btUnionName { get; set; }  // 9
-        [WZMember(3,8)] public byte[] btGuildName { get; set; }  // 11
-        [WZMember(4,32)] public byte[] Mark { get; set; }	// 19
+        // 0xC1 // 0
+        // Size // 1
+        // 0x66 // 2
+        [WZMember(0)] public byte padding { get; set; } // 3
+        [WZMember(1)] public int GuildNumber { get; set; }    // 4
+        [WZMember(2)] public byte btGuildType { get; set; }   // 8
+        [WZMember(3,8)] public byte[] btUnionName { get; set; }  // 9
+        [WZMember(4,8)] public byte[] btGuildName { get; set; }  // 11
+        [WZMember(5,32)] public byte[] Mark { get; set; }	// 19
 
         public string UnionName { get => btUnionName.MakeString(); set => btUnionName = value.GetBytes(); }
         public string GuildName { get => btGuildName.MakeString(); set => btGuildName = value.GetBytes(); }
@@ -56,13 +60,57 @@ namespace MuEmu.Network.Guild
         [WZMember(4)] public byte Score { get; set; } // C
         [WZMember(5,9)] public byte[] szRivalGuild { get; set; }	// D
 
-        [WZMember(6, SerializerType = typeof(ArraySerializer))]
+        [WZMember(6)] public ushort Padding2 { get; set; }
+
+        [WZMember(7, SerializerType = typeof(ArraySerializer))]
         public GuildListDto[] Members { get; set; }
 
         public SGuildList()
         {
             Members = Array.Empty<GuildListDto>();
             szRivalGuild = Array.Empty<byte>();
+        }
+    }
+
+    [WZContract]
+    public class SGuildResult : IGuildMessage
+    {
+        [WZMember(0)] public GuildResult Result { get; set; }
+
+        public SGuildResult() { }
+        public SGuildResult(GuildResult res) { Result = res; }
+    }
+
+    [WZContract]
+    public class SGuildSetStatus : IGuildMessage
+    {
+        [WZMember(0)] public byte Type { get; set; }
+        [WZMember(1)] public GuildResult Result { get; set; }
+        [WZMember(2, 10)] public byte[] btName { get; set; }
+
+        public string Name => btName.MakeString();
+
+        public SGuildSetStatus() { }
+
+        public SGuildSetStatus(byte type, GuildResult res, string name)
+        {
+            Type = type;
+            Result = res;
+
+            btName = name.GetBytes();
+        }
+    }
+
+    [WZContract]
+    public class SGuildRemoveUser : IGuildMessage
+    {
+        [WZMember(0)] public GuildResult Result { get; set; }
+
+        public SGuildRemoveUser() { }
+
+        public SGuildRemoveUser(GuildResult res)
+        {
+            Result = res;
         }
     }
 }

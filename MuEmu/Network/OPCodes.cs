@@ -138,11 +138,15 @@ namespace MuEmu.Network
 
     public enum GuildOpCode
     {
+        GuildRequest = 0xFF50,
+        GuildResult = 0xFF51,
         GuildListAll = 0xFF52,
+        RemoveUser = 0xFF53,
         MasterQuestion = 0xFF54,
         GuildSaveInfo = 0xFF55,
         GuildViewPort = 0xFF65,
         GuildReqViewport = 0xFF66,
+        GuildSetStatus = 0xFFE1,
     }
 
     public enum EventOpCode
