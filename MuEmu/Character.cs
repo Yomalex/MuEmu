@@ -622,12 +622,7 @@ namespace MuEmu
                 Level++;
             } while (_exp >= NextExperience);
 
-            var att = BaseInfo.Attributes;
-
-            _hpMax = (att.Life + att.LevelLife * (Level - 1));
-            _mpMax = (att.Mana + att.LevelMana * (Level - 1));
-            _hp = _hpMax;
-            _mp = _mpMax;
+            CalcStats();
 
             var levelPoint = BaseClass == HeroClass.MagicGladiator || BaseClass == HeroClass.DarkLord ? 7 : 5;
             levelPoint += MasterClass ? 1 : 0;
