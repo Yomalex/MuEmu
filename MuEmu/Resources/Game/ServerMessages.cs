@@ -46,6 +46,7 @@ namespace MuEmu.Resources.Game
         Game_NoQuestAvailable,
         Game_DefaultNPCMessage,
         Game_Warp,
+        Game_Warp2,
         Game_ChaosBoxMixError,
     }
     public class ServerMessages
