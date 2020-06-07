@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <NPCs>
+  <NPC NPC="229" Type="Quest" Data="0" />
   <!-- Chaos Goblin -->
   <NPC NPC="226" Type="Window" Data="7" />
   <NPC NPC="230" Type="Shop" Data="0" />

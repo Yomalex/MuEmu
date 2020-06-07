@@ -623,8 +623,6 @@ namespace MuEmu.Resources
                     }
                 }
 
-                Logger.Information("Shop {0}, {1} Items loaded", shop.Shop, count);
-
                 yield return result;
             }
         }
@@ -649,8 +647,6 @@ namespace MuEmu.Resources
 
                         if (shops.ContainsKey(shopNum))
                             info.Data = shopNum;
-                        else
-                            Logger.Error("Shop {0} not found", shopNum);
                         break;
                     case NPCAttributeType.Quest:
                     case NPCAttributeType.Warehouse:

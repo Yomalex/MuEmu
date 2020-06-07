@@ -1,4 +1,5 @@
 ﻿using MuEmu.Network.Game;
+using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using Serilog;
 using Serilog.Core;
@@ -66,10 +67,10 @@ namespace MuEmu.Events.BloodCastle
                     break;
                 case EventState.Open:
                     if (((int)TimeLeft.TotalSeconds) % 60 == 0 && TimeLeft.TotalSeconds >= 60)
-                        Program.NoEventMapAnoucement($"{(int)Math.Ceiling(TimeLeft.TotalMinutes)} minute(s) left to enter Blood castle.").Wait();
+                        Program.NoEventMapAnoucement(Program.ServerMessages.GetMessage(Messages.BC_Open, (int)Math.Ceiling(TimeLeft.TotalMinutes))).Wait();
                     break;
                 case EventState.Playing:
-                    Program.NoEventMapAnoucement("Blood castle Entrance Closed").Wait();
+                    Program.NoEventMapAnoucement(Program.ServerMessages.GetMessage(Messages.BC_Closed)).Wait();
                     break;
             }
 

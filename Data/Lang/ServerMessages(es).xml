@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServerMessage>
+    <Message ID="Server_Cfg" Message="El archivo de configuración del servidor es inexistente, primero configure los datos del servidor" />
+    <Message ID="Server_Title" Message="GameServer .NetCore2 [{0}]{1} Client:{2}#!{3} DB:{4}" />
+    <Message ID="Server_MySQL_Error" Message="Error con la base de datos" />
+    <Message ID="Server_Error" Message="Error interno" />
+    <Message ID="Server_CSServer_Error" Message="No se puede conectar con el ConnectServer" />
+    <Message ID="Server_Disconnecting_Accounts" Message="Desconectando cuentas" />
+    <Message ID="Server_Ready" Message="Servidor LISTO!" />
+    <Message ID="Server_GlobalAnnouncement" Message="Anuncio Global:{0}" />
+    <Message ID="Server_MapAnnouncement" Message="Anuncio al mapa {0}:" />
+    <Message ID="Server_NoEventMapAnnouncement" Message="Anuncio a mapas sin evento: {0}" />
+    <Message ID="Server_Close" Message="Cerrando servidor" />
+    <Message ID="RCache_Initialized" Message="Ya se inicializó" />
+    <Message ID="RCache_Loading_Items" Message="Precargando Objetos..." />
+    <Message ID="RCache_Loading_Spells" Message="Precargando Hechizos..." />
+    <Message ID="RCache_Loading_Maps" Message="Precargando Mapas..." />
+    <Message ID="RCache_Loading_DefClass" Message="Precargando Clases Base..." />
+    <Message ID="RCache_Loading_Shops" Message="Precargando Tiendas..." />
+    <Message ID="RCache_Loading_NPCs" Message="Precargando NPCs..." />
+    <Message ID="RCache_Loading_JoHs" Message="Precargando Jewels of Harmony..." />
+    <Message ID="RCache_Loading_Gates" Message="Precargando Portales..." />
+    <Message ID="RCache_Loading_Quests" Message="Precargando Quests..." />
+    <Message ID="RCache_Loading_ChaosMixs" Message="Precargando ChaosBox..." />
+    <Message ID="MonsterMng_Loading" Message="Cargando monstruos desde el archivo {0}" />
+    <Message ID="MonsterMng_Types" Message="Cargados {0} clases de mountruos" />
+    <Message ID="MonsterMng_Loading2" Message="Cargando posiciones desde el archivo {0}" />
+    <Message ID="MonsterMng_Loaded" Message="Cargados {0} mounstruos en los mapas" />
+    <Message ID="BC_Closed" Message="[BloodCastle] Entrada cerrada." />
+    <Message ID="BC_Open" Message="[BloodCastle] Quedan {0} minuto(s) de ingreso." />
+    <Message ID="BC_DoorKiller" Message="[BloodCastle] {0} Destruyó la puerta." />
+    <Message ID="BC_StatueKiller" Message="[BloodCastle] {0} Destruyó la estatua." />
+    <Message ID="DS_Closed" Message="[DevilSquare] Estará abierto en {0} minuto(s)." />
+    <Message ID="Chat_Player_Offline" Message="El jugador {0} no esta conectado." />
+    <Message ID="Game_Close" Message="El jugado solicitó {0}." />
+    <Message ID="Game_Close_Message" Message="Saldras en {0} segundo(s)." />
+    <Message ID="Game_Vault_active" Message="Baul {0} activo." />
+    <Message ID="Game_NoQuestAvailable" Message="Ya no tengo quest para ofrecerte." />
+    <Message ID="Game_DefaultNPCMessage" Message="Que tengas un buen día." />
+    <Message ID="Game_Warp" Message="Necesitas ser nivel {0} para ir." />
+    <Message ID="Game_Warp2" Message="Necesitas tener {0}zen para ir." />
+    <Message ID="Game_ChaosBoxMixError" Message="Necesitas organizar tu inventario." />
+</ServerMessage>

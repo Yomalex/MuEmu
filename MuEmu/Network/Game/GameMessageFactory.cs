@@ -28,6 +28,7 @@ namespace MuEmu.Network.Game
             Register<CChatWhisper>(GameOpCode.WhisperChat);
             #endregion
 
+            Register<CTeleport>(GameOpCode.Teleport);
             Register<CInventory>(GameOpCode.Inventory);
             Register<CNewQuestInfo>(GameOpCode.QuestDetails);
             Register<CPointAdd>(GameOpCode.PointAdd);
@@ -77,6 +78,11 @@ namespace MuEmu.Network.Game
             Register<CDuelLeave>(GameOpCode.DuelLeave);
             Register<CDuelJoinRoom>(GameOpCode.DuelRoomJoin);
             Register<CDuelLeaveRoom>(GameOpCode.DuelRoomLeave);
+            #endregion
+
+            #region Client FriendMessages
+            Register<CFriendList>(GameOpCode.FriendList);
+            Register<CFriendAdd>(GameOpCode.FriendAdd);
             #endregion
 
             // S2C

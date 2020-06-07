@@ -26,6 +26,16 @@ namespace MuEmu.Network.Game
     { }
 
     [WZContract]
+    public class CTeleport : IGameMessage
+    {
+        [WZMember(0)] public ushort wzMoveNumber { get; set; }
+        [WZMember(1)] public byte X { get; set; }
+        [WZMember(2)] public byte Y { get; set; }
+
+        public ushort MoveNumber => wzMoveNumber.ShufleEnding();
+    }
+
+    [WZContract]
     public class CAction : IGameMessage
     {
         [WZMember(0)]
@@ -508,4 +518,17 @@ namespace MuEmu.Network.Game
     {
         [WZMember(0)] public byte Room { get; set; }
     }
+
+    #region Friend
+    [WZContract]
+    public class CFriendList : IGameMessage { }
+
+    [WZContract]
+    public class CFriendAdd : IGameMessage
+    {
+        [WZMember(0,10)] public byte[] btName { get; set; }
+
+        public string Name => btName.MakeString();
+    }
+    #endregion
 }

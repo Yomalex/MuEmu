@@ -1,4 +1,5 @@
 ﻿using MuEmu.Resources;
+using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using Serilog;
 using Serilog.Core;
@@ -51,7 +52,7 @@ namespace MuEmu.Monsters
 
         public void LoadMonster(string file)
         {
-            Logger.Information("Loading monsters from '{0}'", file);
+            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading), file);
             using (var tf = File.OpenText(file))
             {
                 var contents = tf.ReadToEnd();
@@ -93,13 +94,12 @@ namespace MuEmu.Monsters
                 }
             }
 
-            Logger.Information($"{_monsterInfo.Count} Type of Monsters");
-            //Console.WriteLine($"{_monsterInfo.Count} Type of Monsters");
+            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Types), _monsterInfo.Count);
         }
 
         public void LoadSetBase(string file)
         {
-            Logger.Information("Loading monsters ubication from '{0}'", file);
+            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file);
             using (var tf = File.OpenText(file))
             {
                 var contents = tf.ReadToEnd();
@@ -171,7 +171,7 @@ namespace MuEmu.Monsters
                             break;
                     }
                 }
-                Logger.Information("{0} Monsters Loaded", Monsters.Count);
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loaded), Monsters.Count);
             }
         }
 

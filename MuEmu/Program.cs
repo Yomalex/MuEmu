@@ -34,6 +34,7 @@ using MuEmu.Events.Kanturu;
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Resources.BMD;
 using Serilog.Sinks.RollingFile;
+using MuEmu.Resources.Game;
 
 namespace MuEmu
 {
@@ -51,6 +52,8 @@ namespace MuEmu
         public static bool Season12 { get; set; }
 
         public static EventManagement EventManager;
+
+        public static ServerMessages ServerMessages { get; private set; }
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
@@ -68,9 +71,12 @@ namespace MuEmu
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
+            ServerMessages = new ServerMessages();
+            ServerMessages.LoadMessages("./Data/Lang/ServerMessages(es).xml");
+
             if (!File.Exists("./Server.xml"))
             {
-                Log.Logger.Error("Server configuration don't exist, please configure it in Server.xml");
+                Log.Logger.Error(ServerMessages.GetMessage(Messages.Server_Cfg));
                 ResourceLoader.XmlSaver("./Server.xml", new ServerInfoDto
                 {
                     AutoRegistre = true,
@@ -95,8 +101,9 @@ namespace MuEmu
             }
 
             var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
+            ServerMessages.LoadMessages($"./Data/Lang/ServerMessages({xml.Lang}).xml");
 
-            Console.Title = $"GameServer .NetCore2 [{xml.Code}]{xml.Name} Client:{xml.Version}#!{xml.Serial} DB:"+ xml.DataBase;
+            Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Version, xml.Serial, xml.DataBase);
 
             ConnectionString = $"Server={xml.DBIp};port=3306;Database={xml.DataBase};user={xml.BDUser};password={xml.DBPassword};Convert Zero Datetime=True;";
             
@@ -176,15 +183,14 @@ namespace MuEmu
                 Marlon.Initialize();
             }catch(MySql.Data.MySqlClient.MySqlException ex)
             {
-                Log.Error(ex, "DB Error");
+                Log.Error(ex, ServerMessages.GetMessage(Messages.Server_MySQL_Error));
                 //Migrate(null, new EventArgs());
                 //Log.Information("Server needs restart to reload all changes");
                 Task.Delay(10000);
-                return;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error on initialization");
+                Log.Error(ex, ServerMessages.GetMessage(Messages.Server_Error));
             }
 
             try
@@ -192,10 +198,10 @@ namespace MuEmu
                 client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server, (byte)xml.Show);
             }catch(Exception)
             {
-                Log.Error("Connect Server Unavailable");
+                Log.Error(ServerMessages.GetMessage(Messages.Server_CSServer_Error));
             }
 
-            Log.Information("Disconnecting Accounts");
+            Log.Information(ServerMessages.GetMessage(Messages.Server_Disconnecting_Accounts));
             try
             {
                 using (var db = new GameContext())
@@ -217,7 +223,7 @@ namespace MuEmu
                 return;
             }
 
-            Log.Information("Server Ready");
+            Log.Information(ServerMessages.GetMessage(Messages.Server_Ready));
 
             Handler.AddCommand(new Command<GSSession>("exit", Close))
                 .AddCommand(new Command<GSSession>("quit", Close))
@@ -318,7 +324,7 @@ namespace MuEmu
         public static async Task GlobalAnoucement(string text)
         {
             await server.SendAll(new SNotice(NoticeType.Gold, text));
-            Log.Information("Global Announcement: " + text);
+            Log.Information(ServerMessages.GetMessage(Messages.Server_GlobalAnnouncement, text));
         }
 
         public static async Task MapAnoucement(Maps map, string text)
@@ -326,7 +332,7 @@ namespace MuEmu
             await ResourceCache.Instance
                 .GetMaps()[map]
                 .SendAsync(new SNotice(NoticeType.Gold, text));
-            Log.Information("Map {0} Announcement: " + text, map);
+            Log.Information(ServerMessages.GetMessage(Messages.Server_MapAnnouncement) + text, map);
         }
 
         public static async Task NoEventMapSendAsync(object message)
@@ -339,13 +345,17 @@ namespace MuEmu
         public static async Task NoEventMapAnoucement(string text)
         {
             await NoEventMapSendAsync(new SNotice(NoticeType.Gold, text));
-            Log.Information($"No Events Announcement: " + text);
+            Log.Information(ServerMessages.GetMessage(Messages.Server_NoEventMapAnnouncement, text));
         }
 
         public static void Close(object a, EventArgs b)
         {
             if (a != null)
                 return;
+
+            GlobalAnoucement(ServerMessages.GetMessage(Messages.Server_Close)).Wait();
+
+            Task.Delay(30000);
 
             Environment.Exit(0);
         }

@@ -19,7 +19,7 @@ namespace MuEmu.Resources
         private ResourceLoader _loader;
         private MemoryCache _cache;
 
-        public ResourceCache(string root)
+        private ResourceCache(string root)
         {
             _loader = new ResourceLoader(root);
             _cache = new MemoryCache();
@@ -28,7 +28,7 @@ namespace MuEmu.Resources
         public static void Initialize(string root)
         {
             if (Instance != null)
-                throw new Exception("Already initialized");
+                throw new Exception(Program.ServerMessages.GetMessage(Messages.RCache_Initialized));
 
             Instance = new ResourceCache(root);
 
@@ -49,7 +49,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<ushort, ItemInfo>>("Items");
             if(cache == null)
             {
-                Logger.Information("Items Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Items));
                 cache = _loader.LoadItems().ToDictionary(x => x.Number);
                 _cache.Set("Items", cache);
             }
@@ -62,8 +62,8 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<Spell, SpellInfo>>("Spells");
             if (cache == null)
             {
-                Logger.Information("Spells Caching...");
-                cache = _loader.LoadSkills().ToDictionary(x => (Spell)x.Number);
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Spells));
+                cache = _loader.LoadSkills().ToDictionary(x => x.Number);
                 _cache.Set("Spells", cache);
             }
 
@@ -75,7 +75,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<Maps, MapInfo>>("Maps");
             if (cache == null)
             {
-                Logger.Information("Maps Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Maps));
                 cache = _loader.LoadMaps().ToDictionary(x => (Maps)x.Map);
                 _cache.Set("Maps", cache);
             }
@@ -88,7 +88,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<HeroClass, CharacterInfo>>("DefClass");
             if (cache == null)
             {
-                Logger.Information("DefClass Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_DefClass));
                 cache = _loader.LoadDefCharacter().ToDictionary(x => x.Class);
                 _cache.Set("DefClass", cache);
             }
@@ -101,7 +101,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<ushort, ShopInfo>>("Shops");
             if (cache == null)
             {
-                Logger.Information("Shops Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Shops));
                 cache = _loader.LoadShops().ToDictionary(x => x.Shop);
                 _cache.Set("Shops", cache);
             }
@@ -114,7 +114,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<ushort, NPCInfo>>("NPCs");
             if (cache == null)
             {
-                Logger.Information("NPCs Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_NPCs));
                 cache = _loader.LoadNPCs().ToDictionary(x => x.NPC);
                 _cache.Set("NPCs", cache);
             }
@@ -127,7 +127,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<byte, JewelOfHarmonyOption>>("JOH");
             if (cache == null)
             {
-                Logger.Information("JOH Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_JoHs));
                 cache = _loader.LoadJOH().ToDictionary(x => (byte)(x.Type << 4 | x.Index));
                 _cache.Set("JOH", cache);
             }
@@ -140,7 +140,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<int, Gate>>("Gates");
             if (cache == null)
             {
-                Logger.Information("Gates Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Gates));
                 cache = _loader.LoadGates().ToDictionary(x => x.Number);
                 _cache.Set("Gates", cache);
             }
@@ -153,7 +153,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IDictionary<int, QuestInfo>>("Quests");
             if (cache == null)
             {
-                Logger.Information("Quests Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Quests));
                 cache = _loader.LoadQuests().ToDictionary(x => x.Index);
                 _cache.Set("Quests", cache);
             }
@@ -166,7 +166,7 @@ namespace MuEmu.Resources
             var cache = _cache.Get<ChaosMixInfo>("ChaosMix");
             if (cache == null)
             {
-                Logger.Information("ChaosMix Caching...");
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_ChaosMixs));
                 cache = _loader.LoadChaosBox();
                 _cache.Set("ChaosMix", cache);
             }

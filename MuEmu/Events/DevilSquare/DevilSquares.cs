@@ -153,7 +153,8 @@ namespace MuEmu.Events.DevilSquare
         {
             if(CurrentState != EventState.Open)
             {
-                plr.Session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.DevilStarted));
+                plr.Session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.DevilStarted))
+                    .Wait();
                 return;
             }
 
@@ -163,11 +164,13 @@ namespace MuEmu.Events.DevilSquare
 
             if (!res.Any(/*x => x.Plus == DSNumber*/))
             {
-                plr.Session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.YouNeedInvitationDS));
+                plr.Session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.YouNeedInvitationDS))
+                    .Wait();
                 return;
             }
 
-            plr.Session.SendAsync(new STalk { Result = NPCWindow.DevilSquared });
+            plr.Session.SendAsync(new STalk { Result = NPCWindow.DevilSquared })
+                .Wait();
         }
 
         public override void OnTransition(EventState nextState)
@@ -199,13 +202,15 @@ namespace MuEmu.Events.DevilSquare
                     if (TimeLeft.TotalMinutes <= 16 && ((int)TimeLeft.TotalMinutes) % 5 == 0 && _nextMessage < DateTimeOffset.Now)
                     {
                         _nextMessage = DateTimeOffset.Now.AddMinutes(4);
-                        Program.NoEventMapAnoucement($"DevilSquare will be open in {(int)TimeLeft.TotalMinutes} minutes");
+                        Program.NoEventMapAnoucement(Program.ServerMessages.GetMessage(Resources.Game.Messages.DS_Closed, (int)TimeLeft.TotalMinutes))
+                            .Wait();
                     }
                     if((int)TimeLeft.TotalSeconds == 30)
                     {
                         Program.server.Clients
                             .Where(x => x.Player.Status == LoginStatus.Playing)
-                            .SendAsync(new SDevilSquareSet(DevilSquareState.Close));
+                            .SendAsync(new SDevilSquareSet(DevilSquareState.Close))
+                            .Wait();
                     }
                     break;
                 case EventState.Open:
@@ -213,7 +218,8 @@ namespace MuEmu.Events.DevilSquare
                     {
                         Program.server.Clients
                             .Where(x => x.Player.Status == LoginStatus.Playing)
-                            .SendAsync(new SDevilSquareSet(DevilSquareState.Open));
+                            .SendAsync(new SDevilSquareSet(DevilSquareState.Open))
+                            .Wait();
                     }
                     break;
                 case EventState.Playing:
@@ -233,7 +239,8 @@ namespace MuEmu.Events.DevilSquare
                             .Where(x => x.Key == Maps.DevilSquare || x.Key == Maps.DevilSquare2)
                             .SelectMany(y => y.Value.Players)
                             .Select(z => z.Player.Session)
-                            .SendAsync(new SDevilSquareSet(DevilSquareState.Playing));
+                            .SendAsync(new SDevilSquareSet(DevilSquareState.Playing))
+                            .Wait();
                     }
                     break;
             }

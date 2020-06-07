@@ -10,6 +10,7 @@ using MuEmu.Entity;
 using MU.DataBase;
 using MuEmu.Network.Game;
 using MuEmu.Util;
+using MuEmu.Monsters;
 
 namespace MuEmu
 {
@@ -105,9 +106,16 @@ namespace MuEmu
             return null;
         }
 
-        public static void NPCTalk(Player plr)
+        public static void NPCTalk(Player plr, Monster npc)
         {
-            plr.Session.SendAsync(new SGuildMasterQuestion());
+            if(plr.Character.Guild != null)
+            {
+                plr.Session.SendAsync(new SChatTarget(npc.Index, ""))
+                    .Wait();
+                return;
+            }
+            plr.Session.SendAsync(new SGuildMasterQuestion())
+                .Wait();
         }
 
         public static void SendList(Player plr)

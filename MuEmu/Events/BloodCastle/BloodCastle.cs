@@ -2,7 +2,9 @@
 using MuEmu.Network.Event;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
+using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
+using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -124,7 +126,7 @@ namespace MuEmu.Events.BloodCastle
 
             // Prevent login into BC
             if (!Players.Contains(plr))
-                plr.Character.WarpTo(22);
+                plr.Character.WarpTo(22).Wait();
         }
 
         private void AddMonster(object sender, EventArgs e)
@@ -148,7 +150,6 @@ namespace MuEmu.Events.BloodCastle
                 // Castle Gate
                 case 131:
                     mons.Die += GateDead;
-                    _logger.Information("Gate Added");
                     Gate = mons;
                     mons.Active = true;
                     break;
@@ -157,11 +158,9 @@ namespace MuEmu.Events.BloodCastle
                 case 133:
                 case 134:
                     mons.Die += StatueDead;
-                    _logger.Information("Statue Added");
                     Statue = mons;
                     break;
                 case 232:
-                    _logger.Information("Archangel Added");
                     mons.Active = true;
                     Archangel = mons;
                     break;
@@ -190,6 +189,9 @@ namespace MuEmu.Events.BloodCastle
             var mons = sender as Monster;
             DoorWinner = mons.Killer;
             mons.Active = false;
+            Program
+                .MapAnoucement(MapID, Program.ServerMessages.GetMessage(Messages.BC_DoorKiller, DoorWinner.Character.Name))
+                .Wait();
             CastleDoor(true);
         }
 
@@ -199,6 +201,9 @@ namespace MuEmu.Events.BloodCastle
             StatueWinner = mons.Killer;
             mons.Active = false;
             _map.AddItem(mons.Position.X, mons.Position.Y, s_reward);
+            Program
+                .MapAnoucement(MapID, Program.ServerMessages.GetMessage(Messages.BC_StatueKiller, StatueWinner.Character.Name))
+                .Wait();
         }
 
         private void Clear()
@@ -402,14 +407,6 @@ namespace MuEmu.Events.BloodCastle
                             Score = points,
                             Zen = (int)(s_BCRewardZenIn[Bridge] * zMult),
                         } }));
-
-                    /*bc.Add(new BCScore
-                    {
-                        Name = plr.Character.Name,
-                        Experience = (int)experience,
-                        Score = points,
-                        Zen = (int)(s_BCRewardZenIn[Bridge] * zMult),
-                    });*/
                 }
             }
             else
@@ -439,18 +436,8 @@ namespace MuEmu.Events.BloodCastle
                             Score = -300,
                             Zen = 0,
                         } }));
-
-                    /*bc.Add(new BCScore
-                    {
-                        Name = plr.Character.Name,
-                        Experience = (int)experience,
-                        Score = -300,
-                        Zen = 0,
-                    });*/
                 }
             }
-            /*var msg = new SBloodCastleReward((Winner != null), (byte)bc.Count, bc.ToArray());
-            _playerForReward.ForEach(x => x.Session.SendAsync(bc).Wait());*/
 
             _playerForReward.Clear();
         }

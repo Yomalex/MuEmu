@@ -6,6 +6,7 @@ using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
+using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Util;
 using Serilog;
@@ -153,6 +154,7 @@ namespace MuEmu.Network.Game
 
             if(target == null)
             {
+                await session.SendAsync(new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Resources.Game.Messages.Chat_Player_Offline, message.Id)));
                 return;
             }
 
@@ -197,11 +199,11 @@ namespace MuEmu.Network.Game
         {
             Logger
                 .ForAccount(session)
-                .Information("User request {0}", message.Type);
+                .Information(Program.ServerMessages.GetMessage(Messages.Game_Close), message.Type);
 
             for(int i = 1; i <= 5; i++)
             {
-                SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5-i), new SNotice(NoticeType.Blue, $"Saldras en {i} segundos"));
+                SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5-i), new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Messages.Game_Close_Message, i)));
             }
 
             SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5), new SCloseMsg { Type = message.Type });
@@ -685,7 +687,7 @@ namespace MuEmu.Network.Game
                 session.Player.Character.Money += item.Item.BuyPrice;
             }
 
-            item.State = Resources.Map.ItemState.Deleted;
+            item.State = ItemState.Deleted;
             var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
             await session.SendAsync(msg);
             await session.Player.SendV2Message(msg);
@@ -719,13 +721,13 @@ namespace MuEmu.Network.Game
                         break;
                     case NPCAttributeType.Warehouse:
                         session.Player.Character.Inventory.Lock = true;
-                        await session.SendAsync(new SNotice(NoticeType.Blue, $"Active Vault: " + (session.Player.Account.ActiveVault + 1)));
+                        await session.SendAsync(new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Messages.Game_Vault_active, session.Player.Account.ActiveVault + 1)));
                         await session.SendAsync(new STalk { Result = NPCWindow.Warehouse });
                         await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
                         await session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
                         break;
                     case NPCAttributeType.GuildMaster:
-                        GuildManager.NPCTalk(session.Player);
+                        GuildManager.NPCTalk(session.Player, obj);
                         break;
                     case NPCAttributeType.EventChips:
                         EventChips.NPCTalk(session.Player);
@@ -772,7 +774,7 @@ namespace MuEmu.Network.Game
 
                         if (quest == null)
                         {
-                            await session.SendAsync(new SChatTarget(ObjectIndex, "I don't have Quest for you"));
+                            await session.SendAsync(new SChatTarget(ObjectIndex, Program.ServerMessages.GetMessage(Messages.Game_NoQuestAvailable)));
                             return;
                         }
 
@@ -787,7 +789,7 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Debug("Talk to unasigned NPC {0}", obj.Info.Monster);
-                await session.SendAsync(new SChatTarget(ObjectIndex, "Have a good day"));
+                await session.SendAsync(new SChatTarget(ObjectIndex, Program.ServerMessages.GetMessage(Messages.Game_DefaultNPCMessage)));
             }
         }
 
@@ -921,8 +923,6 @@ namespace MuEmu.Network.Game
                     await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));
                     if (monster.Type == ObjectType.NPC)
                     {
-                        Logger.ForAccount(session)
-                            .Error("NPC Can't be attacked");
                         return;
                     }
 
@@ -1169,17 +1169,13 @@ namespace MuEmu.Network.Game
 
             if(gate.ReqLevel > @char.Level)
             {
-                log.Error("Level too low");
-
-                await session.SendAsync(new SNotice(NoticeType.Blue, $"Try again at Level {gate.ReqLevel}"));
+                await session.SendAsync(new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Messages.Game_Warp, gate.ReqLevel)));
                 return;
             }
 
             if(gate.ReqZen > @char.Money)
             {
-                log.Error("Money too low");
-
-                await session.SendAsync(new SNotice(NoticeType.Blue, $"Try again with more Zen"));
+                await session.SendAsync(new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Messages.Game_Warp, gate.ReqZen)));
                 return;
             }
 
@@ -1202,7 +1198,7 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Error("JewelMix out of bounds: {0}", message.JewelMix);
-                session.SendAsync(new SJewelMix(0));
+                session.SendAsync(new SJewelMix(0)).Wait();
                 return;
             }
             
@@ -1210,7 +1206,7 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Error("JewelMix Insuficient Jewel count: {0} < {1}", result.Count(), neededJewels[message.JewelMix][0]);
-                session.SendAsync(new SJewelMix(0));
+                session.SendAsync(new SJewelMix(0)).Wait();
                 return;
             }
 
@@ -1218,18 +1214,18 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Error("JewelMix Insuficient Money: {0} < {1}", @char.Money, neededJewels[message.JewelMix][1]);
-                session.SendAsync(new SJewelMix(8));
+                session.SendAsync(new SJewelMix(8)).Wait();
                 return;
             }
 
             foreach (var i in result.Take(neededJewels[message.JewelMix][0]))
             {
-                @char.Inventory.Delete(i);
+                @char.Inventory.Delete(i).Wait();
             }
 
             @char.Inventory.Add(new Item(new ItemNumber(12, (ushort)(30 + message.JewelType)), 0, new { Plus = message.JewelMix }));
             @char.Inventory.SendInventory();
-            session.SendAsync(new SJewelMix(1));
+            session.SendAsync(new SJewelMix(1)).Wait();
         }
 
         [MessageHandler(typeof(CJewelUnMix))]
@@ -1246,7 +1242,7 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Error("Item not found: {0}", message.JewelPos);
-                session.SendAsync(new SJewelMix(4));
+                session.SendAsync(new SJewelMix(4)).Wait();
                 return;
             }
 
@@ -1254,7 +1250,7 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Error("Item level no match: {0} != {1}", message.JewelLevel, target.Plus);
-                session.SendAsync(new SJewelMix(3));
+                session.SendAsync(new SJewelMix(3)).Wait();
                 return;
             }
 
@@ -1262,7 +1258,7 @@ namespace MuEmu.Network.Game
             {
                 Logger.ForAccount(session)
                     .Error("Insuficient money: {0} < 1000000", @char.Money);
-                session.SendAsync(new SJewelMix(8));
+                session.SendAsync(new SJewelMix(8)).Wait();
                 return;
             }
 
@@ -1271,9 +1267,9 @@ namespace MuEmu.Network.Game
                 @char.Inventory.Add(new Item(new ItemNumber(14, (ushort)(13 + message.JewelType)), 0));
             }
 
-            @char.Inventory.Delete(message.JewelPos);
+            @char.Inventory.Delete(message.JewelPos).Wait();
             @char.Inventory.SendInventory();
-            session.SendAsync(new SJewelMix(7));
+            session.SendAsync(new SJewelMix(7)).Wait();
         }
 
         [MessageHandler(typeof(CChaosBoxItemMixButtonClick))]
@@ -1299,7 +1295,7 @@ namespace MuEmu.Network.Game
 
             if (!@char.Inventory.TryAdd())
             {
-                await session.SendAsync(new SNotice(NoticeType.Blue, "Organize your inventory before mix"));
+                await session.SendAsync(new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Messages.Game_ChaosBoxMixError)));
                 await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail });
                 return;
             }
@@ -1346,7 +1342,7 @@ namespace MuEmu.Network.Game
 
             if(cost <= 0 || cost > session.Player.Character.Money)
             {
-                session.SendAsync(res);
+                session.SendAsync(res).Wait();
                 return;
             }
 
@@ -1355,6 +1351,36 @@ namespace MuEmu.Network.Game
             session.Player.Character.Money -= cost;
             await session.SendAsync(res);
         }
+
+        [MessageHandler(typeof(CTeleport))]
+        public async Task CTeleport(GSSession session, CTeleport message)
+        {
+            var log = Logger.ForAccount(session);
+            var @char = session.Player.Character;
+
+            var gates = ResourceCache.Instance.GetGates();
+
+            var gate = gates[message.MoveNumber];
+
+            if(gate == null)
+            {
+                log.Error("Invalid source gate {0}", message.MoveNumber);
+                await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
+                return;
+            }
+
+            if (message.MoveNumber != 0)
+            {
+                log.Information("Warp request to {1}:{0}", message.MoveNumber, gate.Map);
+                await @char.WarpTo(message.MoveNumber);
+            }
+            else
+            {
+                await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
+            }
+        }
+
+
 
         #region Party MessageHandlers
         [MessageHandler(typeof(CPartyRequest))]

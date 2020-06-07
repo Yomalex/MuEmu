@@ -69,7 +69,7 @@ namespace MuEmu.Events.DevilSquare
             var eventInfo = _players.Find(x => x.Player == plr);
             eventInfo.Eventer = false;
 
-            @char.WarpTo(27);
+            @char.WarpTo(27).Wait();
 
             if (!_players.Any(x => x.Eventer))
                 Trigger(EventState.Closed);
@@ -143,8 +143,7 @@ namespace MuEmu.Events.DevilSquare
                             MyRank = p.rank,
                             Score = ranking.ToArray()
                         };
-                        //_logger.Debug("")
-                        (p.player as Player).Session.SendAsync(score);
+                        (p.player as Player).Session.SendAsync(score).Wait();
                     }
 
                     _players.Clear();
@@ -189,7 +188,7 @@ namespace MuEmu.Events.DevilSquare
             if (_players.Count < DevilSquares.MaxPlayers)
             {
                 _players.Add(new PlayerEventInfo { Eventer = true, Player = plr, Score = 0 });
-                plr.Character.WarpTo(_gate);
+                plr.Character.WarpTo(_gate).Wait();
                 plr.Character.PlayerDie += OnPlayerDead;
                 plr.Character.MapChanged += OnPlayerLeave;
 
