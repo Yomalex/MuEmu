@@ -211,6 +211,11 @@ namespace MuEmu
             _defenseRate += item.BasicInfo.DefRate;
             _criticalRate += item.CriticalDamage;
 
+            if(item.Skill)
+            {
+                Character.Spells.ItemSkillAdd(item.Spell);
+            }
+
             Character.ObjCalc();
         }
 
@@ -227,6 +232,11 @@ namespace MuEmu
             _defense -= it.Defense;
             _defenseRate -= it.BasicInfo.DefRate;
             _criticalRate -= it.CriticalDamage;
+
+            if (it.Skill)
+            {
+                Character.Spells.ItemSkillDel(it.Spell);
+            }
 
             Character.ObjCalc();
 

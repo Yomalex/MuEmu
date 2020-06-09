@@ -42,7 +42,7 @@ namespace MuEmu
         Cyclone,
         Slash,
         Triple_Shot,
-        Heal,
+        Heal = 26,
         GreaterDefense,
         GreaterDamage,
         Summon_Goblin = 30,
@@ -166,10 +166,15 @@ namespace MuEmu
         public async Task<bool> TryAdd(Spell skill)
         {
             var spells = ResourceCache.Instance.GetSkills();
-            var spell = spells.Where(x => x.Key == skill).Select(x => x.Value).FirstOrDefault();
+            var spell = spells
+                .Where(x => x.Key == skill)
+                .Select(x => x.Value)
+                .FirstOrDefault();
+
             if(spell == null)
             {
-                throw new ArgumentException($"Can't find skill {skill}");
+                Logger.Error($"Can't find skill {skill}");
+                return false;
             }
 
             if(spell.ReqLevel > Character.Level)
@@ -253,6 +258,28 @@ namespace MuEmu
                 i++;
             }
             await Player.Session.SendAsync(new SSpells(0, list.ToArray()));
+        }
+
+        internal void ItemSkillAdd(Spell skill)
+        {
+            var pos = _spellList.Count;
+            var spells = ResourceCache.Instance.GetSkills();
+            _spellList.Add(skill, spells[skill]);
+
+            if (Player.Status == LoginStatus.Playing)
+            {
+                Player.Session.SendAsync(new SSpells(0, new MuEmu.Network.Data.SpellDto
+                {
+                    Index = (byte)pos,
+                    Spell = (ushort)skill,
+                })).Wait();
+            }
+        }
+
+        internal void ItemSkillDel(Spell skill)
+        {
+            _spellList.Remove(skill);
+            SendList();
         }
 
         public async void SetBuff(SkillStates effect, TimeSpan time, Character source = null)

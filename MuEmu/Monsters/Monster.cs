@@ -480,7 +480,8 @@ namespace MuEmu.Monsters
             {
                 if (_rand.Next(2) == 0 && ItemBag.Count > 0)
                 {
-                    reward = ItemBag[_rand.Next(ItemBag.Count)];
+                    reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
+                    reward.NewOptionRand();
                 }
                 else
                 {

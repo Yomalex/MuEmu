@@ -371,7 +371,7 @@ namespace MuEmu
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)
         {
             var oldVP = plr.ItemsVP;
-            var targetVP = Map.Items;
+            var targetVP = Map.Items.ToList();
             var pos = plr.Position;
             pos.Offset(15, 15);
 

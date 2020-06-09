@@ -49,6 +49,7 @@ namespace MuEmu
         AddMana = 101,
         AddStamina = 103,
         AddLeaderShip = 105,
+        CurseDamage = 113,
         AddMaxMana = 172,
         AddMaxStamina = 173,
         SetAttribute = 0xC3,
@@ -137,7 +138,7 @@ namespace MuEmu
         }
     }
 
-    public class Item
+    public class Item : ICloneable
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
         private static Random _rand = new Random();
@@ -148,6 +149,7 @@ namespace MuEmu
         private int _cid;
         private int _vid;
         private int _slot;
+        private float _durabilityDown;
         private SocketOption[] _slots;
         private JewelOfHarmony _jewelOfHarmony = new JewelOfHarmony();
 
@@ -241,11 +243,11 @@ namespace MuEmu
                 OnItemChange();
             }
         }
-        public byte OptionExe { get; set; }
+        public ExcellentOption OptionExe { get; set; }
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
         public uint SellPrice { get; private set; }
-        public uint RepairPrice => RepairItemPrice();
+        public int RepairPrice => RepairItemPrice();
         //public HarmonyOption Harmony { get; set; }
         public SocketOption[] Slots {
             get => _slots;
@@ -334,10 +336,12 @@ namespace MuEmu
             _vid = dto.VaultId;
             _slot = dto.SlotId;
             Serial = dto.ItemId;
+            Skill = dto.Skill;
             Number = dto.Number;
             _plus= dto.Plus;
+            Luck = dto.Luck;
             _option = dto.Option;
-            OptionExe = dto.OptionExe;
+            OptionExe = (ExcellentOption)dto.OptionExe;
             
             _durability = dto.Durability;
             if(string.IsNullOrEmpty(dto.SocketOptions))
@@ -351,6 +355,7 @@ namespace MuEmu
             Harmony = dto.HarmonyOption;
             Harmony.Item = this;
 
+            GetValue();
             CalcItemAttributes();
             NeedSave = false;
         }
@@ -387,7 +392,7 @@ namespace MuEmu
                     ms.WriteByte(Durability);
                     ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
                     ms.WriteByte(SetOption); // Acient Option
-                    ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | ((OptionExe & 0x80) >> 4)));
+                    ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | (((byte)OptionExe & 0x80) >> 4)));
                     ms.WriteByte(Harmony); // Harmony
                     foreach (var slot in Slots)
                     {
@@ -433,8 +438,13 @@ namespace MuEmu
             }
             else
             {
-                var l = Math.Sqrt(Plus);
                 var Gold = 0;
+                var level2 = BasicInfo.Level + Plus*3;
+
+                if ((ExcellentOption.FullItem & OptionExe) != 0)
+                {
+                    level2 += 25;
+                }
 
                 switch (Number)
                 {
@@ -458,6 +468,9 @@ namespace MuEmu
                     case 7184: // Life
                         Gold = 45000000;
                         break;
+                    case 7190: // Creation
+                        Gold = 18000000;
+                        break;
                     case 6174: // Pack of Bless
                         Gold = (Plus + 1) * 9000000 * 10;
                         break;
@@ -471,59 +484,66 @@ namespace MuEmu
                         Gold = Plus == 1 ? 7500000 : 180000;
                         break;
                     case 7199: // Jewel of Guardian
-                        Gold = 60000000;
+                        Gold = 30000000;
                         break;
                     case 14 * 512 + 7: // Siege Potion
                         Gold = Durability * (Plus == 0 ? 900000 : 450000);
                         break;
                     case 13 * 512 + 11: // Order(Guardian/Life Stone)
-                        Gold = 2400000;
+                        Gold = Plus == 0 ? 1000000 : 2400000;
                         break;
-                    case 13 * 512 + 7: // Order(Guardian/Life Stone)
+                    case 13 * 512 + 7: // Contract(Summon)
                         Gold = Plus == 0 ? 1500000 : 1200000;
                         break;
-                    case 13 * 512 + 32: // Siege Potion
+                    case 13 * 512 + 32: // Splinter of Armor
                         Gold = Durability * 150;
                         break;
-                    case 13 * 512 + 33: // Siege Potion
+                    case 13 * 512 + 33: // Bless of Guardian
                         Gold = Durability * 300;
                         break;
-                    case 13 * 512 + 34: // Siege Potion
+                    case 13 * 512 + 34: // Claw of Beast
                         Gold = Durability * 3000;
                         break;
-                    case 13 * 512 + 35: // Siege Potion
+                    case 13 * 512 + 35: // Piece of Horn
                         Gold = 30000;
                         break;
-                    case 13 * 512 + 36: // Siege Potion
+                    case 13 * 512 + 36: // Broken Horn
                         Gold = 90000;
                         break;
-                    case 13 * 512 + 37: // Siege Potion
+                    case 13 * 512 + 37: // Horn of Fenrir
                         Gold = 150000;
                         break;
-                    case 14 * 512 + 35: // Siege Potion
+                    case 14 * 512 + 35: // Small SD Potion
                         Gold = Durability * 2000;
                         break;
-                    case 14 * 512 + 36: // Siege Potion
+                    case 14 * 512 + 36: // SD Potion
                         Gold = Durability * 4000;
                         break;
-                    case 14 * 512 + 37: // Siege Potion
+                    case 14 * 512 + 37: // Large SD Potion
                         Gold = Durability * 6000;
                         break;
-                    case 14 * 512 + 38: // Siege Potion
+                    case 14 * 512 + 38: // Small Complex Potion
                         Gold = Durability * 2500;
                         break;
-                    case 14 * 512 + 39: // Siege Potion
+                    case 14 * 512 + 39: // Complex Potion
                         Gold = Durability * 5000;
                         break;
-                    case 14 * 512 + 40: // Siege Potion
+                    case 14 * 512 + 40: // Large Complex Potion
                         Gold = Durability * 7500;
+                        break;
+                    case 13 * 512 + 109:
+                    case 13 * 512 + 110:
+                    case 13 * 512 + 111:
+                    case 13 * 512 + 112:
+                    case 13 * 512 + 113:
+                    case 13 * 512 + 114:
+                    case 13 * 512 + 115:
+                        Gold = 3000;
                         break;
                     case 13 * 512 + 3: // Dinorant
                         Gold = 960000;
                         break;
                     case 14 * 512 + 17: // Devil Eye
-                        Gold = (int)(15000 + (6000 * (Plus > 2 ? (Plus - 2) * 2.5 : 1)));
-                        break;
                     case 14 * 512 + 18: // Devil Key
                         Gold = (int)(15000 + (6000 * (Plus > 2 ? (Plus - 2) * 2.5 : 1)));
                         break;
@@ -534,13 +554,30 @@ namespace MuEmu
                         Gold = 900;
                         break;
                     case 14 * 512 + 21: // Rena
-                        Gold = 900;
+                        switch(Plus)
+                        {
+                            case 0:
+                                Gold = 9000;
+                                Durability = BasicInfo.Durability;
+                                break;
+                            case 1:
+                                Gold = 9000;
+                                Durability = BasicInfo.Durability;
+                                break;
+                            case 3:
+                                Gold = 3900 * Durability;
+                                break;
+                            default:
+                                Durability = BasicInfo.Durability;
+                                Gold = 9000;
+                                break;
+                        }
                         break;
                     case 14 * 512 + 9: // Ale
                         Gold = 1000;
                         break;
                     case 13 * 512 + 18: // Invisibility Cloak
-                        Gold = 150000 + (Plus > 1 ? 504000 + 60000 * Plus : 0);
+                        Gold = 200000 + (Plus > 1 ? 20000 * (Plus-1) : -150000);
                         break;
                     case 13 * 512 + 16: // Blood and Paper of BloodCastle
                     case 13 * 512 + 17:
@@ -561,11 +598,14 @@ namespace MuEmu
                     case 13 * 512 + 20: // Wizards Ring
                         Gold = 30000;
                         break;
+                    case 13 * 512 + 31: // Spirit
+                        Gold = 30000000;
+                        break;
                     case 14 * 512 + 28: // Lost Map
                         Gold = 600000;
                         break;
-                    case 13 * 512 + 31: // Simbol of Kundum
-                        Gold = (int)(((10000.0f) * Durability) * 3.0f);
+                    case 14 * 512 + 29: // Simbol of Kundum
+                        Gold = (int)(10000.0f * Durability * 3.0f);
                         break;
                     case 14 * 512 + 45: // Haloween
                     case 14 * 512 + 46: // Haloween
@@ -573,50 +613,251 @@ namespace MuEmu
                     case 14 * 512 + 48: // Haloween
                     case 14 * 512 + 49: // Haloween
                     case 14 * 512 + 50: // Haloween
-                        Gold = (int)(((50.0f) * Durability) * 3.0f);
+                        Gold = (int)(50.0f * Durability * 3.0f);
                         break;
                     case 12 * 512 + 26: // Gem of Secret
                         Gold = 60000;
                         break;
-                    default:
+                    case 14 * 512 + 51: // Sky Event Invitation
+                        Gold = 200000;
+                        break;
+                    case 14 * 512 + 55: // Green Chaos Box
+                    case 14 * 512 + 56: // Red Chaos Box
+                    case 14 * 512 + 57: // Purple Chaos Box
+                        Gold = 9000;
+                        break;
+                    case 13 * 512 + 49: // Scroll of Illusion
+                    case 13 * 512 + 50: // Potion of Illusion
+                    case 13 * 512 + 51: // Illusion's Plataform
                         switch (Plus)
                         {
-                            case 5: l += 4; break;
-                            case 6: l += 10; break;
-                            case 7: l += 25; break;
-                            case 8: l += 45; break;
-                            case 9: l += 65; break;
-                            case 10: l += 95; break;
-                            case 11: l += 135; break;
-                            case 12: l += 185; break;
-                            case 13: l += 245; break;
+                            case 1:
+                                Gold = 500000;
+                                break;
+                            case 2:
+                                Gold = 600000;
+                                break;
+                            case 3:
+                                Gold = 800000;
+                                break;
+                            case 4:
+                                Gold = 1000000;
+                                break;
+                            case 5:
+                                Gold = 1200000;
+                                break;
+                            case 6:
+                                Gold = 1400000;
+                                break;
+                            default:
+                                Gold = 9000;
+                                break;
+                        }
+                        break;
+                    case 13 * 512 + 52: // Flame of Condor
+                    case 13 * 512 + 53: // Condor's Feathers
+                        Gold = 3000000;
+                        break;
+                    case 13 * 512 + 71: // Sword / Spear/ Blade / Axe
+                    case 13 * 512 + 72: // Staff
+                    case 13 * 512 + 73: // Bow / Crossbow
+                    case 13 * 512 + 74: // Scepter
+                    case 13 * 512 + 75: // Sticks
+                        Gold = 1000000;
+                        break;
+                    case 14 * 512 + 23: // Scroll of the Emperor
+                    case 14 * 512 + 24: // Broken Sword
+                    case 14 * 512 + 25: // Tear of Elf
+                    case 14 * 512 + 26: // Soul of Wizard
+                    case 14 * 512 + 65: // Flame of Death Beam Knight
+                    case 14 * 512 + 66: // Horn of Hell Maine
+                    case 14 * 512 + 67: // Feather of Phoenix of Darkness
+                    case 14 * 512 + 68: // Eye of the Abyss
+                        Gold = 9000;
+                        break;
+                    case 12 * 512 + 136: // life boundle
+                        Gold = (Plus + 1) * 22500000 * 10;
+                        break;
+                    case 12 * 512 + 137: // creation bundle
+                        Gold = (Plus + 1) * 18000000 * 10;
+                        break;
+                    case 12 * 512 + 138: // guardian bundle
+                        Gold = (Plus + 1) * 30000000 * 10;
+                        break;
+                    case 12 * 512 + 139: // gemstone bundle
+                        Gold = (Plus + 1) * 18600 * 10;
+                        break;
+                    case 12 * 512 + 140: // harmony boundle
+                        Gold = (Plus + 1) * 18600 * 10;
+                        break;
+                    case 12 * 512 + 141: // chaos bundle
+                        Gold = (Plus + 1) * 810000 * 10;
+                        break;
+                    case 12 * 512 + 142: //  bundle
+                        Gold = (Plus + 1) * 18600 * 10;
+                        break;
+                    case 12 * 512 + 143: //  bundle
+                        Gold = (Plus + 1) * 18600 * 10;
+                        break;
+                    case 14 * 512 + 63: // Fireworks
+                        Gold = 200000;
+                        break;
+                    case 14 * 512 + 85: // Cherry Blossom Wine
+                    case 14 * 512 + 86: // Cherry Blossom Dumpling
+                    case 14 * 512 + 87: // Cherry Blossom Petal
+                    case 14 * 512 + 90: // White Cherry Blossom
+                        Gold = Durability*300;
+                        break;
+                    case 14 * 512 + 110: // 
+                        Gold = Durability * 30000;
+                        break;
+                    case 14 * 512 + 111: // 
+                        Gold = 600000;
+                        break;
+                    default:
+                        if(Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index > 6 && Number.Index < 36) || (Number.Index > 43 && Number.Index < 440))
+                            || Number.Type == ItemType.Missellaneo || Number.Type == ItemType.Scroll)
+                        {
+                            Gold = level2 * level2 * level2 + 100;
+                            break;
                         }
 
-                        Gold = (int)((l + 40) * l * l / 8 + 100);
+                        switch (Plus)
+                        {
+                            case 5: level2 += 4; break;
+                            case 6: level2 += 10; break;
+                            case 7: level2 += 25; break;
+                            case 8: level2 += 45; break;
+                            case 9: level2 += 65; break;
+                            case 10: level2 += 95; break;
+                            case 11: level2 += 135; break;
+                            case 12: level2 += 185; break;
+                            case 13: level2 += 245; break;
+                        }
+
+                        if(Number.Type == ItemType.Wing_Orb_Seed && Number.Index <= 6) // Wings
+                        {
+                            Gold = (level2 + 40) * level2 * level2 * 11 + 40000000;
+                            break;
+                        }
+
+                        if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index >= 36 && Number.Index <= 43) // Wings
+                        {
+                            Gold = (level2 + 40) * level2 * level2 * 11 + 40000000;
+                            break;
+                        }
+
+                        if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index == 50) // Wings
+                        {
+                            Gold = (level2 + 40) * level2 * level2 * 11 + 40000000;
+                            break;
+                        }
+
+                        Gold = ((level2 + 40) * level2 * level2 / 8 + 100);
+
+                        if(Number.Type >= ItemType.Sword && Number.Type <= ItemType.Shield)
+                        {
+                            if(BasicInfo.Size.Width == 1)
+                            {
+                                Gold = Gold * 80 / 100;
+                            }
+                        }
+
+                        foreach(var sp in Special)
+                        {
+                            switch(sp)
+                            {
+                                case (SpecialNumber)18:
+                                case (SpecialNumber)19:
+                                case (SpecialNumber)20:
+                                case (SpecialNumber)21:
+                                case (SpecialNumber)22:
+                                case (SpecialNumber)23:
+                                case (SpecialNumber)24:
+                                case (SpecialNumber)56:
+                                    Gold = (int)(Gold*1.5f);
+                                    break;
+                                case SpecialNumber.AditionalDamage:
+                                case SpecialNumber.AditionalMagic:
+                                case SpecialNumber.AditionalDefense:
+                                case SpecialNumber.RecoverLife:
+                                case SpecialNumber.CurseDamage:
+                                    switch (Option28)
+                                    {
+                                        case 1:
+                                            Gold += (int)(Gold * 6.0 / 10.0);
+                                            break;
+
+                                        case 2:
+                                            Gold += (int)(Gold * 14.0 / 10.0);
+                                            break;
+
+                                        case 3:
+                                            Gold += (int)(Gold * 28.0 / 10.0);
+                                            break;
+
+                                        case 4:
+                                            Gold += (int)(Gold * 56.0 / 10.0);
+                                            break;
+                                    }
+                                    break;
+                                case SpecialNumber.SuccessFullBlocking:
+                                    Gold += (int)(Gold * 25.0 / 100.0);
+                                    break;
+
+                                case (SpecialNumber)86:
+                                case (SpecialNumber)87:
+                                case (SpecialNumber)88:
+                                case (SpecialNumber)89:
+                                case (SpecialNumber)90:
+                                case (SpecialNumber)91:
+                                case (SpecialNumber)92:
+                                case (SpecialNumber)93:
+                                case (SpecialNumber)94:
+                                case (SpecialNumber)95:
+                                case (SpecialNumber)96:
+                                case (SpecialNumber)97:
+                                case (SpecialNumber)98:
+                                case (SpecialNumber)99:
+                                    Gold += Gold;
+                                    break;
+
+                                case (SpecialNumber)100:
+                                case (SpecialNumber)101:
+                                case (SpecialNumber)102:
+                                case (SpecialNumber)103:
+                                case (SpecialNumber)104:
+                                case (SpecialNumber)108:
+                                case (SpecialNumber)109:
+                                case (SpecialNumber)110:
+                                case (SpecialNumber)111:
+                                    Gold += (int)(Gold * 25.0 / 100.0);
+                                    break;
+                            }
+                        }
                         break;
                 }
 
-                var res = Math.Floor(Math.Log10(Gold)) - 1;
-                if (res > 0)
+                if(BasicInfo.Zen > 0)
                 {
-                    BuyPrice = (uint)(Gold / Math.Pow(10, res));
-                    BuyPrice *= (uint)Math.Pow(10, res);
-                }
-                else
-                {
-                    BuyPrice = (uint)Gold;
+                    Gold += (BasicInfo.Zen * BasicInfo.Zen * 10) / 12;
+
+                    if(Number >= 14 * 512 + 0 && Number <= 14 * 512 + 8)
+                    {
+                        if((int)Number == 14 * 512 + 3 || (int)Number == 14 * 512 + 6)
+                        {
+                            Gold *= 2;
+                        }
+
+                        if(Plus > 0)
+                        {
+                            Gold *= Plus * Plus; ;
+                        }
+                    }
                 }
 
-                res = Math.Floor(Math.Log10(Gold / 3.0)) - 1;
-                if (res > 0)
-                {
-                    SellPrice = (uint)(Gold / (3.0 * Math.Pow(10, res)));
-                    SellPrice *= (uint)Math.Pow(10, res);
-                }
-                else
-                {
-                    SellPrice = (uint)(Gold / 3.0);
-                }
+                BuyPrice = (uint)Gold;
+                SellPrice = (uint)(Gold / 3.0);
             }
         }
 
@@ -671,7 +912,7 @@ namespace MuEmu
                 {
                     Number = Number,
                     Luck = Luck,
-                    OptionExe = OptionExe,
+                    OptionExe = (byte)OptionExe,
                     Skill = Skill,
                     AccountId = _aid,
                     CharacterId = _cid,
@@ -757,7 +998,7 @@ namespace MuEmu
 
             if (Skill && BasicInfo.Skill != 0)
             {
-                Spell = (Spell)BasicInfo.Skill;
+                Spell = BasicInfo.Skill;
                 if (Spell == Spell.ForceWave)
                 {
                     Special.Add(0);
@@ -983,7 +1224,7 @@ namespace MuEmu
             return $"[{Number}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "");
         }
 
-        private uint RepairItemPrice()
+        private int RepairItemPrice()
         {
             var baseDur = (float)BasicInfo.Durability;
             var currDur = (float)Durability;
@@ -1017,7 +1258,7 @@ namespace MuEmu
             else if (repairPrice >= 100)
                 repairPrice = repairPrice / 10 * 10;
 
-            return (uint)repairPrice;
+            return (int)repairPrice;
         }
 
         public byte GetLevel(int level)
@@ -1112,6 +1353,155 @@ namespace MuEmu
                 return (byte)itemlevel;
             }
             return 0xff;
+        }
+
+        public int NormalWeaponDurabilityDown(int Defense)
+        {
+            if(Durability == 0)
+            {
+                return 0;
+            }
+
+            var div = BasicInfo.Damage.X * 1.5f;
+
+            if(div == 0)
+            {
+                return 0;
+            }
+
+            var DurDecrease = Defense * 2 / div;
+
+            _durabilityDown += DurDecrease;
+            if(_durabilityDown > 564)
+            {
+                _durabilityDown = 0;
+                if (Durability > 0)
+                {
+                    Durability -= 1;
+                    return 2;
+                }
+
+                return 1;
+            }
+
+            return 0;
+        }
+
+        public int BowWeaponDurabilityDown(int Defense)
+        {
+            if (Durability == 0)
+            {
+                return 0;
+            }
+
+            var div = BasicInfo.Damage.X * 1.5f;
+
+            if (div == 0)
+            {
+                return 0;
+            }
+
+            var DurDecrease = Defense * 2 / div;
+
+            _durabilityDown += DurDecrease;
+            if (_durabilityDown > 780)
+            {
+                _durabilityDown = 0;
+                if (Durability > 0)
+                {
+                    Durability -= 1;
+                    return 2;
+                }
+
+                return 1;
+            }
+
+            return 0;
+        }
+
+        public int ArmorDurabilityDown(int Attack)
+        {
+            if (Durability == 0)
+            {
+                return 0;
+            }
+
+            var div = Defense * 2;
+
+            if (div == 0)
+            {
+                return 0;
+            }
+
+            var DurDecrease = Attack / div;
+
+            _durabilityDown += DurDecrease;
+            if (_durabilityDown > 69)
+            {
+                _durabilityDown = 0;
+                if (Durability > 0)
+                {
+                    Durability -= 1;
+                    return 2;
+                }
+
+                return 1;
+            }
+
+            return 0;
+        }
+
+        public object Clone()
+        {
+            return new Item(Number, 0, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
+        }
+
+        public void NewOptionRand()
+        {
+            var randOp = _rand.Next(100);
+            if (_rand.Next(6) == 0)
+            {
+                int NOption;
+                NOption = 1 << _rand.Next(6);
+
+                if ((NOption & 2) != 0)
+                {
+                    if (_rand.Next(2) != 0)
+                    {
+                        NOption = 1 << _rand.Next(6);
+                    }
+                }
+
+                if (_rand.Next(4) == 0)
+                {
+                    NOption |= 1 << _rand.Next(6);
+                }
+
+                OptionExe = (ExcellentOption)NOption;
+            }
+
+            if (((OptionExe & ExcellentOption.FullItem) != 0 && _rand.Next(100) == 0) || _rand.Next(6) == 0)
+            {
+                Luck = true;
+            }
+            else
+            {
+                Luck = false;
+            }
+
+            if (((OptionExe & ExcellentOption.FullItem) != 0 && _rand.Next(1) == 0) || _rand.Next(4) == 0 && Spell != Spell.None)
+            {
+                Skill = true;
+            }
+            else
+            {
+                Skill = false;
+            }
+
+            if (_rand.Next(randOp) == 0)
+            {
+                Option28 = (byte)_rand.Next(4);
+            }
         }
     }
 }

@@ -1108,7 +1108,9 @@ namespace MuEmu.Network.Game
     [WZContract]
     public class SItemModify : IGameMessage
     {
-        [WZMember(0)] public uint Money { get; set; }
+        [WZMember(0)] public byte Padding { get; set; }
+
+        [WZMember(1)] public int Money { get; set; }
     }
 
     [WZContract]

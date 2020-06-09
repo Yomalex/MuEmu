@@ -17,6 +17,8 @@ namespace MU.DataBase
 
         public int Class { get; set; }
 
+        public int CtlCode { get; set; }
+
         public int? GuildId { get; set; }
         public GuildDto Guild { get; set; }
 

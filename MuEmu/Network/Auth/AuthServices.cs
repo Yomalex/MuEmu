@@ -152,7 +152,7 @@ namespace MuEmu.Network.Auth
                             x.Key,
                             x.Value.Name,
                             x.Value.Level,
-                            ControlCode.Normal,
+                            (ControlCode)x.Value.CtlCode,
                             Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)),
                             GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember,
                             3))
@@ -167,7 +167,7 @@ namespace MuEmu.Network.Auth
                             x.Key,
                             x.Value.Name,
                             x.Value.Level,
-                            ControlCode.Normal,
+                            (ControlCode)x.Value.CtlCode,
                             Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)),
                             GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember))
                         .ToArray();
@@ -243,6 +243,11 @@ namespace MuEmu.Network.Auth
             session.Player.Status = LoginStatus.Playing;
 
             GuildManager.Instance.AddPlayer(session.Player);
+
+            if((@char.CtlCode & ControlCode.GameMaster) == ControlCode.GameMaster)
+            {
+                @char.Spells.SetBuff(SkillStates.GameMaster, TimeSpan.FromDays(100));
+            }
         }
 
         [MessageHandler(typeof(CCharacterCreate))]
@@ -317,7 +322,7 @@ namespace MuEmu.Network.Auth
                     Luck = eq.Value.Luck,
                     Number = eq.Value.Number,
                     Option = eq.Value.Option28,
-                    OptionExe = eq.Value.OptionExe,
+                    OptionExe = (byte)eq.Value.OptionExe,
                     Plus = eq.Value.Plus,
                     Skill = eq.Value.Skill,
                     SocketOptions = string.Join(",", eq.Value.Slots.Select(s => s.ToString())),

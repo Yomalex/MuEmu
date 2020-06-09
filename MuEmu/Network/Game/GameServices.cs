@@ -827,14 +827,13 @@ namespace MuEmu.Network.Game
                     throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
                 }
 
-                var item = npc.Shop.Storage.Items[message.Position];
+                var item = npc.Shop.Storage.Items[message.Position].Clone() as Item;
                 bResult.ItemInfo = item.GetBytes();
+
+                session.SendAsync(new SNotice(NoticeType.Blue, $"Item: {item.BasicInfo.Name} Price: {item.BuyPrice}zen")).Wait();
 
                 if (item.BuyPrice > @char.Money)
                 {
-                    Logger
-                        .ForAccount(session)
-                        .Information("Insuficient Money");
                     await session.SendAsync(bResult);
                     return;
                 }
@@ -842,9 +841,6 @@ namespace MuEmu.Network.Game
                 bResult.Result = @char.Inventory.Add(item);
                 if (bResult.Result == 0xff)
                 {
-                    Logger
-                        .ForAccount(session)
-                        .Information("Insuficient Space");
                     await session.SendAsync(bResult);
                     return;
                 }
@@ -871,7 +867,7 @@ namespace MuEmu.Network.Game
                 throw new ArgumentException("Player isn't in buy/trade/box", nameof(session.Player.Window));
             }
 
-            if (plr.Window is Monster)
+            if (plr.Window.GetType() != typeof(Monster))
             {
                 await session.SendAsync(result);
                 throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
@@ -890,6 +886,7 @@ namespace MuEmu.Network.Game
                     plr.Character.Money += item.SellPrice;
                     result.Money = session.Player.Character.Money;
                     await inve.Delete(item, false);
+                    session.SendAsync(new SNotice(NoticeType.Blue, $"Item: {item.BasicInfo.Name} Price: {item.SellPrice}zen")).Wait();
                 }
             }
             await session.SendAsync(result);
@@ -1083,6 +1080,13 @@ namespace MuEmu.Network.Game
                         //else
                         //    @char.SkillAttack(spell, player, out type);
                         break;
+                    case Spell.Heal:
+                    case Spell.GreaterDamage:
+                    case Spell.GreaterDefense:
+                    case Spell.GreaterFortitude:
+                    case Spell.SoulBarrier:
+                    case Spell.Teleport:
+                        return;
                     default:
                         if(@char.BaseClass == HeroClass.Summoner || @char.BaseClass == HeroClass.DarkWizard || @char.BaseClass == HeroClass.MagicGladiator)
                         {
@@ -1118,9 +1122,53 @@ namespace MuEmu.Network.Game
 
             @char.Mana -= magic.Mana;
             @char.Stamina -= magic.BP;
+            var dir = (message.Dir & 0xF0) >> 4;
+            var dis = (message.Dir & 0x0F);
+
+            var dirs = new List<Point>
+            {
+                new Point(-1,-1),
+                new Point(0, -1),
+                new Point(1, -1),
+
+                new Point(1, 0),
+                new Point(1, 1),
+                new Point(0, 1),
+
+                new Point(-1, 1),
+                new Point(-1, 0)
+            };
 
             switch (message.MagicNumber)
             {
+                case Spell.Triple_Shot:
+
+                    var normal = dirs[dir & 0x07];
+                    var normalNormal = dirs[(dir + 2) & 0x07];
+                    var end = new Point(@char.Position.X + normal.X * 10, @char.Position.Y + normal.Y * 10);
+                    var triangle1 = new Point(end.X + normalNormal.X * 10, end.Y + normalNormal.Y * 10);
+                    var triangle2 = new Point(end.X - normalNormal.X * 10, end.Y - normalNormal.Y * 10);
+
+                    var triangle = new Triangle(@char.Position, triangle1, triangle2);
+
+                    var vpts = @char.MonstersVP.ToList()
+                        .Select(x => MonstersMng.Instance.GetMonster(x))
+                        .Where(x => x.Type == ObjectType.Monster && triangle.Contains(x.Position));
+
+                    foreach (var mob in vpts)
+                    {
+                        if(mob.Position.Substract(@char.Position).Length() > 100)
+                        {
+                            continue;
+                        }
+                        DamageType type;
+                        var attack = @char.SkillAttack(magic, mob.Defense, out type);
+                       await mob.GetAttacked(@char.Player, attack, type);
+                    }
+                    var msgts = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
+                    await session.SendAsync(msgts);
+                    await session.Player.SendV2Message(msgts);
+                    break;
                 case Spell.TwistingSlash:
                     var vp = @char.MonstersVP
                         .ToList() // clone for preveen collection changes
@@ -1346,9 +1394,11 @@ namespace MuEmu.Network.Game
                 return;
             }
 
-            res.Money = cost;
+            await session.SendAsync(new SNotice(NoticeType.Blue, $"Item:{it.BasicInfo.Name} Repair:{it.RepairPrice}zen"));
+
             it.Durability = it.BasicInfo.Durability;
-            session.Player.Character.Money -= cost;
+            session.Player.Character.Money -= (uint)cost;
+            res.Money = (int)session.Player.Character.Money;
             await session.SendAsync(res);
         }
 

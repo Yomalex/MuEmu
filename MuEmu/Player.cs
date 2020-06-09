@@ -41,7 +41,7 @@ namespace MuEmu
         public async Task SendV2Message(object message, Player exclude = null)
         {
             if (Status != LoginStatus.Playing)
-                throw new InvalidOperationException("Player is not playing");
+                return;
 
             await Character.SendV2Message(message, exclude);
         }

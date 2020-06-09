@@ -131,28 +131,34 @@ namespace MuEmu
         DarkWizard,
         SoulMaster,
         GranMaster,
+        SoulWizard, //4TH Class
         DarkKnight = 0x10,
         BladeKnight,
         BladeMaster,
+        DragonKnight, //4TH Class
         FaryElf = 0x20,
         MuseElf,
         HighElf,
+        NobleElf, //4TH
         MagicGladiator = 0x30,
         DuelMaster,
+        MagicKnight, //4TH
         DarkLord = 0x40,
         LordEmperator,
+        EmpireLord,
         Summoner = 0x50,
         BlodySummoner,
         DimensionMaster,
+        DimensionSummoner, //4TH
         RageFighter = 0x60,
         FistMaster,
-        FistBlazer,
+        FistBlazer,//4TH
         GrowLancer = 0x70,
         MirageLancer,
-        ShinningLancer,
+        ShinningLancer, //4TH
         RuneWizard = 0x80,
         RuneSpellMaster,
-        GrandRuneMaster
+        GrandRuneMaster, //4TH
     }
 
     public enum Equipament
@@ -172,8 +178,58 @@ namespace MuEmu
         End
     }
 
+
+    [Flags]
+    public enum ExcellentOption
+    {
+        IncreaseZen = 1,//Increase Zen +40%
+        DefenseSuccessRate = 2,//Defense Success rate +10%
+        ReflectDamage = 4,//Reflect Damage +5%
+        DamageDecrease = 8, //Damage Decrease +4%
+        IncreaseMana = 16,//Increase Mana +4%
+        IncreaseHP = 32,//Increase HP +4%
+        FullItem = IncreaseZen | DefenseSuccessRate | ReflectDamage | DamageDecrease | IncreaseMana | IncreaseHP,
+    }
+
+    // Level*50+Type
     public enum SocketOption : byte
     {
+        SocketFire = 0, //Attack/Wizardy Increase +57
+        SocketWater = 1, //Block rating increase +14%
+        SocketIce = 2, //Monster destruction for the Life increase +16250
+        SocketWind = 3, //Automatic Life recovery increase +20
+        SocketLightning = 4, //Exelen damage increase +40
+        SocketGround = 5,
+
+        SocketFire1 = 50, //Attack Speed Increase +11
+        SocketWater1 = 51, //Defense Increase +42
+        SocketIce1 = 52, //Monster destruction for the Mana increase +16250
+        SocketWind1 = 53, //Maximum Life increase +8%
+        SocketLightning1 = 54, //Exelen damage rate increase +14%
+        SocketGround1 = 55,
+
+        SocketFire2 = 100, //Maximum attack/Wizardy Increase +50
+        SocketWater2 = 101, //Shield protection increase +30%
+        SocketIce2 = 102, //Skill attack increase +50
+        SocketWind2 = 103, //Maximim Mana increase +8%
+        SocketLightning2 = 104, //Critical damage increase +50
+        SocketGround2 = 105, //Hearth increase +38
+
+        SocketFire3 = 150, //Minimum attack/Wizardy Increase +35
+        SocketWater3 = 151, //Damage reduction +8%
+        SocketIce3 = 152, //Attack rating increase +40
+        SocketWind3 = 153, //Automatic Mana recovery increase +35
+        SocketLightning3 = 154, //Critical damage rate increase +12%
+        SocketGround3 = 155,
+
+        SocketFire4 = 200, //Attack/Wizardy Increase +35
+        SocketWater4 = 201, //Damage reflection +9%
+        SocketIce4 = 202, //Item durability increase +38%
+        SocketWind4 = 203, //Maximum AG increase +50
+        SocketLightning4 = 204,
+        SocketGround4 = 205,
+
+        EmptySocket = 0xfe,
         None = 0xff
     }
 

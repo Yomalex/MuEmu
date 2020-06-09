@@ -7,7 +7,7 @@
 4 	3 	9 	255 0	1 	1 	0 	//Battle Bow
 4 	4 	9 	255 0	1 	1 	0 	//Tiger Bow
 4 	22	9 	255 0	1 	1 	0 	//Albatross Bow
-4 	17 	9 	255 0	1 	1	0 	//Celestial Bow
+4 	17 	9 	255 1	1 	1	1 	//Celestial Bow
 4 	21 	9	255 0	1 	1 	0	//Sylph Wind Bow
 4 	6 	9 	255 0	1 	1 	0 	//Chaos Nature Bow
 4 	15 	9 	255 0	0 	0 	0 	//Arrows

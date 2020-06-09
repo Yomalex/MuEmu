@@ -88,6 +88,8 @@ namespace MuEmu
         public Player Player { get; }
         public Account Account => Player.Account;
         public ushort Index => (ushort)Player.Session.ID;
+
+        public ControlCode CtlCode;
         public Quests Quests { get; }
         public Guild Guild { get; set; }
         public Inventory Inventory { get; }
@@ -519,6 +521,7 @@ namespace MuEmu
             PlayersVP = new List<Player>();
             Shop = new PShop(this);
             State = ObjectState.Regen;
+            CtlCode = (ControlCode)characterDto.CtlCode;
 
             _position = new Point(characterDto.X, characterDto.Y);
             TPosition = _position;
@@ -1040,7 +1043,7 @@ namespace MuEmu
 
             attack -= target.Inventory.Defense;
             Reflect = (int)(attack * tReflect / 100.0f);
-
+            WeaponDurDown(target.Inventory.Defense);
             return (int)attack;
         }
 
@@ -1048,6 +1051,7 @@ namespace MuEmu
         {
             type = DamageType.Regular;
             var wing = Inventory.Get(Equipament.Wings);
+            var pet = Inventory.Get(Equipament.Pet);
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
 
@@ -1078,10 +1082,20 @@ namespace MuEmu
                 }
             }
 
+            if((pet?.Number??ItemNumber.Zen) == ItemNumber.FromTypeIndex(13,1)) // Satan 30% Attack Fisic & Magic
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.3f;
+                }
+            }
+
             if (attack < 0)
                 attack = 0;
 
             attack -= target.Defense;
+            WeaponDurDown(target.Defense);
             return (int)attack;
         }
 
@@ -1135,6 +1149,27 @@ namespace MuEmu
             _deadlyDmg = dmgSend;
             _killerId = source;
             Health -= dmg;
+            switch(_rand.Next(6))
+            {
+                case 0:
+                    Inventory.Get(Equipament.Helm)?.ArmorDurabilityDown(dmg);
+                    break;
+                case 1:
+                    Inventory.Get(Equipament.Armor)?.ArmorDurabilityDown(dmg);
+                    break;
+                case 2:
+                    Inventory.Get(Equipament.Pants)?.ArmorDurabilityDown(dmg);
+                    break;
+                case 3:
+                    Inventory.Get(Equipament.Gloves)?.ArmorDurabilityDown(dmg);
+                    break;
+                case 4:
+                    Inventory.Get(Equipament.Boots)?.ArmorDurabilityDown(dmg);
+                    break;
+                case 5:
+                    Inventory.Get(Equipament.Wings)?.ArmorDurabilityDown(dmg);
+                    break;
+            }
             var message = new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0);
 
             if (State != ObjectState.Dying)
@@ -1270,6 +1305,53 @@ namespace MuEmu
                     Stamina += 1.9f + MaxStamina / 33;
                     break;
 
+            }
+        }
+
+        public void WeaponDurDown(int Defense)
+        {
+            var left = Inventory.Get(Equipament.LeftHand);
+            var right = Inventory.Get(Equipament.RightHand);
+
+            if (left.Number.Type == ItemType.BowOrCrossbow && left.Number.Index != 7) // Isn't Bolts
+            {
+                if (right.Durability <= 0)
+                {
+                    return;
+                }
+
+                right.Durability--;
+                if(right.Durability == 0)
+                {
+                    Inventory.Delete(right).Wait();
+                }
+                left.BowWeaponDurabilityDown(Defense);
+            }
+
+            if (right.Number.Type == ItemType.BowOrCrossbow && right.Number.Index != 15) // Isn't Arrows
+            {
+                if (left.Durability <= 0)
+                {
+                    return;
+                }
+
+                left.Durability--;
+                if (left.Durability == 0)
+                {
+                    Inventory.Delete(right).Wait();
+                }
+                right.BowWeaponDurabilityDown(Defense);
+            }
+
+            if (right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
+                left.Number.Type >= ItemType.Sword && left.Number.Type < ItemType.BowOrCrossbow)
+            {
+                var item = new Random().Next(2) == 0 ? right : left;
+                item.NormalWeaponDurabilityDown(Defense);
+            }
+            else if (right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)
+            {
+                right.NormalWeaponDurabilityDown(Defense);
             }
         }
 
