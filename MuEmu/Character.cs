@@ -1313,7 +1313,7 @@ namespace MuEmu
             var left = Inventory.Get(Equipament.LeftHand);
             var right = Inventory.Get(Equipament.RightHand);
 
-            if (left.Number.Type == ItemType.BowOrCrossbow && left.Number.Index != 7) // Isn't Bolts
+            if (left != null && left.Number.Type == ItemType.BowOrCrossbow && left.Number.Index != 7) // Isn't Bolts
             {
                 if (right.Durability <= 0)
                 {
@@ -1328,7 +1328,7 @@ namespace MuEmu
                 left.BowWeaponDurabilityDown(Defense);
             }
 
-            if (right.Number.Type == ItemType.BowOrCrossbow && right.Number.Index != 15) // Isn't Arrows
+            if (right != null && right.Number.Type == ItemType.BowOrCrossbow && right.Number.Index != 15) // Isn't Arrows
             {
                 if (left.Durability <= 0)
                 {
@@ -1343,13 +1343,13 @@ namespace MuEmu
                 right.BowWeaponDurabilityDown(Defense);
             }
 
-            if (right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
+            if (right != null && left != null  && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
                 left.Number.Type >= ItemType.Sword && left.Number.Type < ItemType.BowOrCrossbow)
             {
                 var item = new Random().Next(2) == 0 ? right : left;
                 item.NormalWeaponDurabilityDown(Defense);
             }
-            else if (right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)
+            else if (right != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)
             {
                 right.NormalWeaponDurabilityDown(Defense);
             }

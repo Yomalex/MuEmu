@@ -414,22 +414,24 @@ namespace MuEmu
 
             if (BasicInfo.Zen > 0)
             {
-                var res = Math.Floor(Math.Log10(BasicInfo.Zen)) - 1;
+                var res = (int)Math.Log10(BasicInfo.Zen) - 1;
                 if (res > 0)
                 {
-                    BuyPrice = (uint)(BasicInfo.Zen / Math.Pow(10, res));
-                    BuyPrice *= (uint)Math.Pow(10, res);
+                    var div = (uint)Math.Pow(10, res);
+                    BuyPrice = (uint)(BasicInfo.Zen / div);
+                    BuyPrice *= div;
                 }
                 else
                 {
                     BuyPrice = (uint)BasicInfo.Zen;
                 }
 
-                res = Math.Floor(Math.Log10(BasicInfo.Zen / 3.0)) - 1;
+                res = (int)Math.Log10(BasicInfo.Zen / 3.0) - 1;
                 if (res > 0)
                 {
-                    SellPrice = (uint)(BasicInfo.Zen / (3.0 * Math.Pow(10, res)));
-                    BuyPrice *= (uint)Math.Pow(10, res);
+                    var div = (uint)Math.Pow(10, res);
+                    SellPrice = (uint)(BasicInfo.Zen / (3.0 * div));
+                    SellPrice *= div;
                 }
                 else
                 {
@@ -715,7 +717,8 @@ namespace MuEmu
                         Gold = 600000;
                         break;
                     default:
-                        if(Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index > 6 && Number.Index < 36) || (Number.Index > 43 && Number.Index < 440))
+                        if((Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index > 6 && Number.Index < 36)) 
+                            || (Number.Index > 43 && Number.Index < 440))
                             || Number.Type == ItemType.Missellaneo || Number.Type == ItemType.Scroll)
                         {
                             Gold = level2 * level2 * level2 + 100;

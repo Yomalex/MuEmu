@@ -1157,7 +1157,7 @@ namespace MuEmu.Network.Game
 
                     foreach (var mob in vpts)
                     {
-                        if(mob.Position.Substract(@char.Position).Length() > 100)
+                        if(mob.Position.Substract(@char.Position).LengthSquared() > 6)
                         {
                             continue;
                         }
