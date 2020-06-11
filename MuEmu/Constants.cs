@@ -182,6 +182,7 @@ namespace MuEmu
     [Flags]
     public enum ExcellentOption
     {
+        None = 0,
         IncreaseZen = 1,//Increase Zen +40%
         DefenseSuccessRate = 2,//Defense Success rate +10%
         ReflectDamage = 4,//Reflect Damage +5%

@@ -435,19 +435,28 @@ namespace MuEmu
             await Character.Player.Session.SendAsync(new SInventory(list.ToArray()));
         }
 
-        public static byte[] GetCharset(HeroClass @class, Inventory inv)
+        public static byte[] GetCharset(HeroClass @class, Inventory inv, byte ActionNumber)
         {
             var CharSet = new byte[18];
             var equip = inv._equipament;
 
             CharSet[0] = Character.GetClientClass(@class);
+            switch(ActionNumber)
+            {
+                case 128:
+                    CharSet[0] |= (byte)2u;
+                    break;
+                case 129:
+                    CharSet[0] |= (byte)3u;
+                    break;
+            }
             var SmallLevel = 0u;
 
             if (equip.ContainsKey(Equipament.RightHand))
             {
                 var it = equip[Equipament.RightHand];
-                CharSet[1] = (byte)it.Number.Index;
-                CharSet[12] |= (byte)((byte)it.Number.Type << 4);
+                CharSet[1] = (byte)it.Number;
+                CharSet[12] |= (byte)((it.Number & 0xF00) >> 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x04 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x04 : 0x00);
                 SmallLevel |= it.SmallPlus;
@@ -460,11 +469,11 @@ namespace MuEmu
             if (equip.ContainsKey(Equipament.LeftHand))
             {
                 var it = equip[Equipament.LeftHand];
-                CharSet[2] = (byte)it.Number.Index;
-                CharSet[13] |= (byte)((byte)it.Number.Type << 4);
+                CharSet[2] = (byte)it.Number;
+                CharSet[13] |= (byte)((it.Number & 0xF00) >> 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x02 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x02 : 0x00);
-                SmallLevel |= (byte)(it.SmallPlus << 3);
+                SmallLevel |= (uint)(it.SmallPlus << 3);
             } else
             {
                 CharSet[2] = 0xff;
@@ -479,7 +488,7 @@ namespace MuEmu
                 CharSet[3] |= (byte)((it.Number.Number & 0x0F) << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x80 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x80 : 0x00);
-                SmallLevel |= (byte)(it.SmallPlus << 6);
+                SmallLevel |= (uint)(it.SmallPlus << 6);
             }
             else
             {
@@ -496,7 +505,7 @@ namespace MuEmu
                 CharSet[3] |= (byte)((it.Number.Number & 0x0F)/* << 4*/);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x40 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x40 : 0x00);
-                SmallLevel |= (byte)(it.SmallPlus << 9);
+                SmallLevel |= (uint)(it.SmallPlus << 9);
             }
             else
             {
@@ -513,7 +522,7 @@ namespace MuEmu
                 CharSet[4] |= (byte)((it.Number.Number & 0x0F) << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x20 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x20 : 0x00);
-                SmallLevel |= (byte)(it.SmallPlus << 12);
+                SmallLevel |= (uint)(it.SmallPlus << 12);
             }
             else
             {
@@ -530,7 +539,7 @@ namespace MuEmu
                 CharSet[4] |= (byte)((it.Number.Number & 0x0F)/* << 4*/);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x10 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x10 : 0x00);
-                SmallLevel |= (byte)(it.SmallPlus << 15);
+                SmallLevel |= (uint)(it.SmallPlus << 15);
             }
             else
             {
@@ -547,7 +556,7 @@ namespace MuEmu
                 CharSet[5] |= (byte)((it.Number.Number & 0x0F) << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x08 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x08 : 0x00);
-                SmallLevel |= (byte)(it.SmallPlus << 18);
+                SmallLevel |= (uint)(it.SmallPlus << 18);
             }
             else
             {
@@ -585,7 +594,7 @@ namespace MuEmu
 
         public byte[] GetCharset()
         {
-            return GetCharset(Character.Class, this);
+            return GetCharset(Character.Class, this, Character.Action);
         }
 
         public async Task Save(GameContext db)

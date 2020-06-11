@@ -390,7 +390,7 @@ namespace MuEmu
                     var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
                     ms.WriteByte((byte)tmp);
                     ms.WriteByte(Durability);
-                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0)));
+                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0) | (byte)OptionExe));
                     ms.WriteByte(SetOption); // Acient Option
                     ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | (((byte)OptionExe & 0x80) >> 4)));
                     ms.WriteByte(Harmony); // Harmony

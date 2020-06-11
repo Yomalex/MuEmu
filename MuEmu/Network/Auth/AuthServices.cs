@@ -153,7 +153,7 @@ namespace MuEmu.Network.Auth
                             x.Value.Name,
                             x.Value.Level,
                             (ControlCode)x.Value.CtlCode,
-                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)),
+                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value), 0),
                             GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember,
                             3))
                         .ToArray();
@@ -168,7 +168,7 @@ namespace MuEmu.Network.Auth
                             x.Value.Name,
                             x.Value.Level,
                             (ControlCode)x.Value.CtlCode,
-                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value)),
+                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value), 0),
                             GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember))
                         .ToArray();
 

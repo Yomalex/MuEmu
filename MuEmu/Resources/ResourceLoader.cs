@@ -611,7 +611,7 @@ namespace MuEmu.Resources
                         var Skill = byte.Parse(m.Groups[5].Value) !=0;
                         var Luck = byte.Parse(m.Groups[6].Value) != 0;
                         var Option28 = byte.Parse(m.Groups[7].Value);
-                        var OptionExe = byte.Parse(m.Groups[7].Value);
+                        var OptionExe = byte.Parse(m.Groups[8].Value);
                         try
                         {
                             result.Storage.Add(new Item(new ItemNumber(type, index), 0, new { Plus, Durability, Skill, Luck, Option28, OptionExe }));
