@@ -180,7 +180,7 @@ namespace MuEmu
 
 
     [Flags]
-    public enum ExcellentOption
+    public enum ExcellentOptionArmor
     {
         None = 0,
         IncreaseZen = 1,//Increase Zen +40%
@@ -190,6 +190,20 @@ namespace MuEmu
         IncreaseMana = 16,//Increase Mana +4%
         IncreaseHP = 32,//Increase HP +4%
         FullItem = IncreaseZen | DefenseSuccessRate | ReflectDamage | DamageDecrease | IncreaseMana | IncreaseHP,
+    }
+
+
+    [Flags]
+    public enum ExcellentOptionWeapons
+    {
+        None = 0,
+        IncreaseManaRate = 1,//Increase Adquisition rate of Mana after hunting monsters Mana/8
+        IncreaseLifeRate = 2,//Increase Adquisition rate of Mana after hunting monsters life/8
+        IncreaseAttacking = 4,//Increase Attacking (Wizardry) speed + 7
+        IncreaseWizardryRate = 8, //Increase Wizardry Dmg 2%
+        IncreaseWizardry = 16,//Increase Wizardry Level/20
+        ExcellentDmgRate = 32,//Excellent Dmg Rate 10%
+        FullItem = IncreaseManaRate | IncreaseLifeRate | IncreaseAttacking | IncreaseWizardryRate | IncreaseWizardry | ExcellentDmgRate,
     }
 
     // Level*50+Type

@@ -729,18 +729,21 @@ namespace MuEmu
         }
         #endregion
 
-        private void CalcStats()
+        public void CalcStats()
         {
+            if (Inventory == null)
+                return;
+
             var att = BaseInfo.Attributes;
-            _hpMax = (att.Life + att.LevelLife * (Level - 1) + att.VitalityToLife * Vitality);
-            _mpMax = (att.Mana + att.LevelMana * (Level - 1) + att.EnergyToMana * Energy);
+            _hpMax = (att.Life + att.LevelLife * (Level - 1) + att.VitalityToLife * Vitality)* (1.0f + Inventory.IncreaseHP);
+            _mpMax = (att.Mana + att.LevelMana * (Level - 1) + att.EnergyToMana * Energy)* (1.0f + Inventory.IncreaseMP);
             _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
+
             ObjCalc();
         }
         public void ObjCalc()
         {
-
             var right = Inventory.Get(Equipament.RightHand);
             var left = Inventory.Get(Equipament.LeftHand);
 
@@ -897,6 +900,7 @@ namespace MuEmu
             }
 
             if (_attackSpeed > 288) _attackSpeed = 288.0f;
+
             _defense += Inventory.Defense;
             _defenseRatePvP += Inventory.DefenseRate;
             _defenseRatePvM += Inventory.DefenseRate;
@@ -1006,10 +1010,11 @@ namespace MuEmu
         {
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
+            var pet = Inventory.Get(Equipament.Pet);
             var wing = Inventory.Get(Equipament.Wings);
             var twing = target.Inventory.Get(Equipament.Wings);
             var criticalRate = Inventory.CriticalRate;
-            var excellentRate = Inventory.ExcellentRate;
+            var excellentRate = Inventory.ExcellentRate*100;
             var tReflect = target.Inventory.Reflect;
 
             type = DamageType.Regular;
@@ -1039,7 +1044,16 @@ namespace MuEmu
                 if(Health > 0)
                 {
                     attack *= 1.12f + wing.Plus * 0.02f;
-                }                
+                }
+            }
+
+            if ((pet?.Number ?? ItemNumber.Zen) == ItemNumber.FromTypeIndex(13, 1)) // Satan 30% Attack Fisic & Magic
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.3f;
+                }
             }
 
             if (twing != null) // Wings decrease Dmg 12%+(Level*2)%
@@ -1057,7 +1071,7 @@ namespace MuEmu
             var wing = Inventory.Get(Equipament.Wings);
             var pet = Inventory.Get(Equipament.Pet);
             var criticalRate = Inventory.CriticalRate;
-            var excellentRate = Inventory.ExcellentRate;
+            var excellentRate = Inventory.ExcellentRate*100;
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
 
@@ -1263,6 +1277,8 @@ namespace MuEmu
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
             attack *= 1.0f + magicAdd / 100.0f;
             attack += rightHand?.AditionalMagic??0;
+            attack += Inventory.IncreaseWizardry;
+            attack *= 1.0f + Inventory.IncreaseWizardryRate;
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%

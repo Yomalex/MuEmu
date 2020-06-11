@@ -28,15 +28,31 @@ namespace MuEmu
         private bool _needSave;
         private int _defense;
         private int _defenseRate;
-        private int _excellentRate;
+        private float _excellentRate;
         private int _criticalRate;
-        private int _reflect;
+        private float _reflect;
+        private float _increaseHP;
+        private float _increaseMP;
+        private float _dropZen;
+        private float _dmgDecrease;
+        private float _increaseWizardryRate;
+        private float _increaseLifeRate;
+        private float _increaseManaRate;
+        private float _increaseWizardry;
 
-        public int ExcellentRate => _excellentRate;
+        public float ExcellentRate => _excellentRate;
         public int CriticalRate => _criticalRate;
         public int Defense => _defense;
         public int DefenseRate => _defenseRate;
-        public int Reflect => _reflect;
+        public float IncreaseWizardryRate => _increaseWizardryRate;
+        public float IncreaseWizardry => _increaseWizardry;
+        public float IncreaseLifeRate => _increaseLifeRate;
+        public float IncreaseManaRate => _increaseManaRate;
+        public float DropZen => _dropZen;
+        public float Reflect => _reflect;
+        public float IncreaseHP => _increaseHP;
+        public float IncreaseMP => _increaseMP;
+        public float DmgDecrease => _dmgDecrease;
 
         public Storage ChaosBox => _chaosBox;
         public Storage PersonalShop => _personalShop;
@@ -143,9 +159,23 @@ namespace MuEmu
                     if (pos < (byte)StorageID.Inventory)
                     {
                         sto.Add((Equipament)pos, item);
+                        
                         _defense += item.Defense + item.AditionalDefense;
-                        _defenseRate += item.DefenseRate;
-                        if(Character != null)
+                        _defenseRate += item.BasicInfo.DefRate;
+
+                        _criticalRate += item.CriticalDamage;
+                        _excellentRate += item.ExcellentDmgRate;
+                        _increaseWizardryRate += item.IncreaseWizardryRate;
+                        _increaseWizardry += item.IncreaseWizardry;
+                        _increaseLifeRate += item.IncreaseLifeRate;
+                        _increaseManaRate += item.IncreaseManaRate;
+
+                        _dropZen += item.IncreaseZenRate;
+                        _reflect += item.ReflectDamage;
+                        _dmgDecrease += item.DamageDecrease;
+                        _increaseMP += item.IncreaseMana;
+                        _increaseHP += item.IncreaseHP;
+                        if (Character != null)
                             item.ApplyEffects(Character);
                         break;
                     }
@@ -208,10 +238,22 @@ namespace MuEmu
             _equipament.Add(slot, item);
             item.ApplyEffects(Character);
             item.CharacterId = Character.Id;
-
+            
             _defense += item.Defense + item.AditionalDefense;
             _defenseRate += item.BasicInfo.DefRate;
+
             _criticalRate += item.CriticalDamage;
+            _excellentRate += item.ExcellentDmgRate;
+            _increaseWizardryRate += item.IncreaseWizardryRate;
+            _increaseWizardry += item.IncreaseWizardry;
+            _increaseLifeRate += item.IncreaseLifeRate;
+            _increaseManaRate += item.IncreaseManaRate;
+
+            _dropZen += item.IncreaseZenRate;
+            _reflect += item.ReflectDamage;
+            _dmgDecrease += item.DamageDecrease;
+            _increaseMP += item.IncreaseMana;
+            _increaseHP += item.IncreaseHP;
 
             Character.ObjCalc();
         }
@@ -221,18 +263,30 @@ namespace MuEmu
             if(!_equipament.ContainsKey(slot))
                 throw new InvalidOperationException("Trying to unequip no equiped slot:"+slot);
 
-            var it = _equipament[slot];
+            var item = _equipament[slot];
             _equipament.Remove(slot);
-            it.RemoveEffects();
-            it.SlotId = 0xff;
+            item.RemoveEffects();
+            item.SlotId = 0xff;
 
-            _defense -= it.Defense + it.AditionalDefense;
-            _defenseRate -= it.BasicInfo.DefRate;
-            _criticalRate -= it.CriticalDamage;
+            _defense -= item.Defense + item.AditionalDefense;
+            _defenseRate -= item.BasicInfo.DefRate;
+
+            _criticalRate -= item.CriticalDamage;
+            _excellentRate -= item.ExcellentDmgRate;
+            _increaseWizardry -= item.IncreaseWizardry;
+            _increaseWizardryRate -= item.IncreaseWizardryRate;
+            _increaseLifeRate -= item.IncreaseLifeRate;
+            _increaseManaRate -= item.IncreaseManaRate;
+
+            _dropZen -= item.IncreaseZenRate;
+            _reflect -= item.ReflectDamage;
+            _dmgDecrease -= item.DamageDecrease;
+            _increaseMP -= item.IncreaseMana;
+            _increaseHP -= item.IncreaseHP;
 
             Character.ObjCalc();
 
-            return it;
+            return item;
         }
 
         public bool Move(MoveItemFlags from, byte fromIndex, MoveItemFlags to, byte toIndex)

@@ -143,7 +143,7 @@ namespace MuEmu.Resources
                                 }
                                 break;
                             case ItemType.Shield:
-                            case ItemType.Heml:
+                            case ItemType.Helm:
                             case ItemType.Armor:
                             case ItemType.Pant:
                             case ItemType.Gloves:

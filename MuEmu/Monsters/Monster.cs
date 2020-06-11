@@ -465,7 +465,10 @@ namespace MuEmu.Monsters
                     EXP += _rand.Next((int)(EXP / 2.0f));
 
                 EXP *= pair.Value / MaxLife;
-                Zen = EXP;
+
+                if(pair.Key == Killer)
+                    Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen);
+
                 EXP *= Program.Experience;
                 Zen *= Program.Zen;
 
@@ -473,6 +476,9 @@ namespace MuEmu.Monsters
                 pair.Key.Session
                     .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
                     .Wait();
+
+                pair.Key.Character.Mana += Killer.Character.Inventory.IncreaseManaRate;
+                pair.Key.Character.Health += Killer.Character.Inventory.IncreaseLifeRate;
             }
 
             Item reward;

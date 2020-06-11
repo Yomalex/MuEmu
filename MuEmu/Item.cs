@@ -23,7 +23,7 @@ namespace MuEmu
         BowOrCrossbow,
         Staff,
         Shield,
-        Heml,
+        Helm,
         Armor,
         Pant,
         Gloves,
@@ -243,7 +243,7 @@ namespace MuEmu
                 OnItemChange();
             }
         }
-        public ExcellentOption OptionExe { get; set; }
+        public byte OptionExe { get; set; }
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
         public uint SellPrice { get; private set; }
@@ -258,7 +258,6 @@ namespace MuEmu
                 OnItemChange();
             }
         }
-        public Character Target { get; set; }
         public List<SpecialNumber> Special { get; set; } = new List<SpecialNumber>();
         public JewelOfHarmony Harmony { get => _jewelOfHarmony;
             set
@@ -288,6 +287,21 @@ namespace MuEmu
         public int AddMana => Special.Contains(SpecialNumber.AddMana) ? Character.Level * 5 + 50 : 0;
         public int AddStamina => Special.Contains(SpecialNumber.AddStamina) ? 50 : 0;
         public int AddLeaderShip => Special.Contains(SpecialNumber.AddLeaderShip) ? Character.Level * 5 + 10 : 0;
+
+        // Weapon Excellent Effects
+        public float ExcellentDmgRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.ExcellentDmgRate) != 0 ? 0.1f : 0.0f) : 0.0f;
+        public int IncreaseWizardry => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardry) != 0 ? (Character?.Level??0)/20 : 0) : 0;
+        public float IncreaseWizardryRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardryRate) != 0 ? 0.2f : 0) : 0;
+        public float IncreaseLifeRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseLifeRate) != 0 ? (Character?.Health??0)/8.0f : 0) : 0;
+        public float IncreaseManaRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseManaRate) != 0 ? (Character?.Mana??0)/8.0f : 0) : 0;
+        
+        // Armor Excellent Effects
+        public float IncreaseZenRate => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.IncreaseZen) != 0 ? 0.4f : 0.0f) : 0.0f;
+        public float DefenseSuccessRate => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.DefenseSuccessRate) != 0 ? 0.1f : 0.0f) : 0.0f;
+        public float ReflectDamage => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.ReflectDamage) != 0 ? 0.05f : 0.0f) : 0.0f;
+        public float DamageDecrease => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.DamageDecrease) != 0 ? 0.04f : 0.0f) : 0.0f;
+        public float IncreaseMana => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.IncreaseMana) != 0 ? 0.04f : 0.0f) : 0.0f;
+        public float IncreaseHP => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.IncreaseHP) != 0 ? 0.04f : 0.0f) : 0.0f;
 
         public int AttackMin { get; private set; }
         public int AttackMax { get; private set; }
@@ -341,7 +355,7 @@ namespace MuEmu
             _plus= dto.Plus;
             Luck = dto.Luck;
             _option = dto.Option;
-            OptionExe = (ExcellentOption)dto.OptionExe;
+            OptionExe = dto.OptionExe;
             
             _durability = dto.Durability;
             if(string.IsNullOrEmpty(dto.SocketOptions))
@@ -443,7 +457,7 @@ namespace MuEmu
                 var Gold = 0;
                 var level2 = BasicInfo.Level + Plus*3;
 
-                if ((ExcellentOption.FullItem & OptionExe) != 0)
+                if (((byte)ExcellentOptionArmor.FullItem & OptionExe) != 0)
                 {
                     level2 += 25;
                 }
@@ -869,18 +883,21 @@ namespace MuEmu
             if (tTarget == null)
                 return;
 
-            Target = tTarget;
+            Character = tTarget;
             if (Skill && Spell != Spell.None)
-                Target.Spells.ItemSkillAdd(this.Spell);
-            //var buffs = Target?.Effects;
+                Character.Spells.ItemSkillAdd(this.Spell);
+
+            Character.CalcStats();
         }
 
         public void RemoveEffects()
         {
             if (Skill && Spell != Spell.None)
-                Target.Spells.ItemSkillDel(this.Spell);
+                Character.Spells.ItemSkillDel(this.Spell);
+
+            Character.CalcStats();
         }
-        
+
         public async Task Save(GameContext db)
         {
             ItemDto item = null;
@@ -1092,12 +1109,12 @@ namespace MuEmu
                     Special.Add(SpecialNumber.AditionalMagic);
                     ReqStrength += Option28 * 4;
                 }
-                else if (Number.Type >= ItemType.Shield && Number.Type < ItemType.Heml)
+                else if (Number.Type >= ItemType.Shield && Number.Type < ItemType.Helm)
                 {
                     Special.Add(SpecialNumber.AditionalDefense);
                     ReqStrength += Option28 * 4;
                 }
-                else if (Number.Type >= ItemType.Heml && Number.Type < ItemType.Wing_Orb_Seed)
+                else if (Number.Type >= ItemType.Helm && Number.Type < ItemType.Wing_Orb_Seed)
                 {
                     Special.Add(SpecialNumber.AditionalDefense);
                     ReqStrength += Option28 * 4;
@@ -1483,10 +1500,10 @@ namespace MuEmu
                     NOption |= 1 << _rand.Next(6);
                 }
 
-                OptionExe = (ExcellentOption)NOption;
+                OptionExe = (byte)NOption;
             }
 
-            if (((OptionExe & ExcellentOption.FullItem) != 0 && _rand.Next(100) == 0) || _rand.Next(6) == 0)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && _rand.Next(100) == 0) || _rand.Next(6) == 0)
             {
                 Luck = true;
             }
@@ -1495,7 +1512,7 @@ namespace MuEmu
                 Luck = false;
             }
 
-            if (((OptionExe & ExcellentOption.FullItem) != 0 && _rand.Next(1) == 0) || _rand.Next(4) == 0 && Spell != Spell.None)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && _rand.Next(1) == 0) || _rand.Next(4) == 0 && Spell != Spell.None)
             {
                 Skill = true;
             }
