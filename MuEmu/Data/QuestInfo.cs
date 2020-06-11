@@ -57,9 +57,6 @@ namespace MuEmu.Data
             if ((MinLevel > @char.Level && MinLevel != 0) || (@char.Level > MaxLevel && MaxLevel != 0))
                 return false;
 
-            if (@char.Money < Cost)
-                return false;
-
             if (!@char.Quests.IsClear(NeededQuestIndex))
                 return false;
 
