@@ -137,8 +137,10 @@ namespace MuEmu
                             {
                                 case ObjectState.Regen:
                                     obj.State = ObjectState.Live;
+                                    obj.Spells.ClearAll();
                                     break;
                                 case ObjectState.Live:
+                                    obj.Spells.ClearBuffTimeOut();
                                     //obj.Update();
                                     break;
                                 case ObjectState.Dying:

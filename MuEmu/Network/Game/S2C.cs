@@ -84,7 +84,7 @@ namespace MuEmu.Network.Game
         [WZMember(1)]
         public byte ListType { get; set; }
 
-        [WZMember(2, typeof(ArraySerializer))]
+        [WZMember(2, SerializerType = typeof(ArraySerializer))]
         public SpellDto[] Spells { get; set; }
 
         public SSpells()

@@ -364,7 +364,7 @@ namespace WebZen.Network
                     Serializer.Serialize(b, message);
                 }catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    Logger.Error(e, "");
                 }
                 var body = b.ToArray();
                 var length = body.Length;

@@ -143,8 +143,10 @@ namespace MuEmu
                     if (pos < (byte)StorageID.Inventory)
                     {
                         sto.Add((Equipament)pos, item);
-                        _defense += item.Defense;
+                        _defense += item.Defense + item.AditionalDefense;
                         _defenseRate += item.DefenseRate;
+                        if(Character != null)
+                            item.ApplyEffects(Character);
                         break;
                     }
                 }
@@ -204,17 +206,12 @@ namespace MuEmu
             item.SlotId = (int)slot;
             item.VaultId = 0;
             _equipament.Add(slot, item);
-            item.ApplyEffects(Character.Player);
+            item.ApplyEffects(Character);
             item.CharacterId = Character.Id;
 
-            _defense += item.Defense;
+            _defense += item.Defense + item.AditionalDefense;
             _defenseRate += item.BasicInfo.DefRate;
             _criticalRate += item.CriticalDamage;
-
-            if(item.Skill)
-            {
-                Character.Spells.ItemSkillAdd(item.Spell);
-            }
 
             Character.ObjCalc();
         }
@@ -229,14 +226,9 @@ namespace MuEmu
             it.RemoveEffects();
             it.SlotId = 0xff;
 
-            _defense -= it.Defense;
+            _defense -= it.Defense + it.AditionalDefense;
             _defenseRate -= it.BasicInfo.DefRate;
             _criticalRate -= it.CriticalDamage;
-
-            if (it.Skill)
-            {
-                Character.Spells.ItemSkillDel(it.Spell);
-            }
 
             Character.ObjCalc();
 

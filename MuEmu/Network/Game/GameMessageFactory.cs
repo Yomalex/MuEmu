@@ -63,6 +63,7 @@ namespace MuEmu.Network.Game
             Register<CAttack>(GameOpCode.Attack);
             Register<CMagicAttack>(GameOpCode.MagicAttack);
             Register<CMagicDuration>(GameOpCode.MagicDuration);
+            Register<CBeattack>(GameOpCode.Beattack);
             #endregion
 
             #region Client PartyMessages
@@ -111,7 +112,7 @@ namespace MuEmu.Network.Game
             Register<SSkillKey>(GameOpCode.SkillKey);
             Register<SAction>(GameOpCode.Rotation);
             Register<SMove>(GameOpCode.Move);
-            Register<SPositionSet>(GameOpCode.PositionSet);
+            Register<SPositionSet>(GameOpCode.Position);
             Register<SPointAdd>(GameOpCode.PointAdd);
             Register<SCharRegen>(GameOpCode.CharRegen);
             Register<SLevelUp>(GameOpCode.LevelUp);

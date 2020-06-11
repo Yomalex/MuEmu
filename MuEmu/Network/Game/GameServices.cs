@@ -1016,6 +1016,10 @@ namespace MuEmu.Network.Game
                         @char.Spells.AttackSend(spell.Number, message.Target, false);
                         spells.SetBuff(SkillStates.Poison, TimeSpan.FromSeconds(60), @char);
                         break;
+                    case Spell.Ice:
+                        @char.Spells.AttackSend(spell.Number, message.Target, false);
+                        spells.SetBuff(SkillStates.Ice, TimeSpan.FromSeconds(60), @char);
+                        break;
                     case Spell.Heal:
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
@@ -1122,7 +1126,12 @@ namespace MuEmu.Network.Game
 
             @char.Mana -= magic.Mana;
             @char.Stamina -= magic.BP;
-            var dir = (message.Dir & 0xF0) >> 4;
+
+            var msgdef = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
+            await session.SendAsync(msgdef);
+            await session.Player.SendV2Message(msgdef);
+
+            /*var dir = (message.Dir & 0xF0) >> 4;
             var dis = (message.Dir & 0x0F);
 
             var dirs = new List<Point>
@@ -1186,6 +1195,52 @@ namespace MuEmu.Network.Game
                     await session.Player.SendV2Message(msg);
 
                     break;
+                default:
+                    {
+                        var rect = new Rectangle(message.X - 1, message.Y - 1, 2, 2);
+                        var vpany = @char.MonstersVP.ToList()
+                        .Select(x => MonstersMng.Instance.GetMonster(x))
+                        .Where(x => x.Type == ObjectType.Monster && rect.Contains(x.Position));
+
+                        foreach (var mob in vpany)
+                        {
+                            DamageType type;
+                            var attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            await mob.GetAttacked(@char.Player, attack, type);
+                        }
+                        var msgdef = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis);
+                        await session.SendAsync(msgdef);
+                        await session.Player.SendV2Message(msgdef);
+                    }
+                    break;
+            }*/
+        }
+
+        [MessageHandler(typeof(CBeattack))]
+        public void CBeattack(GSSession session, CBeattack message)
+        {
+            var spell = ResourceCache.Instance.GetSkills()[message.MagicNumber];
+
+            foreach(var a in message.Beattack)
+            {
+                try
+                {
+                    var mob = MonstersMng.Instance.GetMonster(a.Number);
+
+                    if (spell.Distance < mob.Position.Substract(message.Position).LengthSquared())
+                    {
+                        Logger.ForAccount(session).Error(Program.ServerMessages.GetMessage(Messages.Game_MonsterOutOfRange));
+                        continue;
+                    }
+
+                    DamageType dmgType;
+                    var dmg = session.Player.Character.MagicAttack(spell, mob.Defense, out dmgType);
+                    mob.GetAttacked(session.Player, dmg, dmgType).Wait();
+                }catch(Exception)
+                {
+
+                }
+
             }
         }
         #endregion

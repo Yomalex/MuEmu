@@ -40,4 +40,5 @@
     <Message ID="Game_Warp" Message="Necesitas ser nivel {0} para ir." />
     <Message ID="Game_Warp2" Message="Necesitas tener {0}zen para ir." />
     <Message ID="Game_ChaosBoxMixError" Message="Necesitas organizar tu inventario." />
+    <Message ID="Game_MonsterOutOfRange" Message="Mounstruo fuera de rango." />
 </ServerMessage>

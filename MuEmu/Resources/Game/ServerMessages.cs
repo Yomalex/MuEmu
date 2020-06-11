@@ -48,6 +48,7 @@ namespace MuEmu.Resources.Game
         Game_Warp,
         Game_Warp2,
         Game_ChaosBoxMixError,
+        Game_MonsterOutOfRange,
     }
     public class ServerMessages
     {

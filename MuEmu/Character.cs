@@ -233,13 +233,13 @@ namespace MuEmu
             get => _bp;
             set
             {
-                if (_bp == value)
-                    return;
-
                 if (value > _bpMax)
                 {
                     value = _bpMax;
                 }
+
+                if (_bp == value)
+                    return;
 
                 MPorBPChanged(_bp > value ? RefillInfo.Update : RefillInfo.Drink);
                 _bp = value;
@@ -513,9 +513,9 @@ namespace MuEmu
             Name = characterDto.Name;
             Class = (HeroClass)characterDto.Class;
             Level = characterDto.Level;
-            Inventory = new Inventory(this, characterDto);
             Quests = new Quests(this, characterDto);
             Spells = new Spells(this, characterDto);
+            Inventory = new Inventory(this, characterDto);
             MonstersVP = new List<ushort>();
             ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
@@ -856,6 +856,8 @@ namespace MuEmu
                     _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
                     _attackRatePvP = Level * 5 + AgilityTotal * 0.6f;
                     _attackSpeed = AgilityTotal / 50.0f;
+                    _magicAttackMax = _leftAttackMax;
+                    _magicAttackMin = _leftAttackMin;
                     break;
                 case HeroClass.MagicGladiator:
                     _defense = AgilityTotal / 5.0f;
@@ -1028,6 +1030,8 @@ namespace MuEmu
             attack = BaseAttack(type != DamageType.Regular);
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
+            attack += rightHand?.AditionalDamage ?? 0;
+            attack += leftHand?.AditionalDamage ?? 0;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1054,6 +1058,8 @@ namespace MuEmu
             var pet = Inventory.Get(Equipament.Pet);
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
+            var leftHand = Inventory.Get(Equipament.LeftHand);
+            var rightHand = Inventory.Get(Equipament.RightHand);
 
             var attack = 0.0f;
 
@@ -1070,7 +1076,8 @@ namespace MuEmu
 
             attack = BaseAttack(type != DamageType.Regular);
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
-
+            attack += rightHand?.AditionalDamage ?? 0;
+            attack += leftHand?.AditionalDamage ?? 0;
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
@@ -1200,6 +1207,8 @@ namespace MuEmu
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
             var wing = Inventory.Get(Equipament.Wings);
+            var leftHand = Inventory.Get(Equipament.LeftHand);
+            var rightHand = Inventory.Get(Equipament.RightHand);
 
             var attack = 0.0f;
             type = DamageType.Regular;
@@ -1212,6 +1221,8 @@ namespace MuEmu
             attack = BaseAttack(type != DamageType.Regular);
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
             attack += _rand.Next(spell.Damage.X, spell.Damage.Y);
+            attack += rightHand?.AditionalDamage ?? 0;
+            attack += leftHand?.AditionalDamage ?? 0;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1251,6 +1262,7 @@ namespace MuEmu
             attack += (type != DamageType.Regular) ? spell.Damage.Y + _magicAttackMax : _rand.Next((int)(spell.Damage.X + _magicAttackMin), (int)(spell.Damage.Y + _magicAttackMax));
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
             attack *= 1.0f + magicAdd / 100.0f;
+            attack += rightHand?.AditionalMagic??0;
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%

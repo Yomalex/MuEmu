@@ -79,7 +79,7 @@ namespace MuEmu.Network
         EventState = 0xFF0B,
         Notice = 0xFF0D,
         Weather = 0xFF0F,
-        PositionSet = 0xFF10,
+        Beattack = 0xFF10,
         ViewPortCreate = 0xFF12,
         ViewPortMCreate = 0xFF13,
         ViewPortDestroy = 0xFF14,

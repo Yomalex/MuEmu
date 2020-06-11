@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuEmu.Network.Serializers;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
@@ -298,6 +299,29 @@ namespace MuEmu.Network.Game
 
         public ushort Target => wzTarget.ShufleEnding();
         public Spell MagicNumber => (Spell)wzMagicNumber.ShufleEnding();
+    }
+
+    [WZContract]
+    public class CBeattackDto
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1)] public byte MagicKey { get; set; }
+
+        public ushort Number => wzNumber.ShufleEnding();
+    }
+
+    [WZContract]
+    public class CBeattack : IGameMessage
+    {
+        [WZMember(0)] public ushort wzMagicNumber { get; set; }
+        [WZMember(1)] public byte X { get; set; }
+        [WZMember(2)] public byte Y { get; set; }
+        [WZMember(3)] public byte Serial { get; set; }
+        //[WZMember(1)] public byte Count { get; set; }
+        [WZMember(4, typeof(ArrayWithScalarSerializer<byte>))] public CBeattackDto[] Beattack { get; set; }
+
+        public Spell MagicNumber => (Spell)wzMagicNumber.ShufleEnding();
+        public Point Position => new Point(X, Y);
     }
 
     [WZContract]

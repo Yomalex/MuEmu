@@ -5,6 +5,7 @@ using MuEmu.Monsters;
 using MuEmu.Network.Data;
 using MuEmu.Network.Game;
 using MuEmu.Resources;
+using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -287,12 +288,14 @@ namespace MuEmu
             if (_buffs.Any(x => x.State == effect))
                 return;
 
-            var buff = new Buff { State = effect, EndAt = DateTimeOffset.Now.Add(time), };
-            var @char = Player.Character;
+            var buff = new Buff { State = effect, EndAt = DateTimeOffset.Now.Add(time), Source = source };
+            var @char = Player?.Character??null;
 
             switch (effect)
             {
                 case SkillStates.ShadowPhantom:
+                    if (@char == null)
+                        break;
                     buff.AttackAdd = @char.Level / 3 + 45;
                     buff.DefenseAdd = @char.Level / 3 + 50;
                     break;
@@ -323,10 +326,19 @@ namespace MuEmu
                 case SkillStates.HMaxMana:
                     buff.ManaAdd = 500;
                     break;
+                case SkillStates.Poison:
+                    buff.PoisonDamage = 12 + source.EnergyTotal / 10;
+                    break;
             }
 
             _buffs.Add(buff);
+            if(Monster != null)
+            {
+                var m2 = new SViewSkillState(1, Monster.Index, (byte)effect);
 
+                await Monster.ViewPort.Select(x => x.Session).SendAsync(m2);
+                return;
+            }
             var m = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);
 
             await Player.Session.SendAsync(m);
@@ -355,6 +367,13 @@ namespace MuEmu
                 _buffs.Clear();
                 return;
             }
+
+            var poison = _buffs.FirstOrDefault(x => x.State == SkillStates.Poison);
+            if(poison != null)
+            {
+               Player?.Character.GetAttacked(0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison).Wait();
+               Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage, DamageType.Poison).Wait();
+            }
         }
 
         public async void ClearAll()
@@ -373,6 +392,14 @@ namespace MuEmu
 
         public async Task DelBuff(Buff effect)
         {
+            if(Monster != null)
+            {
+                var m2 = new SViewSkillState(0, Monster.Index, (byte)effect.State);
+
+                await Monster.ViewPort.Select(x => x.Session).SendAsync(m2);
+                return;
+            }
+
             var m = new SViewSkillState(0, (ushort)Player.Session.ID, (byte)effect.State);
 
             switch(effect.State)

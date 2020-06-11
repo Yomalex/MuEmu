@@ -864,18 +864,21 @@ namespace MuEmu
             }
         }
 
-        public void ApplyEffects(Player plr)
+        public void ApplyEffects(Character tTarget)
         {
-            if (plr == null)
+            if (tTarget == null)
                 return;
 
-            Target = plr.Character;
+            Target = tTarget;
+            if (Skill && Spell != Spell.None)
+                Target.Spells.ItemSkillAdd(this.Spell);
             //var buffs = Target?.Effects;
         }
 
         public void RemoveEffects()
         {
-
+            if (Skill && Spell != Spell.None)
+                Target.Spells.ItemSkillDel(this.Spell);
         }
         
         public async Task Save(GameContext db)

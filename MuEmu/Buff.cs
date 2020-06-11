@@ -25,7 +25,7 @@ namespace MuEmu
 
         public float IgnoreDefenseRate { get; set; }
 
-        public Item Source { get; set; }
+        public Character Source { get; set; }
 
         public int CoolDamage { get; set; }
         public int PoisonDamage { get; set; }

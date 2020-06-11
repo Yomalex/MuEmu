@@ -19,51 +19,52 @@ namespace WebZen.Serialization
 
         public void EmitDeserialize(Emit emiter, Local value)
         {
-            //throw new NotImplementedException();
+            var elementType = value.LocalType.GetElementType();
 
-            //var elementType = value.LocalType.GetElementType();
-            ////var emptyArray = emiter.DefineLabel();
-            //var end = emiter.DefineLabel();
+            //value = new Type[100];
+            emiter.LoadConstant(100);
+            emiter.NewArray(elementType);
+            emiter.StoreLocal(value);
 
-            //// value = new [length]
-            //emiter.LoadConstant(r_size);
-            //emiter.NewArray(elementType);
-            //emiter.StoreLocal(value);
+            var loop = emiter.DefineLabel();
+            var loopCheck = emiter.DefineLabel();
 
-            //var loop = emiter.DefineLabel();
-            //var loopCheck = emiter.DefineLabel();
+            using (var element = emiter.DeclareLocal(elementType, "element"))
+            using (var i = emiter.DeclareLocal<int>("i"))
+            {
 
-            //using (var element = emiter.DeclareLocal(elementType, "element"))
-            //using (var i = emiter.DeclareLocal<int>("i"))
-            //{
-            //    emiter.MarkLabel(loop);
+                try
+                {
+                    emiter.MarkLabel(loop);
+                    if (_compiler != null)
+                        _compiler.EmitDeserialize(emiter, element);
+                    else if (_serializer != null)
+                        emiter.CallDeserializer(_serializer, element);
+                    else
+                        emiter.CallDeserializerForType(elementType, element);
 
-            //    if (_compiler != null)
-            //        _compiler.EmitDeserialize(emiter, element);
-            //    else if (_serializer != null)
-            //        emiter.CallDeserializer(_serializer, element);
-            //    else
-            //        emiter.CallDeserializerForType(elementType, element);
+                    // value[i] = element
+                    emiter.LoadLocal(value);
+                    emiter.LoadLocal(i);
+                    emiter.LoadLocal(element);
+                    emiter.StoreElement(elementType);
 
-            //    // value[i] = element
-            //    emiter.LoadLocal(value);
-            //    emiter.LoadLocal(i);
-            //    emiter.LoadLocal(element);
-            //    emiter.StoreElement(elementType);
+                    // ++i
+                    emiter.LoadLocal(i);
+                    emiter.LoadConstant(1);
+                    emiter.Add();
+                    emiter.StoreLocal(i);
 
-            //    // ++i
-            //    emiter.LoadLocal(i);
-            //    emiter.LoadConstant(1);
-            //    emiter.Add();
-            //    emiter.StoreLocal(i);
-
-            //    // i < length
-            //    emiter.MarkLabel(loopCheck);
-            //    emiter.LoadLocal(i);
-            //    emiter.LoadConstant(r_size);
-            //    emiter.BranchIfLess(loop);
-            //}
-            //emiter.Branch(end);
+                    // i < length
+                    emiter.MarkLabel(loopCheck);
+                    emiter.LoadLocal(i);
+                    emiter.LoadConstant(100);
+                    emiter.BranchIfLess(loop);
+                }
+                catch(Exception)
+                {
+                }
+            }
         }
 
         public void EmitSerialize(Emit emiter, Local value)
