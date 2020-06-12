@@ -1020,6 +1020,12 @@ namespace MuEmu.Network.Game
                         @char.Spells.AttackSend(spell.Number, message.Target, false);
                         spells.SetBuff(SkillStates.Ice, TimeSpan.FromSeconds(60), @char);
                         break;
+                    case Spell.InfinityArrow:
+                        if (@char.BaseClass != HeroClass.FaryElf)
+                            return;
+                        spells.SetBuff(SkillStates.InfinityArrow, TimeSpan.FromSeconds(1800), @char);
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
                     case Spell.Heal:
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
@@ -1038,14 +1044,14 @@ namespace MuEmu.Network.Game
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
 
-                        spells.SetBuff(SkillStates.Defense, TimeSpan.FromSeconds(60), @char);
+                        spells.SetBuff(SkillStates.Defense, TimeSpan.FromSeconds(1800), @char);
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
                     case Spell.GreaterDamage:
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
 
-                        spells.SetBuff(SkillStates.Attack, TimeSpan.FromSeconds(60), @char);
+                        spells.SetBuff(SkillStates.Attack, TimeSpan.FromSeconds(1800), @char);
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
 
@@ -1090,8 +1096,12 @@ namespace MuEmu.Network.Game
                     case Spell.GreaterFortitude:
                     case Spell.SoulBarrier:
                     case Spell.Teleport:
+                    case Spell.InfinityArrow:
                         return;
                     default:
+                        if (spell.IsDamage == 0)
+                            return;
+
                         if(@char.BaseClass == HeroClass.Summoner || @char.BaseClass == HeroClass.DarkWizard || @char.BaseClass == HeroClass.MagicGladiator)
                         {
                             attack = @char.MagicAttack(spell, defense, out type);
@@ -1123,6 +1133,27 @@ namespace MuEmu.Network.Game
 
             if (@char.Mana < magic.Mana || @char.Stamina < magic.BP)
                 return;
+
+            if((magic.Number == Spell.Triple_Shot||
+                magic.Number == Spell.Penetration||
+                magic.Number == Spell.IceArrow ||
+                magic.Number == Spell.MultiShot))
+            {
+                if (@char.Inventory.Arrows == null)
+                    return;
+
+                if (!@char.Spells.BufActive(SkillStates.InfinityArrow))
+                {
+                    var durDown = magic.Number == Spell.Triple_Shot ? 3 : (magic.Number == Spell.MultiShot ? 5 : 0);
+                    if (@char.Inventory.Arrows.Durability > durDown)
+                        @char.Inventory.Arrows.Durability -= (byte)durDown;
+                    else
+                        @char.Inventory.Arrows.Durability--;
+
+                    if (@char.Inventory.Arrows.Durability == 0)
+                        await @char.Inventory.Delete(@char.Inventory.Arrows);
+                }
+            }
 
             @char.Mana -= magic.Mana;
             @char.Stamina -= magic.BP;

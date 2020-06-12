@@ -68,7 +68,6 @@ namespace MuEmu
         FlameofEvilMonster,
         IceArrow,
         Penetration,
-        InfinityArrow,
         FireSlash = 55,
         PowerSlash,
         SpiralSlash,
@@ -88,7 +87,7 @@ namespace MuEmu
         ManaRays,
         FireBlast,
         PlasmaStorm = 76,
-        ShadowArrow,
+        InfinityArrow,
         FireScream,
         DrainLife = 214,
         ChainLighting,
@@ -104,6 +103,8 @@ namespace MuEmu
 
         RedStorm = 230,
         MagicCircle = 233,
+        Recovery = 234,
+        MultiShot = 235,
         LightingStorm = 237,
     }
     public class Spells
@@ -244,6 +245,11 @@ namespace MuEmu
         public IDictionary<Spell, SpellInfo> SpellDictionary => _spellList;
 
         public IEnumerable<Buff> BuffList => _buffs;
+
+        public bool BufActive(SkillStates effect)
+        {
+            return _buffs.Any(x => x.State == effect);
+        }
 
         public async void SendList()
         {

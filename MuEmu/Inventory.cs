@@ -60,6 +60,8 @@ namespace MuEmu
 
         public Item ItemMoved { get; private set; }
 
+        public Item Arrows { get; private set; }
+
         public bool Lock { get; set; }
 
         public byte[] FindAll(ItemNumber num)
@@ -159,7 +161,9 @@ namespace MuEmu
                     if (pos < (byte)StorageID.Inventory)
                     {
                         sto.Add((Equipament)pos, item);
-                        
+                        if (item.Number.Type == ItemType.BowOrCrossbow && (item.Number.Index == 7 || item.Number.Index == 15))
+                            Arrows = item;
+
                         _defense += item.Defense + item.AditionalDefense;
                         _defenseRate += item.BasicInfo.DefRate;
 
@@ -255,6 +259,9 @@ namespace MuEmu
             _increaseMP += item.IncreaseMana;
             _increaseHP += item.IncreaseHP;
 
+            if (item.Number.Type == ItemType.BowOrCrossbow && (item.Number.Index == 7 || item.Number.Index == 15))
+                Arrows = item;
+
             Character.ObjCalc();
         }
 
@@ -285,6 +292,8 @@ namespace MuEmu
             _increaseHP -= item.IncreaseHP;
 
             Character.ObjCalc();
+            if (Arrows == item)
+                Arrows = null;
 
             return item;
         }
@@ -449,7 +458,8 @@ namespace MuEmu
         {
             if (_equipament.ContainsValue(item))
             {
-                await Delete((byte)_equipament.First(x => x.Value == item).Key, send);
+                var slot = _equipament.First(x => x.Value == item).Key;
+                await Delete((byte)slot, send);
             }
             else
             if (_inventory.Items.Any(x => x.Value == item))

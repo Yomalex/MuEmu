@@ -581,6 +581,9 @@ namespace MuEmu
 
             Quests.SendList();
 
+            if (Class >= HeroClass.MuseElf && BaseClass == HeroClass.FaryElf)
+                Spells.TryAdd(Spell.InfinityArrow).Wait();
+
             Spells.SendList();
         }
 
@@ -1258,7 +1261,7 @@ namespace MuEmu
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
             var wing = Inventory.Get(Equipament.Wings);
-            //var leftHand = Inventory.Get(Equipament.LeftHand);
+            var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
 
             var magicAdd = 0;
@@ -1341,21 +1344,21 @@ namespace MuEmu
             var left = Inventory.Get(Equipament.LeftHand);
             var right = Inventory.Get(Equipament.RightHand);
 
-            if (left != null && left.Number.Type == ItemType.BowOrCrossbow && left.Number.Index != 7) // Isn't Bolts
+            if ((left != null && left.Number.Type == ItemType.BowOrCrossbow && left.Number.Index != 7)) // Isn't Bolts
             {
-                if (right.Durability <= 0)
+                if (Inventory.Arrows.Durability <= 0)
                 {
                     return;
                 }
 
-                right.Durability--;
+                if(!Spells.BufActive(SkillStates.InfinityArrow))
+                    right.Durability--;
                 if(right.Durability == 0)
                 {
                     Inventory.Delete(right).Wait();
                 }
                 left.BowWeaponDurabilityDown(Defense);
-            }
-
+            }else
             if (right != null && right.Number.Type == ItemType.BowOrCrossbow && right.Number.Index != 15) // Isn't Arrows
             {
                 if (left.Durability <= 0)
@@ -1363,7 +1366,8 @@ namespace MuEmu
                     return;
                 }
 
-                left.Durability--;
+                if (!Spells.BufActive(SkillStates.InfinityArrow))
+                    right.Durability--;
                 if (left.Durability == 0)
                 {
                     Inventory.Delete(right).Wait();
