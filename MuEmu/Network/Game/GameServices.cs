@@ -1162,7 +1162,7 @@ namespace MuEmu.Network.Game
             await session.SendAsync(msgdef);
             await session.Player.SendV2Message(msgdef);
 
-            /*var dir = (message.Dir & 0xF0) >> 4;
+            var dir = (message.Dir & 0xF0) >> 4;
             var dis = (message.Dir & 0x0F);
 
             var dirs = new List<Point>
@@ -1181,70 +1181,70 @@ namespace MuEmu.Network.Game
 
             switch (message.MagicNumber)
             {
-                case Spell.Triple_Shot:
-
-                    var normal = dirs[dir & 0x07];
-                    var normalNormal = dirs[(dir + 2) & 0x07];
-                    var end = new Point(@char.Position.X + normal.X * 10, @char.Position.Y + normal.Y * 10);
-                    var triangle1 = new Point(end.X + normalNormal.X * 10, end.Y + normalNormal.Y * 10);
-                    var triangle2 = new Point(end.X - normalNormal.X * 10, end.Y - normalNormal.Y * 10);
-
-                    var triangle = new Triangle(@char.Position, triangle1, triangle2);
-
-                    var vpts = @char.MonstersVP.ToList()
-                        .Select(x => MonstersMng.Instance.GetMonster(x))
-                        .Where(x => x.Type == ObjectType.Monster && triangle.Contains(x.Position));
-
-                    foreach (var mob in vpts)
+                case Spell.RagefulBlow:
                     {
-                        if(mob.Position.Substract(@char.Position).LengthSquared() > 6)
-                        {
-                            continue;
-                        }
-                        DamageType type;
-                        var attack = @char.SkillAttack(magic, mob.Defense, out type);
-                       await mob.GetAttacked(@char.Player, attack, type);
-                    }
-                    var msgts = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
-                    await session.SendAsync(msgts);
-                    await session.Player.SendV2Message(msgts);
-                    break;
-                case Spell.TwistingSlash:
-                    var vp = @char.MonstersVP
-                        .ToList() // clone for preveen collection changes
-                        .Select(x => MonstersMng.Instance.GetMonster(x))
-                        .Where(x => x.Position.Substract(@char.Position).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                        var mp = new Point(message.X, message.Y);
+                        var vp = @char.MonstersVP
+                            .ToList() // clone for preveen collection changes
+                            .Select(x => MonstersMng.Instance.GetMonster(x))
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
 
-                    foreach (var mob in vp)
-                    {
-                        DamageType type;
-                        var attack = @char.SkillAttack(magic, mob.Defense, out type);
-                        await mob.GetAttacked(@char.Player, attack, type);
-                    }
-                    var msg = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis);
-                    await session.SendAsync(msg);
-                    await session.Player.SendV2Message(msg);
-
-                    break;
-                default:
-                    {
-                        var rect = new Rectangle(message.X - 1, message.Y - 1, 2, 2);
-                        var vpany = @char.MonstersVP.ToList()
-                        .Select(x => MonstersMng.Instance.GetMonster(x))
-                        .Where(x => x.Type == ObjectType.Monster && rect.Contains(x.Position));
-
-                        foreach (var mob in vpany)
+                        foreach (var mob in vp)
                         {
                             DamageType type;
                             var attack = @char.SkillAttack(magic, mob.Defense, out type);
                             await mob.GetAttacked(@char.Player, attack, type);
                         }
-                        var msgdef = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dis);
-                        await session.SendAsync(msgdef);
-                        await session.Player.SendV2Message(msgdef);
                     }
                     break;
-            }*/
+                case Spell.TwistingSlash:
+                    {
+                        var vp = @char.MonstersVP
+                            .ToList() // clone for preveen collection changes
+                            .Select(x => MonstersMng.Instance.GetMonster(x))
+                            .Where(x => x.Position.Substract(@char.Position).Length() <= 2.0 && x.Type == ObjectType.Monster);
+
+                        foreach (var mob in vp)
+                        {
+                            DamageType type;
+                            var attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            await mob.GetAttacked(@char.Player, attack, type);
+                        }
+                    }
+                    break;
+                case Spell.Decay:
+                    {
+                        var mp = new Point(message.X, message.Y);
+                        var vp = @char.MonstersVP
+                            .ToList() // clone for preveen collection changes
+                            .Select(x => MonstersMng.Instance.GetMonster(x))
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                        foreach (var mob in vp)
+                        {
+                            DamageType type;
+                            var attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            await mob.GetAttacked(@char.Player, attack, type);
+                            mob.Spells.SetBuff(SkillStates.Poison, TimeSpan.FromSeconds(60), @char);
+                        }
+                    }
+                    break;
+                case Spell.IceStorm:
+                    {
+                        var mp = new Point(message.X, message.Y);
+                        var vp = @char.MonstersVP
+                            .ToList() // clone for preveen collection changes
+                            .Select(x => MonstersMng.Instance.GetMonster(x))
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                        foreach (var mob in vp)
+                        {
+                            DamageType type;
+                            var attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            await mob.GetAttacked(@char.Player, attack, type);
+                            mob.Spells.SetBuff(SkillStates.Ice, TimeSpan.FromSeconds(60), @char);
+                        }
+                    }
+                    break;
+            }
         }
 
         [MessageHandler(typeof(CBeattack))]
@@ -1258,7 +1258,7 @@ namespace MuEmu.Network.Game
                 {
                     var mob = MonstersMng.Instance.GetMonster(a.Number);
 
-                    if (spell.Distance < mob.Position.Substract(message.Position).LengthSquared())
+                    if (spell.Distance != 0 && spell.Distance < mob.Position.Substract(message.Position).LengthSquared())
                     {
                         Logger.ForAccount(session).Error(Program.ServerMessages.GetMessage(Messages.Game_MonsterOutOfRange));
                         continue;
@@ -1496,23 +1496,43 @@ namespace MuEmu.Network.Game
 
             var gates = ResourceCache.Instance.GetGates();
 
-            var gate = gates[message.MoveNumber];
-
-            if(gate == null)
-            {
-                log.Error("Invalid source gate {0}", message.MoveNumber);
-                await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
-                return;
-            }
-
             if (message.MoveNumber != 0)
             {
+                var gate = gates[message.MoveNumber];
+
+                if (gate == null)
+                {
+                    log.Error("Invalid source gate {0}", message.MoveNumber);
+                    await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
+                    return;
+                }
+
                 log.Information("Warp request to {1}:{0}", message.MoveNumber, gate.Map);
                 await @char.WarpTo(message.MoveNumber);
             }
             else
             {
-                await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
+                var spell = ResourceCache.Instance.GetSkills()[Spell.Teleport];
+
+                if (spell.Mana < @char.Mana && spell.BP < @char.Stamina)
+                {
+                    //@char.Position = new Point(message.X, message.Y);
+                    var msg = new SMagicAttack(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
+                    await session.SendAsync(msg);
+                    await @char.SendV2Message(msg);
+
+                    @char.Mana -= spell.Mana;
+                    @char.Stamina -= spell.BP;
+
+                    @char.PlayersVP.Clear();
+                    @char.MonstersVP.Clear();
+                    @char.ItemsVP.Clear();
+                    @char.TeleportTo(new Point(message.X, message.Y));
+                }
+
+                
+                //await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
+                //@char.TeleportTo(@char.Position);
             }
         }
 

@@ -163,24 +163,6 @@ namespace MuEmu
                         sto.Add((Equipament)pos, item);
                         if (item.Number.Type == ItemType.BowOrCrossbow && (item.Number.Index == 7 || item.Number.Index == 15))
                             Arrows = item;
-
-                        _defense += item.Defense + item.AditionalDefense;
-                        _defenseRate += item.BasicInfo.DefRate;
-
-                        _criticalRate += item.CriticalDamage;
-                        _excellentRate += item.ExcellentDmgRate;
-                        _increaseWizardryRate += item.IncreaseWizardryRate;
-                        _increaseWizardry += item.IncreaseWizardry;
-                        _increaseLifeRate += item.IncreaseLifeRate;
-                        _increaseManaRate += item.IncreaseManaRate;
-
-                        _dropZen += item.IncreaseZenRate;
-                        _reflect += item.ReflectDamage;
-                        _dmgDecrease += item.DamageDecrease;
-                        _increaseMP += item.IncreaseMana;
-                        _increaseHP += item.IncreaseHP;
-                        if (Character != null)
-                            item.ApplyEffects(Character);
                         break;
                     }
                 }
@@ -195,6 +177,47 @@ namespace MuEmu
 
             if (save)
                 _needSave = true;
+        }
+
+        public void CalcStats()
+        {
+            _defense = 0;
+            _defenseRate = 0;
+            _criticalRate = 0;
+            _excellentRate = 0;
+            _increaseWizardryRate = 0;
+            _increaseWizardry = 0;
+            _increaseLifeRate = 0;
+            _increaseManaRate = 0;
+            _dropZen = 0;
+            _reflect = 0;
+            _dmgDecrease = 0;
+            _increaseMP = 0;
+            _increaseHP = 0;
+
+            foreach (var equip in _equipament)
+            {
+                var item = equip.Value;
+
+                if (Character != null)
+                    item.ApplyEffects(Character);
+
+                _defense += item.Defense + item.AditionalDefense;
+                _defenseRate += item.BasicInfo.DefRate;
+
+                _criticalRate += item.CriticalDamage;
+                _excellentRate += item.ExcellentDmgRate;
+                _increaseWizardryRate += item.IncreaseWizardryRate;
+                _increaseWizardry += item.IncreaseWizardry;
+                _increaseLifeRate += item.IncreaseLifeRate;
+                _increaseManaRate += item.IncreaseManaRate;
+
+                _dropZen += item.IncreaseZenRate;
+                _reflect += item.ReflectDamage;
+                _dmgDecrease += item.DamageDecrease;
+                _increaseMP += item.IncreaseMana;
+                _increaseHP += item.IncreaseHP;
+            }
         }
 
         public byte Add(Item it)
@@ -242,26 +265,11 @@ namespace MuEmu
             _equipament.Add(slot, item);
             item.ApplyEffects(Character);
             item.CharacterId = Character.Id;
-            
-            _defense += item.Defense + item.AditionalDefense;
-            _defenseRate += item.BasicInfo.DefRate;
-
-            _criticalRate += item.CriticalDamage;
-            _excellentRate += item.ExcellentDmgRate;
-            _increaseWizardryRate += item.IncreaseWizardryRate;
-            _increaseWizardry += item.IncreaseWizardry;
-            _increaseLifeRate += item.IncreaseLifeRate;
-            _increaseManaRate += item.IncreaseManaRate;
-
-            _dropZen += item.IncreaseZenRate;
-            _reflect += item.ReflectDamage;
-            _dmgDecrease += item.DamageDecrease;
-            _increaseMP += item.IncreaseMana;
-            _increaseHP += item.IncreaseHP;
 
             if (item.Number.Type == ItemType.BowOrCrossbow && (item.Number.Index == 7 || item.Number.Index == 15))
                 Arrows = item;
 
+            CalcStats();
             Character.ObjCalc();
         }
 
@@ -275,22 +283,7 @@ namespace MuEmu
             item.RemoveEffects();
             item.SlotId = 0xff;
 
-            _defense -= item.Defense + item.AditionalDefense;
-            _defenseRate -= item.BasicInfo.DefRate;
-
-            _criticalRate -= item.CriticalDamage;
-            _excellentRate -= item.ExcellentDmgRate;
-            _increaseWizardry -= item.IncreaseWizardry;
-            _increaseWizardryRate -= item.IncreaseWizardryRate;
-            _increaseLifeRate -= item.IncreaseLifeRate;
-            _increaseManaRate -= item.IncreaseManaRate;
-
-            _dropZen -= item.IncreaseZenRate;
-            _reflect -= item.ReflectDamage;
-            _dmgDecrease -= item.DamageDecrease;
-            _increaseMP -= item.IncreaseMana;
-            _increaseHP -= item.IncreaseHP;
-
+            CalcStats();
             Character.ObjCalc();
             if (Arrows == item)
                 Arrows = null;

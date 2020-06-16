@@ -269,6 +269,9 @@ namespace MuEmu
 
         internal void ItemSkillAdd(Spell skill)
         {
+            if (_spellList.ContainsKey(skill))
+                return;
+
             var pos = _spellList.Count;
             var spells = ResourceCache.Instance.GetSkills();
             _spellList.Add(skill, spells[skill]);

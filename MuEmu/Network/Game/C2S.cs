@@ -29,11 +29,13 @@ namespace MuEmu.Network.Game
     [WZContract]
     public class CTeleport : IGameMessage
     {
-        [WZMember(0)] public ushort wzMoveNumber { get; set; }
-        [WZMember(1)] public byte X { get; set; }
-        [WZMember(2)] public byte Y { get; set; }
+        [WZMember(0)] public byte Unk { get; set; }
+        [WZMember(1)] public ushort MoveNumber { get; set; }
+        [WZMember(2)] public byte X { get; set; }
+        [WZMember(3)] public byte Y { get; set; }
+        [WZMember(4)] public byte Unk2 { get; set; }
 
-        public ushort MoveNumber => wzMoveNumber.ShufleEnding();
+        //public ushort MoveNumber => wzMoveNumber.ShufleEnding();
     }
 
     [WZContract]

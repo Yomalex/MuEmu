@@ -11,6 +11,7 @@ using System.Linq;
 using MuEmu.Entity;
 using Serilog;
 using Serilog.Core;
+using MuEmu.Monsters;
 
 namespace MuEmu.Network
 {
@@ -44,12 +45,14 @@ namespace MuEmu.Network
                     if (Session.Player.Status == LoginStatus.Playing && Session.Player.Character != null)
                     {
                         var @char = Session.Player.Character;
+                        var mobVp = @char.MonstersVP.Select(x => MonstersMng.Instance.GetMonster(x)).ToList();
+                        //mobVp.ForEach(x => x.ViewPort.Remove(Session.Player));
                         @char.Map.DelPlayer(Session.Player.Character);
                         @char.Party?.Remove(Session.Player);
                         @char.Duel?.Leave(@char.Player);
                         @char.Party = null;
                         Game.GameServices.CCloseWindow(Session);
-                        foreach(var m in @char.MonstersVP.Select(x => Monsters.MonstersMng.Instance.GetMonster(x)).Where(x => x.Target == Session.Player))
+                        foreach(var m in mobVp.Where(x => x.Target == Session.Player))
                         {
                             m.Target = null;
                         }

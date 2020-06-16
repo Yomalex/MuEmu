@@ -731,7 +731,6 @@ namespace MuEmu
             Experience -= (ulong)expReduced;
         }
         #endregion
-
         public void CalcStats()
         {
             if (Inventory == null)
@@ -743,12 +742,13 @@ namespace MuEmu
             _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
 
+            Inventory.CalcStats();
             ObjCalc();
         }
         public void ObjCalc()
         {
-            var right = Inventory.Get(Equipament.RightHand);
-            var left = Inventory.Get(Equipament.LeftHand);
+            var right = Inventory?.Get(Equipament.RightHand)??null;
+            var left = Inventory?.Get(Equipament.LeftHand)??null;
 
             switch(BaseClass)
             {
@@ -970,10 +970,10 @@ namespace MuEmu
             }
         }
 
-        public async void TeleportTo(Point position)
+        public void TeleportTo(Point position)
         {
             _position = position;
-            await Player.Session.SendAsync(new STeleport(0, MapID, _position, Direction));
+            SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(500), new STeleport(0, MapID, _position, Direction));
         }
 
         public async Task Save(GameContext db)
@@ -1316,24 +1316,22 @@ namespace MuEmu
 
         public void Autorecovery()
         {
-            Health += MaxHealth/30.0f;
-
             switch(BaseClass)
             {
                 case HeroClass.DarkKnight:
-                    Mana += MaxMana / 27.5f;
-                    Stamina += 2 + MaxStamina / 20;
+                    Mana += (float)Math.Sqrt(MaxMana) / 27.5f;
+                    Stamina += 2 + (float)Math.Sqrt(MaxStamina) / 20;
                     break;
                 case HeroClass.DarkWizard:
                 case HeroClass.FaryElf:
                 case HeroClass.Summoner:
-                    Mana += MaxMana / 27.5f;
-                    Stamina += 2 + MaxStamina / 33.333f;
+                    Mana += (float)Math.Sqrt(MaxMana) / 27.5f;
+                    Stamina += 2 + (float)Math.Sqrt(MaxStamina) / 33.333f;
                     break;
                 case HeroClass.MagicGladiator:
                 case HeroClass.DarkLord:
-                    Mana += MaxMana / 27.5f;
-                    Stamina += 1.9f + MaxStamina / 33;
+                    Mana += (float)Math.Sqrt(MaxMana) / 27.5f;
+                    Stamina += 1.9f + (float)Math.Sqrt(MaxStamina) / 33;
                     break;
 
             }

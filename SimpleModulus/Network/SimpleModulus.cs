@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography;
 using BlubLib;
 using BlubLib.IO;
 using BlubLib.Serialization;
@@ -14,7 +15,7 @@ namespace WebZen.Network
         private static Modulus s_dec;
 
         public static byte[] Encoder(byte[] src) => s_enc.Enc(src);
-        public static void Encrypt(Stream dest, Stream src) => s_enc.Encrypt(dest, src);
+        public static void Encrypt(Stream dest, byte serial, Stream src) => s_enc.Encrypt(dest, serial, src);
         public static byte[] Decoder(byte[] src) => s_dec.Dec(src);
 
         public static void LoadEncryptionKey(string file)
@@ -151,19 +152,28 @@ namespace WebZen.Network
         public uint[] decryptionKey = new uint[4];
         public uint[] modulus = new uint[4];
 
-        public void Encrypt(Stream dest, Stream src)
+        public void Encrypt(Stream dest, byte serial, Stream src)
         {
-            var missing = src.Length % 8;
+            var position = src.Position;
+            var length = (src.Length - src.Position);
+            var missing = length % 8;
 
-            using (var ms = new MemoryStream((int)(src.Length + missing)))
+            using (var ms = new MemoryStream((int)(length + missing)))
             {
+                ms.WriteByte(serial);
                 src.CopyTo(ms);
+                src.Position = position;
                 ms.Position = 0;
-                while (ms.Position < src.Length)
+                var emptyBlock = new byte[11];
+                while (ms.Position < length+1)
                 {
-                    var bSize = (int)(src.Length - ms.Position);
-                    if (bSize > 8) bSize = 8;
+                    var bSize = (int)(length+1 - ms.Position);
+                    if (bSize > 8)
+                        bSize = 8;
 
+                    var pos = dest.Position;
+                    dest.Write(emptyBlock, 0, 11);
+                    dest.Position = pos;
                     EcryptBlock(dest, ms, bSize);
                     dest.Position += 11;
                 }

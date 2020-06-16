@@ -172,6 +172,7 @@ namespace WebZen.Network
         protected AsyncCallback _onRecv;
         protected short _inSerial;
         public short _outSerial;
+        public bool Closed { get; private set; }
 
         public byte[] Data => _recvBuffer;
         public byte[] Received(IAsyncResult ar)
@@ -204,6 +205,7 @@ namespace WebZen.Network
             _server = server;
             _sock = socket;
             _onRecv = onRecv;
+            Closed = false;
         }
 
         public void Recv()
@@ -211,14 +213,14 @@ namespace WebZen.Network
             _sock.BeginReceive(_recvBuffer, 0, _recvBuffer.Length, SocketFlags.None, _onRecv, this);
         }
 
-        public async void Send(byte[] data)
+        public async Task Send(byte[] data)
         {
             try
             {
                 await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
-            }catch(Exception)
+            }catch(ObjectDisposedException)
             {
-
+                Closed = true;
             }
         }
 

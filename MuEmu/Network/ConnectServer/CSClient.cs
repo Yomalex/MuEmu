@@ -100,9 +100,9 @@ namespace MuEmu.Network.ConnectServer
             {
                 _client.Client.Send(_encoder.Encode(message, ref _outSerial));
             }
-            catch (Exception)
+            catch (SocketException)
             {
-                //instance._client.Client.Disconnect(false);
+                _client.Client.Disconnect(false);
             }
         }
     }

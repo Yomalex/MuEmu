@@ -292,8 +292,8 @@ namespace MuEmu
         public float ExcellentDmgRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.ExcellentDmgRate) != 0 ? 0.1f : 0.0f) : 0.0f;
         public int IncreaseWizardry => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardry) != 0 ? (Character?.Level??0)/20 : 0) : 0;
         public float IncreaseWizardryRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardryRate) != 0 ? 0.2f : 0) : 0;
-        public float IncreaseLifeRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseLifeRate) != 0 ? (Character?.Health??0)/8.0f : 0) : 0;
-        public float IncreaseManaRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseManaRate) != 0 ? (Character?.Mana??0)/8.0f : 0) : 0;
+        public float IncreaseLifeRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseLifeRate) != 0 ? 1.0f/8.0f : 0) : 0;
+        public float IncreaseManaRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseManaRate) != 0 ? 1.0f/8.0f : 0) : 0;
         
         // Armor Excellent Effects
         public float IncreaseZenRate => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.IncreaseZen) != 0 ? 0.4f : 0.0f) : 0.0f;
@@ -886,8 +886,6 @@ namespace MuEmu
             Character = tTarget;
             if (Skill && Spell != Spell.None)
                 Character.Spells.ItemSkillAdd(this.Spell);
-
-            Character.CalcStats();
         }
 
         public void RemoveEffects()

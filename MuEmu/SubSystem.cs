@@ -315,11 +315,11 @@ namespace MuEmu
                           select obj).ToList();
 
             // Update the old player VP
-            foreach (var obj in newObj)
+            /*foreach (var obj in newObj)
                 obj.ViewPort.Add(plr.Player);
 
             foreach (var obj in existObj)
-                obj.ViewPort.Add(plr.Player);
+                obj.ViewPort.Add(plr.Player);*/
 
             foreach (var it in deadObj)
             {

@@ -240,6 +240,14 @@ namespace MuEmu.Monsters
             if (_nextAction > DateTimeOffset.Now)
                 return;
 
+            lock (ViewPort)
+            {
+                ViewPort = Map.Players
+                    .Where(x => x.Player.Status == LoginStatus.Playing && Distance(x.Position, Position) <= Info.ViewRange)
+                    .Select(x => x.Player)
+                    .ToList();
+            }
+
             if(_monsterState == MonsterState.Walking)
             {
                 _path.RemoveAt(0);
@@ -269,8 +277,13 @@ namespace MuEmu.Monsters
                     }
                 }
             }
-            if (_monsterState == MonsterState.Battle && Target != null)
+            if (_monsterState == MonsterState.Battle)
             {
+                if(Target == null || Target.Status != LoginStatus.Playing)
+                {
+                    _monsterState = MonsterState.Idle;
+                    return;
+                }
                 var dis = Distance(Target.Character.Position, Position);
                 if (dis <= Info.AttackRange)
                 {
@@ -297,10 +310,11 @@ namespace MuEmu.Monsters
             if(_monsterState == MonsterState.Idle)
              {
                 var possibleTarget = from plr in ViewPort
-                                     let dist = Distance(plr.Character.Position, Position)
+                                     let dist = Distance(plr.Character?.Position??new Point(), Position)
                                      where dist < Info.ViewRange
                                      orderby dist ascending
                                      select plr;
+
                 var X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.X));
                 var Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.Y));
                 var position = new Point(X, Y);
@@ -350,7 +364,9 @@ namespace MuEmu.Monsters
                 Direction = _walkDirs[dy + 1, dx + 1];
 
                 foreach (var obj in ViewPort.ToList())
-                    obj.Session.SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, Direction));
+                    obj.Session
+                        .SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, Direction))
+                        .Wait();
 
                 _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
                 _monsterState = MonsterState.Walking;
@@ -477,8 +493,11 @@ namespace MuEmu.Monsters
                     .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
                     .Wait();
 
-                pair.Key.Character.Mana += Killer.Character.Inventory.IncreaseManaRate;
-                pair.Key.Character.Health += Killer.Character.Inventory.IncreaseLifeRate;
+                var usedMana = pair.Key.Character.MaxMana - pair.Key.Character.Mana;
+                var usedHealth = pair.Key.Character.MaxHealth - pair.Key.Character.Health;
+
+                pair.Key.Character.Mana += usedMana * Killer.Character.Inventory.IncreaseManaRate;
+                pair.Key.Character.Health += usedHealth * Killer.Character.Inventory.IncreaseLifeRate;
             }
 
             Item reward;

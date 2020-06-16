@@ -132,7 +132,7 @@ namespace WebZen.Network
                     }
                     else if (posPacket.Length < 3)
                     {
-                        throw new Exception("Invalid Packet " + type + " size " + posPacket.Length + " -");
+                        throw new Exception("Invalid Packet " + type.ToString("X2") + " size " + posPacket.Length + " -");
                     }
 
                     var tmph = Serializer.Deserialize<WZBPacket>(posPacket);
@@ -149,7 +149,7 @@ namespace WebZen.Network
                     }
                     else if(posPacket.Length < 4)
                     {
-                        throw new Exception("Invalid Packet " + type + " size " + posPacket.Length + " -");
+                        throw new Exception("Invalid Packet " + type.ToString("X2") + " size " + posPacket.Length + " -");
                     }
 
                     var tmph = Serializer.Deserialize<WZWPacket>(posPacket);
@@ -337,32 +337,78 @@ namespace WebZen.Network
         {
 
             var factory = _factories.First(f => f.ContainsType(message.GetType()));
-            byte[] result = null;
             
             ushort opCode = factory.GetOpCode(message.GetType());
 
-            WZContractAttribute att = null;
-
-            foreach (var a in message.GetType().GetCustomAttributes(false))
-            {
-                if (a.GetType() == typeof(WZContractAttribute))
-                {
-                    att = a as WZContractAttribute;
-                }
-            }
+            var att = message
+                .GetType()
+                .GetCustomAttributes(false)
+                .Where(x => x.GetType() == typeof(WZContractAttribute))
+                .FirstOrDefault() as WZContractAttribute;
 
             if (att == null)
                 throw new InvalidOperationException("Invalid message format");
 
-            //Console.WriteLine("[S->C] {0} {1} {2}", message.GetType().Name, att.Serialized, serial);
+            byte[] res;
 
+            using (var data = new MemoryStream())
+            {
+                var opCodeSize = (opCode & 0xFF00) == 0xFF00 ? 1 : 2;
+                if (att.LongMessage)
+                {
+                    Serializer.Serialize(data, new WZWPacket(0xC2, (ushort)data.Length, opCode));
+                }
+                else
+                {
+                    Serializer.Serialize(data, new WZBPacket(0xC1, (byte)data.Length, opCode));
+                }
+
+                try
+                {
+                    data.Position = (att.LongMessage ? 3 : 2) + opCodeSize;
+                    Serializer.Serialize(data, message);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "");
+                }
+
+                if (att.Serialized)
+                {
+                    data.Position = (att.LongMessage ? 3 : 2);
+                    if (_packetRijndael == true)
+                        PacketEncrypt.Encrypt(data, data);
+                    else
+                        SimpleModulus.Encrypt(data, (byte)serial, data);
+
+                    serial++;
+                    data.Position = 0;
+                    data.WriteByte((byte)(att.LongMessage ? 0xC4 : 0xC3));
+                }
+
+                data.Position = 1;
+                if (att.LongMessage)
+                {
+                    data.Write(BitConverter.GetBytes(((ushort)data.Length).ShufleEnding()), 0, 2);
+                }
+                else
+                {
+                    data.Write(BitConverter.GetBytes((byte)data.Length), 0, 1);
+                }
+                res = data.ToArray();
+                //if(!att.Serialized)
+                    return res;
+            }
+
+            /*byte[] result;
             using (var h = new MemoryStream())
             using (var b = new MemoryStream())
             {
                 try
                 {
                     Serializer.Serialize(b, message);
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     Logger.Error(e, "");
                 }
@@ -381,7 +427,7 @@ namespace WebZen.Network
                     };
                     Serializer.Serialize(h, header);
 
-                    sizeFix2 = 2;
+                    sizeFix2 = 3;
                 }
                 else
                 {
@@ -393,7 +439,7 @@ namespace WebZen.Network
                     };
                     Serializer.Serialize(h, header);
 
-                    sizeFix2 = 1;
+                    sizeFix2 = 2;
                 }
 
                 var head = h.ToArray();
@@ -409,7 +455,7 @@ namespace WebZen.Network
                     var temp = new byte[result.Length - sizeFix2];
                     Array.Copy(result, sizeFix2, temp, 0, temp.Length);
 
-                    temp[0] = (byte)serial;
+                    //temp[0] = (byte)serial;
 
                     byte[] enc;// = SimpleModulus.Encoder(temp);
                     using (var ms = new MemoryStream())
@@ -417,7 +463,7 @@ namespace WebZen.Network
                         if (_packetRijndael == true)
                             PacketEncrypt.Encrypt(ms, new MemoryStream(temp));
                         else
-                            SimpleModulus.Encrypt(ms, new MemoryStream(temp));
+                            SimpleModulus.Encrypt(ms, (byte)serial, new MemoryStream(temp));
 
                         enc = new byte[ms.Length];
                         ms.Seek(0, SeekOrigin.Begin);
@@ -426,22 +472,24 @@ namespace WebZen.Network
 
                     var resultTemp = new byte[sizeFix2 + enc.Length + 1];
                     Array.Copy(result, resultTemp, sizeFix2 + 1);
-                    if(resultTemp[0] == 0xC3)
+                    if (resultTemp[0] == 0xC3)
                     {
                         resultTemp[1] = (byte)(resultTemp.Length);
-                    }else
+                    }
+                    else
                     {
-                        resultTemp[1] = (byte)(resultTemp.Length >>8);
-                        resultTemp[2] = (byte)(resultTemp.Length &0xff);
+                        resultTemp[1] = (byte)(resultTemp.Length >> 8);
+                        resultTemp[2] = (byte)(resultTemp.Length & 0xff);
                     }
                     Array.Copy(enc, 0, resultTemp, sizeFix2 + 1, enc.Length);
                     serial++;
 
-                    return resultTemp;
+                    Logger.Debug("\nA:{0}\nB{1}", result.GetHex(), res.GetHex());
+                    return res;
                 }
             }
 
-            return result;
+            return result;*/
         }
     }
 
@@ -464,15 +512,11 @@ namespace WebZen.Network
 
             ushort opCode = factory.GetOpCode(message.GetType());
 
-            WZContractAttribute att = null;
-
-            foreach (var a in message.GetType().GetCustomAttributes(false))
-            {
-                if (a.GetType() == typeof(WZContractAttribute))
-                {
-                    att = a as WZContractAttribute;
-                }
-            }
+            var att = message
+                .GetType()
+                .GetCustomAttributes(false)
+                .Where(x => x.GetType() == typeof(WZContractAttribute))
+                .FirstOrDefault() as WZContractAttribute;
 
             if (att == null)
                 throw new InvalidOperationException("Invalid message format");
@@ -572,6 +616,13 @@ namespace WebZen.Network
 
         [BlubMember(2)]
         public ushort Operation { get; set; }
+        public WZBPacket() { }
+        public WZBPacket(byte type, byte size, ushort op)
+        {
+            Type = type;
+            Size = size;
+            Operation = op;
+        }
     }
 
     [BlubContract]
@@ -592,6 +643,14 @@ namespace WebZen.Network
             {
                 wzSize = value.ShufleEnding();
             }
+        }
+
+        public WZWPacket() { }
+        public WZWPacket(byte type, ushort size, ushort op)
+        {
+            Type = type;
+            Size = size;
+            Operation = op;
         }
     }
 }
