@@ -66,6 +66,8 @@ namespace MuEmu.Network
         OneItemSend = 0x14F3,
         SkillKey = 0x30F3,
         Command = 0x40F3,
+        MasterLevelInfo = 0x50F3,
+        MasterLevelUp = 0x51E0,
         NewQuestInfo = 0x1AF6,
         QuestDetails = 0x1BF6,
         QuestWindow = 0x01F9,

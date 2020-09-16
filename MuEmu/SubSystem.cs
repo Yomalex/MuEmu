@@ -16,6 +16,7 @@ using MuEmu.Resources.Map;
 using MuEmu.Network.QuestSystem;
 using System.Threading.Tasks;
 using MuEmu.Network.Guild;
+using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -131,6 +132,7 @@ namespace MuEmu
                         }
 
                         // update monster section
+                        lock(map.Monsters)
                         foreach(var obj in map.Monsters.Where(x => x.Active))
                         {
                             switch(obj.State)
@@ -287,32 +289,38 @@ namespace MuEmu
 
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)
         {
-            var oldVP = plr.MonstersVP;
-            var targetVP = Map.Monsters.Where(x => x.Active);
-            var pos = plr.Position;
-            pos.Offset(15, 15);
+            List<Monsters.Monster> newObj;
+            List<Monsters.Monster> existObj;
+            List<Monsters.Monster> deadObj;
+            List<Monsters.Monster> lostObj;
+            List<ushort> oldVP;
+            lock (Map.Monsters)
+            {
+                oldVP = plr.MonstersVP;
+                var targetVP = Map.Monsters.Where(x => x.Active);
+                //var pos = plr.Position;
+                //pos.Offset(15, 15);
 
-            var playerVP = from obj in targetVP
-                           let rect = new Rectangle(obj.Position, new Size(30, 30))
-                           where rect.Contains(pos)
-                           select obj;
+                var playerVP = from obj in targetVP
+                               where obj.Position.Substract(plr.Position).LengthSquared() <= 10
+                               select obj;
 
-            var newObj = (from obj in playerVP
-                         where obj.State == ObjectState.Regen && obj.Active
-                         select obj).ToList();
+                newObj = (from obj in playerVP
+                              where obj.State == ObjectState.Regen && obj.Active
+                              select obj).ToList();
 
-            var existObj = (from obj in playerVP
-                           where !oldVP.Contains(obj.Index) && obj.State == ObjectState.Live && obj.Active
-                            select obj).ToList();
+                existObj = (from obj in playerVP
+                                where !oldVP.Contains(obj.Index) && obj.State == ObjectState.Live && obj.Active
+                                select obj).ToList();
 
-            var deadObj = (from obj in playerVP
-                          where obj.State == ObjectState.WaitRegen || obj.Active == false
-                          select obj).ToList();
+                deadObj = (from obj in playerVP
+                           where obj.State == ObjectState.WaitRegen || obj.Active == false
+                           select obj).ToList();
 
-            var lostObj = (from obj in targetVP
-                          let rect = new Rectangle(obj.Position, new Size(30, 30))
-                          where !rect.Contains(pos) && oldVP.Contains(obj.Index)
-                          select obj).ToList();
+                lostObj = (from obj in targetVP
+                           where !(obj.Position.Substract(plr.Position).LengthSquared() <= 10) && oldVP.Contains(obj.Index)
+                           select obj).ToList();
+            }
 
             // Update the old player VP
             /*foreach (var obj in newObj)
@@ -337,10 +345,10 @@ namespace MuEmu
 
             var addObj = new List<VPMCreateDto>();
 
-            if(newObj.Any())
+            if (newObj.Any())
                 addObj.AddRange(newObj.Select(x => new VPMCreateDto
                 {
-                    Number = (ushort)(x.Index|0x8000),
+                    Number = (ushort)(x.Index | 0x8000),
                     Position = x.Position,
                     TPosition = x.TPosition,
                     Type = x.Info.Monster,
@@ -360,8 +368,8 @@ namespace MuEmu
                 }));
 
             var remObj = new List<VPDestroyDto>();
-            remObj.AddRange(deadObj.Select(x => new VPDestroyDto(x.Index)));
-            remObj.AddRange(lostObj.Select(x => new VPDestroyDto(x.Index)));
+                remObj.AddRange(deadObj.Select(x => new VPDestroyDto(x.Index)));
+                remObj.AddRange(lostObj.Select(x => new VPDestroyDto(x.Index)));
 
             if (remObj.Any())
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
@@ -460,6 +468,7 @@ namespace MuEmu
                 Marlon.Run();
                 foreach (var map in ResourceCache.Instance.GetMaps().Values)
                 {
+                    lock(map.Monsters)
                     foreach (var obj in map.Monsters)
                     {
                         if (obj.State != ObjectState.Live)

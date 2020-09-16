@@ -210,6 +210,10 @@ namespace MuEmu.Network.Auth
                 var friendList = from friend in db.Friends
                                  where (friend.FriendId == @charDto.CharacterId || friend.CharacterId == @charDto.CharacterId) && friend.State == 1
                                  select friend;
+
+                charDto.MasterInfo = (from mi in db.MasterLevel
+                                     where mi.MasterInfoId == charDto.CharacterId
+                                     select mi).FirstOrDefault();
             }
 
             if (@charDto == null)
@@ -223,7 +227,7 @@ namespace MuEmu.Network.Auth
 
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
-            //FriendListRequest
+
             await session.SendAsync(new SFriends { MemoCount = 0, Friends = new Data.FriendDto[] { new Data.FriendDto { Name = "Yomalex2".GetBytes() } } });
             
             await session.SendAsync(new SKillCount { KillCount = 1 });

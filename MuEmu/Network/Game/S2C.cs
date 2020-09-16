@@ -1633,5 +1633,62 @@ namespace MuEmu.Network.Game
             btName = name.GetBytes();
         }
     }
+
+    [WZContract]
+    public class SMasterInfo : IGameMessage
+    {
+        public SMasterInfo() { }
+        public SMasterInfo(ushort level, ulong experience, ulong nextExperience, ushort points, ushort maxHealth, ushort maxShield, ushort maxMana, ushort maxStamina)
+        {
+            Level = level;
+            Experience = experience.ShufleEnding();
+            NextExperience = nextExperience.ShufleEnding();
+            Points = points;
+            MaxHealth = maxHealth;
+            MaxShield = maxShield;
+            MaxMana = maxMana;
+            MaxBP = maxStamina;
+        }
+
+        //PBMSG_HEAD2 h;
+        [WZMember(0)] public ushort Level { get; set; }
+
+        [WZMember(1)] public ulong Experience { get; set; }// [8]
+        [WZMember(2)] public ulong NextExperience { get; set; }// [8];
+
+        [WZMember(3)] public ushort Points { get; set; }
+
+        [WZMember(4)] public ushort MaxHealth { get; set; }
+        [WZMember(5)] public ushort MaxMana { get; set; }
+        [WZMember(6)] public ushort MaxShield { get; set; }
+        [WZMember(7)] public ushort MaxBP { get; set; }
+    }
+
+    [WZContract]
+    public class SMasterLevelUp : IGameMessage
+    {
+        public SMasterLevelUp() { }
+        public SMasterLevelUp(ushort level, ushort levelAdd, ushort points, ushort maxPoints, ushort maxHealth, ushort maxShield, ushort maxMana, ushort maxStamina)
+        {
+            Level = level;
+            LevelAdd = levelAdd;
+            Points = points;
+            MaxPoints = maxPoints;
+            MaxHealth = maxHealth;
+            MaxShield = maxShield;
+            MaxMana = maxMana;
+            MaxStamina = maxStamina;
+        }
+
+        //PBMSG_HEAD2 h;
+        [WZMember(0)] public ushort Level { get; set; }
+        [WZMember(1)] public ushort LevelAdd { get; set; }
+        [WZMember(2)] public ushort Points { get; set; }
+        [WZMember(3)] public ushort MaxPoints { get; set; }
+        [WZMember(4)] public ushort MaxHealth { get; set; }
+        [WZMember(5)] public ushort MaxMana { get; set; }
+        [WZMember(6)] public ushort MaxShield { get; set; }
+        [WZMember(7)] public ushort MaxStamina { get; set; }
+    }
 }
 

@@ -236,7 +236,7 @@ namespace MuEmu.Network.Game
                 await session.SendAsync(new SMoveItem
                 {
                     ItemInfo = message.ItemInfo,
-                    Position = 0xff,
+                    Position = message.Source,
                     Result = (byte)message.tFlag
                 });
             }
@@ -347,6 +347,20 @@ namespace MuEmu.Network.Game
 
             switch(Source.Number)
             {
+                case 12 * 512 + 47:// Orb of Sword Slash
+                    if(await @char.Spells.TryAdd(Spell.Slash))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
+                case 12 * 512 + 16:// Orb of Fire Slash
+                    if (await @char.Spells.TryAdd(Spell.FireSlash))
+                    {
+                        await inv.Delete(message.Source);
+                    }
+                    @char.HPorSDChanged(RefillInfo.Update);
+                    break;
                 case 12 * 512 + 7:// Orb of Twisting Slash
                     if (await @char.Spells.TryAdd(Spell.TwistingSlash))
                     {
@@ -1248,30 +1262,22 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CBeattack))]
-        public void CBeattack(GSSession session, CBeattack message)
+        public async Task CBeattack(GSSession session, CBeattack message)
         {
             var spell = ResourceCache.Instance.GetSkills()[message.MagicNumber];
 
-            foreach(var a in message.Beattack)
+            var mobList = from id in message.Beattack
+                          select MonstersMng.Instance.GetMonster(id.Number);
+
+            var mobInRange = from mob in mobList
+                             where mob.MapID == session.Player.Character.MapID && spell.Distance >= mob.Position.Substract(message.Position).LengthSquared()
+                             select mob;
+
+            foreach(var mob in mobInRange)
             {
-                try
-                {
-                    var mob = MonstersMng.Instance.GetMonster(a.Number);
-
-                    if (spell.Distance != 0 && spell.Distance < mob.Position.Substract(message.Position).LengthSquared())
-                    {
-                        Logger.ForAccount(session).Error(Program.ServerMessages.GetMessage(Messages.Game_MonsterOutOfRange));
-                        continue;
-                    }
-
-                    DamageType dmgType;
-                    var dmg = session.Player.Character.MagicAttack(spell, mob.Defense, out dmgType);
-                    mob.GetAttacked(session.Player, dmg, dmgType).Wait();
-                }catch(Exception)
-                {
-
-                }
-
+                DamageType dmgType;
+                var dmg = session.Player.Character.MagicAttack(spell, mob.Defense, out dmgType);
+                await mob.GetAttacked(session.Player, dmg, dmgType);
             }
         }
         #endregion

@@ -180,6 +180,11 @@ namespace MuEmu.Network.Game
             Register<SDuelBroadcastResult>(GameOpCode.DuelResultBroadcast);
             Register<SDuelBroadcastRound>(GameOpCode.DuelRoundBroadcast);
             #endregion
+
+            #region Server MasterLevelMessages
+            Register<SMasterInfo>(GameOpCode.MasterLevelInfo);
+            Register<SMasterLevelUp>(GameOpCode.MasterLevelUp);
+            #endregion
         }
     }
 }

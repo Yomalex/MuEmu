@@ -241,19 +241,19 @@ namespace MuEmu
             if (Character != null)
             {
                 if (item.ReqStrength > Character.StrengthTotal)
-                    throw new InvalidOperationException("Need more Strength");
+                    throw new InvalidOperationException("Need more Strength: req "+ item.ReqStrength);
 
                 if (item.ReqAgility > Character.AgilityTotal)
-                    throw new InvalidOperationException("Need more Agility");
+                    throw new InvalidOperationException("Need more Agility: req " + item.ReqAgility);
 
                 if (item.ReqVitality > Character.VitalityTotal)
-                    throw new InvalidOperationException("Need more Vitality");
+                    throw new InvalidOperationException("Need more Vitality: req " + item.ReqVitality);
 
                 if (item.ReqEnergy > Character.EnergyTotal)
-                    throw new InvalidOperationException("Need more Energy");
+                    throw new InvalidOperationException("Need more Energy: req " + item.ReqEnergy);
 
                 if (item.ReqCommand > Character.CommandTotal)
-                    throw new InvalidOperationException("Need more Command");
+                    throw new InvalidOperationException("Need more Command: req " + item.ReqCommand);
             }
             else
             {
@@ -350,7 +350,22 @@ namespace MuEmu
 
             if (to == MoveItemFlags.Inventory && toIndex < (byte)Equipament.End)
             {
-                Equip((Equipament)toIndex, it);
+                try
+                {
+                    Equip((Equipament)toIndex, it);
+                }catch(Exception ex)
+                {
+                    Log.Logger.Error(ex, "Can't move, rolling back");
+                    if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
+                    {
+                        Equip((Equipament)fromIndex, it);
+                    }
+                    else
+                    {
+                        sFrom.Add(fromIndex, it);
+                    }
+                    return false;
+                }
             }
             else
             {

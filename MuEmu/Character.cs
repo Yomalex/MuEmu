@@ -96,6 +96,7 @@ namespace MuEmu
         public Spells Spells { get; }
         public bool Change { get; set; }
         public Party Party { get; set; }
+        public MasterLevel MasterLevel { get; set; }
 
         public PShop Shop { get; set; }
 
@@ -315,6 +316,8 @@ namespace MuEmu
                 if (value == _exp)
                     return;
 
+                MasterLevel.GetExperience(value - _exp);
+
                 _exp = value;
 
                 if (_exp >= NextExperience)
@@ -516,10 +519,11 @@ namespace MuEmu
             Quests = new Quests(this, characterDto);
             Spells = new Spells(this, characterDto);
             Inventory = new Inventory(this, characterDto);
+            MasterLevel = new MasterLevel(this, characterDto);
+            Shop = new PShop(this);
             MonstersVP = new List<ushort>();
             ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
-            Shop = new PShop(this);
             State = ObjectState.Regen;
             CtlCode = (ControlCode)characterDto.CtlCode;
 
@@ -585,6 +589,7 @@ namespace MuEmu
                 Spells.TryAdd(Spell.InfinityArrow).Wait();
 
             Spells.SendList();
+            MasterLevel.SendInfo();
         }
 
         public async Task SendV2Message(object message, Player exclude = null)
@@ -737,8 +742,8 @@ namespace MuEmu
                 return;
 
             var att = BaseInfo.Attributes;
-            _hpMax = (att.Life + att.LevelLife * (Level - 1) + att.VitalityToLife * Vitality)* (1.0f + Inventory.IncreaseHP);
-            _mpMax = (att.Mana + att.LevelMana * (Level - 1) + att.EnergyToMana * Energy)* (1.0f + Inventory.IncreaseMP);
+            _hpMax = (att.Life + att.LevelLife * (Level - 1 + (MasterLevel.Level - 1)) + att.VitalityToLife * Vitality)* (1.0f + Inventory.IncreaseHP);
+            _mpMax = (att.Mana + att.LevelMana * (Level - 1 + (MasterLevel.Level - 1)) + att.EnergyToMana * Energy)* (1.0f + Inventory.IncreaseMP);
             _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
 
@@ -981,6 +986,7 @@ namespace MuEmu
             await Inventory.Save(db);
             await Spells.Save(db);
             await Quests.Save(db);
+            MasterLevel.Save(db);
 
             if (_needSave == false)
                 return;

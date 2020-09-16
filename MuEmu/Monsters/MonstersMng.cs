@@ -90,6 +90,12 @@ namespace MuEmu.Monsters
                         MaxItem = int.Parse(m.Groups[23].Value),
                         Skill = int.Parse(m.Groups[24].Value),
                     };
+
+                    if(monst.Spell >= (Spell)100 && monst.Spell < (Spell)200)
+                    {
+                        monst.Spell -= 100;
+                        monst.AttackRange += 2;
+                    }
                     _monsterInfo.Add(monst.Monster, monst);
                 }
             }

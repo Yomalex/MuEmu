@@ -99,5 +99,6 @@ namespace MuEmu.Entity
         public DbSet<SpellDto> Spells { get; set; }
         public DbSet<QuestDto> Quests { get; set; }
         public DbSet<SkillKeyDto> Config { get; set; }
+        public DbSet<MasterInfoDto> MasterLevel { get; set; }
     }
 }

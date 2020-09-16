@@ -239,7 +239,8 @@ namespace MuEmu.Resources.Map
         {
             var pos = mons.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
-            Monsters.Add(mons);
+            lock(Monsters)
+                Monsters.Add(mons);
 
             MonsterAdd?.Invoke(mons, new EventArgs());
         }
@@ -291,7 +292,8 @@ namespace MuEmu.Resources.Map
         {
             var pos = mons.Position;
             ClearAttribute(pos.X, pos.Y, MapAttributes.Stand);
-            Monsters.Remove(mons);
+            lock(Monsters)
+                Monsters.Remove(mons);
             
         }
 

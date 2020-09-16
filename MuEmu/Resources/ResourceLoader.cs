@@ -135,8 +135,8 @@ namespace MuEmu.Resources
                                         ReqLevel = ushort.Parse(sm.Groups[17].Value),
                                         Str = ushort.Parse(sm.Groups[18].Value),
                                         Agi = ushort.Parse(sm.Groups[19].Value),
-                                        Vit = ushort.Parse(sm.Groups[20].Value),
-                                        Ene = ushort.Parse(sm.Groups[21].Value),
+                                        Ene = ushort.Parse(sm.Groups[20].Value),
+                                        Vit = ushort.Parse(sm.Groups[21].Value),
                                         Cmd = ushort.Parse(sm.Groups[22].Value),
                                         Classes = c
                                     });

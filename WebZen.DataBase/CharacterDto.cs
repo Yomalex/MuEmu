@@ -77,6 +77,8 @@ namespace MU.DataBase
 
         public SkillKeyDto SkillKey { get; set; }
 
+        public MasterInfoDto MasterInfo { get; set; }
+
         public int AccountId { get; set; }
         public AccountDto Account { get; set; }
     }
