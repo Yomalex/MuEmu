@@ -1,3 +1,6 @@
-<ItemBags xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <ItemBag />
+<?xml version="1.0" encoding="utf-8"?>
+<ItemBags>
+    <ItemBag Item="6676" Plus="1" LevelMin="20" Bag="RingEvent.txt" />
+    <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.txt" />
+    <!--<ItemBag Item="" Bag="" />-->
 </ItemBags>

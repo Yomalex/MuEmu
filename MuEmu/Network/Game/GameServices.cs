@@ -660,13 +660,34 @@ namespace MuEmu.Network.Game
         public async Task CItemThrow(GSSession session, CItemThrow message)
         {
             var logger = Logger.ForAccount(session);
+            var itemBags = ResourceCache.Instance.GetItemBags();
             var plr = session.Player;
             var inv = plr.Character.Inventory;
             var item = inv.Get(message.Source);
+            DateTimeOffset date;
             await inv.Delete(message.Source);
 
-            var date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+            var bag = (from b in itemBags
+                      where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0)
+                      select b).FirstOrDefault();
+
+            if (bag != null)
+            {
+                if(bag.LevelMin < plr.Character.Level)
+                {
+                    var c = bag.Storage.Items.Values.Count;
+                    item = bag.Storage.Items.Values.ElementAt(new Random().Next(c));
+                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+                }
+                await session.SendAsync(new SItemThrow { Source = message.Source, Result = 0 });
+                return;
+            }
+            else
+            {
+                date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+            }
             await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
+
             logger.Information("Drop item {0} at {1},{2} in {3} deleted at {4}", item.Number, message.MapX, message.MapY, plr.Character.MapID, date);
         }
 

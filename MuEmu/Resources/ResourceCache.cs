@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using MuEmu.Resources.Map;
 using MuEmu.Resources.Game;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace MuEmu.Resources
 {
@@ -42,6 +43,7 @@ namespace MuEmu.Resources
             Instance.GetGates();
             Instance.GetQuests();
             Instance.GetChaosMixInfo();
+            Instance.GetItemBags();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -169,6 +171,19 @@ namespace MuEmu.Resources
                 Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_ChaosMixs));
                 cache = _loader.LoadChaosBox();
                 _cache.Set("ChaosMix", cache);
+            }
+
+            return cache;
+        }
+
+        public IEnumerable<ItemThrowInfo> GetItemBags()
+        {
+            var cache = _cache.Get<IEnumerable<ItemThrowInfo>>("ItemBags");
+            if (cache == null)
+            {
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Shops));
+                cache = _loader.LoadItembags();
+                _cache.Set("ItemBags", cache);
             }
 
             return cache;

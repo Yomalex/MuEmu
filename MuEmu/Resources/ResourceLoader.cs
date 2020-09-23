@@ -1,4 +1,5 @@
-﻿using MuEmu.Data;
+﻿using Google.Protobuf.WellKnownTypes;
+using MuEmu.Data;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Resources.XML;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
@@ -66,10 +68,10 @@ namespace MuEmu.Resources
                         Level = i.Level,
                         Def = i.Defense,
                         DefRate = i.DefenseRate,
-                        Attributes = i.Attributes.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => Enum.Parse<AttributeType>(x)).ToList(),
+                        Attributes = i.Attributes.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<AttributeType>(x)).ToList(),
                         Zen = i.Zen,
-                        Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => Enum.Parse<HeroClass>(x)).ToList(),
-                        Skill = Enum.Parse<Spell>(i.Skill),
+                        Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<HeroClass>(x)).ToList(),
+                        Skill = System.Enum.Parse<Spell>(i.Skill),
                         Durability = i.Durability,
                         MagicDur = i.MagicDur,
                         MagicPower = i.MagicPower,
@@ -408,7 +410,7 @@ namespace MuEmu.Resources
                         {
                             var tmp = new SpellInfo
                             {
-                                Number = Enum.Parse<Spell>(m.Groups[1].Value, true),
+                                Number = System.Enum.Parse<Spell>(m.Groups[1].Value, true),
                                 Name = m.Groups[2].Value,
                                 ReqLevel = ushort.Parse(m.Groups[3].Value),
                                 Damage = new Point(Dmg, Dmg * 2),
@@ -494,7 +496,7 @@ namespace MuEmu.Resources
                 var classList = i.Classes
                     .Split(",")
                     .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => (HeroClass)Enum.Parse(typeof(HeroClass), x))
+                    .Select(x => (HeroClass)System.Enum.Parse(typeof(HeroClass), x))
                     .ToList();
 
                 var tmp = new SpellInfo
@@ -559,8 +561,8 @@ namespace MuEmu.Resources
                 yield return new CharacterInfo
                 {
                     Level = (ushort)@char.Level,
-                    Class = (HeroClass)Enum.Parse(typeof(HeroClass), @char.BaseClass),
-                    Map = (Maps)Enum.Parse(typeof(Maps), @char.Map),
+                    Class = (HeroClass)System.Enum.Parse(typeof(HeroClass), @char.BaseClass),
+                    Map = (Maps)System.Enum.Parse(typeof(Maps), @char.Map),
                     Spells = @char.Skill?.Select(x => (Spell)x).ToArray()??Array.Empty<Spell>(),
                     Stats = new StatsInfo
                     {
@@ -637,7 +639,7 @@ namespace MuEmu.Resources
             var xml = XmlLoader<NPCAttributesDto>(Path.Combine(_root, "NPCs.xml"));
             foreach(var npc in xml.NPCs)
             {
-                var type = (NPCAttributeType)Enum.Parse(typeof(NPCAttributeType), npc.Type);
+                var type = (NPCAttributeType)System.Enum.Parse(typeof(NPCAttributeType), npc.Type);
                 NPCInfo info = new NPCInfo
                 {
                     NPC = npc.NPC,
@@ -781,8 +783,8 @@ namespace MuEmu.Resources
             {
                 yield return new Gate
                 {
-                    GateType = Enum.Parse<GateType>(g.GateType),
-                    Map = Enum.Parse<Maps>(g.Map),
+                    GateType = System.Enum.Parse<GateType>(g.GateType),
+                    Map = System.Enum.Parse<Maps>(g.Map),
                     Number = g.Number,
                     ReqLevel = g.ReqLevel,
                     Target = g.Target,
@@ -815,9 +817,9 @@ namespace MuEmu.Resources
                     var stmp = new SubQuest
                     {
                         Index = sq.Index,
-                        Allowed = sq.Classes.Split(",").Select(x => Enum.Parse<HeroClass>(x)).ToArray(),
+                        Allowed = sq.Classes.Split(",").Select(x => System.Enum.Parse<HeroClass>(x)).ToArray(),
                         Messages = new Dictionary<QuestState, ushort>(),
-                        CompensationType = Enum.Parse<QuestCompensation>(sq.Reward.Type),
+                        CompensationType = System.Enum.Parse<QuestCompensation>(sq.Reward.Type),
                         Amount = sq.Reward.SubType,
                         Requeriment = new List<Item>()
                     };
@@ -936,6 +938,32 @@ namespace MuEmu.Resources
             }
 
             return cbmix;
+        }
+
+        public IEnumerable<ItemThrowInfo> LoadItembags()
+        {
+            var Item0Regex = new Regex(@"\s*([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
+            var xml = XmlLoader<ItemBagsDto>(Path.Combine(_root, "ItemBags.xml"));
+            foreach(var x in xml.ItemBags)
+            {
+                var ret = new ItemThrowInfo
+                {
+                    Number = x.Item,
+                    Plus = x.Plus,
+                    LevelMin = x.LevelMin,
+                    Storage = new Storage(Storage.ShopSize)
+                };
+                using (var tr = File.OpenText(Path.Combine(_root, "ItemBags/" + x.Bag)))
+                {
+                    foreach(Match m in Item0Regex.Matches(tr.ReadToEnd()))
+                    {
+                        var it = new Item(ItemNumber.FromTypeIndex(byte.Parse(m.Groups[1].Value), ushort.Parse(m.Groups[2].Value)), Options: new { Plus = byte.Parse(m.Groups[3].Value), Luck = (byte.Parse(m.Groups[4].Value)==1), Skill = (byte.Parse(m.Groups[5].Value)==1), Option28 = byte.Parse(m.Groups[6].Value) });
+                        ret.Storage.Add(it);
+                    }
+                }
+
+                yield return ret;
+            }
         }
     }
 }
