@@ -1690,5 +1690,22 @@ namespace MuEmu.Network.Game
         [WZMember(6)] public ushort MaxShield { get; set; }
         [WZMember(7)] public ushort MaxStamina { get; set; }
     }
+
+    [WZContract]
+    public class SMasterLevelSkill : IGameMessage
+    {
+        [WZMember(0)]
+        public byte type { get; set; }
+        [WZMember(1)]
+        public byte flag { get; set; }
+        [WZMember(2)]
+        public ushort MasterPoint { get; set; }
+        [WZMember(3)]
+        public Spell MasterSkill { get; set; }
+        [WZMember(4)]
+        public ushort MasterEmpty { get; set; }
+        [WZMember(5)]
+        public uint ChkSum { get; set; }
+    }
 }
 

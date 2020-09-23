@@ -483,7 +483,7 @@ namespace MuEmu.Monsters
                 EXP *= pair.Value / MaxLife;
 
                 if(pair.Key == Killer)
-                    Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen);
+                    Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen + Killer.Character.Spells.IncreaseZen);
 
                 EXP *= Program.Experience;
                 Zen *= Program.Zen;

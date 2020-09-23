@@ -557,4 +557,14 @@ namespace MuEmu.Network.Game
         public string Name => btName.MakeString();
     }
     #endregion
+
+    [WZContract]
+    public class CMasterSkill : IGameMessage
+    {
+        [WZMember(0)]
+        public Spell MasterSkill { get; set; }
+
+        [WZMember(1)]
+        public ushort MasterEmpty { get; set; }
+    }
 }

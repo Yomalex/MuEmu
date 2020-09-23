@@ -106,6 +106,63 @@ namespace MuEmu
         Recovery = 234,
         MultiShot = 235,
         LightingStorm = 237,
+
+        // Master Level
+        SoulBarrier1 = 435,
+        SoulBarrier2,
+        SoulBarrier3,
+        SoulBarrier4,
+        SoulBarrier5,
+        Hellfire1 = 440,
+        Hellfire2,
+        Hellfire3,
+        Hellfire4,
+        Hellfire5,
+        EvilSpirit1 = 445,
+        EvilSpirit2,
+        EvilSpirit3,
+        EvilSpirit4,
+        EvilSpirit5,
+        IceStorm1 = 450,
+        IceStorm2,
+        IceStorm3,
+        IceStorm4,
+        IceStorm5,
+        TwistingSlash1 = 455,
+        TwistingSlash2,
+        TwistingSlash3,
+        TwistingSlash4,
+        TwistingSlash5,
+        DeathStab1 = 460,
+        DeathStab2,
+        DeathStab3,
+        DeathStab4,
+        DeathStab5,
+        RagefulBlow1 = 465,
+        RagefulBlow2,
+        RagefulBlow3,
+        RagefulBlow4,
+        RagefulBlow5,
+        GreatFortitude1 = 470,
+        GreatFortitude2,
+        GreatFortitude3,
+        GreatFortitude4,
+        GreatFortitude5,
+        Heal1 = 475,
+        Heal2,
+        Heal3,
+        Heal4,
+        Heal5,
+        GreaterDefense1 = 480,
+        GreaterDefense2,
+        GreaterDefense3,
+        GreaterDefense4,
+        GreaterDefense5,
+        GreaterDamage1 = 485,
+        GreaterDamage2,
+        GreaterDamage3,
+        GreaterDamage4,
+        GreaterDamage5,
     }
     public class Spells
     {
@@ -113,7 +170,26 @@ namespace MuEmu
         private Dictionary<Spell, SpellInfo> _spellList;
         private List<Buff> _buffs;
         private List<Spell> _newSpell = new List<Spell>();
-        
+        private List<Spell> _delSpell = new List<Spell>();
+
+        public float PvMAttackSuccessRate { get; private set; }
+        public float AdvancedAttackSuccessRate { get; private set; }
+        public float AdvancedDefenseSuccessRate { get; private set; }
+        public float RepairLevel1 { get; private set; }
+        public float RepairLevel2 { get; private set; }
+        public float PoisonResistance { get; private set; }
+        public float LightningResistance { get; private set; }
+        public float IceResistance { get; private set; }
+        public float IncreaseAutoRegeneration { get; private set; }
+        public float IncreaseZen { get; private set; }
+        public float IncreaseDefense { get; private set; }
+        public float IncreaseMaxHP { get; private set; }
+        public float IncreaseMaxAG { get; private set; }
+        public float IncreaseManaReduction { get; private set; }
+        public float MonsterAttackLifeIncrease { get; private set; }
+        public float MonsterAttackSDIncrease { get; private set; }
+        public float IncreaseExperience { get; private set; }
+
         public Monster Monster { get; }
         public Player Player { get; }
         public Character Character { get; }
@@ -148,6 +224,7 @@ namespace MuEmu
             {
                 var spell = spells[skill];
                 _spellList.Add(skill, spell);
+                SetEffect((int)skill);
                 Logger
                     .ForAccount(Player.Session)
                     .Information("Learned {0} Skill Added", spell.Name);
@@ -162,6 +239,7 @@ namespace MuEmu
             {
                 _spellList.Add(skill, spells[skill]);
                 _newSpell.Add(skill);
+                SetEffect((int)skill);
             }
         }
 
@@ -214,6 +292,11 @@ namespace MuEmu
                 return false;
             }
 
+            if(_spellList.ContainsKey(skill))
+            {
+                return false;
+            }
+
             var pos = _spellList.Count;
 
             Add(skill);
@@ -234,6 +317,7 @@ namespace MuEmu
         public void Remove(Spell skill)
         {
             _spellList.Remove(skill);
+            _delSpell.Add(skill);
         }
 
         public void Remove(SpellInfo skill)
@@ -442,10 +526,85 @@ namespace MuEmu
 
         public SkillStates[] ViewSkillStates => _buffs.Select(x => x.State).ToArray();
 
+        internal void SetEffect(int skill)
+        {
+            var spell = _spellList[(Spell)skill];
+            if (skill >= 300 && skill < 305)
+            {
+                PvMAttackSuccessRate = spell.Damage.X/100.0f;
+            }
+            else if (skill >= 305 && skill < 310)
+            {
+                AdvancedAttackSuccessRate = spell.Damage.X/100.0f;
+            }
+            else if (skill >= 310 && skill < 315)
+            {
+                AdvancedDefenseSuccessRate = spell.Damage.X/100.0f;
+            }
+            else if (skill >= 315 && skill < 320)
+            {
+                RepairLevel1 = spell.Damage.X;
+            }
+            else if (skill >= 320 && skill < 325)
+            {
+                RepairLevel2 = spell.Damage.X;
+            }
+            else if (skill >= 325 && skill < 330)
+            {
+                PoisonResistance = spell.Damage.X; //%
+            }
+            else if (skill >= 330 && skill < 335)
+            {
+                LightningResistance = spell.Damage.X; //%
+            }
+            else if (skill >= 335 && skill < 340)
+            {
+                IceResistance = spell.Damage.X; //%
+            }
+            else if (skill >= 340 && skill < 345)
+            {
+                IncreaseAutoRegeneration = spell.Damage.X ;
+            }
+            else if (skill >= 345 && skill < 350)
+            {
+                IncreaseZen = spell.Damage.X/100.0f;
+            }
+            else if (skill >= 350 && skill < 355)
+            {
+                IncreaseDefense = spell.Damage.X;
+            }
+            else if (skill >= 355 && skill < 360)
+            {
+                IncreaseMaxHP = spell.Damage.X/100.0f;
+            }
+            else if (skill >= 360 && skill < 365)
+            {
+                IncreaseMaxAG = spell.Damage.X/100.0f;
+            }
+            else if (skill >= 365 && skill < 370)
+            {
+                IncreaseManaReduction = spell.Damage.X + spell.Damage.Y;
+            }
+            else if (skill >= 370 && skill < 375)
+            {
+                MonsterAttackLifeIncrease = spell.Damage.X; // HP/MonsterAttackLifeIncrease
+            }
+            else if (skill >= 375 && skill < 380)
+            {
+                MonsterAttackSDIncrease = spell.Damage.X; // SP/MonsterAttackSDIncrease
+            }
+            else if (skill >= 380 && skill < 385)
+            {
+                IncreaseExperience = spell.Damage.X;
+            }
+        }
+
         public async Task Save(GameContext db)
         {
             if (!_newSpell.Any())
                 return;
+
+            _delSpell.ForEach(x => _newSpell.Remove(x));
 
             await db.Spells.AddRangeAsync(_newSpell.Select(x => new MU.DataBase.SpellDto
             {
@@ -454,7 +613,10 @@ namespace MuEmu
                 Magic = (short)x,
             }));
 
+            db.Spells.RemoveRange(db.Spells.Where(x => x.CharacterId == Character.Id && _delSpell.Contains((Spell)x.Magic)));
+
             _newSpell.Clear();
+            _delSpell.Clear();
         }
     }
 }

@@ -534,7 +534,7 @@ namespace MuEmu
             Map.AddPlayer(this);
             Map.SetAttribute(_position.X, _position.Y, MapAttributes.Stand);
 
-            Experience = (ulong)characterDto.Experience;
+            _exp = (ulong)characterDto.Experience;
             _str = characterDto.Str;
             _agi = characterDto.Agility;
             _vit = characterDto.Vitality;
@@ -742,9 +742,9 @@ namespace MuEmu
                 return;
 
             var att = BaseInfo.Attributes;
-            _hpMax = (att.Life + att.LevelLife * (Level - 1 + (MasterLevel.Level - 1)) + att.VitalityToLife * Vitality)* (1.0f + Inventory.IncreaseHP);
+            _hpMax = (att.Life + att.LevelLife * (Level - 1 + (MasterLevel.Level - 1)) + att.VitalityToLife * Vitality)* (1.0f + Inventory.IncreaseHP + Spells.IncreaseMaxHP);
             _mpMax = (att.Mana + att.LevelMana * (Level - 1 + (MasterLevel.Level - 1)) + att.EnergyToMana * Energy)* (1.0f + Inventory.IncreaseMP);
-            _bpMax = (att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal);
+            _bpMax = ((att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal)) * (1.0f + Spells.IncreaseMaxAG);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
 
             Inventory.CalcStats();

@@ -35,7 +35,7 @@ namespace MuEmu
                 _needSave = true;
             }
         }
-        public ulong NextExperience => GetExperienceFromLevel((ushort)(Level + Character.Level));
+        public ulong NextExperience => GetExperienceFromLevel((ushort)(Level + Character.Level-1));
         public ushort Points
         {
             get => _points; set
@@ -87,9 +87,12 @@ namespace MuEmu
 
         private ulong GetExperienceFromLevel(ushort level)
         {
-            var exp = (((level + 9ul) * level) * level) * 10ul + ((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul;
-            exp -= 3892250000;
-            exp /= 2;
+            var exp = (((level + 9ul) * level) * level) * 10ul + ((level>255)?(((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul):0ul);
+            if (level >= 400)
+            {
+                exp -= 3892250000;
+                exp /= 2;
+            }
             if (level > 600)
             {
                 var Level3 = (double)((level - 600) * (level - 600));
@@ -101,7 +104,7 @@ namespace MuEmu
         public void SendInfo()
         {
             if (Character.MasterClass)
-                Character.Player.Session.SendAsync(new SMasterInfo(Level, Experience, NextExperience, Points, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
+                Character.Player.Session.SendAsync(new SMasterInfo((ushort)(Level + Character.Level -1), Character.Level>=400?Experience:Character.Experience, NextExperience, Points, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
         }
 
         public void Save(GameContext db)

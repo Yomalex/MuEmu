@@ -1041,6 +1041,11 @@ namespace MuEmu.Network.Game
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
                     case Spell.Heal:
+                    case Spell.Heal1:
+                    case Spell.Heal2:
+                    case Spell.Heal3:
+                    case Spell.Heal4:
+                    case Spell.Heal5:
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
 
@@ -1055,6 +1060,11 @@ namespace MuEmu.Network.Game
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
                     case Spell.GreaterDefense:
+                    case Spell.GreaterDefense1:
+                    case Spell.GreaterDefense2:
+                    case Spell.GreaterDefense3:
+                    case Spell.GreaterDefense4:
+                    case Spell.GreaterDefense5:
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
 
@@ -1062,6 +1072,11 @@ namespace MuEmu.Network.Game
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
                     case Spell.GreaterDamage:
+                    case Spell.GreaterDamage1:
+                    case Spell.GreaterDamage2:
+                    case Spell.GreaterDamage3:
+                    case Spell.GreaterDamage4:
+                    case Spell.GreaterDamage5:
                         if (@char.BaseClass != HeroClass.FaryElf)
                             return;
 
@@ -1070,11 +1085,21 @@ namespace MuEmu.Network.Game
                         break;
 
                     case Spell.SoulBarrier:
+                    case Spell.SoulBarrier1:
+                    case Spell.SoulBarrier2:
+                    case Spell.SoulBarrier3:
+                    case Spell.SoulBarrier4:
+                    case Spell.SoulBarrier5:
                         spells.SetBuff(SkillStates.SoulBarrier, TimeSpan.FromSeconds(60 + @char.EnergyTotal / 40), @char);
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
 
                     case Spell.GreaterFortitude:
+                    case Spell.GreatFortitude1:
+                    case Spell.GreatFortitude2:
+                    case Spell.GreatFortitude3:
+                    case Spell.GreatFortitude4:
+                    case Spell.GreatFortitude5:
                         spells.SetBuff(SkillStates.SwellLife, TimeSpan.FromSeconds(60 + @char.EnergyTotal / 10), @char);
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
@@ -1095,8 +1120,23 @@ namespace MuEmu.Network.Game
                     case Spell.Cyclone:
                     case Spell.Slash:
                     case Spell.TwistingSlash:
+                    case Spell.TwistingSlash1:
+                    case Spell.TwistingSlash2:
+                    case Spell.TwistingSlash3:
+                    case Spell.TwistingSlash4:
+                    case Spell.TwistingSlash5:
                     case Spell.RagefulBlow:
+                    case Spell.RagefulBlow1:
+                    case Spell.RagefulBlow2:
+                    case Spell.RagefulBlow3:
+                    case Spell.RagefulBlow4:
+                    case Spell.RagefulBlow5:
                     case Spell.DeathStab:
+                    case Spell.DeathStab1:
+                    case Spell.DeathStab2:
+                    case Spell.DeathStab3:
+                    case Spell.DeathStab4:
+                    case Spell.DeathStab5:
                     case Spell.CrescentMoonSlash:
                     case Spell.Impale:
                     case Spell.FireBreath:
@@ -1105,10 +1145,35 @@ namespace MuEmu.Network.Game
                         //    @char.SkillAttack(spell, player, out type);
                         break;
                     case Spell.Heal:
+                    case Spell.Heal1:
+                    case Spell.Heal2:
+                    case Spell.Heal3:
+                    case Spell.Heal4:
+                    case Spell.Heal5:
                     case Spell.GreaterDamage:
+                    case Spell.GreaterDamage1:
+                    case Spell.GreaterDamage2:
+                    case Spell.GreaterDamage3:
+                    case Spell.GreaterDamage4:
+                    case Spell.GreaterDamage5:
                     case Spell.GreaterDefense:
+                    case Spell.GreaterDefense1:
+                    case Spell.GreaterDefense2:
+                    case Spell.GreaterDefense3:
+                    case Spell.GreaterDefense4:
+                    case Spell.GreaterDefense5:
                     case Spell.GreaterFortitude:
+                    case Spell.GreatFortitude1:
+                    case Spell.GreatFortitude2:
+                    case Spell.GreatFortitude3:
+                    case Spell.GreatFortitude4:
+                    case Spell.GreatFortitude5:
                     case Spell.SoulBarrier:
+                    case Spell.SoulBarrier1:
+                    case Spell.SoulBarrier2:
+                    case Spell.SoulBarrier3:
+                    case Spell.SoulBarrier4:
+                    case Spell.SoulBarrier5:
                     case Spell.Teleport:
                     case Spell.InfinityArrow:
                         return;
@@ -1196,6 +1261,11 @@ namespace MuEmu.Network.Game
             switch (message.MagicNumber)
             {
                 case Spell.RagefulBlow:
+                case Spell.RagefulBlow1:
+                case Spell.RagefulBlow2:
+                case Spell.RagefulBlow3:
+                case Spell.RagefulBlow4:
+                case Spell.RagefulBlow5:
                     {
                         var mp = new Point(message.X, message.Y);
                         var vp = @char.MonstersVP
@@ -1212,7 +1282,12 @@ namespace MuEmu.Network.Game
                     }
                     break;
                 case Spell.TwistingSlash:
-                    {
+                case Spell.TwistingSlash1:
+                case Spell.TwistingSlash2:
+                case Spell.TwistingSlash3:
+                case Spell.TwistingSlash4:
+                case Spell.TwistingSlash5:
+                    { 
                         var vp = @char.MonstersVP
                             .ToList() // clone for preveen collection changes
                             .Select(x => MonstersMng.Instance.GetMonster(x))
@@ -1243,6 +1318,11 @@ namespace MuEmu.Network.Game
                     }
                     break;
                 case Spell.IceStorm:
+                case Spell.IceStorm1:
+                case Spell.IceStorm2:
+                case Spell.IceStorm3:
+                case Spell.IceStorm4:
+                case Spell.IceStorm5:
                     {
                         var mp = new Point(message.X, message.Y);
                         var vp = @char.MonstersVP
@@ -1846,6 +1926,66 @@ namespace MuEmu.Network.Game
 
             await session.SendAsync(new SPShopRequestBuy(PShopResult.Success, message.Number, item.GetBytes()));
             await @char.Player.Session.SendAsync(new SPShopRequestSold(PShopResult.Success, (ushort)session.ID, session.Player.Character.Name));
+        }
+
+        #endregion
+
+        #region MasterSystem
+        [MessageHandler(typeof(CMasterSkill))]
+        public async Task CMasterSkill(GSSession session, CMasterSkill message)
+        {
+            var si = ResourceCache.Instance.GetSkills()[message.MasterSkill];
+            var @char = session.Player.Character;
+
+            /*var a = $"[MasterSystem] Skill [{message.MasterSkill}]{si.Name} add point";
+            await session.SendAsync(new SNotice(NoticeType.Blue, a));*/
+
+            var canUse = si.Classes.Where(x => (x&(HeroClass)(0xF0)) == @char.BaseClass && x <= @char.Class).Any();
+            if(!canUse)
+            {
+                return;
+            }
+
+            if(si.MasterP >= @char.MasterLevel.Points)
+            {
+                return;
+            }
+
+            var result = @char
+                .Spells
+                .SpellList
+                .Where(x => x.Rank == si.Rank || x.Number == (Spell)si.Brand)
+                .FirstOrDefault();
+
+            if (si.UseType == 3)
+            {
+                if(result != null)
+                {
+                    @char.Spells.Remove(result);
+                    @char.Spells.SendList();
+                }
+                await @char.Spells.TryAdd(si.Number);
+            }else if(si.UseType == 4)
+            {
+                if (result == null)
+                {
+                    Logger.Error("Don't have previus condition to use skill");
+                    return;
+                }
+                @char.Spells.Remove(result);
+                @char.Spells.SendList();
+                await @char.Spells.TryAdd(si.Number);
+            }
+
+            await session.SendAsync(new SMasterLevelSkill
+            {
+                flag = 0,
+                type = 1,
+                MasterEmpty = message.MasterEmpty,
+                MasterPoint = @char.MasterLevel.Points,
+                MasterSkill = message.MasterSkill,
+                ChkSum = 1
+            });
         }
 
         #endregion

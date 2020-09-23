@@ -86,6 +86,10 @@ namespace MuEmu.Network.Game
             Register<CFriendAdd>(GameOpCode.FriendAdd);
             #endregion
 
+            #region MasterSystemMessages
+            Register<CMasterSkill>(GameOpCode.MasterLevelSkill);
+            #endregion
+
             // S2C
             Register<SInventory>(GameOpCode.Inventory);
             Register<SEquipament>(GameOpCode.Equipament);
@@ -184,6 +188,7 @@ namespace MuEmu.Network.Game
             #region Server MasterLevelMessages
             Register<SMasterInfo>(GameOpCode.MasterLevelInfo);
             Register<SMasterLevelUp>(GameOpCode.MasterLevelUp);
+            Register<SMasterLevelSkill>(GameOpCode.MasterLevelSkill);
             #endregion
         }
     }

@@ -380,19 +380,19 @@ namespace MuEmu.Resources
                     foreach(Match m in SkillRegex.Matches(tr.ReadToEnd()))
                     {
                         var c = new List<HeroClass>();
-                        if (byte.Parse(m.Groups[19].Value) > 0)
+                        if (byte.Parse(m.Groups[19].Value) > 0) //DW
                             c.Add((HeroClass)(byte.Parse(m.Groups[19].Value) - 1));
-                        if (byte.Parse(m.Groups[20].Value) > 0)
+                        if (byte.Parse(m.Groups[20].Value) > 0) //DK
                             c.Add((HeroClass)(byte.Parse(m.Groups[20].Value) - 1 + 0x10));
-                        if (byte.Parse(m.Groups[21].Value) > 0)
+                        if (byte.Parse(m.Groups[21].Value) > 0) //ELF
                             c.Add((HeroClass)(byte.Parse(m.Groups[21].Value) - 1 + 0x20));
-                        if (byte.Parse(m.Groups[22].Value) > 0)
+                        if (byte.Parse(m.Groups[22].Value) > 0) //MG
                             c.Add((HeroClass)(byte.Parse(m.Groups[22].Value) - 1 + 0x30));
-                        if (byte.Parse(m.Groups[23].Value) > 0)
+                        if (byte.Parse(m.Groups[23].Value) > 0) //DL
                             c.Add((HeroClass)(byte.Parse(m.Groups[23].Value) - 1 + 0x40));
-                        if (byte.Parse(m.Groups[24].Value) > 0)
+                        if (byte.Parse(m.Groups[24].Value) > 0) //SUM
                             c.Add((HeroClass)(byte.Parse(m.Groups[24].Value) - 1 + 0x50));
-                        if (byte.Parse(m.Groups[25].Value) > 0)
+                        if (byte.Parse(m.Groups[25].Value) > 0) //MONK
                             c.Add((HeroClass)(byte.Parse(m.Groups[25].Value) - 1 + 0x60));
 
                         var Dmg = ushort.Parse(m.Groups[4].Value);
@@ -404,42 +404,47 @@ namespace MuEmu.Resources
                             int.Parse(m.Groups[18].Value),
                         };
 
-                        var tmp = new SpellInfo
+                        try
                         {
-                            Number = Enum.Parse<Spell>(m.Groups[1].Value, true),
-                            Name = m.Groups[2].Value,
-                            ReqLevel = ushort.Parse(m.Groups[3].Value),
-                            Damage = new Point(Dmg, Dmg * 2),
+                            var tmp = new SpellInfo
+                            {
+                                Number = Enum.Parse<Spell>(m.Groups[1].Value, true),
+                                Name = m.Groups[2].Value,
+                                ReqLevel = ushort.Parse(m.Groups[3].Value),
+                                Damage = new Point(Dmg, Dmg * 2),
 
 
-                            Mana = ushort.Parse(m.Groups[5].Value),
-                            BP = ushort.Parse(m.Groups[6].Value),
-                            Distance = byte.Parse(m.Groups[7].Value),
-                            Delay = uint.Parse(m.Groups[8].Value),
-                            Energy = ushort.Parse(m.Groups[9].Value),
-                            Command = ushort.Parse(m.Groups[10].Value),
-                            Attribute = sbyte.Parse(m.Groups[11].Value),
-                            Type = short.Parse(m.Groups[12].Value),
-                            UseType = byte.Parse(m.Groups[13].Value),
-                            Brand = int.Parse(m.Groups[14].Value),
-                            KillCount = int.Parse(m.Groups[15].Value),
-                            Status = status,
-                            Classes = c,
-                            Rank = int.Parse(m.Groups[26].Value),
-                            Group = int.Parse(m.Groups[27].Value),
-                            MasterP = int.Parse(m.Groups[28].Value),
-                            AG = int.Parse(m.Groups[29].Value),
-                            SD = int.Parse(m.Groups[30].Value),
-                            Duration = int.Parse(m.Groups[31].Value),
-                            Str = ushort.Parse(m.Groups[32].Value),
-                            Agility = ushort.Parse(m.Groups[33].Value),
-                            Icon = ushort.Parse(m.Groups[34].Value),
-                            UseType2 = byte.Parse(m.Groups[35].Value),
-                            Item = ushort.Parse(m.Groups[36].Value),
-                            IsDamage = byte.Parse(m.Groups[37].Value),
-                        };
-
-                        result.Add(tmp);
+                                Mana = ushort.Parse(m.Groups[5].Value),
+                                BP = ushort.Parse(m.Groups[6].Value),
+                                Distance = byte.Parse(m.Groups[7].Value),
+                                Delay = uint.Parse(m.Groups[8].Value),
+                                Energy = ushort.Parse(m.Groups[9].Value),
+                                Command = ushort.Parse(m.Groups[10].Value),
+                                Attribute = sbyte.Parse(m.Groups[11].Value),
+                                Type = short.Parse(m.Groups[12].Value),
+                                UseType = byte.Parse(m.Groups[13].Value),
+                                Brand = int.Parse(m.Groups[14].Value),
+                                KillCount = int.Parse(m.Groups[15].Value),
+                                Status = status,
+                                Classes = c,
+                                Rank = int.Parse(m.Groups[26].Value),
+                                Group = int.Parse(m.Groups[27].Value),
+                                MasterP = int.Parse(m.Groups[28].Value),
+                                AG = int.Parse(m.Groups[29].Value),
+                                SD = int.Parse(m.Groups[30].Value),
+                                Duration = int.Parse(m.Groups[31].Value),
+                                Str = ushort.Parse(m.Groups[32].Value),
+                                Agility = ushort.Parse(m.Groups[33].Value),
+                                Icon = ushort.Parse(m.Groups[34].Value),
+                                UseType2 = byte.Parse(m.Groups[35].Value),
+                                Item = ushort.Parse(m.Groups[36].Value),
+                                IsDamage = byte.Parse(m.Groups[37].Value),
+                            };
+                            result.Add(tmp);
+                        } catch (Exception ex)
+                        {
+                            Logger.Error("", ex);
+                        }
                     }
                     xml = new SpellDbDto();
                     xml.skills = result.Select(x => new SkillDto
