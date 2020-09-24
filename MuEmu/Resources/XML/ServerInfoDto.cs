@@ -33,6 +33,8 @@ namespace MuEmu.Resources.XML
         [XmlElement] public EventDto HeartOfLove { get; set; }
         [XmlElement] public EventDto EventChip { get; set; }
         [XmlElement] public EventDto FireCracker { get; set; }
+        [XmlElement] public EventDto Heart { get; set; }        
+        [XmlElement] public EventDto StarOfXMas { get; set; }
     }
 
     [XmlType(AnonymousType = true)]

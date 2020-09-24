@@ -466,6 +466,7 @@ namespace MuEmu
             while (true)
             {
                 Marlon.Run();
+                Program.GoldenInvasionManager.Update();
                 foreach (var map in ResourceCache.Instance.GetMaps().Values)
                 {
                     lock(map.Monsters)

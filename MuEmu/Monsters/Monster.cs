@@ -501,24 +501,47 @@ namespace MuEmu.Monsters
             }
 
             Item reward = null;
-            if (_rand.Next(100) < Program.DropRate && CanDrop)
+            switch(Info.Monster)
             {
-                if (_rand.Next(2) == 0 && ItemBag.Count > 0)
-                {
-                    reward = Program.GlobalEventsManager.GetItem(Level, MapID);
-                    if(reward == null)
+                case 43:// Golden Budge Dragon
+                    reward = new Item(7179);
+                    break;
+                case 53:// Golden Titan
+                    reward = new Item(7179, Options:new { Plus = (byte)9 });
+                    break;
+                case 78:// Golden Goblin
+                    reward = new Item(7179, Options: new { Plus = (byte)8 });
+                    break;
+                case 79:// Golden Derkon
+                    reward = new Item(7179, Options: new { Plus = (byte)10 });
+                    break;
+                case 80:// Golden Lizard King
+                    reward = new Item(7179, Options: new { Plus = (byte)11 });
+                    break;
+                case 82:// Golden Golden Tantalos
+                    reward = new Item(7179, Options: new { Plus = (byte)12 });
+                    break;
+                default:
+                    if (_rand.Next(100) < Program.DropRate && CanDrop)
                     {
-                        reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
-                        reward.NewOptionRand();
+                        if (_rand.Next(2) == 0 && ItemBag.Count > 0)
+                        {
+                            reward = Program.GlobalEventsManager.GetItem(Level, MapID);
+                            if (reward == null)
+                            {
+                                reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
+                                reward.NewOptionRand();
+                            }
+                        }
+                        else
+                        {
+                            reward = Item.Zen((uint)Zen);
+                        }
                     }
-                }
-                else
-                {
-                    reward = Item.Zen((uint)Zen);
-                }
-
-                Map.AddItem(Position.X, Position.Y, reward);
+                    break;
             }
+
+            Map.AddItem(Position.X, Position.Y, reward);
         }
 
         private void EnemyDie(object obj, EventArgs args)

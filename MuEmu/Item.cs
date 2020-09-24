@@ -1510,7 +1510,7 @@ namespace MuEmu
                 Luck = false;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && _rand.Next(1) == 0) || _rand.Next(4) == 0 && Spell != Spell.None)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && _rand.Next(2) == 0) || _rand.Next(4) == 0 && Spell != Spell.None)
             {
                 Skill = true;
             }

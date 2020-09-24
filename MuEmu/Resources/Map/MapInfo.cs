@@ -34,6 +34,9 @@ namespace MuEmu.Resources.Map
         public Point Position { get; set; }
         public Item Item { get; set; }
         public DateTimeOffset validTime { get; set; }
+
+        public Character Character { get; set; }
+        public DateTimeOffset OwnedTime { get; set; }
     };
     public class MapInfo
     {
@@ -50,6 +53,7 @@ namespace MuEmu.Resources.Map
 
         public bool IsEvent { get; }
         public byte Weather { get; set; }
+        public bool DragonInvasion { get; set; }
         public Rectangle SafeArea { get; private set; }
         public Point GetRespawn()
         {
@@ -228,6 +232,7 @@ namespace MuEmu.Resources.Map
         public async void AddPlayer(Character @char)
         {
             await @char.Player.Session.SendAsync(new SWeather(Weather));
+            await @char.Player.Session.SendAsync(new SEventState(MapEvents.GoldenInvasion, DragonInvasion));
 
             var pos = @char.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
@@ -245,9 +250,13 @@ namespace MuEmu.Resources.Map
             MonsterAdd?.Invoke(mons, new EventArgs());
         }
 
-        public DateTimeOffset AddItem(int X, int Y, Item item)
+        public DateTimeOffset AddItem(int X, int Y, Item item, Character character = null)
         {
+            if (item == null)
+                return DateTimeOffset.Now;
+
             var valid = DateTimeOffset.Now.AddSeconds(120);
+            var own = DateTimeOffset.Now.AddSeconds(60);
 
             ItemInMap it = new ItemInMap {
                 Index = (ushort)(Items.Count),
@@ -255,6 +264,8 @@ namespace MuEmu.Resources.Map
                 State = ItemState.Creating,
                 Position = new Point(X, Y),
                 validTime = valid,
+                Character = character,
+                OwnedTime = own,
             };
 
             if (Items.Count > 0)

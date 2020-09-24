@@ -53,6 +53,7 @@ namespace MuEmu
 
         public static EventManagement EventManager;
         public static GlobalEvents GlobalEventsManager;
+        public static GoldenInvasion GoldenInvasionManager;
 
         public static ServerMessages ServerMessages { get; private set; }
         static void Main(string[] args)
@@ -270,6 +271,8 @@ namespace MuEmu
         private static void EventConfig(ServerInfoDto xml)
         {
             GlobalEventsManager = new GlobalEvents();
+            GoldenInvasionManager = new GoldenInvasion();
+
             GlobalEventsManager
                 .AddEvent(
                 "BoxOfRibbon", 
@@ -306,6 +309,20 @@ namespace MuEmu
                 new GlobalEvent(GlobalEventsManager)
                 { Active = xml.EventChip.active, Rate = xml.EventChip.rate }
                 .AddRange(new Item(7179, Options: new { Plus = (byte)7 }), 0, 1000)
+                )
+                .AddEvent(
+                "Heart",
+                new GlobalEvent(GlobalEventsManager)
+                { Active = xml.Heart.active, Rate = xml.Heart.rate }
+                .AddRange(new Item(7180, Options: new { Plus = (byte)1 }), 0, 1000)
+                )
+                .AddEvent(
+                "StarOfXMas",
+                new GlobalEvent(GlobalEventsManager)
+                { Active = xml.StarOfXMas.active, Rate = xml.StarOfXMas.rate }
+                .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Davias)
+                .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Raklion)
+                .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Selupan)
                 );
         }
 

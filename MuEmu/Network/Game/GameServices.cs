@@ -676,12 +676,13 @@ namespace MuEmu.Network.Game
                 if (bag.LevelMin < plr.Character.Level)
                 {
                     var c = bag.Storage.Count;
-                    item = bag.Storage.ElementAt(new Random().Next(c));
-                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+                    item = bag.Storage.ElementAt(new Random().Next(c)).Clone() as Item;
+                    item.NewOptionRand();
+                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
                 }
                 else
                 {
-                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
                     await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
                     return;
                 }

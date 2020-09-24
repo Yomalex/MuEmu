@@ -17,7 +17,7 @@
 //Mob	Map	Radio	CordX	CordY	CordX2	CordY2	Dir 	Quant  Name	
 3
 43	3	30	10	10	240	240	-1	4	//Golden Budge Dragon
-44	0	30	182	128	195	145	-1	7	//Golden Dragon
+44	0	30	182	128	195	145	-1	7	//Dragon
 53	0	30	185	132	185	132	-1	2	//Golden Titan
 55	0	30	132	83	132	83	-1	2	//Death King
 54	0	30	183	128	188	135	-1	15	//Golden Soldier

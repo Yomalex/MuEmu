@@ -106,10 +106,10 @@ namespace MuEmu
         // null
         // null
         Raklion = 57,
+        Selupan,
         // null
         // null
-        // null
-        Buhwajang,
+        Buhwajang = 61,
         SantaTown = 62,
         Vulcan,
         InvalidMap = 255,

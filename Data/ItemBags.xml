@@ -2,13 +2,10 @@
 <ItemBags>
     <ItemBag Item="6676" Plus="1" LevelMin="20" Bag="RingEvent.txt" />
     <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.txt" />
-    <!--<ItemBag Item="6176" Bag="RedRibbonBox.txt" />
-    <ItemBag Item="6177" Bag="GreenRibbonBox.txt" />
-    <ItemBag Item="6178" Bag="BlueRibbonBox.txt" />-->
     <!-- Box of Luck -->
     <ItemBag Item="7179" Plus="0" Bag="BoxOfLuck.txt" />
     <!-- Star of Xmas -->
-    <ItemBag Item="7179" Plus="1" Bag="StarOfXMas.txt" />
+    <!-- <ItemBag Item="7179" Plus="1" Bag="StarOfXMas.txt" />-->
     <!-- Firecracker -->
     <ItemBag Item="7179" Plus="2" Bag="FireCracker.txt" />
     <!-- Heart of Love -->

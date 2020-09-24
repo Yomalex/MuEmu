@@ -130,25 +130,27 @@ namespace MuEmu.Monsters
                         case 1:
                             foreach(Match sm in SpotRegex.Matches(m.Groups[2].Value))
                             {
-                                for(var i = 0; i < ushort.Parse(sm.Groups[9].Value); i++)
+                                var mIndex = ushort.Parse(sm.Groups[1].Value);
+                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
+                                var minX = Math.Min(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
+                                var maxX = Math.Max(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
+                                var minY = Math.Min(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
+                                var maxY = Math.Max(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
+                                var Quant = int.Parse(sm.Groups[9].Value);
+                                try
                                 {
-                                    var minX = Math.Min(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
-                                    var maxX = Math.Max(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
-                                    var minY = Math.Min(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
-                                    var maxY = Math.Max(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
-                                    var dir = (byte)_rand.Next(7);
-                                    var mIndex = ushort.Parse(sm.Groups[1].Value);
-                                    var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
-                                    try
+                                    for (var i = 0; i < Quant; i++)
                                     {
+                                        var dir = (byte)_rand.Next(7);
                                         var mPos = GetSpawn(mMap, minX, maxX, minY, maxY);
-                                        Monsters.Add(new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() });
+                                        var mob = new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() };
+                                        Monsters.Add(mob);
                                     }
-                                    catch (Exception)
-                                    {
-                                        //Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
-                                    }
-                                }       
+                                }
+                                catch (Exception)
+                                {
+                                    //Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
+                                }
                             }
                             break;
                         case 2:
@@ -161,6 +163,33 @@ namespace MuEmu.Monsters
                                 if (dir > 7)
                                     dir = 0;
                                 Monsters.Add(new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() });
+                            }
+                            break;
+                        case 3:
+                            foreach(Match sm in SpotRegex.Matches(m.Groups[2].Value))
+                            {
+                                var mIndex = ushort.Parse(sm.Groups[1].Value);
+                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
+                                var minX = Math.Min(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
+                                var maxX = Math.Max(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
+                                var minY = Math.Min(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
+                                var maxY = Math.Max(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
+                                var Quant = int.Parse(sm.Groups[9].Value);
+                                try
+                                {
+                                    for (var i = 0; i < Quant; i++)
+                                    {
+                                        var dir = (byte)_rand.Next(7);
+                                        var mPos = GetSpawn(mMap, minX, maxX, minY, maxY);
+                                        var mob = new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() };
+                                        Monsters.Add(mob);
+                                        Program.GoldenInvasionManager.AddMonster(mob);
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    //Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
+                                }
                             }
                             break;
                         case 4:

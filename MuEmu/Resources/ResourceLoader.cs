@@ -953,12 +953,19 @@ namespace MuEmu.Resources
                     LevelMin = x.LevelMin,
                     Storage = new List<Item>()
                 };
-                using (var tr = File.OpenText(Path.Combine(_root, "ItemBags/" + x.Bag)))
+                var fname = Path.Combine(_root, "ItemBags/" + x.Bag);
+                using (var tr = File.OpenText(fname))
                 {
                     foreach(Match m in Item0Regex.Matches(tr.ReadToEnd()))
                     {
-                        var it = new Item(ItemNumber.FromTypeIndex(byte.Parse(m.Groups[1].Value), ushort.Parse(m.Groups[2].Value)), Options: new { Plus = byte.Parse(m.Groups[3].Value), Luck = (byte.Parse(m.Groups[4].Value)==1), Skill = (byte.Parse(m.Groups[5].Value)==1), Option28 = byte.Parse(m.Groups[6].Value) });
-                        ret.Storage.Add(it);
+                        try
+                        {
+                            var it = new Item(ItemNumber.FromTypeIndex(byte.Parse(m.Groups[1].Value), ushort.Parse(m.Groups[2].Value)), Options: new { Plus = byte.Parse(m.Groups[3].Value), Luck = (byte.Parse(m.Groups[4].Value) == 1), Skill = (byte.Parse(m.Groups[5].Value) == 1), Option28 = byte.Parse(m.Groups[6].Value), OptionExe = (byte)1 });
+                            ret.Storage.Add(it);
+                        }catch(Exception ex)
+                        {
+                            Logger.Error("LoadItembags: " + fname, ex);
+                        }
                     }
                 }
 
