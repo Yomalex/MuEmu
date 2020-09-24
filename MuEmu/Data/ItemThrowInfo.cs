@@ -9,6 +9,6 @@ namespace MuEmu.Data
         public ItemNumber Number { get; set; }
         public ushort Plus { get; set; }
         public ushort LevelMin { get; set; }
-        public Storage Storage { get; set; }
+        public List<Item> Storage { get; set; }
     }
 }

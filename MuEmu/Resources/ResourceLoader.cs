@@ -951,7 +951,7 @@ namespace MuEmu.Resources
                     Number = x.Item,
                     Plus = x.Plus,
                     LevelMin = x.LevelMin,
-                    Storage = new Storage(Storage.ShopSize)
+                    Storage = new List<Item>()
                 };
                 using (var tr = File.OpenText(Path.Combine(_root, "ItemBags/" + x.Bag)))
                 {

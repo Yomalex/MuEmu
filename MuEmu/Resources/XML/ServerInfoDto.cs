@@ -28,5 +28,17 @@ namespace MuEmu.Resources.XML
         [XmlElement] public string BDUser { get; set; }
         [XmlElement] public string DBPassword { get; set; }
         [XmlElement] public bool Rijndael { get; set; }
+        [XmlElement] public EventDto BoxOfRibbon { get; set; }
+        [XmlElement] public EventDto Medals { get; set; }
+        [XmlElement] public EventDto HeartOfLove { get; set; }
+        [XmlElement] public EventDto EventChip { get; set; }
+        [XmlElement] public EventDto FireCracker { get; set; }
+    }
+
+    [XmlType(AnonymousType = true)]
+    public class EventDto
+    {
+        [XmlAttribute] public byte rate { get; set; }
+        [XmlAttribute] public bool active { get; set; }
     }
 }

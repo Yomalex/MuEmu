@@ -500,13 +500,17 @@ namespace MuEmu.Monsters
                 pair.Key.Character.Health += usedHealth * Killer.Character.Inventory.IncreaseLifeRate;
             }
 
-            Item reward;
+            Item reward = null;
             if (_rand.Next(100) < Program.DropRate && CanDrop)
             {
                 if (_rand.Next(2) == 0 && ItemBag.Count > 0)
                 {
-                    reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
-                    reward.NewOptionRand();
+                    reward = Program.GlobalEventsManager.GetItem(Level, MapID);
+                    if(reward == null)
+                    {
+                        reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
+                        reward.NewOptionRand();
+                    }
                 }
                 else
                 {

@@ -52,6 +52,7 @@ namespace MuEmu
         public static bool Season12 { get; set; }
 
         public static EventManagement EventManager;
+        public static GlobalEvents GlobalEventsManager;
 
         public static ServerMessages ServerMessages { get; private set; }
         static void Main(string[] args)
@@ -171,6 +172,8 @@ namespace MuEmu
             try
             {
                 ResourceCache.Initialize(".\\Data");
+                // Event Config
+                EventConfig(xml);
                 MonstersMng.Initialize();
                 MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
                 EventInitialize();
@@ -262,6 +265,48 @@ namespace MuEmu
 
                 Handler.ProcessCommands(null, input);
             }
+        }
+
+        private static void EventConfig(ServerInfoDto xml)
+        {
+            GlobalEventsManager = new GlobalEvents();
+            GlobalEventsManager
+                .AddEvent(
+                "BoxOfRibbon", 
+                new GlobalEvent(GlobalEventsManager) 
+                { Active = xml.BoxOfRibbon.active, Rate = xml.BoxOfRibbon.rate }
+                .AddRange(new Item(6176), 12, 49)
+                .AddRange(new Item(6177), 50, 69)
+                .AddRange(new Item(6178), 70, 1000)
+                )
+                .AddEvent(
+                "Medals", 
+                new GlobalEvent(GlobalEventsManager) 
+                { Active = xml.Medals.active, Rate = xml.Medals.rate }
+                .AddRange(new Item(7179, Options: new { Plus = (byte)5 }), 0, 1000, Maps.Dugeon)
+                .AddRange(new Item(7179, Options: new { Plus = (byte)5 }), 0, 1000, Maps.Davias)
+                .AddRange(new Item(7179, Options: new { Plus = (byte)6 }), 0, 1000, Maps.LostTower)
+                .AddRange(new Item(7179, Options: new { Plus = (byte)6 }), 0, 1000, Maps.Atlans)
+                .AddRange(new Item(7179, Options: new { Plus = (byte)6 }), 0, 1000, Maps.Tarkan)
+                )
+                .AddEvent(
+                "HeartOfLove",
+                new GlobalEvent(GlobalEventsManager)
+                { Active = xml.HeartOfLove.active, Rate = xml.HeartOfLove.rate }
+                .AddRange(new Item(7179, Options: new { Plus = (byte)3 }), 15, 1000)
+                )
+                .AddEvent(
+                "FireCracker",
+                new GlobalEvent(GlobalEventsManager)
+                { Active = xml.FireCracker.active, Rate = xml.FireCracker.rate }
+                .AddRange(new Item(7179, Options: new { Plus = (byte)2 }), 17, 1000)
+                )
+                .AddEvent(
+                "EventChip",
+                new GlobalEvent(GlobalEventsManager)
+                { Active = xml.EventChip.active, Rate = xml.EventChip.rate }
+                .AddRange(new Item(7179, Options: new { Plus = (byte)7 }), 0, 1000)
+                );
         }
 
         private static void MakeXOR(byte[] data, int offset, int length)

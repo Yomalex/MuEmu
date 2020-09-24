@@ -673,14 +673,18 @@ namespace MuEmu.Network.Game
 
             if (bag != null)
             {
-                if(bag.LevelMin < plr.Character.Level)
+                if (bag.LevelMin < plr.Character.Level)
                 {
-                    var c = bag.Storage.Items.Values.Count;
-                    item = bag.Storage.Items.Values.ElementAt(new Random().Next(c));
+                    var c = bag.Storage.Count;
+                    item = bag.Storage.ElementAt(new Random().Next(c));
                     date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
                 }
-                await session.SendAsync(new SItemThrow { Source = message.Source, Result = 0 });
-                return;
+                else
+                {
+                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+                    await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
+                    return;
+                }
             }
             else
             {
