@@ -311,19 +311,19 @@ namespace MuEmu.Monsters
              {
                 var possibleTarget = from plr in ViewPort
                                      let dist = Distance(plr.Character?.Position??new Point(), Position)
-                                     where dist < Info.ViewRange
+                                     where dist <= Info.ViewRange
                                      orderby dist ascending
                                      select plr;
-
-                var X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.X));
-                var Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.Y));
+                
+                var X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.X));
+                var Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.Y));
                 var position = new Point(X, Y);
                 var i = 0;
                 while(Map.ContainsAny(position.X, position.Y, _cantGo)
                     && i < 10)
                 {
-                    X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.X));
-                    Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Position.Y));
+                    X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.X));
+                    Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.Y));
                     position = new Point(X, Y);
                     i++;
                 }
@@ -345,16 +345,23 @@ namespace MuEmu.Monsters
                 _path = pf.GetPath();
                 _path.RemoveAt(0);
 
-                if(Target != null)
-                    foreach(var pt in _path)
+                int count = 0;
+                if (Target != null)
+                {
+                    foreach (var pt in _path)
                     {
+                        count++;
                         var dis = Distance(Target.Character.Position, pt);
-                        if(dis <= Info.AttackRange)
+                        if (dis <= Info.AttackRange)
                         {
                             _TPosition = pt;
                             break;
                         }
                     }
+                }else
+                {
+                    count = _path.Count;
+                }
 
                 var dx = fpt.X - TPosition.X;
                 var dy = fpt.Y - TPosition.Y;
@@ -368,7 +375,7 @@ namespace MuEmu.Monsters
                         .SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, Direction))
                         .Wait();
 
-                _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
+                _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed* count);
                 _monsterState = MonsterState.Walking;
                 return;
             }

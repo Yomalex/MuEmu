@@ -38,7 +38,7 @@ namespace MuEmu.Events
         public async void Start()
         {
             dekronCount = 0;
-            dekronMap = dekronMaps[new Random().Next(3)];
+            dekronMap = dekronMaps[Program.RandomProvider<int>(3)];
             foreach(var gold in _goldenMob)
             {
                 if(gold.Info.Monster == 79) // golden Dekron
@@ -60,7 +60,7 @@ namespace MuEmu.Events
             await dekronMapInfo
                 .SendAsync(new SEventState(MapEvents.GoldenInvasion, true));
 
-            await Program.NoEventMapAnoucement($"[{dekronMap}] Golden Dragon Invasion on");
+            await Program.NoEventMapAnoucement($"[{dekronMap}] Golden Dragon Invasion");
         }
 
         private async void Gold_Die(object sender, EventArgs e)

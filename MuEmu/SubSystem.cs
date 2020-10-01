@@ -461,7 +461,7 @@ namespace MuEmu
             }
         }
 
-        private static void WorkerIA()
+        private static async void WorkerIA()
         {
             while (true)
             {
@@ -469,6 +469,7 @@ namespace MuEmu
                 Program.GoldenInvasionManager.Update();
                 foreach (var map in ResourceCache.Instance.GetMaps().Values)
                 {
+                    await map.WeatherUpdate();
                     lock(map.Monsters)
                     foreach (var obj in map.Monsters)
                     {

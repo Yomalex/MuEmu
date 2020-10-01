@@ -583,7 +583,7 @@ namespace MuEmu.Network.Game
                     else
                         Source.Durability--;
 
-                    await session.SendAsync(new SCommand(ServerCommandType.Fireworks, (byte)@char.Position.X, (byte)@char.Position.Y));
+                    await @char.SendV2Message(new SCommand(ServerCommandType.Fireworks, (byte)@char.Position.X, (byte)@char.Position.Y));
                     break;
                 case 14 * 512 + 35:// Small SD Potion
                 case 14 * 512 + 36:// Medium SD Potion
@@ -615,7 +615,7 @@ namespace MuEmu.Network.Game
 
                         await inv.Delete(message.Source);
                         var soulRate = 50 + (Target.Luck ? 25 : 0);
-                        if (new Random().Next(100) < soulRate)
+                        if (Program.RandomProvider<int>(100) < soulRate)
                         {
                             Target.Plus++;
                         }
@@ -639,7 +639,7 @@ namespace MuEmu.Network.Game
 
                         await inv.Delete(message.Source);
                         var lifeRate = 50 + (Target.Luck ? 25 : 0);
-                        if (new Random().Next(100) < lifeRate)
+                        if (Program.RandomProvider<int>(100) < lifeRate)
                         {
                             Target.Option28++;
                         }
@@ -668,7 +668,7 @@ namespace MuEmu.Network.Game
             await inv.Delete(message.Source);
 
             var bag = (from b in itemBags
-                      where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0)
+                      where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0xffff)
                       select b).FirstOrDefault();
 
             if (bag != null)
@@ -676,9 +676,12 @@ namespace MuEmu.Network.Game
                 if (bag.LevelMin < plr.Character.Level)
                 {
                     var c = bag.Storage.Count;
-                    item = bag.Storage.ElementAt(new Random().Next(c)).Clone() as Item;
+                    item = bag.Storage.ElementAt(Program.RandomProvider<int>(c)).Clone() as Item;
                     item.NewOptionRand();
                     date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
+                    var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
+                    await plr.Session.SendAsync(msg);
+                    await plr.SendV2Message(msg);
                 }
                 else
                 {

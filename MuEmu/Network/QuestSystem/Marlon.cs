@@ -39,7 +39,7 @@ namespace MuEmu.Network.QuestSystem
             if(s_instance._nextWarp < DateTimeOffset.Now && s_instance._refCount == 0)
             {
                 s_instance._nextWarp = DateTimeOffset.Now.Add(s_instance.r_TeleportTime);
-                switch(new Random().Next(4))
+                switch(Program.RandomProvider<int>(4))
                 {
                     case 0:
                         s_instance._marlon.Warp(Maps.Davias, 198, 47);

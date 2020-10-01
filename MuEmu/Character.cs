@@ -1382,7 +1382,7 @@ namespace MuEmu
             if (right != null && left != null  && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
                 left.Number.Type >= ItemType.Sword && left.Number.Type < ItemType.BowOrCrossbow)
             {
-                var item = new Random().Next(2) == 0 ? right : left;
+                var item = Program.RandomProvider<int>(2) == 0 ? right : left;
                 item.NormalWeaponDurabilityDown(Defense);
             }
             else if (right != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)

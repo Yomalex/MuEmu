@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
@@ -41,6 +42,7 @@ namespace MuEmu.Resources.Map
     public class MapInfo
     {
         private List<byte[]> _shadowLayer = new List<byte[]>();
+        private DateTime _nextWeater;
         private byte[] Layer { get; }
         private List<Point> SafePoints { get; set; }
 
@@ -74,7 +76,7 @@ namespace MuEmu.Resources.Map
             }
             if (SafePoints.Any())
             {
-                var rand = new Random().Next(SafePoints.Count());
+                var rand = Program.RandomProvider<int>(SafePoints.Count());
                 var id = SafePoints[rand];
                 return id;
             }
@@ -132,6 +134,7 @@ namespace MuEmu.Resources.Map
             }
 
             Weather = 0x30;
+            _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider<int>(10000) + 10000);
 
             Monsters = new List<Monster>();
             Players = new List<Character>();
@@ -229,10 +232,10 @@ namespace MuEmu.Resources.Map
             Layer[Y * 256 + X] &= (byte)(~((byte)att));
         }
 
-        public async void AddPlayer(Character @char)
+        public void AddPlayer(Character @char)
         {
-            await @char.Player.Session.SendAsync(new SWeather(Weather));
-            await @char.Player.Session.SendAsync(new SEventState(MapEvents.GoldenInvasion, DragonInvasion));
+            SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SWeather(Weather));
+            SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SEventState(MapEvents.GoldenInvasion, DragonInvasion));
 
             var pos = @char.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
@@ -411,6 +414,17 @@ namespace MuEmu.Resources.Map
         {
             var last = _shadowLayer.PopBack();
             Array.Copy(last, Layer, Layer.Length);
+        }
+
+        public async Task WeatherUpdate()
+        {
+            if (DateTime.Now < _nextWeater)
+                return;
+
+            _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider<int>(10000) + 10000);
+
+            Weather = (byte)(Program.RandomProvider<byte>(3) << 4 | Program.RandomProvider<byte>(10));
+            await SendAsync(new SWeather(Weather));
         }
     }
 }

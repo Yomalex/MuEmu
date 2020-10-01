@@ -1,4 +1,6 @@
-﻿# Mu Online Server Emulator C#
+﻿[![Discord](https://img.shields.io/discord/591914197219016707.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/UvmCUc)
+
+# Mu Online Server Emulator C#
 
 Es una versión del Servidor de MU Online escrita en C# NetCore2 para compatibilidad en todas las plataformas
 
@@ -38,6 +40,15 @@ la configuracion viene en XML, en el archivo server.xml generado de forma autom�
 	  <BDUser>root</BDUser>
 	  <DBPassword></DBPassword>
 	  <Rijndael>0</Rijndael>
+      
+      <!-- Events -->
+      <BoxOfRibbon active="1" rate="25" />
+      <Medals active="1" rate="50" />
+      <HeartOfLove active="1" rate="50" />
+      <EventChip active="1" rate="50" /> 
+      <FireCracker active="1" rate="50" />
+      <Heart active="1" rate="50" />
+      <StarOfXMas active="1" rate="50" />
 	</Server>
 
 ### Comandos

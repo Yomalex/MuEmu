@@ -40,6 +40,8 @@ namespace MuEmu
 {
     class Program
     {
+        private static Random s_rand = new Random();
+
         public static CommandHandler<GSSession> Handler { get; } = new CommandHandler<GSSession>();
         public static WZGameServer server;
         public static CSClient client;
@@ -324,6 +326,11 @@ namespace MuEmu
                 .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Raklion)
                 .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Selupan)
                 );
+        }
+
+        public static T RandomProvider<T>(int Max, int Min = 0)
+        {
+            return (T)(object)s_rand.Next(Min, Max);
         }
 
         private static void MakeXOR(byte[] data, int offset, int length)
