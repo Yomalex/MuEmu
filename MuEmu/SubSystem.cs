@@ -469,7 +469,12 @@ namespace MuEmu
                 Program.GoldenInvasionManager.Update();
                 foreach (var map in ResourceCache.Instance.GetMaps().Values)
                 {
-                    await map.WeatherUpdate();
+                    try
+                    {
+                        await map.WeatherUpdate();
+                    }
+                    catch (Exception)
+                    { }
                     lock(map.Monsters)
                     foreach (var obj in map.Monsters)
                     {

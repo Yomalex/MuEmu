@@ -5,11 +5,13 @@ using MuEmu.Monsters;
 using MuEmu.Network;
 using MuEmu.Network.Auth;
 using MuEmu.Network.Game;
+using MuEmu.Network.PCPShop;
 using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -82,6 +84,7 @@ namespace MuEmu
         private float _attackSpeed = 0.0f;
         private ushort _killerId;
         private int _deadlyDmg;
+        private DateTime _autoRecuperationTime;
         #endregion
 
         public int Id { get; }
@@ -90,6 +93,8 @@ namespace MuEmu
         public ushort Index => (ushort)Player.Session.ID;
 
         public ControlCode CtlCode;
+        private ushort _pcPoints;
+
         public Quests Quests { get; }
         public Guild Guild { get; set; }
         public Inventory Inventory { get; }
@@ -146,8 +151,10 @@ namespace MuEmu
                     PlayerDie?.Invoke(this, new EventArgs());
                 }
 
-                HPorSDChanged(_hp > value ? RefillInfo.Update : RefillInfo.Drink);
+                var arg = _hp > value ? RefillInfo.Update : RefillInfo.Drink;
                 _hp = value;
+
+                HPorSDChanged(arg);
             }
         }
         public float MaxHealth
@@ -182,8 +189,9 @@ namespace MuEmu
                     PlayerDie?.Invoke(this, new EventArgs());
                 }
 
-                HPorSDChanged(_sd > value ? RefillInfo.Update : RefillInfo.Drink);
+                var arg = _sd > value ? RefillInfo.Update : RefillInfo.Drink;
                 _sd = value;
+                HPorSDChanged(arg);
             }
         }
         public float MaxShield
@@ -212,8 +220,9 @@ namespace MuEmu
                 if (_mp == value)
                     return;
 
-                MPorBPChanged(_mp > value ? RefillInfo.Update : RefillInfo.Drink);
+                var arg = _mp > value ? RefillInfo.Update : RefillInfo.Drink;
                 _mp = value;
+                MPorBPChanged(arg);
             }
         }
         public float MaxMana
@@ -241,9 +250,10 @@ namespace MuEmu
 
                 if (_bp == value)
                     return;
-
-                MPorBPChanged(_bp > value ? RefillInfo.Update : RefillInfo.Drink);
+                var arg = _bp > value ? RefillInfo.Update : RefillInfo.Drink;
                 _bp = value;
+
+                MPorBPChanged(arg);
             }
         }
         public float MaxStamina
@@ -342,6 +352,16 @@ namespace MuEmu
 
                 _levelUpPoints = value;
                 _needSave = true;
+            }
+        }
+
+        public ushort PCPoints
+        {
+            get => _pcPoints;
+            set
+            {
+                _pcPoints = value;
+                Player.Session.SendAsync(new SPCPShopPoints(value, 25000)).Wait();
             }
         }
 
@@ -510,6 +530,7 @@ namespace MuEmu
 
         public Character(Player plr, CharacterDto characterDto)
         {
+            _autoRecuperationTime = DateTime.Now;
             PlayerDie += OnDead;
             Id = characterDto.CharacterId;
             Player = plr;
@@ -549,6 +570,8 @@ namespace MuEmu
             Stamina = _bpMax / 2;
             Mana = characterDto.Mana;
             _zen = characterDto.Money;
+
+            PCPoints = 0;
 
             var StatsInfo = new SCharacterMapJoin2
             {
@@ -949,6 +972,7 @@ namespace MuEmu
             }else
             {
                 Map.PositionChanged(Position, position);
+                Map.SendWeather(this);
                 _position = position;
             }
             Direction = dir;
@@ -1308,6 +1332,7 @@ namespace MuEmu
 
         public float BaseAttack(bool critical)
         {
+            _autoRecuperationTime = DateTime.Now;
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var attack = 0.0f;
 
@@ -1322,22 +1347,38 @@ namespace MuEmu
 
         public void Autorecovery()
         {
+            var elapsed = DateTime.Now - _autoRecuperationTime;
+            if(elapsed.TotalSeconds > 25)
+            {
+                Health += 10;
+                Shield += 10;
+            }else if(elapsed.TotalSeconds > 15)
+            {
+                Health += 5;
+                Shield += 5;
+            }
+            else if(elapsed.TotalSeconds > 10)
+            {
+                Health += 1;
+                Shield += 1;
+            }
+
             switch(BaseClass)
             {
                 case HeroClass.DarkKnight:
-                    Mana += (float)Math.Sqrt(MaxMana) / 27.5f;
-                    Stamina += 2 + (float)Math.Sqrt(MaxStamina) / 20;
+                    Mana += MaxMana / 27.5f;
+                    Stamina += 2 + (float)MaxStamina / 20;
                     break;
                 case HeroClass.DarkWizard:
                 case HeroClass.FaryElf:
                 case HeroClass.Summoner:
-                    Mana += (float)Math.Sqrt(MaxMana) / 27.5f;
-                    Stamina += 2 + (float)Math.Sqrt(MaxStamina) / 33.333f;
+                    Mana += (float)MaxMana / 27.5f;
+                    Stamina += 2 + (float)MaxStamina / 33.333f;
                     break;
                 case HeroClass.MagicGladiator:
                 case HeroClass.DarkLord:
-                    Mana += (float)Math.Sqrt(MaxMana) / 27.5f;
-                    Stamina += 1.9f + (float)Math.Sqrt(MaxStamina) / 33;
+                    Mana += (float)MaxMana / 27.5f;
+                    Stamina += 1.9f + (float)MaxStamina / 33;
                     break;
 
             }
@@ -1392,7 +1433,7 @@ namespace MuEmu
         }
 
         #region Commands
-        public static void AddStr(object session, CommandEventArgs eventArgs)
+        public static async void AddStr(object session, CommandEventArgs eventArgs)
         {
             var Session = session as GSSession;
             var @char = Session.Player.Character;
@@ -1408,17 +1449,17 @@ namespace MuEmu
                     @char.Strength += (ushort)res;
 
 
-                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    await Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
                     return;
                 }
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                await Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
                 return;
             }
 
-            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+            await Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
 
-        public static void AddAgi(object session, CommandEventArgs eventArgs)
+        public static async void AddAgi(object session, CommandEventArgs eventArgs)
         {
             var Session = session as GSSession;
             var @char = Session.Player.Character;
@@ -1433,17 +1474,17 @@ namespace MuEmu
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Agility += (ushort)res;
                     
-                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    await Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
                     return;
                 }
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                await Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
                 return;
             }
 
-            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+            await Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
 
-        public static void AddVit(object session, CommandEventArgs eventArgs)
+        public static async void AddVit(object session, CommandEventArgs eventArgs)
         {
             var Session = session as GSSession;
             var @char = Session.Player.Character;
@@ -1459,17 +1500,17 @@ namespace MuEmu
                     @char.Vitality += (ushort)res;
 
 
-                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    await Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
                     return;
                 }
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                await Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
                 return;
             }
 
-            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+            await Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
 
-        public static void AddEne(object session, CommandEventArgs eventArgs)
+        public static async void AddEne(object session, CommandEventArgs eventArgs)
         {
             var Session = session as GSSession;
             var @char = Session.Player.Character;
@@ -1485,17 +1526,17 @@ namespace MuEmu
                     @char.Energy += (ushort)res;
 
 
-                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    await Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
                     return;
                 }
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                await Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
                 return;
             }
 
-            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+            await Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
 
-        public static void AddCmd(object session, CommandEventArgs eventArgs)
+        public static async void AddCmd(object session, CommandEventArgs eventArgs)
         {
             var Session = session as GSSession;
             var @char = Session.Player.Character;
@@ -1510,14 +1551,14 @@ namespace MuEmu
                     @char.LevelUpPoints -= (ushort)res;
                     @char.Command += (ushort)res;
 
-                    Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
+                    await Session.SendAsync(new SNotice(NoticeType.Blue, "You need relogin"));
                     return;
                 }
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
+                await Session.SendAsync(new SNotice(NoticeType.Blue, "Insufficient Points"));
                 return;
             }
 
-            Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+            await Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
         }
         #endregion
     }

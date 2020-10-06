@@ -100,6 +100,9 @@ namespace MuEmu.Network.Game
             Register<SFriends>(GameOpCode.FriendList);
             Register<SKillCount>(GameOpCode.KillCount);
 
+            Register<SChatNickName>(GameOpCode.GeneralChat0);
+            Register<SChatTarget>(GameOpCode.GeneralChat1);
+
             #region Server ViewPortMessages
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
@@ -132,7 +135,6 @@ namespace MuEmu.Network.Game
             Register<SBuy>(GameOpCode.Buy);
             Register<SSell>(GameOpCode.Sell);
             Register<SItemGet>(GameOpCode.ItemGet);
-            Register<SChatTarget>(GameOpCode.GeneralChat1);
             Register<STeleport>(GameOpCode.Teleport);
             Register<SViewSkillState>(GameOpCode.ViewSkillState);
             Register<SInventoryItemDelete>(GameOpCode.InventoryItemDelete);

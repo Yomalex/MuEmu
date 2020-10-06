@@ -44,6 +44,7 @@ namespace MuEmu.Resources
             Instance.GetQuests();
             Instance.GetChaosMixInfo();
             Instance.GetItemBags();
+            Instance.GetPCPointShop();
         }
 
         public IDictionary<ushort, ItemInfo> GetItems()
@@ -187,6 +188,20 @@ namespace MuEmu.Resources
             }
 
             return cache;
+        }
+
+        public Storage GetPCPointShop()
+        {
+            var cache = _cache.Get<Storage>("PCPoint");
+            if (cache == null)
+            {
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.RCache_Loading_Shops));
+                cache = _loader.LoadPCPointShop();
+                _cache.Set("PCPoint", cache);
+            }
+
+            return cache;
+            
         }
 
         public void ReloadShops()

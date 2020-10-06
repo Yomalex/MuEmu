@@ -35,6 +35,7 @@ using MuEmu.Events.ChaosCastle;
 using MuEmu.Resources.BMD;
 using Serilog.Sinks.RollingFile;
 using MuEmu.Resources.Game;
+using MuEmu.Network.PCPShop;
 
 namespace MuEmu
 {
@@ -64,6 +65,7 @@ namespace MuEmu
             Predicate<GSSession> MustBeLoggedIn = session => session.Player.Status == LoginStatus.Logged;
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
             Predicate<GSSession> MustBeLoggedOrPlaying = session => session.Player.Status == LoginStatus.Logged || session.Player.Status == LoginStatus.Playing;
+            Predicate<GSSession> MustBeGameMaster = session => (session.Player.Character.CtlCode&ControlCode.GameMaster) != 0;
 
             string output = "{Timestamp: HH:mm:ss} [{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}";
 
@@ -135,6 +137,7 @@ namespace MuEmu
                     .AddHandler(new QuestSystemServices())
                     .AddHandler(new GuildServices())
                     .AddHandler(new AntiHackServices())
+                    .AddHandler(new PCPShopServices())
                     .RegisterRule<CIDAndPass>(MustNotBeLoggedIn)
                     .RegisterRule<CCharacterList>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin>(MustBeLoggedIn)
@@ -143,9 +146,6 @@ namespace MuEmu
                     .RegisterRule<CDataLoadOK>(MustBePlaying)
                     .RegisterRule<CAction>(MustBePlaying)
             };
-
-            
-
             var mf = new MessageFactory[]
             {
                 new AuthMessageFactory(),
@@ -156,6 +156,7 @@ namespace MuEmu
                 new QuestSystemMessageFactory(),
                 new GuildMessageFactory(),
                 new AntiHackMessageFactory(),
+                new PCPShopMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf, xml.Rijndael);
             server.ClientVersion = xml.Version;
@@ -231,19 +232,19 @@ namespace MuEmu
 
             Log.Information(ServerMessages.GetMessage(Messages.Server_Ready));
 
-            Handler.AddCommand(new Command<GSSession>("exit", Close))
-                .AddCommand(new Command<GSSession>("quit", Close))
-                .AddCommand(new Command<GSSession>("stop", Close))
-                .AddCommand(new Command<GSSession>("reload")
+            Handler.AddCommand(new Command<GSSession>("exit", Close, autority: MustBeGameMaster))
+                .AddCommand(new Command<GSSession>("quit", Close, autority: MustBeGameMaster))
+                .AddCommand(new Command<GSSession>("stop", Close, autority: MustBeGameMaster))
+                .AddCommand(new Command<GSSession>("reload", autority:MustBeGameMaster)
                     .AddCommand(new Command<GSSession>("shops", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadShops()))
                     .AddCommand(new Command<GSSession>("gates", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadGates())))
-                .AddCommand(new Command<GSSession>("create")
+                .AddCommand(new Command<GSSession>("create", autority: MustBeGameMaster)
                     .AddCommand(new Command<GSSession>("movereq", DumpMoveReq)))
-                .AddCommand(new Command<GSSession>("db")
+                .AddCommand(new Command<GSSession>("db", autority: MustBeGameMaster)
                     .AddCommand(new Command<GSSession>("migrate", Migrate))
                     .AddCommand(new Command<GSSession>("create", Create))
                     .AddCommand(new Command<GSSession>("delete", Delete)))
-                .AddCommand(new Command<GSSession>("!", (object a, CommandEventArgs b) => GlobalAnoucement(b.Argument)).SetPartial())
+                .AddCommand(new Command<GSSession>("!", (object a, CommandEventArgs b) => GlobalAnoucement(b.Argument).Wait(), MustBeGameMaster).SetPartial())
                 .AddCommand(new Command<GSSession>("/").SetPartial()
                     .AddCommand(new Command<GSSession>("add").SetPartial()
                         .AddCommand(new Command<GSSession>("str", Character.AddStr))
@@ -251,12 +252,12 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("vit", Character.AddVit))
                         .AddCommand(new Command<GSSession>("ene", Character.AddEne))
                         .AddCommand(new Command<GSSession>("cmd", Character.AddCmd)))
-                    .AddCommand(new Command<GSSession>("set")
+                    .AddCommand(new Command<GSSession>("set", autority:MustBeGameMaster)
                         .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
-                        .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument)))
-                        .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument))))
-                    .AddCommand(new Command<GSSession>("levelup", LevelUp))
-                    /*.AddCommand(new Command<GSSession>("post"))*/)
+                        .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument))
+                        .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument)))))
+                    .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster)))
+                .AddCommand(new Command<GSSession>("#", PostCommand).SetPartial())//Post
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
 
@@ -415,6 +416,12 @@ namespace MuEmu
         {
             await NoEventMapSendAsync(new SNotice(NoticeType.Gold, text));
             Log.Information(ServerMessages.GetMessage(Messages.Server_NoEventMapAnnouncement, text));
+        }
+
+        public static async void PostCommand(object a, CommandEventArgs b)
+        {
+            var session = a as GSSession;
+            await server.SendAll(new SChatNickName(session.Player.Character.Name, $"~# {b.Argument}"));
         }
 
         public static void Close(object a, EventArgs b)

@@ -192,6 +192,14 @@ namespace MuEmu.Network
         CashPoints = 0x04F5,
     }
 
+    public enum PCPShopOpCode : ushort
+    {
+        PCPShopPoints = 0x04D0,
+        PCPShopBuy = 0x05D0,
+        PCPShopInfo = 0x06D0,
+        PCPShopItems = 0xFF31,
+    }
+
     public enum QuestOpCode : ushort
     {
         SetQuest = 0xFFA1,

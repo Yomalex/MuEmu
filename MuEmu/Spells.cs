@@ -464,8 +464,8 @@ namespace MuEmu
             var poison = _buffs.FirstOrDefault(x => x.State == SkillStates.Poison);
             if(poison != null)
             {
-               Player?.Character.GetAttacked(0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison).Wait();
-               Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage, DamageType.Poison).Wait();
+               Player?.Character.GetAttacked(poison.Source?.Player.ID??0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison).Wait();
+               Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage + (int)(Monster.Life * 0.03f), DamageType.Poison).Wait();
             }
         }
 
@@ -477,10 +477,8 @@ namespace MuEmu
                     await DelBuff(r);
             }
             catch (Exception)
-            {
-                _buffs.Clear();
-                return;
-            }
+            { }
+            _buffs.Clear();
         }
 
         public async Task DelBuff(Buff effect)

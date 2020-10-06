@@ -234,13 +234,17 @@ namespace MuEmu.Resources.Map
 
         public void AddPlayer(Character @char)
         {
-            SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SWeather(Weather));
-            SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SEventState(MapEvents.GoldenInvasion, DragonInvasion));
-
+            SendWeather(@char);
             var pos = @char.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
             Players.Add(@char);
             PlayerJoins?.Invoke(@char.Player, new EventArgs());
+        }
+
+        public void SendWeather(Character @char)
+        {
+            SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SWeather(Weather));
+            SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SEventState(MapEvents.GoldenInvasion, DragonInvasion));
         }
 
         public void AddMonster(Monster mons)
@@ -423,7 +427,7 @@ namespace MuEmu.Resources.Map
 
             _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider<int>(10000) + 10000);
 
-            Weather = (byte)(Program.RandomProvider<byte>(3) << 4 | Program.RandomProvider<byte>(10));
+            Weather = (byte)(Program.RandomProvider<int>(3) << 4 | Program.RandomProvider<int>(10));
             await SendAsync(new SWeather(Weather));
         }
     }

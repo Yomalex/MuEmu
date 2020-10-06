@@ -972,5 +972,19 @@ namespace MuEmu.Resources
                 yield return ret;
             }
         }
+
+        public Storage LoadPCPointShop()
+        {
+            var xml = XmlLoader<PCPointShopDto>(Path.Combine(_root, "PCPointShop.xml"));
+            var sto = new Storage(Storage.ShopSize);
+
+            foreach(var x in xml.Items)
+            {
+                var it = new Item((ItemNumber)x.Number, Options: new { x.Plus, x.Luck, x.Skill, x.Option28, x.Durability, x.OptionExe, x.BuyPrice });
+                sto.Add(it);
+            }
+
+            return sto;
+        }
     }
 }

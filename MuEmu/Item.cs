@@ -141,7 +141,7 @@ namespace MuEmu
     public class Item : ICloneable
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
-        private static Random _rand = new Random();
+        //private static Random _rand = new Random();
         private byte _plus;
         private byte _durability;
         private byte _option;
@@ -223,14 +223,16 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                if (value > BasicInfo.Durability)
-                    value = BasicInfo.Durability;
+                if (value > DurabilityBase)
+                    value = DurabilityBase;
 
                 _durability = value;
                 OnDurabilityChange(false);
                 NeedSave = true;
             }
         }
+        public byte DurabilityBase
+        { get => GetDurabilityBase(); }
         public byte Option28
         {
             get => _option;
@@ -1247,7 +1249,7 @@ namespace MuEmu
 
         private int RepairItemPrice()
         {
-            var baseDur = (float)BasicInfo.Durability;
+            var baseDur = (float)DurabilityBase;
             var currDur = (float)Durability;
 
             if (baseDur == 0)
@@ -1282,6 +1284,51 @@ namespace MuEmu
             return (int)repairPrice;
         }
 
+        private byte GetDurabilityBase()
+        {
+            var dur = BasicInfo.Durability + BasicInfo.MagicDur;
+            if(Plus < 5)
+            {
+                dur += Plus;
+            }else
+            {
+                switch(Plus)
+                {
+                    case 10:
+                        dur += Plus * 2 - 3;
+                        break;
+                    case 11:
+                        dur += Plus * 2 - 1;
+                        break;
+                    case 12:
+                        dur += Plus * 2 + 2;
+                        break;
+                    case 13:
+                        dur += Plus * 2 + 6;
+                        break;
+                    case 14:
+                        dur += Plus * 2 + 9;
+                        break;
+                    case 15:
+                        dur += Plus * 2 + 12;
+                        break;
+                    default:
+                        dur += Plus * 2 - 4;
+                        break;
+                }
+            }
+
+            if (SetOption != 0)
+                dur += 20;
+            else if (OptionExe != 0)
+                dur += 15;
+
+            if (dur > 255)
+                dur = 255;
+
+            return (byte)dur;
+        }
+
         public byte GetLevel(int level)
         {
             ushort itemlevel;
@@ -1311,7 +1358,7 @@ namespace MuEmu
             {
                 byte ilevel;
 
-                if (_rand.Next(10) == 0)
+                if (Program.RandomProvider<int>(10) == 0)
                 {
                     if (level < 0)
                         level = 0;
@@ -1334,7 +1381,7 @@ namespace MuEmu
             {
                 byte ilevel;
 
-                if (_rand.Next(10) == 0)
+                if (Program.RandomProvider<int>(10) == 0)
                 {
                     if (level < 0)
                         level = 0;
@@ -1479,29 +1526,31 @@ namespace MuEmu
 
         public void NewOptionRand()
         {
-            var randOp = _rand.Next(100);
-            if (_rand.Next(6) == 0)
+            var randOp = Program.RandomProvider<int>(100);
+            OptionExe = 0;
+            Option28 = 0;
+            if (Program.RandomProvider<int>(6) == 0)
             {
                 int NOption;
-                NOption = 1 << _rand.Next(6);
+                NOption = 1 << Program.RandomProvider<int>(6);
 
                 if ((NOption & 2) != 0)
                 {
-                    if (_rand.Next(2) != 0)
+                    if (Program.RandomProvider<int>(2) != 0)
                     {
-                        NOption = 1 << _rand.Next(6);
+                        NOption = 1 << Program.RandomProvider<int>(6);
                     }
                 }
 
-                if (_rand.Next(4) == 0)
+                if (Program.RandomProvider<int>(4) == 0)
                 {
-                    NOption |= 1 << _rand.Next(6);
+                    NOption |= 1 << Program.RandomProvider<int>(6);
                 }
 
                 OptionExe = (byte)NOption;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && _rand.Next(100) == 0) || _rand.Next(6) == 0)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider<int>(100) == 0) || Program.RandomProvider<int>(6) == 0)
             {
                 Luck = true;
             }
@@ -1510,7 +1559,7 @@ namespace MuEmu
                 Luck = false;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && _rand.Next(2) == 0) || _rand.Next(4) == 0 && Spell != Spell.None)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider<int>(2) == 0) || Program.RandomProvider<int>(4) == 0 && Spell != Spell.None)
             {
                 Skill = true;
             }
@@ -1519,9 +1568,9 @@ namespace MuEmu
                 Skill = false;
             }
 
-            if (_rand.Next(randOp) == 0)
+            if (Program.RandomProvider<int>(randOp) == 0)
             {
-                Option28 = (byte)_rand.Next(4);
+                Option28 = (byte)Program.RandomProvider<int>(4);
             }
         }
     }

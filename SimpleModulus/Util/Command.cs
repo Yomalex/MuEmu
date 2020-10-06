@@ -59,7 +59,7 @@ namespace WebZen.Util
                     return false;
             }
 
-            if (!_autority(client))
+            if (client != null && !_autority(client))
                 throw new Exception("No tienes acceso suficiente");
 
             if (_subCommands.Count == 0)

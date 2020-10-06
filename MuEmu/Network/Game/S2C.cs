@@ -748,6 +748,31 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class SChatNickName : IGameMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] NickName { get; set; }
+
+        [WZMember(1, typeof(ArraySerializer))]
+        public byte[] Message { get; set; }
+
+        [WZMember(2)]
+        public byte NullTerminator { get; set; }
+
+        public SChatNickName()
+        {
+            NickName = Array.Empty<byte>();
+            Message = Array.Empty<byte>();
+        }
+
+        public SChatNickName(string Target, string message)
+        {
+            NickName = Target.GetBytes();
+            Message = message.GetBytes();
+        }
+    }
+
+    [WZContract]
     public class SChatTarget : IGameMessage
     {
         [WZMember(0)]

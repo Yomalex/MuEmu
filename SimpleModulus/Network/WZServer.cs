@@ -138,7 +138,11 @@ namespace WebZen.Network
                     //Console.WriteLine("[C->S] " + message.GetType());
                     foreach (var handler in _handler)
                     {
-                        await handler.OnMessageReceived(sender, message);
+                        var handled = await handler.OnMessageReceived(sender, message);
+                        if(!handled)
+                        {
+                            Logger.Warning("Un handled message {0}", message.GetType());
+                        }
                     }
                 }
             }catch(Exception e)

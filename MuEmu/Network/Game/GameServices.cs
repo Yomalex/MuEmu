@@ -427,7 +427,7 @@ namespace MuEmu.Network.Game
 
                     float AddLifeRate = ((Source.Number.Index+1) * 10.0f) + (Source.Plus * 5.0f);
                     AddLife += (long)(@char.MaxHealth * AddLifeRate / 100.0f);
-                    if (Source.Durability == 1)
+                    if (Source.Durability <= 1)
                         await inv.Delete(message.Source);
                     else
                         Source.Durability--;
@@ -1597,7 +1597,7 @@ namespace MuEmu.Network.Game
 
             await session.SendAsync(new SNotice(NoticeType.Blue, $"Item:{it.BasicInfo.Name} Repair:{it.RepairPrice}zen"));
 
-            it.Durability = it.BasicInfo.Durability;
+            it.Durability = it.DurabilityBase;
             session.Player.Character.Money -= (uint)cost;
             res.Money = (int)session.Player.Character.Money;
             await session.SendAsync(res);
