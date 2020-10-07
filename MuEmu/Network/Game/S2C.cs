@@ -3,6 +3,7 @@ using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using WebZen.Serialization;
@@ -1731,6 +1732,62 @@ namespace MuEmu.Network.Game
         public ushort MasterEmpty { get; set; }
         [WZMember(5)]
         public uint ChkSum { get; set; }
+    }
+
+    [WZContract(Serialized = true)]
+    public class STradeRequest : IGameMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] szId { get; set; }
+
+        public string Id { get => szId.MakeString(); set => szId = value.GetBytes(); }
+    }
+
+    [WZContract]
+    public class STradeMoney: IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+    }
+
+    [WZContract]
+    public class STradeOtherMoney : IGameMessage
+    {
+        [WZMember(0)]
+        public uint Money { get; set; }
+    }
+
+    [WZContract]
+    public class STradeResult : IGameMessage
+    {
+        [WZMember(0)]
+        public TradeResult Result { get; set; }
+    }
+
+    [WZContract]
+    public class STradeOtherAdd : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Position { get; set; }
+
+        [WZMember(1, 12)]
+        public byte[] ItemInfo { get; set; }
+    }
+
+    [WZContract]
+    public class STradeResponce : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] szId { get; set; }
+
+        [WZMember(2)]
+        public ushort Level { get; set; }
+
+        [WZMember(3)]
+        public int GuildNumber { get; set; }
     }
 }
 

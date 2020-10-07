@@ -567,4 +567,47 @@ namespace MuEmu.Network.Game
         [WZMember(1)]
         public ushort MasterEmpty { get; set; }
     }
+
+    [WZContract]
+    public class CTradeRequest : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); }
+    }
+
+    [WZContract]
+    public class CTradeResponce : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        /*[WZMember(1, 10)]
+        public byte[] szId { get; set; }
+
+        [WZMember(2)]
+        public ushort Level { get; set; }
+
+        [WZMember(3)]
+        public int GuildNumber { get; set; }*/
+    }
+
+    [WZContract]
+    public class CTradeMoney : IGameMessage
+    {
+        [WZMember(0)]
+        public uint Money { get; set; }
+    }
+
+    [WZContract]
+    public class CTradeButtonOk : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Flag { get; set; }
+    }
+
+    [WZContract]
+    public class CTradeButtonCancel : IGameMessage
+    { }
 }

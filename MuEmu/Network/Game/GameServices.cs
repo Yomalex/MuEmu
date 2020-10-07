@@ -2018,5 +2018,153 @@ namespace MuEmu.Network.Game
         }
 
         #endregion
+
+        [MessageHandler(typeof(CTradeRequest))]
+        public async Task CTradeRequest(GSSession session, CTradeRequest message)
+        {
+            var target = Program.server.Clients.FirstOrDefault(x=> x.ID == message.Number);
+            var log = Logger.ForAccount(session);
+
+            if (target == null || 
+                target.ID == session.ID || 
+                session.Player.Status != LoginStatus.Playing ||
+                target.Player.Status != LoginStatus.Playing || 
+                target.Player.Character.Shop.Open ||
+                session.Player.Character.Shop.Open ||
+                session.Player.Character.Map.IsEvent ||
+                target.Player.Window != null ||
+                session.Player.Window != null )
+                return;
+
+            await target.SendAsync(new STradeRequest { Id = session.Player.Character.Name });
+            session.Player.Window = target;
+            target.Player.Window = session;
+        }
+
+        [MessageHandler(typeof(CTradeResponce))]
+        public async Task CTradeResponce(GSSession session, CTradeResponce message)
+        {
+            var tgt = session.Player.Window as GSSession;
+            if (message.Result == 0)
+            {
+                session.Player.Window = null;
+                tgt.Player.Window = null;
+            }
+
+
+            session.Player.Character.Inventory.TradeOpen = true;
+            tgt.Player.Character.Inventory.TradeOpen = true;
+            await session.SendAsync(new STradeResponce { Result = message.Result, szId = tgt.Player.Character.Name.GetBytes(), Level = tgt.Player.Character.Level });
+            await tgt.SendAsync(new STradeResponce { Result = message.Result, szId = session.Player.Character.Name.GetBytes(), Level = session.Player.Character.Level });
+        }
+
+        [MessageHandler(typeof(CTradeMoney))]
+        public async Task CTradeMoney(GSSession session, CTradeMoney message)
+        {
+            var @char = session.Player.Character;
+            if (message.Money > @char.Money)
+            {
+                return;
+            }
+
+            @char.Money -= message.Money;
+            @char.Inventory.TradeBox.Money += message.Money;
+            await session.SendAsync(new STradeMoney { Result = 1 });
+            await (session.Player.Window as GSSession).SendAsync(new STradeOtherMoney { Money = message.Money });
+        }
+
+        [MessageHandler(typeof(CTradeButtonOk))]
+        public async Task CTradeButtonOk(GSSession session, CTradeButtonOk message)
+        {
+            var session2 = session.Player.Window as GSSession;
+            var char1 = session.Player.Character;
+            var char2 = session2.Player.Character;
+            char1.Inventory.TradeOk = message.Flag == 1;
+            await session2.SendAsync(message);
+
+            if (!char1.Inventory.TradeOk || !char2.Inventory.TradeOk)
+                return;
+
+            char1.Inventory.TradeOk = false;
+            char2.Inventory.TradeOk = false;
+
+            var result = char1.Inventory.TryAdd(char2.Inventory.TradeBox.Items.Values);
+            result &= char2.Inventory.TryAdd(char1.Inventory.TradeBox.Items.Values);
+
+            char1.Player.Window = null;
+            char2.Player.Window = null;
+
+            if (!result)
+            {
+                var notice = new SNotice(NoticeType.Blue, Program.ServerMessages.GetMessage(Messages.Game_ChaosBoxMixError));
+                await session.SendAsync(notice);
+                await session2.SendAsync(notice);
+
+                if (char1.Inventory.TradeBox.Items.Count != 0)
+                    char1.Inventory.TradeRollBack();
+
+                if (char2.Inventory.TradeBox.Items.Count != 0)
+                    char2.Inventory.TradeRollBack();
+
+                char1.Inventory.SendInventory();
+                char2.Inventory.SendInventory();
+
+                var msg = new STradeResult { Result = TradeResult.InventoryFull };
+                await session.SendAsync(msg);
+                await session2.SendAsync(msg);
+                return;
+            }
+
+            char1.Inventory.TradeOpen = false;
+            char2.Inventory.TradeOpen = false;
+
+            foreach (var it in char2.Inventory.TradeBox.Items.Values)
+            {
+                char1.Inventory.Add(it);
+            }
+
+            foreach (var it in char1.Inventory.TradeBox.Items.Values)
+            {
+                char2.Inventory.Add(it);
+            }
+
+            char1.Money += char2.Inventory.TradeBox.Money;
+            char2.Money += char1.Inventory.TradeBox.Money;
+            char1.Inventory.TradeBox.Clear();
+            char2.Inventory.TradeBox.Clear();
+            char1.Inventory.SendInventory();
+            char2.Inventory.SendInventory();
+
+            var msg2 = new STradeResult { Result = TradeResult.Ok };
+            await session.SendAsync(msg2);
+            await session2.SendAsync(msg2);
+        }
+
+        [MessageHandler(typeof(CTradeButtonCancel))]
+        public async Task CTradeButtonCancel(GSSession session)
+        {
+            var session2 = session.Player.Window as GSSession;
+            var char1 = session.Player.Character;
+            var char2 = session2.Player.Character;
+
+            session.Player.Window = null;
+            session2.Player.Window = null;
+
+            char1.Inventory.TradeOk = false;
+            char2.Inventory.TradeOk = false;
+
+            if (char1.Inventory.TradeBox.Items.Count != 0)
+                char1.Inventory.TradeRollBack();
+
+            if (char2.Inventory.TradeBox.Items.Count != 0)
+                char2.Inventory.TradeRollBack();
+
+            char1.Inventory.SendInventory();
+            char2.Inventory.SendInventory();
+
+            var msg = new STradeResult { Result = TradeResult.Error };
+            await session.SendAsync(msg);
+            await session2.SendAsync(msg);
+        }
     }
 }

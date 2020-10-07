@@ -24,7 +24,7 @@ namespace MuEmu
         public StorageID IndexTranslate { get; private set; }
         public int EndIndex { get; private set; }
         public int Size { get; private set; }
-        public int Money { get; set; }
+        public uint Money { get; set; }
         public Dictionary<byte, Item> Items => _items;
 
         public Storage(int size, StorageID startIndex = StorageID.Equipament)
@@ -76,6 +76,33 @@ namespace MuEmu
             }
 
             return false;
+        }
+
+        public bool TryAdd(Size[] sizes, byte offset = 0)
+        {
+            var mapCopy = _map.ToList();
+
+            var ret = true;
+            foreach (var freeSpace in sizes)
+            {
+                var result = false;
+                for (var i = offset; i < Size; i++)
+                {
+                    var itemRect = new RectangleF(new Point(i % 8, i / 8), freeSpace);
+                    itemRect.Width -= 0.1f;
+                    itemRect.Height -= 0.1f;
+                    if (itemRect.Right >= _bounds.Right || itemRect.Bottom >= _bounds.Bottom)
+                        continue;
+
+                    if (mapCopy.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
+                    {
+                        mapCopy.Add(new RectangleF(new Point(i % 8, i / 8), freeSpace));
+                        result = true;
+                    }
+                }
+                ret &= result;
+            }
+            return ret;
         }
 
         private void _add(byte pos, Item it)

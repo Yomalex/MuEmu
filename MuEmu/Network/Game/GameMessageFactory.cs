@@ -192,6 +192,18 @@ namespace MuEmu.Network.Game
             Register<SMasterLevelUp>(GameOpCode.MasterLevelUp);
             Register<SMasterLevelSkill>(GameOpCode.MasterLevelSkill);
             #endregion
+
+            Register<CTradeRequest>(GameOpCode.TradeRequest);
+            Register<STradeRequest>(GameOpCode.TradeRequest);
+            Register<CTradeResponce>(GameOpCode.TradeResponce);
+            Register<STradeResponce>(GameOpCode.TradeResponce);
+            Register<STradeOtherAdd>(GameOpCode.TradeOtherAdd);
+            Register<CTradeMoney>(GameOpCode.TradeMoney);
+            Register<STradeMoney>(GameOpCode.TradeMoney);
+            Register<STradeOtherMoney>(GameOpCode.TradeOtherMoney);
+            Register<CTradeButtonOk>(GameOpCode.TradeButtonOk);
+            Register<CTradeButtonCancel>(GameOpCode.TradeButtonCancel);
+            Register<STradeResult>(GameOpCode.TradeButtonCancel);
         }
     }
 }

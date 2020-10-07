@@ -1,5 +1,6 @@
 ﻿using MU.DataBase;
 using MuEmu.Entity;
+using MuEmu.Network;
 using MuEmu.Network.Game;
 using Serilog;
 using Serilog.Core;
@@ -12,6 +13,13 @@ using System.Threading.Tasks;
 
 namespace MuEmu
 {
+    internal class Transaction
+    {
+        public MoveItemFlags From;
+        public byte fromIndex;
+        public MoveItemFlags To;
+        public byte toIndex;
+    }
     public class Inventory
     {
         private static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
@@ -57,6 +65,16 @@ namespace MuEmu
         public Storage ChaosBox => _chaosBox;
         public Storage PersonalShop => _personalShop;
         public Storage TradeBox => _tradeBox;
+        public bool TradeOk { get; set; }
+        public bool TradeOpen { get => _tradeOpen; set
+            {
+                _tradeOpen = value;
+                if (value == false)
+                    _transactions.Clear();
+            }
+        }
+        private bool _tradeOpen;
+        private List<Transaction> _transactions = new List<Transaction>();
 
         public Item ItemMoved { get; private set; }
 
@@ -107,6 +125,11 @@ namespace MuEmu
         public bool TryAdd()
         {
             return _inventory.TryAdd(new System.Drawing.Size(5,3));
+        }
+
+        public bool TryAdd(IEnumerable<Item> items)
+        {
+            return _inventory.TryAdd(items.Select(x => x.BasicInfo.Size).ToArray());
         }
 
         public Inventory(Character @char, CharacterDto characterDto)
@@ -391,7 +414,30 @@ namespace MuEmu
             }
             ItemMoved = it;
             _needSave = true;
+            if (TradeOpen)
+            {
+                var session2 = Character.Player.Window as GSSession;
+                _transactions.Add(new Transaction { From = from, fromIndex = fromIndex, To = to, toIndex = toIndex });
+                Character.Player.Session.SendAsync(new CTradeButtonOk { Flag = 0 }).Wait();
+                session2.SendAsync(new CTradeButtonOk { Flag = 2 }).Wait();
+                session2.SendAsync(new STradeOtherAdd { Position = toIndex, ItemInfo = it.GetBytes() }).Wait();
+            }
             return true;
+        }
+
+        public void TradeRollBack()
+        {
+            _transactions.Reverse();
+            var clone = _transactions.ToList();
+            TradeOpen = false;
+
+            Character.Money += TradeBox.Money;
+
+            foreach (var t in clone)
+            {
+                if (Move(t.To, t.toIndex, t.From, t.fromIndex) == false)
+                    throw new Exception("Can't rollback transactions");
+            }
         }
 
         public Item Get(byte from)

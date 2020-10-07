@@ -4,6 +4,13 @@ using System.Text;
 
 namespace MuEmu
 {
+    public enum TradeResult : byte
+    {
+        Error = 0,
+        Ok = 1,
+        InventoryFull = 2,
+        CantTradeHarmonized = 4,
+    }
     public enum StorageID
     {
         Equipament,
