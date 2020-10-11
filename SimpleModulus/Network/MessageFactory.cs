@@ -42,7 +42,7 @@ namespace WebZen.Network
                 return Serializer.Deserialize(stream, type);
             }catch(Exception ex)
             {
-                throw new Exception("Type: " + type + "OPCode: " + opCode, ex);
+                throw new Exception("Type: " + type + ", OPCode: " + opCode + ", Stream Length: " + stream.Length, ex);
             }
         }
 

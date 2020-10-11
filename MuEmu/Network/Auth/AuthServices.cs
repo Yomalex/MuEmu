@@ -34,7 +34,7 @@ namespace MuEmu.Network.Auth
                 TickCount = message.TickCount
             });
 
-            Logger.Information("Hardware ID: {0} & season {1}", message.HardwareID, message.ServerSeason);
+            //Logger.Information("Hardware ID: & season {0}", message.ServerSeason);
         }
 
         [MessageHandler(typeof(CIDAndPass))]
