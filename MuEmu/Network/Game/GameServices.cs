@@ -1367,6 +1367,23 @@ namespace MuEmu.Network.Game
                         }
                     }
                     break;
+                case Spell.Neil:
+                case Spell.Sahamutt:
+                    {
+                        var mp = new Point(message.X, message.Y);
+                        var vp = @char.MonstersVP
+                            .ToList() // clone for preveen collection changes
+                            .Select(x => MonstersMng.Instance.GetMonster(x))
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                        foreach (var mob in vp)
+                        {
+                            DamageType type;
+                            var attack = @char.MagicAttack(magic, mob.Defense, out type);
+                            mob.GetAttackedDelayed(@char.Player, attack, type, TimeSpan.FromMilliseconds(300));
+                            //mob.Spells.SetBuff(SkillStates.f, TimeSpan.FromSeconds(60), @char);
+                        }
+                    }
+                    break;
             }
         }
 
