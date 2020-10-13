@@ -524,8 +524,16 @@ namespace MuEmu
 
         public static byte GetClientClass(HeroClass dbClass)
         {
-            int @class = (int)dbClass;
-            return (byte)(((@class & 0x70) << 1) | ((@class & 0x03) == 1 ? 0x10 : (((@class & 0x03) == 2) ? 0x18 : 0x00)));
+            if (Program.Season12)
+            {
+                int @class = (int)dbClass;
+                return (byte)((@class & 0xF0) | ((@class << 3) & 0x08) | (((@class << 1) & 0x04) != 0?0x0C:0x00));
+            }
+            else
+            {
+                int @class = (int)dbClass;
+                return (byte)(((@class & 0x70) << 1) | ((@class & 0x03) == 1 ? 0x10 : (((@class & 0x03) == 2) ? 0x18 : 0x00)));
+            }
         }
 
         public Character(Player plr, CharacterDto characterDto)

@@ -33,7 +33,7 @@ using MuEmu.Util;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Resources.BMD;
-using Serilog.Sinks.RollingFile;
+using Serilog.Sinks.File;
 using MuEmu.Resources.Game;
 using MuEmu.Network.PCPShop;
 
@@ -72,7 +72,7 @@ namespace MuEmu
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
-                .WriteTo.RollingFile("GameServer_{Date}.txt", outputTemplate: output)
+                .WriteTo.File("GameServer_{Date}.txt", outputTemplate: output)
                 .WriteTo.Console(outputTemplate: output)
                 .MinimumLevel.Debug()
                 .CreateLogger();
