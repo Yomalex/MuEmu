@@ -12,6 +12,7 @@ namespace MuEmu.Events
         BloodCastle,
         Kanturu,
         ChaosCastle,
+        Crywolf,
     }
     internal class EventInfo
     {

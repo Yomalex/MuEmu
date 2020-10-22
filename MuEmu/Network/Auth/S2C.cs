@@ -232,6 +232,9 @@ namespace MuEmu.Network.Auth
 
         [WZMember(6)]
         public byte PKLevel { get; set; }
+        
+        //[WZMember(7)]
+        public byte unk { get; set; }
 
         public CharacterPreviewS12Dto() { }
 

@@ -109,7 +109,7 @@ namespace MuEmu.Monsters
             using (var tf = File.OpenText(file))
             {
                 var contents = tf.ReadToEnd();
-                var NPCRegex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)\nend");
+                var NPCRegex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)end");
                 var NPCSubRegex = new Regex(@"([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*(?s)(.*?)\n");
                 var SpotRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s+([0-9]+)\s*");
 

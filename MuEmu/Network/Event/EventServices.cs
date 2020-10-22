@@ -1,8 +1,10 @@
 ﻿using MuEmu.Events.BloodCastle;
 using MuEmu.Events.ChaosCastle;
+using MuEmu.Events.Crywolf;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
+using MuEmu.Monsters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,7 +92,26 @@ namespace MuEmu.Network.Event
         [MessageHandler(typeof(CCrywolfBenefit))]
         public void CCrywolfBenefit(GSSession session)
         {
-            session.SendAsync(new SCrywolfBenefit());
+            Program.EventManager
+                .GetEvent<Crywolf>()
+                .SendBenefit(session);
+        }
+
+        [MessageHandler(typeof(CCrywolfState))]
+        public void CCrywolfState(GSSession session)
+        {
+            Program.EventManager
+                .GetEvent<Crywolf>()
+                .SendState(session);
+        }
+
+        [MessageHandler(typeof(CCrywolfContract))]
+        public void CCrywolfContract(GSSession session, CCrywolfContract message)
+        {
+            session.Player.Window = MonstersMng.Instance.GetMonster(message.Index);
+            Program.EventManager
+                .GetEvent<Crywolf>()
+                .NPCTalk(session.Player);
         }
 
         [MessageHandler(typeof(CDevilSquareMove))]

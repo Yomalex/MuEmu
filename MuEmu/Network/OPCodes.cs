@@ -188,11 +188,18 @@ namespace MuEmu.Network
 
         ChaosCastleMove = 0x01AF,
 
+        CrywolfState = 0x00BD,
+        CrywolfStatueAndAltarInfo = 0x02BD,
+        CrywolfContract = 0x03BD,
+        CrywolfLeftTime = 0x04BD,
+        CrywolfBossMonsterInfo = 0x05BD,
+        CrywolfStageEffect = 0x06BD,
+        CrywolfPersonalRank = 0x07BD,
+        CrywolfHeroList = 0x08BD,
         CrywolfBenefit = 0x09BD,
 
         KanturuState = 0x00D1,
     }
-
     public enum CashOpCode : ushort
     {
         CashItems = 0x05D0,

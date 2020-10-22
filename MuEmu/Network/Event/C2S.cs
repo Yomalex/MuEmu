@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
+using WebZen.Util;
 
 namespace MuEmu.Network.Event
 {
@@ -39,6 +40,18 @@ namespace MuEmu.Network.Event
     // Crywolf
     [WZContract]
     public class CCrywolfBenefit : IEventMessage
+    { }
+
+    [WZContract]
+    public class CCrywolfContract : IEventMessage
+    {
+        [WZMember(0)]
+        public ushort wzIndex { get; set; }
+        public ushort Index => wzIndex.ShufleEnding();
+    }
+
+    [WZContract]
+    public class CCrywolfState : IEventMessage
     { }
 
     // DevilSquare

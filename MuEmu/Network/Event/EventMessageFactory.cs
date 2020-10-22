@@ -20,6 +20,15 @@ namespace MuEmu.Network.Event
             Register<CBloodCastleMove>(EventOpCode.BloodCastleEnter);
 
             // Crywolf
+            Register<CCrywolfState>(EventOpCode.CrywolfState);
+            Register<CCrywolfContract>(EventOpCode.CrywolfContract);
+            Register<SCrywolfState>(EventOpCode.CrywolfState);
+            Register<SCrywolfLeftTime>(EventOpCode.CrywolfLeftTime);
+            Register<SCrywolfStatueAndAltarInfo>(EventOpCode.CrywolfStatueAndAltarInfo);
+            Register<SCrywolfBossMonsterInfo>(EventOpCode.CrywolfBossMonsterInfo);
+            Register<SCrywolfStageEffect>(EventOpCode.CrywolfStageEffect);
+            Register<SCrywolfPersonalRank>(EventOpCode.CrywolfPersonalRank);
+            Register<SCrywolfHeroList>(EventOpCode.CrywolfHeroList);
             Register<CCrywolfBenefit>(EventOpCode.CrywolfBenefit);
 
             // DevilSquare

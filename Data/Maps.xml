@@ -56,7 +56,7 @@
   <Map Map="53" AttributteFile="./Data/Terrains/ChaosCastle.att" />
   <!-- <Map Map="54" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="55" AttributteFile="./Data/Terrains/(null).att" /> -->
-  <!-- <Map Map="56" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <Map Map="56" AttributteFile="./Data/Terrains/(null).att" />
   <Map Map="57" AttributteFile="./Data/Terrains/Raklion.att" />
   <Map Map="58" AttributteFile="./Data/Terrains/Buhwajang.att" />
   <!-- <Map Map="59" AttributteFile="./Data/Terrains/(null).att" /> -->

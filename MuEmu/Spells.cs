@@ -429,7 +429,14 @@ namespace MuEmu
             {
                 var m2 = new SViewSkillState(1, Monster.Index, (byte)effect);
 
-                await Monster.ViewPort.Select(x => x.Session).SendAsync(m2);
+                if(Monster.Info.ViewRange <= 0)
+                {
+                    await Monster.Map.SendAsync(m2);
+                }
+                else
+                {
+                    await Monster.ViewPort.Select(x => x.Session).SendAsync(m2);
+                }
                 return;
             }
             var m = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);

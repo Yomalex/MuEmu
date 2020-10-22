@@ -298,3 +298,4 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 *.lnk
+/Data/Monsters/MonsterSetBaseCS2.txt

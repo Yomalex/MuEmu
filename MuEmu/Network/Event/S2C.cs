@@ -203,6 +203,83 @@ namespace MuEmu.Network.Event
 
     // Crywolf
     [WZContract]
+    public class SCrywolfState : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Occupation { get; set; }
+        [WZMember(1)]
+        public byte State { get; set; }
+    }
+    [WZContract]
+    public class SCrywolfLeftTime : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Hour { get; set; }
+        [WZMember(1)]
+        public byte Minute { get; set; }
+
+        public TimeSpan TimeLeft { 
+            get => TimeSpan.FromHours(Hour + Minute / 30.0f);
+            set
+            {
+                Hour = (byte)value.Hours;
+                Minute = (byte)value.Minutes;
+            }
+        }
+    }
+    [WZContract]
+    public class SCrywolfStatueAndAltarInfo : IEventMessage
+    {
+        [WZMember(0)]
+        public int StatueHP { get; set; }
+        [WZMember(1,5)]
+        public byte[] AltarState { get; set; }
+    }
+    [WZContract]
+    public class SCrywolfBossMonsterInfo : IEventMessage
+    {
+        [WZMember(0)]
+        public int MonsterHP { get; set; }
+        [WZMember(1)]
+        public byte Monster { get; set; }
+    }
+    [WZContract]
+    public class SCrywolfStageEffect : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Active { get; set; }
+    }
+    [WZContract]
+    public class SCrywolfPersonalRank : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Rank { get; set; }
+        [WZMember(1)]
+        public int Exp { get; set; }
+    }
+    [WZContract]
+    public class SCrywolfHeroList : IEventMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public CrywolfHeroDto[] Heros { get; set; }
+    }
+    [WZContract]
+    public class CrywolfHeroDto : IEventMessage
+    {
+        [WZMember(0)]
+        public byte Rank { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] btName { get; set; }
+
+        [WZMember(2)]
+        public int Score { get; set; }
+
+        [WZMember(3)]
+        public HeroClass Class { get; set; }
+    }
+
+    [WZContract]
     public class SCrywolfBenefit : IEventMessage
     {
         [WZMember(0)]

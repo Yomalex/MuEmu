@@ -189,31 +189,40 @@ namespace MuEmu.Network.Auth
         [MessageHandler(typeof(CCharacterMapJoin2))]
         public async Task CCharacterMapJoin2(GSSession session, CCharacterMapJoin2 Character)
         {
-            var @charDto = session.Player.Account.Characters
+            var charDto = session.Player.Account.Characters
                 .Select(x => x.Value)
                 .FirstOrDefault(x => x.Name == Character.Name.MakeString());
 
+            Data.FriendDto[] friends;
+            int letters;
+
             using (var db = new GameContext())
             {
-                @charDto.Spells = (from spell in db.Spells
-                                  where spell.CharacterId == @charDto.CharacterId
+                charDto.Spells = (from spell in db.Spells
+                                  where spell.CharacterId == charDto.CharacterId
                                   select spell).ToList();
 
-                @charDto.Quests = (from quest in db.Quests
-                                   where quest.CharacterId == @charDto.CharacterId
+                charDto.Quests = (from quest in db.Quests
+                                   where quest.CharacterId == charDto.CharacterId
                                    select quest).ToList();
 
                 charDto.SkillKey = (from config in db.Config
-                                    where config.SkillKeyId == @charDto.CharacterId
+                                    where config.SkillKeyId == charDto.CharacterId
                                     select config).FirstOrDefault();
 
                 var friendList = from friend in db.Friends
-                                 where (friend.FriendId == @charDto.CharacterId || friend.CharacterId == @charDto.CharacterId) && friend.State == 1
-                                 select friend;
+                                 where (friend.FriendId == charDto.CharacterId || friend.CharacterId == charDto.CharacterId) && friend.State == 1
+                                 select friend.FriendId == charDto.CharacterId?friend.CharacterId: friend.FriendId;
+
+                letters = (from letter in db.Letters
+                            where letter.CharacterId == charDto.CharacterId
+                            select letter).Count();
 
                 charDto.MasterInfo = (from mi in db.MasterLevel
                                      where mi.MasterInfoId == charDto.CharacterId
                                      select mi).FirstOrDefault();
+
+                friends = friendList.Select(x => new Data.FriendDto { Name = db.Characters.First(z => z.CharacterId == x).Name.GetBytes() }).ToArray();
             }
 
             if (@charDto == null)
@@ -228,7 +237,7 @@ namespace MuEmu.Network.Auth
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
 
-            await session.SendAsync(new SFriends { MemoCount = 0, Friends = new Data.FriendDto[] { new Data.FriendDto { Name = "Yomalex2".GetBytes() } } });
+            await session.SendAsync(new SFriends { MemoCount = (byte)letters, Friends = friends });
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
             

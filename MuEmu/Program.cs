@@ -36,6 +36,8 @@ using MuEmu.Resources.BMD;
 using Serilog.Sinks.File;
 using MuEmu.Resources.Game;
 using MuEmu.Network.PCPShop;
+using Serilog.Core;
+using MuEmu.Events.Crywolf;
 
 namespace MuEmu
 {
@@ -72,7 +74,7 @@ namespace MuEmu
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
-                .WriteTo.File("GameServer_{Date}.txt", outputTemplate: output)
+                .WriteTo.File("GameServer_.txt", outputTemplate: output, rollingInterval: RollingInterval.Day)
                 .WriteTo.Console(outputTemplate: output)
                 .MinimumLevel.Debug()
                 .CreateLogger();
@@ -83,25 +85,7 @@ namespace MuEmu
             if (!File.Exists("./Server.xml"))
             {
                 Log.Logger.Error(ServerMessages.GetMessage(Messages.Server_Cfg));
-                ResourceLoader.XmlSaver("./Server.xml", new ServerInfoDto
-                {
-                    AutoRegistre = true,
-                    Code = 0,
-                    ConnectServerIP = "127.0.0.1",
-                    DataBase = "MuOnline",
-                    DBIp = "127.0.0.1",
-                    BDUser = "root",
-                    DBPassword = "",
-                    DropRate = 60,
-                    Experience = 10,
-                    IP = "127.0.0.1",
-                    Name = "GameServer",
-                    Port = 55901,
-                    Serial = "Serial",
-                    Show = 1,
-                    Version = "10203",
-                    Zen = 10,
-                });
+                ResourceLoader.XmlSaver("./Server.xml", new ServerInfoDto());
                 Task.Delay(10000);
                 return;
             }
@@ -182,7 +166,7 @@ namespace MuEmu
                 MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
                 EventInitialize();
 
-                MonstersMng.Instance.LoadSetBase("./Data/Monsters/MonsterSetBase.txt");
+                MonstersMng.Instance.LoadSetBase("./Data/"+xml.MonsterSetBase);
                 GuildManager.Initialize();
                 PartyManager.Initialzie(400);
                 DuelSystem.Initialize();
@@ -386,7 +370,8 @@ namespace MuEmu
                 .AddEvent(Events.Events.BloodCastle, new BloodCastles())
                 .AddEvent(Events.Events.DevilSquared, new DevilSquares())
                 .AddEvent(Events.Events.Kanturu, new Kanturu())
-                .AddEvent(Events.Events.ChaosCastle, new ChaosCastles());
+                .AddEvent(Events.Events.ChaosCastle, new ChaosCastles())
+                .AddEvent(Events.Events.Crywolf, new Crywolf());
             LuckyCoins.Initialize();
             EventChips.Initialize();
         }
