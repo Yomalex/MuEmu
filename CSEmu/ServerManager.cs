@@ -23,6 +23,7 @@ namespace CSEmu
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ServerManager));
         private Dictionary<ushort, ServerInfo> _servers;
         private Dictionary<CSSession, ushort> _GSsessions;
+        private string _token;
 
         public static ServerManager Instance { get; private set; }
 
@@ -32,16 +33,23 @@ namespace CSEmu
             _GSsessions = new Dictionary<CSSession, ushort>();
         }
 
-        public static void Initialize()
+        public static void Initialize(string token)
         {
             if (Instance != null)
                 throw new Exception("Already initialized");
 
             Instance = new ServerManager();
+            Instance._token = token;
         }
 
-        public void Register(CSSession session, ushort index, string address, ushort port, bool display)
+        public void Register(CSSession session, ushort index, string address, ushort port, bool display, string token)
         {
+            if(_token != token)
+            {
+                Logger.Error("Auth Token invalid");
+                return;
+            }
+
             lock (_servers)
             {
                 _servers.Add(index, new ServerInfo { Index = index, Address = address, Port = port, LastPush = DateTime.Now, Visible = display });
@@ -72,8 +80,14 @@ namespace CSEmu
             }
         }
 
-        public void Keep(ushort index, byte load)
+        public void Keep(ushort index, byte load, string token)
         {
+            if (_token != token)
+            {
+                Logger.Error("Auth Token invalid");
+                return;
+            }
+
             lock (_servers)
             {
                 _servers[index].LastPush = DateTime.Now;

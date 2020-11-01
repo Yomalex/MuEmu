@@ -186,7 +186,7 @@ namespace MuEmu
 
             try
             {
-                client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server, (byte)xml.Show);
+                client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server, (byte)xml.Show, xml.APIKey);
             }catch(Exception)
             {
                 Log.Error(ServerMessages.GetMessage(Messages.Server_CSServer_Error));

@@ -551,7 +551,7 @@ namespace MuEmu.Events.Crywolf
         {
             var orderList = _players
                 .OrderByDescending(x => x.Score)
-                .Where(x => x.Player.Status == LoginStatus.Playing)
+                .Where(x => x.Player.Status == LoginStatus.Playing && !_altar.Values.Any(y => y.Elf == x.Player))
                 .ToList();
 
             var dto = new List<CrywolfHeroDto>();

@@ -14,7 +14,6 @@ namespace CSEmu.Network
         {
             Initialize(address, handler, new CSSessionFactory(), factories, useRijndael);
             SimpleStream = true;
-            ServerManager.Initialize();
         }
 
         protected override void OnConnect(WZClient session)

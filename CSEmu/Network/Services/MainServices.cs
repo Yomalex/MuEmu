@@ -36,13 +36,13 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CRegistryReq))]
         public void RegistryHandler(CSSession session, CRegistryReq message)
         {
-            ServerManager.Instance.Register(session, message.Index, message.Address, message.Port, message.Show != 0);
+            ServerManager.Instance.Register(session, message.Index, message.Address, message.Port, message.Show != 0, message.Token);
         }
 
         [MessageHandler(typeof(CKeepAlive))]
         public void KeepAliveHandler(CSSession session, CKeepAlive message)
         {
-            ServerManager.Instance.Keep(message.Index, message.Load);
+            ServerManager.Instance.Keep(message.Index, message.Load, message.Token);
         }
     }
 }

@@ -29,6 +29,7 @@ namespace MuEmu.Resources.XML
         [XmlElement] public string BDUser { get; set; } = "root";
         [XmlElement] public string DBPassword { get; set; } = "1234";
         [XmlElement] public bool Rijndael { get; set; } = false;
+        [XmlElement] public string APIKey { get; set; } = "2020110116";
         [XmlElement] public EventDto BoxOfRibbon { get; set; } = new EventDto();
         [XmlElement] public EventDto Medals { get; set; } = new EventDto();
         [XmlElement] public EventDto HeartOfLove { get; set; } = new EventDto();

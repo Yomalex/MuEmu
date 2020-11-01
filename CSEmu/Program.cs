@@ -42,7 +42,19 @@ namespace CSEmu
                 new MainMessageFactory()
             };
 
+            string apiKey;
+            if (args.Length > 0)
+                apiKey = "api-" + args[0].Substring(0, 10);
+            else
+            {
+                logger.Information("Please write a apiKey for use on ConnectServer auth");
+                var line = Console.ReadLine();
+                apiKey = "api-" + line.Substring(0, 10);
+            }
+            logger.Information("API Key for GameServers is {0}", apiKey);
+
             server = new WZConnectServer(ip, mh, mf, false);
+            ServerManager.Initialize(apiKey);
 
             while (true)
             {
