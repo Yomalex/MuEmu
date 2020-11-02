@@ -166,6 +166,7 @@ namespace MuEmu
                 MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
                 EventInitialize();
 
+                MapServerManager.Initialize("./Data/MapServer.xml");
                 MonstersMng.Instance.LoadSetBase("./Data/"+xml.MonsterSetBase);
                 GuildManager.Initialize();
                 PartyManager.Initialzie(400);
@@ -313,9 +314,9 @@ namespace MuEmu
                 );
         }
 
-        public static T RandomProvider<T>(int Max, int Min = 0)
+        public static int RandomProvider(int Max, int Min = 0)
         {
-            return (T)(object)s_rand.Next(Min, Max);
+            return s_rand.Next(Min, Max);
         }
 
         private static void MakeXOR(byte[] data, int offset, int length)

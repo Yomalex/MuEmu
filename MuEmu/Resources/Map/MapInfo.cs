@@ -76,7 +76,7 @@ namespace MuEmu.Resources.Map
             }
             if (SafePoints.Any())
             {
-                var rand = Program.RandomProvider<int>(SafePoints.Count());
+                var rand = Program.RandomProvider(SafePoints.Count());
                 var id = SafePoints[rand];
                 return id;
             }
@@ -127,14 +127,14 @@ namespace MuEmu.Resources.Map
                 Width = fr.ReadByte();
                 Height = fr.ReadByte();
 
-                Layer = new byte[Width * Height];
+                Layer = new byte[Width * Height+1];
                 fr.Read(Layer, 0, Width * Height);
 
                 Map = map;
             }
 
             Weather = 0x30;
-            _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider<int>(10000) + 10000);
+            _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider(10000) + 10000);
 
             Monsters = new List<Monster>();
             Players = new List<Character>();
@@ -425,9 +425,9 @@ namespace MuEmu.Resources.Map
             if (DateTime.Now < _nextWeater)
                 return;
 
-            _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider<int>(10000) + 10000);
+            _nextWeater = DateTime.Now.AddMilliseconds(Program.RandomProvider(10000) + 10000);
 
-            Weather = (byte)(Program.RandomProvider<int>(3) << 4 | Program.RandomProvider<int>(10));
+            Weather = (byte)(Program.RandomProvider(3) << 4 | Program.RandomProvider(10));
             await SendAsync(new SWeather(Weather));
         }
     }

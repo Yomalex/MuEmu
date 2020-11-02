@@ -367,4 +367,16 @@ namespace MuEmu.Network.Auth
             }
         }
     }
+
+    [WZContract]
+    public class SServerMove : IAuthMessage
+    {
+        [WZMember(0, 16)] public byte[] IpAddress { get; set; }
+        [WZMember(1)] public ushort ServerPort { get; set; }
+        [WZMember(2)] public ushort ServerCode { get; set; }
+        [WZMember(3)] public uint AuthCode1 { get; set; }
+        [WZMember(4)] public uint AuthCode2 { get; set; }
+        [WZMember(5)] public uint AuthCode3 { get; set; }
+        [WZMember(6)] public uint AuthCode4 { get; set; }
+    }
 }

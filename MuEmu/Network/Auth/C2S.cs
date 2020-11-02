@@ -111,4 +111,22 @@ namespace MuEmu.Network.Auth
         [WZMember(0, 10)]
         public byte[] Name { get; set; }
     }
+
+    [WZContract]
+    public class CServerMove : IAuthMessage
+    {
+        [WZMember(0, 12)] public byte[] btAccount { get; set; }
+        [WZMember(1, 12)] public byte[] Character { get; set; }
+        [WZMember(2)] public uint AuthCode1 { get; set; }
+        [WZMember(3)] public uint AuthCode2 { get; set; }
+        [WZMember(4)] public uint AuthCode3 { get; set; }
+        [WZMember(5)] public uint AuthCode4 { get; set; }
+        [WZMember(6)] public uint TickCount { get; set; }
+        [WZMember(7, 5)] public byte[] btClientVersion { get; set; }
+        [WZMember(8, 16)] public byte[] btClientSerial { get; set; }
+
+        public string ClientVersion => btClientVersion.MakeString();
+        public string ClientSerial => btClientSerial.MakeString();
+        public string Account => btAccount.MakeString();
+    }
 }

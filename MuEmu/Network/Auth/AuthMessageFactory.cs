@@ -27,6 +27,7 @@ namespace MuEmu.Network.Auth
             Register<CCharacterDelete>(CSOpCode.CharacterDelete);
             Register<CCharacterMapJoin>(CSOpCode.JoinMap);
             Register<CCharacterMapJoin2>(CSOpCode.JoinMap2);
+            Register<CServerMove>(CSOpCode.ServerMoveAuth);
 
             // S2C
             Register<SJoinResult>(CSOpCode.JoinResult);
@@ -37,6 +38,7 @@ namespace MuEmu.Network.Auth
             Register<SCharacterDelete>(CSOpCode.CharacterDelete);
             Register<SCharacterMapJoin>(CSOpCode.JoinMap);
             Register<SCharacterMapJoin2>(CSOpCode.JoinMap2);
+            Register<SServerMove>(CSOpCode.ServerMove);
         }
     }
 }

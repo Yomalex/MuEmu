@@ -31,6 +31,8 @@ namespace MuEmu.Network
         CharacterDelete = 0x02F3,
         JoinMap2 = 0x03F3,
         JoinMap = 0x15F3,
+        ServerMove = 0x00B1,
+        ServerMoveAuth = 0x01B1,
     }
 
     public enum GameOpCode : ushort

@@ -38,7 +38,7 @@ namespace MuEmu.Events
         public async void Start()
         {
             dekronCount = 0;
-            dekronMap = dekronMaps[Program.RandomProvider<int>(3)];
+            dekronMap = dekronMaps[Program.RandomProvider(3)];
             foreach(var gold in _goldenMob)
             {
                 if(gold.Info.Monster == 79) // golden Dekron

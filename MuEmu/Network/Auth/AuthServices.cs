@@ -33,8 +33,6 @@ namespace MuEmu.Network.Auth
                 btPassword = message.btPassword,
                 TickCount = message.TickCount
             });
-
-            //Logger.Information("Hardware ID: & season {0}", message.ServerSeason);
         }
 
         [MessageHandler(typeof(CIDAndPass))]
@@ -104,8 +102,10 @@ namespace MuEmu.Network.Auth
                     return;
                 }
 
+                session.PreviousCode = 0xffff;
                 acc.ServerCode = Program.ServerCode;
                 acc.IsConnected = true;
+                acc.LastConnection = DateTime.Now;
                 db.Accounts.Update(acc);
                 db.SaveChanges();
 
@@ -192,6 +192,9 @@ namespace MuEmu.Network.Auth
             var charDto = session.Player.Account.Characters
                 .Select(x => x.Value)
                 .FirstOrDefault(x => x.Name == Character.Name.MakeString());
+
+            if(!MapServerManager.CheckMapServerMove(session, (Maps)charDto.Map))
+                return;
 
             Data.FriendDto[] friends;
             int letters;
@@ -408,6 +411,68 @@ namespace MuEmu.Network.Auth
 
                 db.SaveChanges();
             }
+        }
+
+        [MessageHandler(typeof(CServerMove))]
+        public async Task CServerMove(GSSession session, CServerMove message)
+        {
+            Logger.ForAccount(session).Information("Server move recv");
+            BuxDecode.Decode(message.btAccount);
+
+            if (Program.server.ClientVersion != message.ClientVersion)
+            {
+                Logger.Error("Bad client version {0} != {1}", Program.server.ClientVersion, message.ClientVersion);
+                await session.SendAsync(new SLoginResult(LoginResult.OldVersion));
+                session.Disconnect();
+                return;
+            }
+
+            if (Program.server.ClientSerial != message.ClientSerial)
+            {
+                Logger.Error("Bad client serial {0} != {1}", Program.server.ClientSerial, message.ClientSerial);
+                await session.SendAsync(new SLoginResult(LoginResult.OldVersion));
+                session.Disconnect();
+                return;
+            }
+
+            using (var db = new GameContext())
+            {
+                var acc = (from account in db.Accounts
+                           where string.Equals(account.Account, message.Account, StringComparison.InvariantCultureIgnoreCase)
+                           select account)
+                          .FirstOrDefault();
+
+                var token = $"{message.AuthCode1:X8}{message.AuthCode2:X8}{message.AuthCode3:X8}{message.AuthCode4:X8}";
+
+                if (acc.AuthToken != token)
+                {
+                    await session.SendAsync(new SLoginResult(LoginResult.ConnectionError));
+                    return;
+                }
+
+                session.PreviousCode = (ushort)acc.ServerCode;
+                acc.ServerCode = Program.ServerCode;
+                acc.IsConnected = true;
+                acc.LastConnection = DateTime.Now;
+                db.Accounts.Update(acc);
+                db.SaveChanges();
+
+                byte y = 0;
+                session.Player.SetAccount(acc);
+                var _acc = session.Player.Account;
+                _acc.Characters = (from @char in db.Characters
+                                  where @char.AccountId == acc.AccountId
+                                  select @char).ToDictionary(x => y++);
+
+                foreach (var @char in _acc.Characters)
+                {
+                    @char.Value.Items = (from item in db.Items
+                                         where item.CharacterId == @char.Value.CharacterId
+                                         select item).ToList();
+                }
+            }
+
+            await CCharacterMapJoin2(session, new Auth.CCharacterMapJoin2 { Name = message.Character });
         }
     }
 }

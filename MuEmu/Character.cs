@@ -986,7 +986,10 @@ namespace MuEmu
             Direction = dir;
             TPosition = _position;
 
-            if(State == ObjectState.Live)
+            if (!MapServerManager.CheckMapServerMove(Player.Session, map))
+                return;
+
+            if (State == ObjectState.Live)
                 await Player.Session.SendAsync(new STeleport(256, MapID, _position, Direction));
         }
 
@@ -1431,7 +1434,7 @@ namespace MuEmu
             if (right != null && left != null  && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
                 left.Number.Type >= ItemType.Sword && left.Number.Type < ItemType.BowOrCrossbow)
             {
-                var item = Program.RandomProvider<int>(2) == 0 ? right : left;
+                var item = Program.RandomProvider(2) == 0 ? right : left;
                 item.NormalWeaponDurabilityDown(Defense);
             }
             else if (right != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)

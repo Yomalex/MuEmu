@@ -615,7 +615,7 @@ namespace MuEmu.Network.Game
 
                         await inv.Delete(message.Source);
                         var soulRate = 50 + (Target.Luck ? 25 : 0);
-                        if (Program.RandomProvider<int>(100) < soulRate)
+                        if (Program.RandomProvider(100) < soulRate)
                         {
                             Target.Plus++;
                         }
@@ -639,7 +639,7 @@ namespace MuEmu.Network.Game
 
                         await inv.Delete(message.Source);
                         var lifeRate = 50 + (Target.Luck ? 25 : 0);
-                        if (Program.RandomProvider<int>(100) < lifeRate)
+                        if (Program.RandomProvider(100) < lifeRate)
                         {
                             Target.Option28++;
                         }
@@ -676,7 +676,7 @@ namespace MuEmu.Network.Game
                 if (bag.LevelMin < plr.Character.Level)
                 {
                     var c = bag.Storage.Count;
-                    item = bag.Storage.ElementAt(Program.RandomProvider<int>(c)).Clone() as Item;
+                    item = bag.Storage.ElementAt(Program.RandomProvider(c)).Clone() as Item;
                     item.NewOptionRand();
                     date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
                     var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);

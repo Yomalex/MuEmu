@@ -31,6 +31,9 @@ namespace MU.DataBase
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime LastConnection { get; set; } = DateTime.Now;
 
+        [MaxLength(33)]
+        public string AuthToken { get; set; }
+
         public List<CharacterDto> Characters { get; set; }
     }
 }

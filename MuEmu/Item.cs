@@ -1358,7 +1358,7 @@ namespace MuEmu
             {
                 byte ilevel;
 
-                if (Program.RandomProvider<int>(10) == 0)
+                if (Program.RandomProvider(10) == 0)
                 {
                     if (level < 0)
                         level = 0;
@@ -1381,7 +1381,7 @@ namespace MuEmu
             {
                 byte ilevel;
 
-                if (Program.RandomProvider<int>(10) == 0)
+                if (Program.RandomProvider(10) == 0)
                 {
                     if (level < 0)
                         level = 0;
@@ -1526,31 +1526,31 @@ namespace MuEmu
 
         public void NewOptionRand()
         {
-            var randOp = Program.RandomProvider<int>(100);
+            var randOp = Program.RandomProvider(100);
             OptionExe = 0;
             Option28 = 0;
-            if (Program.RandomProvider<int>(6) == 0)
+            if (Program.RandomProvider(6) == 0)
             {
                 int NOption;
-                NOption = 1 << Program.RandomProvider<int>(6);
+                NOption = 1 << Program.RandomProvider(6);
 
                 if ((NOption & 2) != 0)
                 {
-                    if (Program.RandomProvider<int>(2) != 0)
+                    if (Program.RandomProvider(2) != 0)
                     {
-                        NOption = 1 << Program.RandomProvider<int>(6);
+                        NOption = 1 << Program.RandomProvider(6);
                     }
                 }
 
-                if (Program.RandomProvider<int>(4) == 0)
+                if (Program.RandomProvider(4) == 0)
                 {
-                    NOption |= 1 << Program.RandomProvider<int>(6);
+                    NOption |= 1 << Program.RandomProvider(6);
                 }
 
                 OptionExe = (byte)NOption;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider<int>(100) == 0) || Program.RandomProvider<int>(6) == 0)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider(100) == 0) || Program.RandomProvider(6) == 0)
             {
                 Luck = true;
             }
@@ -1559,7 +1559,7 @@ namespace MuEmu
                 Luck = false;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider<int>(2) == 0) || Program.RandomProvider<int>(4) == 0 && Spell != Spell.None)
+            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider(2) == 0) || Program.RandomProvider(4) == 0 && Spell != Spell.None)
             {
                 Skill = true;
             }
@@ -1568,9 +1568,9 @@ namespace MuEmu
                 Skill = false;
             }
 
-            if (Program.RandomProvider<int>(randOp) == 0)
+            if (Program.RandomProvider(randOp) == 0)
             {
-                Option28 = (byte)Program.RandomProvider<int>(4);
+                Option28 = (byte)Program.RandomProvider(4);
             }
         }
     }

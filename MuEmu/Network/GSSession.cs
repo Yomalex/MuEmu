@@ -10,6 +10,7 @@ namespace MuEmu.Network
     public class GSSession : WZClient
     {
         public Player Player { get; set; }
+        public ushort PreviousCode { get; set; }
 
         public GSSession(WZServer server, Socket socket, AsyncCallback onRecv)
             : base(server, socket, onRecv)
