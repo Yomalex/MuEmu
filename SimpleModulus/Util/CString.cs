@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.IO;
+using BlubLib.IO;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebZen.Util
 {
@@ -18,6 +21,18 @@ namespace WebZen.Util
         public static byte[] GetBytes(this string String)
         {
             return Encoding.ASCII.GetBytes(String);
+        }
+
+        public static void WriteString(this BinaryWriter w, string value, int length)
+        {
+            var a = new byte[length];
+            Array.Copy(value.GetBytes(), a, Math.Min(length, value.Length));
+            w.Write(a, 0, length);
+        }
+
+        public static string ReadString(this BinaryReader w, int length)
+        {
+            return w.ReadBytes(length).MakeString();
         }
     }
 }

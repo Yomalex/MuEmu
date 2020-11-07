@@ -45,4 +45,44 @@ namespace MuEmu.Network.ConnectServer
         public byte[] btToken { get; set; }
         public string Token { get => btToken.MakeString(); set => btToken = value.GetBytes(); }
     }
+
+    [WZContract]
+    public class SCAdd : ICSMessage
+    {
+        [WZMember(0)]
+        public byte Server { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] btName { get; set; }
+    }
+
+    [WZContract]
+    public class SCChat : ICSMessage
+    {
+        [WZMember(0)]
+        public byte Server { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] btName { get; set; }
+
+        [WZMember(2, 100)]
+        public byte[] btChat { get; set; }
+    }
+
+    [WZContract]
+    public class SCRem : ICSMessage
+    {
+        [WZMember(0)]
+        public byte Server { get; set; }
+
+        [WZMember(1, typeof(ArrayWithScalarSerializer<short>))]
+        public CliRemDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class CliRemDto : ICSMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] btName { get; set; }
+    }
 }

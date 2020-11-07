@@ -12,6 +12,7 @@ using MuEmu.Entity;
 using Serilog;
 using Serilog.Core;
 using MuEmu.Monsters;
+using MuEmu.Network.ConnectServer;
 
 namespace MuEmu.Network
 {
@@ -47,6 +48,7 @@ namespace MuEmu.Network
                         var @char = Session.Player.Character;
                         var mobVp = @char.MonstersVP.Select(x => MonstersMng.Instance.GetMonster(x)).ToList();
                         //mobVp.ForEach(x => x.ViewPort.Remove(Session.Player));
+                        Program.client.SendAsync(new SCRem { Server = (byte)Program.ServerCode, List = new CliRemDto[] { new CliRemDto { btName = @char.Name.GetBytes() } } });
                         @char.Map.DelPlayer(Session.Player.Character);
                         @char.Party?.Remove(Session.Player);
                         @char.Duel?.Leave(@char.Player);

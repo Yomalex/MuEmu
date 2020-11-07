@@ -1,5 +1,7 @@
 ﻿using MuEmu.Entity;
+using MuEmu.Events;
 using MuEmu.Network.CashShop;
+using MuEmu.Network.ConnectServer;
 using MuEmu.Network.Game;
 using MuEmu.Network.Global;
 using MuEmu.Resources;
@@ -28,8 +30,8 @@ namespace MuEmu.Network.Auth
             await CIDAndPass(session, new CIDAndPass
             {
                 btAccount = message.btAccount,
-                btClientSerial = message.btClientSerial,
-                btClientVersion = message.btClientVersion,
+                ClientSerial = message.ClientSerial,
+                ClientVersion = message.ClientVersion,
                 btPassword = message.btPassword,
                 TickCount = message.TickCount
             });
@@ -183,7 +185,7 @@ namespace MuEmu.Network.Auth
             var valid = session.Player.Account.Characters.Any(x => x.Value.Name == Character.Name);
             Logger.ForAccount(session)
                 .Information("Try to join with {0}", Character.Name);
-            await session.SendAsync(new SCharacterMapJoin { Name = Character.btName, Valid = (byte)(valid?0:1) });
+            await session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = (byte)(valid?0:1) });
         }
 
         [MessageHandler(typeof(CCharacterMapJoin2))]
@@ -191,13 +193,10 @@ namespace MuEmu.Network.Auth
         {
             var charDto = session.Player.Account.Characters
                 .Select(x => x.Value)
-                .FirstOrDefault(x => x.Name == Character.Name.MakeString());
+                .FirstOrDefault(x => x.Name == Character.Name);
 
             if(!MapServerManager.CheckMapServerMove(session, (Maps)charDto.Map))
                 return;
-
-            Data.FriendDto[] friends;
-            int letters;
 
             using (var db = new GameContext())
             {
@@ -213,25 +212,21 @@ namespace MuEmu.Network.Auth
                                     where config.SkillKeyId == charDto.CharacterId
                                     select config).FirstOrDefault();
 
-                var friendList = from friend in db.Friends
+                charDto.Friends = (from friend in db.Friends
                                  where (friend.FriendId == charDto.CharacterId || friend.CharacterId == charDto.CharacterId) && friend.State == 1
-                                 select friend.FriendId == charDto.CharacterId?friend.CharacterId: friend.FriendId;
+                                 select friend).ToList();
 
-                letters = (from letter in db.Letters
+                charDto.Memos = (from letter in db.Letters
                             where letter.CharacterId == charDto.CharacterId
-                            select letter).Count();
+                            select letter).ToList();
 
                 charDto.MasterInfo = (from mi in db.MasterLevel
                                      where mi.MasterInfoId == charDto.CharacterId
                                      select mi).FirstOrDefault();
-
-                friends = friendList.Select(x => new Data.FriendDto { Name = db.Characters.First(z => z.CharacterId == x).Name.GetBytes() }).ToArray();
             }
 
             if (@charDto == null)
                 return;
-
-            await session.SendAsync(new SEventState(MapEvents.GoldenInvasion, false));
 
             await session.SendAsync(new SCheckSum { Key = session.Player.CheckSum.GetKey(), Padding = 0xff });
 
@@ -239,8 +234,6 @@ namespace MuEmu.Network.Auth
 
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
-
-            await session.SendAsync(new SFriends { MemoCount = (byte)letters, Friends = friends });
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
             
@@ -264,6 +257,11 @@ namespace MuEmu.Network.Auth
             {
                 @char.Spells.SetBuff(SkillStates.GameMaster, TimeSpan.FromDays(100));
             }
+
+            await session.SendAsync(new SNewQuestInfo());
+
+            //ConnectServer dataSend
+            Program.client.SendAsync(new SCAdd { Server = (byte)Program.ServerCode, btName = @charDto.Name.GetBytes() });
         }
 
         [MessageHandler(typeof(CCharacterCreate))]

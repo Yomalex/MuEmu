@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.NetworkInformation;
 using System.Text;
 
 namespace MU.DataBase
@@ -74,6 +75,7 @@ namespace MU.DataBase
 
         // Friends
         public List<FriendDto> Friends { get; set; }
+        public List<MemoDto> Memos { get; set; }
 
         public SkillKeyDto SkillKey { get; set; }
 

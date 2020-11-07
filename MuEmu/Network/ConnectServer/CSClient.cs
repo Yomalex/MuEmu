@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Serilog;
+using Serilog.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,6 +16,7 @@ namespace MuEmu.Network.ConnectServer
     public class CSClient : WZClient
     {
         public ushort Index { get; }
+        private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(CSClient));
         private WZPacketDecoderSimple _decoder;
         private WZPacketEncoder _encoder;
         private MessageHandler[] _handler;
@@ -56,7 +60,7 @@ namespace MuEmu.Network.ConnectServer
             }
         }
 
-        private static void ReceiveCallback(IAsyncResult ar)
+        private static async void ReceiveCallback(IAsyncResult ar)
         {
             CSClient instance = ar.AsyncState as CSClient;
             var messages = new List<object>();
@@ -70,7 +74,7 @@ namespace MuEmu.Network.ConnectServer
                     instance._client.Client.Disconnect(false);
                     return;
                 }
-
+                //Logger.Information($"Receive " + btRecived + " Buffer:" + string.Join("", instance._buffer.Select(x => x.ToString("X2"))));
                 using (var mem = new MemoryStream(instance._buffer, 0, btRecived))
                 {
                     int readed = 0;
@@ -86,9 +90,12 @@ namespace MuEmu.Network.ConnectServer
                 {
                     foreach (var handler in instance._handler)
                     {
-                        handler.OnMessageReceived(instance, message);
+                        await handler.OnMessageReceived(instance, message);
                     }
                 }
+
+                instance._client.Client
+                    .BeginReceive(instance._buffer, 0, 1024, SocketFlags.None, ReceiveCallback, instance);
             }
             catch(Exception)
             {

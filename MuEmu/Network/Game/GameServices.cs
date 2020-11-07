@@ -4,6 +4,7 @@ using MuEmu.Events.DevilSquare;
 using MuEmu.Events.EventChips;
 using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
+using MuEmu.Network.ConnectServer;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
 using MuEmu.Resources.Game;
@@ -207,7 +208,7 @@ namespace MuEmu.Network.Game
             }
 
             SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5), new SCloseMsg { Type = message.Type });
-
+            Program.client.SendAsync(new SCRem { Server = (byte)Program.ServerCode, List = new CliRemDto[] { new CliRemDto { btName = session.Player.Character.Name.GetBytes() } } });
             session.Player.Status = message.Type==ClientCloseType.SelectChar?LoginStatus.Logged:LoginStatus.NotLogged;
 
             using (var db = new GameContext())
@@ -2182,6 +2183,20 @@ namespace MuEmu.Network.Game
             var msg = new STradeResult { Result = TradeResult.Error };
             await session.SendAsync(msg);
             await session2.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CFriendAdd))]
+        public void CFriendAdd(GSSession session, CFriendAdd message)
+        {
+            session.Player.Character.Friends
+                .AddFriend(message.Name);
+        }
+
+        [MessageHandler(typeof(CWaitFriendAddReq))]
+        public void CWaitFriendAddReq(GSSession session, CWaitFriendAddReq message)
+        {
+            session.Player.Character.Friends
+                .AcceptFriend(message.Name, message.Result);
         }
     }
 }

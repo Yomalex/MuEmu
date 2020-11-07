@@ -9,6 +9,7 @@ using WebZen.Serialization;
 using Serilog;
 using Serilog.Core;
 using WebZen.Util;
+using System.Net.Http.Headers;
 
 namespace WebZen.Network
 {
@@ -335,8 +336,14 @@ namespace WebZen.Network
 
         public byte[] Encode(object message, ref short serial)
         {
-
-            var factory = _factories.First(f => f.ContainsType(message.GetType()));
+            MessageFactory factory = null;
+            try
+            {
+                factory = _factories.First(f => f.ContainsType(message.GetType()));
+            }catch(Exception ex)
+            {
+                throw new Exception("Unregisted message " + message.GetType().ToString(), ex);
+            }
             
             ushort opCode = factory.GetOpCode(message.GetType());
 

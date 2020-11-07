@@ -610,4 +610,22 @@ namespace MuEmu.Network.Game
     [WZContract]
     public class CTradeButtonCancel : IGameMessage
     { }
+
+    [WZContract]
+    public class CFriendAddReq : IGameMessage
+    {
+        [WZMember(0, 10)] public byte[] btName { get; set; }
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
+
+    [WZContract]
+    public class CWaitFriendAddReq : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+
+        [WZMember(1, 10)] public byte[] btName { get; set; }
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
 }

@@ -253,8 +253,8 @@ namespace MuEmu.Network.Auth
     [WZContract]
     public class SCharacterMapJoin : IAuthMessage
     {
-        [WZMember(0, 10)]
-        public byte[] Name { get; set; }
+        [WZMember(0, typeof(BinaryStringSerializer), 10)]
+        public string Name { get; set; }
 
         [WZMember(1)]
         public byte Valid { get; set; }

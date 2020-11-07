@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WebZen.Handlers;
+using WebZen.Util;
 
 namespace CSEmu.Network.Services
 {
@@ -36,13 +37,26 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CRegistryReq))]
         public void RegistryHandler(CSSession session, CRegistryReq message)
         {
-            ServerManager.Instance.Register(session, message.Index, message.Address, message.Port, message.Show != 0, message.Token);
+            ServerManager.Instance.Register(session, (byte)message.Index, message.Address, message.Port, message.Show != 0, message.Token);
         }
 
         [MessageHandler(typeof(CKeepAlive))]
         public void KeepAliveHandler(CSSession session, CKeepAlive message)
         {
-            ServerManager.Instance.Keep(message.Index, message.Load, message.Token);
+            ServerManager.Instance.Keep((byte)message.Index, message.Load, message.Token);
+        }
+
+        [MessageHandler(typeof(SCAdd))]
+        public void SCAdd(CSSession session, SCAdd message)
+        {
+            Logger.Information("FriendSystem: [" + message.Server + "] " + message.btName.MakeString() + " ADD");
+            Program.Clients.AddClient(message);
+        }
+
+        [MessageHandler(typeof(SCRem))]
+        public void SCRem(CSSession session, SCRem message)
+        {
+            Program.Clients.RemClient(message);
         }
     }
 }

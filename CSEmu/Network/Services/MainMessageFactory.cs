@@ -19,6 +19,9 @@ namespace CSEmu.Network.Services
             // GS Messages
             Register<CRegistryReq>(MainOpCode.GSJoin);
             Register<CKeepAlive>(MainOpCode.GSKeep);
+            Register<SCAdd>(MainOpCode.GSClientAdd);
+            Register<SCChat>(MainOpCode.GSClientChat);
+            Register<SCRem>(MainOpCode.GSClientRem);
 
             // S2C
             Register<SConnectResult>(MainOpCode.Join);

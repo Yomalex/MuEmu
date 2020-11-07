@@ -22,7 +22,7 @@ namespace CSEmu
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ServerManager));
         private Dictionary<ushort, ServerInfo> _servers;
-        private Dictionary<CSSession, ushort> _GSsessions;
+        private Dictionary<CSSession, byte> _GSsessions;
         private string _token;
 
         public static ServerManager Instance { get; private set; }
@@ -30,7 +30,7 @@ namespace CSEmu
         public ServerManager()
         {
             _servers = new Dictionary<ushort, ServerInfo>();
-            _GSsessions = new Dictionary<CSSession, ushort>();
+            _GSsessions = new Dictionary<CSSession, byte>();
         }
 
         public static void Initialize(string token)
@@ -42,7 +42,7 @@ namespace CSEmu
             Instance._token = token;
         }
 
-        public void Register(CSSession session, ushort index, string address, ushort port, bool display, string token)
+        public void Register(CSSession session, byte index, string address, ushort port, bool display, string token)
         {
             if(_token != token)
             {
@@ -56,10 +56,12 @@ namespace CSEmu
                 _GSsessions.Add(session, index);
             }
 
+            Program.Clients.AddServer(index);
+
             Logger.Information("New server found [{0}] {1}:{2} {3}", index, address, port, display ? "SHOW":"HIDE");
         }
 
-        public void Unregister(ushort index)
+        public void Unregister(byte index)
         {
             lock (_servers)
             {
@@ -68,6 +70,7 @@ namespace CSEmu
                 _GSsessions.Remove(session);
             }
 
+            Program.Clients.RemServer(index);
             Logger.Information("Server {0} dead", index);
         }
 
@@ -80,7 +83,7 @@ namespace CSEmu
             }
         }
 
-        public void Keep(ushort index, byte load, string token)
+        public void Keep(byte index, byte load, string token)
         {
             if (_token != token)
             {
@@ -107,12 +110,12 @@ namespace CSEmu
 
         private List<ServerInfo> GetServerList()
         {
-            List<ushort> deadServers;
+            List<byte> deadServers;
             lock (_servers)
             {
                 deadServers = (from s in _servers
                                 where DateTime.Now - s.Value.LastPush > TimeSpan.FromSeconds(30) && s.Value.Visible
-                                select s.Key).ToList();
+                                select (byte)s.Key).ToList();
             }
 
             foreach(var s in deadServers)
@@ -124,6 +127,12 @@ namespace CSEmu
             {
                 return _servers.Select(x => x.Value).ToList();
             }
+        }
+
+        public void BroadCast(object message)
+        {
+            foreach(var gs in _GSsessions.Keys)
+                gs.SendAsync(message);
         }
     }
 }

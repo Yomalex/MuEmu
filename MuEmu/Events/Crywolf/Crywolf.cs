@@ -496,10 +496,23 @@ namespace MuEmu.Events.Crywolf
                     break;
                 case EventState.Closed:
                     {
+                        foreach (var a in _altar.Values)
+                        {
+                            a.Left = 2;
+                            if (a.Altar != null)
+                            {
+                                a.Altar.Spells.ClearAll();
+                            }
+                            else
+                            {
+                                Trigger(EventState.None);
+                            }
+                        }
+
                         State = CrywolfState.None;
                         var eventDay = DateTime.Now.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Wednesday);
                         if (eventDay < DateTime.Now)
-                            eventDay.AddDays(7);
+                            eventDay = eventDay.AddDays(7);
 
                         _standBy = new DateTime(eventDay.Year, eventDay.Month, eventDay.Day, 09, 24, 00);
                         _stage = _standBy.AddMinutes(16);
@@ -510,17 +523,6 @@ namespace MuEmu.Events.Crywolf
                         _end = _balgas.AddMinutes(5);
 
                         _logger.Information("Start at {0}", _standBy);
-                        foreach(var a in _altar.Values)
-                        {
-                            a.Left = 2;
-                            if (a.Altar != null)
-                            {
-                                a.Altar.Spells.ClearAll();
-                            }else
-                            {
-                                Trigger(EventState.None);
-                            }
-                        }
                         _players.Clear();
                     }
                     break;

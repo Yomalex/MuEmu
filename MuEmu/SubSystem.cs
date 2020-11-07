@@ -95,6 +95,7 @@ namespace MuEmu
                         var deadPlayers = new List<Character>();
                         foreach (var @char in map.Players)
                         {
+                            @char.Friends.Update();
                             switch (@char.State)
                             {
                                 case ObjectState.Regen:
@@ -125,8 +126,9 @@ namespace MuEmu
                                     break;
                             }
                         }
+                        Friends.AddSet = false;
 
-                        foreach(var @char in deadPlayers)
+                        foreach (var @char in deadPlayers)
                         {
                             @char.TryRegen();
                         }

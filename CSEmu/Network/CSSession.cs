@@ -12,9 +12,9 @@ namespace CSEmu.Network
             : base(server, socket, onRecv)
         { }
 
-        public void SendAsync(object message)
+        public async void SendAsync(object message)
         {
-            Send(_server.Encode(message, ref _outSerial));
+            await Send(_server.Encode(message, ref _outSerial));
         }
     }
 

@@ -9,6 +9,9 @@ namespace MuEmu.Network
         CSWelcome = 0x0100,
         GSJoin = 0xFF10,
         GSKeep = 0xFF11,
+        GSClientAdd = 0xFF12,
+        GSClientChat = 0xFF13,
+        GSClientRem = 0xFF14,
     }
 
 

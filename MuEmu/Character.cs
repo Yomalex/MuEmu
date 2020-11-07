@@ -87,6 +87,9 @@ namespace MuEmu
         private DateTime _autoRecuperationTime;
         #endregion
 
+        /// <summary>
+        /// Character ID in Database
+        /// </summary>
         public int Id { get; }
         public Player Player { get; }
         public Account Account => Player.Account;
@@ -102,6 +105,7 @@ namespace MuEmu
         public bool Change { get; set; }
         public Party Party { get; set; }
         public MasterLevel MasterLevel { get; set; }
+        public Friends Friends { get; set; }
 
         public PShop Shop { get; set; }
 
@@ -549,6 +553,7 @@ namespace MuEmu
             Spells = new Spells(this, characterDto);
             Inventory = new Inventory(this, characterDto);
             MasterLevel = new MasterLevel(this, characterDto);
+            Friends = new Friends(this, characterDto);
             Shop = new PShop(this);
             MonstersVP = new List<ushort>();
             ItemsVP = new List<ushort>();

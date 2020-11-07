@@ -15,6 +15,9 @@ namespace MuEmu.Network.ConnectServer
             Register<CWelcome>(ConOpCode.CSWelcome);
             Register<CRegistryReq>(ConOpCode.GSJoin);
             Register<CKeepAlive>(ConOpCode.GSKeep);
+            Register<SCAdd>(ConOpCode.GSClientAdd);
+            Register<SCChat>(ConOpCode.GSClientChat);
+            Register<SCRem>(ConOpCode.GSClientRem);
         }
     }
 }

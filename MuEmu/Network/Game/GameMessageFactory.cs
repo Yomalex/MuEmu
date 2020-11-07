@@ -84,6 +84,9 @@ namespace MuEmu.Network.Game
             #region Client FriendMessages
             Register<CFriendList>(GameOpCode.FriendList);
             Register<CFriendAdd>(GameOpCode.FriendAdd);
+            Register<CWaitFriendAddReq>(GameOpCode.FriendAddWait);
+            Register<SFriendAddReq>(GameOpCode.FriendAdd);
+            Register<SFriendAddSin>(GameOpCode.FriendAddWait);
             #endregion
 
             #region MasterSystemMessages

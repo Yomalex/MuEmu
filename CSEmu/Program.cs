@@ -5,7 +5,6 @@ using System;
 using System.Net;
 using WebZen.Handlers;
 using WebZen.Network;
-using System.Net;
 using System.Linq;
 
 namespace CSEmu
@@ -13,6 +12,8 @@ namespace CSEmu
     class Program
     {
         public static WZConnectServer server;
+        public static WZChatServer WZChatServer;
+        public static ClientManager Clients;
         static void Main(string[] args)
         {
             Serilog.Core.Logger logger = new LoggerConfiguration()
@@ -29,8 +30,6 @@ namespace CSEmu
                 .Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 .Select(x => x)
                 .FirstOrDefault();
-
-            var ip = new IPEndPoint(ipaddr, 44405);
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<CSSession>()
@@ -53,8 +52,13 @@ namespace CSEmu
             }
             logger.Information("API Key for GameServers is {0}", apiKey);
 
-            server = new WZConnectServer(ip, mh, mf, false);
+
+            var Connip = new IPEndPoint(ipaddr, 44405);
+            var Chatip = new IPEndPoint(ipaddr, 55980);
+            server = new WZConnectServer(Connip, mh, mf, false);
+            WZChatServer = new WZChatServer(Chatip, mh, mf, false);
             ServerManager.Initialize(apiKey);
+            Clients = new ClientManager();
 
             while (true)
             {

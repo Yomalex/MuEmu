@@ -1789,5 +1789,23 @@ namespace MuEmu.Network.Game
         [WZMember(3)]
         public int GuildNumber { get; set; }
     }
+
+    [WZContract]
+    public class SFriendAddReq : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, 10)] public byte[] btName { get; set; } // 4
+        [WZMember(2)] public byte State { get; set; } // E
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
+
+    [WZContract]
+    public class SFriendAddSin : IGameMessage
+    {
+        [WZMember(0, 10)] public byte[] btName { get; set; } // 4
+
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
 }
 

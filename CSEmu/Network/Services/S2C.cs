@@ -65,4 +65,44 @@ namespace CSEmu.Network.Services
             btAddress = Array.Empty<byte>();
         }
     }
+
+    [WZContract]
+    public class SCAdd : IMainMessage
+    {
+        [WZMember(0)]
+        public byte Server { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] btName { get; set; }
+    }
+
+    [WZContract]
+    public class SCChat : IMainMessage
+    {
+        [WZMember(0)]
+        public byte Server { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] btName { get; set; }
+
+        [WZMember(2, 100)]
+        public byte[] btChat { get; set; }
+    }
+
+    [WZContract]
+    public class SCRem : IMainMessage
+    {
+        [WZMember(0)]
+        public byte Server { get; set; }
+
+        [WZMember(1, typeof(ArrayWithScalarSerializer<short>))]
+        public CliRemDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class CliRemDto : IMainMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] btName { get; set; }
+    }
 }
