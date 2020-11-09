@@ -73,4 +73,8 @@ namespace MuEmu.Network.Event
     [WZContract]
     public class CKanturuStateInfo : IEventMessage
     { }
+
+    [WZContract]
+    public class CImperialGuardianEnter : IEventMessage
+    { }
 }

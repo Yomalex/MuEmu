@@ -13,6 +13,8 @@ namespace MuEmu.Events
         Kanturu,
         ChaosCastle,
         Crywolf,
+        ImperialGuardian,
+        DoubleGoer,
     }
     internal class EventInfo
     {
@@ -41,6 +43,13 @@ namespace MuEmu.Events
         {
             return (T)(object)_events.Values.First(x => x.Obj.GetType() == typeof(T)).Obj;
             //_events[ev].Obj;
+        }
+
+        public IEnumerable<Event> GetEvents()
+        {
+            return _events.Values
+                .Where(x => x.IsEnabled)
+                .Select(x => x.Obj);
         }
 
         public void Update()

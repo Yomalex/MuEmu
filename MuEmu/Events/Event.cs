@@ -87,5 +87,10 @@ namespace MuEmu.Events
 
             return _eventLevelReqs.FindIndex(x => x.Min <= lvl && x.Max >= lvl)+1;
         }
+
+        public virtual Item GetItem(ushort mobLevel, Maps map)
+        {
+            return null;
+        }
     }
 }

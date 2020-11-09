@@ -303,4 +303,16 @@ namespace MuEmu.Network.Event
         [WZMember(3)] public byte btUserCount { get; set; }   // 7
         [WZMember(4)] public int iRemainTime { get; set; }	// 8
     }
+
+    // Imperial
+    [WZContract]
+    public class SImperialEnterResult : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public DayOfWeek Day { get; set; } // 5
+        [WZMember(2)] public byte State { get; set; }   // 6
+        [WZMember(3)] public byte Unk { get; set; }   // 7
+        [WZMember(4)] public ushort Index { get; set; }	// 8
+        [WZMember(5)] public ushort EntryTime { get; set; }	// A
+    }
 }

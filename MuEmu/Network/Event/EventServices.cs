@@ -2,6 +2,7 @@
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Events.Crywolf;
 using MuEmu.Events.DevilSquare;
+using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
 using MuEmu.Monsters;
@@ -156,6 +157,13 @@ namespace MuEmu.Network.Event
         {
             var kanturu = Program.EventManager.GetEvent<Kanturu>();
             kanturu.NPCTalk(session.Player);
+        }
+
+        [MessageHandler(typeof(CImperialGuardianEnter))]
+        public void CImperialGuardianEnter(GSSession session)
+        {
+            Program.EventManager.GetEvent<ImperialGuardian>()
+                .TryAdd(session.Player);
         }
     }
 }

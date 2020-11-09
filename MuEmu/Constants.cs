@@ -410,6 +410,7 @@ namespace MuEmu
     {
         NPC,
         Monster,
+        Gate,
     }
 
     public enum ObjectState
@@ -633,7 +634,7 @@ namespace MuEmu
         DuelMedal,
     }
 
-    public enum GateType
+    public enum GateType : byte
     {
         Warp,
         Entrance,

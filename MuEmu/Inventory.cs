@@ -469,6 +469,10 @@ namespace MuEmu
             return returns;
         }
 
+        /// <summary>
+        /// Remove item from character inventory without delete it from database
+        /// </summary>
+        /// <param name="from">Position</param>
         public void Remove(byte from)
         {
             if(_inventory.CanContain(from))
@@ -483,7 +487,12 @@ namespace MuEmu
                 _equipament.Remove((Equipament)from);
             }
         }
-
+        /// <summary>
+        /// Delete item from Database
+        /// </summary>
+        /// <param name="target">Position</param>
+        /// <param name="send">Update client inventory</param>
+        /// <returns></returns>
         public async Task Delete(byte target, bool send = true)
         {
             _needSave = true;

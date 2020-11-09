@@ -33,6 +33,17 @@ namespace MuEmu.Events
                 return ret;
             }
 
+            foreach(var ev in Program.EventManager.GetEvents())
+            {
+                var ret = ev.GetItem(mobLevel, map);
+                if (ret == null)
+                    continue;
+
+                Logger.Information("Event iten drop for event: {0} - Map:{1} - Item:{2}", ev.GetType(), map, ret);
+
+                return ret;
+            }
+
             return null;
         }
     }

@@ -14,7 +14,6 @@ namespace MuEmu.Events
     }
     public class GlobalEvent
     {
-        private Random _rand = new Random();
         private GlobalEvents manager;
         private List<DropRange> ranges = new List<DropRange>();
         public bool Active { get; set; }
@@ -33,7 +32,7 @@ namespace MuEmu.Events
 
         public Item GetItem(ushort mobLevel, Maps map)
         {
-            if(!Active || _rand.Next(100) > Rate)
+            if(!Active || Program.RandomProvider(100) > Rate)
             {
                 return null;
             }

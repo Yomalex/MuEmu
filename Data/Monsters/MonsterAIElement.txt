@@ -1,0 +1,131 @@
+//==============================================================================
+//Monster Artificial Intellegence Element [KOR]
+//Dao Van Trong - Trong.CF
+//------------------------------------------------------------------------------
+//Revision 05 Feb, 2011
+//==============================================================================
+// State : 0 [General behavior attribute]/1 [motion behavior attribute]/ 2 [attack behavior attribute]/3 [treatment behavior attribute]/4 [avoids behavior attribute]/5 [help behavior attribute]/6 [special behavior attribute]/7 [Attribute]
+// ClassType : 1 [General]/11 [moves - is ordinary]/12 [motion - specific position to move]/ 13 [moves - group to move]/21 [attack - generally to attack]/22 [attacks - specific position to attack]
+//            31 [Treatment - own treatment]/32 [treatment - group therapy]/41 [avoids]/51 [to help - HP specificly to avoid]/52 [help]/53 [help - to altogether have] 
+//            61 [Special]/ 62 [is special - summons]/71 [activity]
+//            64 [Masurium Yayi/defense Invincible - X: The black magic attacks the invincible time (ultra), Y: Physics attacks is invincible (ultra)
+//            65 [defense? Summons]
+//            66 [yearns for the body: Defense - X: Moves x coordinates, Y: Moves the y coordinates] 
+//            67 [attacks pattern 1 - TargetType 1 rate (MonsterSkill.txt the Type value 0), X: 2 rate (MonsterSkill.txt Type value 1)]
+//                            Y: 3 rate (MonsterSkill.txt Type value 2) 
+//            68 [AI changes - TargetType: Group number, X: Changes AI Order] 
+// TargetType : 1 [Address] 2 [coordinates] 
+
+
+//--------------------------------------------------------------------------------------------------------------//
+// 	Nro	Name					State	TClass	Rate	Regen	Tarter	X1	Y1	//
+//--------------------------------------------------------------------------------------------------------------//
+0
+	1	"General Cndition 1"			0	1	100	1000	-1	-1	-1
+	2	"Item Move 1"				1	12	100	1000	2	121	36
+	3	"Test Attack"				2	21	100	300	2	-1	-1
+	4	"Avoid - Fugitive"			4	41	100	300	2	-1	-1
+	5	"Self- Treatment"			3	31	100	300	2	-1	-1
+	6	"Group Summon"				6	62	100	300	2	-1	-1
+	7	"Group Therapy"				3	32	100	300	2	-1	-1
+	8	"Group Migration"			1	13	100	300	2	-1	-1
+	9	"Position Attack"			2	22	100	300	2	121	36
+	11	"Goal Move 1-1"				1	12	100	1000	2	128	45
+	12	"Goal Move 1-2"				1	12	100	1000	2	109	42
+	13	"Goal Move 1-3"				1	12	100	1000	2	123	84
+	14	"Goal Move 1-4"				1	12	100	1000	2	119	87
+	15	"Goal Move 2-1"				1	12	100	1000	2	105	32
+	16	"Goal Move 2-2"				1	12	100	1000	2	89	32
+	17	"Goal Move 2-3"				1	12	100	1000	2	83	29
+	18	"Goal Move 2-4"				1	12	100	1000	2	65	34
+	19	"Goal Move 3-1"				1	12	100	1000	2	136	38
+	20	"Goal Move 3-2"				1	12	100	1000	2	134	19
+	21	"Goal Move 3-3"				1	12	100	1000	2	177	37
+	22	"Goal Move 3-4"				1	12	100	1000	2	179	33
+	31	"Goal Move 1-1"				1	12	100	1000	2	126	35
+	32	"Goal Move 1-2"				1	12	100	1000	2	125	27
+	33	"Goal Move 1-3"				1	12	100	1000	2	121	19
+	34	"Goal Move 1-4"				1	12	100	1000	2	119	87
+	35	"Goal Move 2-1"				1	12	100	1000	2	120	38
+	36	"Goal Move 2-2"				1	12	100	1000	2	115	32
+	37	"Goal Move 2-3"				1	12	100	1000	2	109	40
+	38	"Goal Move 2-4"				1	12	100	1000	2	65	34
+	39	"Goal Move 3-1"				1	12	100	1000	2	117	27
+	40	"Goal Move 3-2"				1	12	100	1000	2	117	37
+	41	"Goal Move 3-3"				1	12	100	1000	2	131	31
+	42	"Goal Move 3-4"				1	12	100	1000	2	179	33
+	51	"1-1 Position Attacks"			2	22	100	300	2	121	52
+	52	"1-2 Position Attacks"			2	22	100	300	2	120	35
+	53	"2-1 Position Attacks"			2	22	100	300	2	101	31
+	54	"2-2 Position Attacks"			2	22	100	300	2	117	31
+	55	"3-1 Position Attacks"			2	22	100	300	2	141	32
+	56	"3-2 Position Attacks"			2	22	100	300	2	125	31
+	60	"Invisible"				6	64	100	1000	-1	-1	-1
+	61	"Generally Attack"			2	21	100	1000	1	-1	-1
+	62	"Fast Attack"				2	21	100	800	1	-1	-1
+	63	"Completely Fast Attack"		2	21	100	100	1	-1	-1
+	64	"Rubber Meat"				2	23	100	300	1	-1	-1
+	65	"General Move"				1	11	100	100	1	-1	-1
+	66	"High Bank"				6	64	100	1000	-1	2	2
+	67	"General Move"				1	11	100	100	1	-1	-1
+	68	"General Attack"			2	21	100	1000	1	-1	-1
+	69	"Summon"				6	65	100	1000	1	-1	-1
+	70	"Year For The Body 1"			6	66	100	1000	1	79	100
+	71	"Year For The Body 2"			6	66	100	1000	1	78	124
+	72	"Year For The Body 3"			6	66	100	1000	1	78	141
+	73	"Attack Pattern 1"			2	67	100	1000	60	40	0
+	74	"Attack Pattern 2"			2	67	100	1000	40	60	0
+	75	"Attack Pattern 3"			2	67	100	1000	30	30	40
+	76 	"Attack Pattern 4"			2	67	100	1000	30	20	50
+	77 	"AI Change 1"				7	68      100     1000	23	1 	-1
+	78  	"AI Change 2"				7	68      100     1000 	23 	2  	-1
+	79  	"AI Change 3"				7	68      100     1000 	23 	3  	-1
+end
+
+		// 0: ÀÏ¹ÝÇàµ¿¼Ó¼º								
+		// 1: ÀÌµ¿Çàµ¿¼Ó¼º								
+		// 2: °ø°ÝÇàµ¿¼Ó¼º								
+		// 3: Ä¡·áÇàµ¿¼Ó¼º								
+		// 4: È¸ÇÇÇàµ¿¼Ó¼º								
+		// 5: µµ¿òÇàµ¿¼Ó¼º								
+		// 6: Æ¯¼öÇàµ¿¼Ó¼º								
+		// 7: ÀÌº¥Æ®¼Ó¼º								
+
+			// Type : ½ÇÁ¦ È£ÃâµÇ´Â ÇÔ¼ö °áÁ¤. ¸Å¿ì Áß¿ä.
+			//1: ÀÏ¹Ý							
+
+			//11: ÀÌµ¿ - ÀÏ¹Ý			
+			//12: ÀÌµ¿ - Æ¯Á¤À§Ä¡ÀÌµ¿			
+			//13: ÀÌµ¿ - ±×·ì ÀÌµ¿			
+
+						// 1: Ä³¸¯ÅÍ
+						// 2: ÁÂÇ¥
+
+			//21: °ø°Ý - ÀÏ¹Ý °ø°Ý
+			//22: °ø°Ý - Æ¯Á¤ À§Ä¡ °ø°Ý
+
+			//31: Ä¡·á - ÀÚ½Å Ä¡·á
+			//32: Ä¡·á - ±×·ì Ä¡·á
+			//41: È¸ÇÇ
+			//51: µµ¿ò - HP È¸º¹
+			//52: µµ¿ò - Æ¯Á¤ ¹öÇÁ
+			//53: µµ¿ò - Å¸°Ù°øÀ¯ 
+			//61: Æ¯¼ö
+			//62: Æ¯¼ö - ¼ÒÈ¯ 
+			//71: ÀÌº¥Æ®
+
+			//64 : ¸¶¾ß¼Õ/³ªÀÌÆ®¸Þ¾î ¹«Àû
+					// X : ¸¶¹ý°ø°Ý ¹«Àû½Ã°£ (ÃÊ)
+					// Y : ¹°¸®°ø°Ý ¹«Àû½Ã°£ (ÃÊ)
+
+			//65 : ³ªÀÌÆ®¸Þ¾î ¼ÒÈ¯
+			//66 : ¿öÇÁ (³ªÀÌÆ®¸Þ¾î)
+					// X	: ÀÌµ¿ÇÒ xÁÂÇ¥
+					// Y	: ÀÌµ¿ÇÒ yÁÂÇ¥
+			//67 : °ø°ÝÆÐÅÏ1
+					// TargetType 1½ºÅ³ È®·ü ( MonsterSkill.txtÀÇ Type°ªÀÌ 0 ) 
+					// X		: 2½ºÅ³ È®·ü ( MonsterSkill.txtÀÇ Type°ªÀÌ 1 )
+					// Y		: 3½ºÅ³ È®·ü ( MonsterSkill.txtÀÇ Type°ªÀÌ 2 )	
+			//68 : AI º¯°æ
+			        // TargetType : Group¹øÈ£ 
+					// X : º¯°æÇÒ AI Order

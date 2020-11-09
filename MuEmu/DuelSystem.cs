@@ -57,8 +57,8 @@ namespace MuEmu
             Challenged.Character.Duel = null;
             Challenger.Character.CharacterRegen -= Character_CharacterRegen;
             Challenged.Character.CharacterRegen -= Character_CharacterRegen;
-            Challenger.Character.PlayerDie -= ChallengerDie;
-            Challenged.Character.PlayerDie -= ChallengedDie;
+            Challenger.Character.CharacterDie -= ChallengerDie;
+            Challenged.Character.CharacterDie -= ChallengedDie;
             Challenger.Character.WarpTo(17).Wait();
             Challenged.Character.WarpTo(17).Wait();
             Challenger = null;
@@ -68,8 +68,8 @@ namespace MuEmu
         public void Join()
         {
             Started = true;
-            Challenger.Character.PlayerDie += ChallengerDie;
-            Challenged.Character.PlayerDie += ChallengedDie;
+            Challenger.Character.CharacterDie += ChallengerDie;
+            Challenged.Character.CharacterDie += ChallengedDie;
             Challenger.Character.CharacterRegen += Character_CharacterRegen;
             Challenged.Character.CharacterRegen += Character_CharacterRegen;
             Challenger.Character.WarpTo(ChallengerGate).Wait();

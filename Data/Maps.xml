@@ -65,5 +65,37 @@
   <Map Map="62" AttributteFile="./Data/Terrains/Santa.att" />
   <Map Map="63" AttributteFile="./Data/Terrains/Vulcan.att" />
   <Map Map="64" AttributteFile="./Data/Terrains/Terrain64.att" />
+  <Map Map="65" AttributteFile="./Data/Terrains/65_Doppelganger1.att" />
+  <Map Map="66" AttributteFile="./Data/Terrains/66_Doppelganger2.att" />
+  <Map Map="67" AttributteFile="./Data/Terrains/67_Doppelganger3.att" />
+  <Map Map="68" AttributteFile="./Data/Terrains/68_Doppelganger4.att" />
+  <Map Map="69" AttributteFile="./Data/Terrains/69_ImperialGuardian1.att" />
+  <Map Map="70" AttributteFile="./Data/Terrains/70_ImperialGuardian2.att" />
+  <Map Map="71" AttributteFile="./Data/Terrains/71_ImperialGuardian3.att" />
+  <Map Map="72" AttributteFile="./Data/Terrains/72_ImperialGuardian4.att" />
+  <!-- <Map Map="73" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="74" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="75" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="76" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="77" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <!-- <Map Map="78" AttributteFile="./Data/Terrains/(null).att" /> -->
+  <Map Map="79" AttributteFile="./Data/Terrains/79_LorenMarket.att" />
+  <Map Map="80" AttributteFile="./Data/Terrains/80_Karutan1.att" />
+  <Map Map="81" AttributteFile="./Data/Terrains/81_Karutan2.att" />
+  <Map Map="82" AttributteFile="./Data/Terrains/82_Doppelganger_Renewal.att" />
+  <Map Map="91" AttributteFile="./Data/Terrains/91_Acheron.att" />
+  <Map Map="95" AttributteFile="./Data/Terrains/95_Debenter.att" />
+  <Map Map="96" AttributteFile="./Data/Terrains/96_Debenter_ArcaBattle.att" />
+  <Map Map="97" AttributteFile="./Data/Terrains/97_ChaosCastleSurvival.att" />
+  <Map Map="98" AttributteFile="./Data/Terrains/98_IllussionTempleLeague.att" />
+  <!--<Map Map="98" AttributteFile="./Data/Terrains/98_IllussionTempleLeague1.att" />-->
+  <Map Map="99" AttributteFile="./Data/Terrains/99_IllussionTempleLeague2.att" />
+  <Map Map="100" AttributteFile="./Data/Terrains/100_UrkMontain.att" />
+  <Map Map="102" AttributteFile="./Data/Terrains/102_TormentedSquare.att" />
+  <Map Map="110" AttributteFile="./Data/Terrains/110_Nars.att" />
+  <Map Map="112" AttributteFile="./Data/Terrains/112_Ferea.att" />
+  <Map Map="113" AttributteFile="./Data/Terrains/113_NixieLake.att" />
+  <Map Map="114" AttributteFile="./Data/Terrains/114_Terrain115.att" />
+  <Map Map="115" AttributteFile="./Data/Terrains/115_Terrain116.att" />
 </Maps>
 

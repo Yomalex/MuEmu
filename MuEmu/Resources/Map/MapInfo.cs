@@ -13,6 +13,7 @@ using WebZen.Util;
 
 namespace MuEmu.Resources.Map
 {
+    [Flags]
     public enum MapAttributes : byte
     {
         Safe = 1,
@@ -41,9 +42,9 @@ namespace MuEmu.Resources.Map
     };
     public class MapInfo
     {
-        private List<byte[]> _shadowLayer = new List<byte[]>();
+        private List<MapAttributes[]> _shadowLayer = new List<MapAttributes[]>();
         private DateTime _nextWeater;
-        private byte[] Layer { get; }
+        private MapAttributes[] Layer { get; }
         private List<Point> SafePoints { get; set; }
 
         public int Width { get; }
@@ -67,7 +68,7 @@ namespace MuEmu.Resources.Map
                     for (var x = SafeArea.X; x < SafeArea.Right; x++)
                     {
                         var cell = Layer[x + y * 256];
-                        if ((cell & 4) != 4 && (cell & 8) != 8)
+                        if ((cell & (MapAttributes.NoWalk | MapAttributes.Hide)) == 0)
                         {
                             SafePoints.Add(new Point(x, y));
                         }
@@ -123,12 +124,15 @@ namespace MuEmu.Resources.Map
 
             using (var fr = File.OpenRead(attFile))
             {
+                var length = fr.Length;
                 var type = fr.ReadByte();
                 Width = fr.ReadByte();
                 Height = fr.ReadByte();
+                length -= fr.Position;
 
-                Layer = new byte[Width * Height+1];
-                fr.Read(Layer, 0, Width * Height);
+                var tmp = new byte[length];
+                fr.Read(tmp, 0, tmp.Length);
+                Layer = tmp.Select(x => (MapAttributes)x).ToArray();
 
                 Map = map;
             }
@@ -192,29 +196,30 @@ namespace MuEmu.Resources.Map
             }
         }
 
+        private MapAttributes GetByte(int X, int Y)
+        {
+            return Layer[Y * 256 + X];
+        }
+        private void SetByte(int X, int Y, MapAttributes val)
+        {
+            Layer[Y * 256 + X] = val;
+        }
+
         public bool ContainsAny(int X, int Y, MapAttributes[] attrs)
         {
-            var info = Layer[Y * 256 + X];
-            byte @byte = 0;
+            var info = GetByte(X, Y);
+            MapAttributes @byte = 0;
             foreach(var att in attrs)
-            {
-                @byte |= (byte)att;
-            }
+                @byte |= att;
 
             return (info & @byte) != 0;
         }
 
         public MapAttributes[] GetAttributes(int X, int Y)
         {
-            var info = Layer[Y*256 + X];
-            var output = new List<MapAttributes>();
-            foreach(var att in (MapAttributes[])Enum.GetValues(typeof(MapAttributes)))
-            {
-                if ((info & ((byte)att)) == ((byte)att))
-                    output.Add(att);
-            }
-
-            return output.ToArray();
+            var info = GetByte(X, Y);
+            var in_ = (MapAttributes[])Enum.GetValues(typeof(MapAttributes));
+            return in_.Where(x => (x & info) != 0).ToArray();
         }
 
         public MapAttributes[] GetAttributes(Point pt)
@@ -224,12 +229,12 @@ namespace MuEmu.Resources.Map
 
         public void SetAttribute(int X, int Y, MapAttributes att)
         {
-            Layer[Y * 256 + X] |= (byte)att;
+            SetByte(X, Y, (GetByte(X, Y) | att));
         }
 
         public void ClearAttribute(int X, int Y, MapAttributes att)
         {
-            Layer[Y * 256 + X] &= (byte)(~((byte)att));
+            SetByte(X, Y, (GetByte(X, Y) & (~att)));
         }
 
         public void AddPlayer(Character @char)
@@ -323,17 +328,7 @@ namespace MuEmu.Resources.Map
 
         public async Task AddAttribute(MapAttributes att, Rectangle area)
         {
-            for (int y = area.Top; y < area.Bottom; y++)
-                for (int x = area.Left; x < area.Right; x++)
-                    Layer[y * 256 + x] |= (byte)att;
-
-            await SendAsync(new SSetMapAttribute(0, att, 1,
-                new MapRectDto[] {
-                    new MapRectDto {
-                        StartX = (byte)area.Left, StartY = (byte)area.Top,
-                        EndX = (byte)area.Right, EndY = (byte)area.Bottom
-                    }
-                }));
+            await AddAttribute(att, new Rectangle[] { area });
         }
 
         public async Task AddAttribute(MapAttributes att, Rectangle[] areas)
@@ -343,7 +338,7 @@ namespace MuEmu.Resources.Map
             {
                 for (int y = area.Top; y < area.Bottom; y++)
                     for (int x = area.Left; x < area.Right; x++)
-                        Layer[y * 256 + x] |= (byte)att;
+                        SetAttribute(x, y, att);
 
                 result.Add(new MapRectDto
                 {
@@ -359,22 +354,7 @@ namespace MuEmu.Resources.Map
 
         public async Task RemoveAttribute(MapAttributes att, Rectangle area)
         {
-            for(int y = area.Top; y < area.Bottom; y++)
-                for(int x = area.Left; x < area.Right; x++)
-                {
-                    var info = Layer[y * 256 + x];
-                    var invAtt = ~(int)att;
-                    info &= (byte)invAtt;
-                    Layer[y * 256 + x] = info;
-                }
-
-            await SendAsync(new SSetMapAttribute(0, att, 1, 
-                new MapRectDto[] {
-                    new MapRectDto {
-                        StartX = (byte)area.Left, StartY = (byte)area.Top,
-                        EndX = (byte)area.Right, EndY = (byte)area.Bottom
-                    }
-                }));
+            await RemoveAttribute(att, new Rectangle[] { area });
         }
 
         public async Task RemoveAttribute(MapAttributes att, Rectangle[] areas)
@@ -385,10 +365,7 @@ namespace MuEmu.Resources.Map
                 for (int y = area.Top; y < area.Bottom; y++)
                     for (int x = area.Left; x < area.Right; x++)
                     {
-                        var info = Layer[y * 256 + x];
-                        var invAtt = ~(int)att;
-                        info &= (byte)invAtt;
-                        Layer[y * 256 + x] = info;
+                        ClearAttribute(x, y, att);
                     }
 
                 result.Add(new MapRectDto

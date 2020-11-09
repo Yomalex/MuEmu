@@ -137,6 +137,8 @@ namespace MuEmu.Events.Crywolf
             600000,
             900000,
         };
+        private List<int> _monsterGroups = new List<int> { 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13 };
+        private List<int> _bossGroups = new List<int> { 5 };
 
         public Crywolf():base(TimeSpan.FromDays(6), TimeSpan.FromDays(1), TimeSpan.FromDays(1))
         {
@@ -312,6 +314,7 @@ namespace MuEmu.Events.Crywolf
                                         AltarState = _altar.Values.Select(x => x.StateByte).ToArray(),
                                         StatueHP = (int)(_statueHPMax > 0 ? _statueHP / _statueHPMax : 0.0),
                                     }).Wait();
+                                    _monsterGroups.ForEach(x => MonsterIA.Group(x, true));
                                 }
 
                                 if(State == CrywolfState.Ready)
@@ -349,7 +352,9 @@ namespace MuEmu.Events.Crywolf
                             }).Wait();
 
                             if (_balgass != null && !_balgass.Active && _balgas <= DateTime.Now)
-                                _balgass.Active = true;
+                            {
+                                _bossGroups.ForEach(x => MonsterIA.Group(x, true));
+                            }
 
                             _nextNotify = DateTime.Now.AddSeconds(2);
                         }
@@ -496,6 +501,8 @@ namespace MuEmu.Events.Crywolf
                     break;
                 case EventState.Closed:
                     {
+                        _monsterGroups.ForEach(x => MonsterIA.Group(x, false));
+                        _bossGroups.ForEach(x => MonsterIA.Group(x, false));
                         foreach (var a in _altar.Values)
                         {
                             a.Left = 2;

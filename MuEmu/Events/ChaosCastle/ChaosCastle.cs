@@ -129,12 +129,12 @@ namespace MuEmu.Events.ChaosCastle
             if (plrInfo == null)
             {
                 _logger.Error("Player isn't in the event");
-                plr.Character.PlayerDie -= OnPlayerDead;
+                plr.Character.CharacterDie -= OnPlayerDead;
                 plr.Character.MapChanged -= OnPlayerLeave;
             }
             else
             {
-                plr.Character.PlayerDie -= OnPlayerDead;
+                plr.Character.CharacterDie -= OnPlayerDead;
                 plr.Character.MapChanged -= OnPlayerLeave;
                 plrInfo.Eventer = false;
             }
@@ -258,7 +258,7 @@ namespace MuEmu.Events.ChaosCastle
             plr.Character
                 .WarpTo(Index==7?272:81+Index)
                 .Wait();
-            plr.Character.PlayerDie += OnPlayerDead;
+            plr.Character.CharacterDie += OnPlayerDead;
             plr.Character.MapChanged += OnPlayerLeave;
 
             return true;

@@ -152,7 +152,7 @@ namespace MuEmu
                 if (value <= 0)
                 {
                     _hp = 0;
-                    PlayerDie?.Invoke(this, new EventArgs());
+                    CharacterDie?.Invoke(this, new EventArgs());
                 }
 
                 var arg = _hp > value ? RefillInfo.Update : RefillInfo.Drink;
@@ -185,12 +185,6 @@ namespace MuEmu
                 if (value > _sdMax)
                 {
                     value = _sdMax;
-                }
-
-                if (value <= 0)
-                {
-                    _sd = 0;
-                    PlayerDie?.Invoke(this, new EventArgs());
                 }
 
                 var arg = _sd > value ? RefillInfo.Update : RefillInfo.Drink;
@@ -319,8 +313,19 @@ namespace MuEmu
         public MapInfo Map { get; private set; }
         #endregion
 
+        /// <summary>
+        /// On Map Change trigger this event with sender as Character
+        /// </summary>
         public event EventHandler MapChanged;
-        public event EventHandler PlayerDie;
+
+        /// <summary>
+        /// On player die trigger this event with sender as Character
+        /// </summary>
+        public event EventHandler CharacterDie;
+
+        /// <summary>
+        /// On player regen trigger this event with sender as Character
+        /// </summary>
         public event EventHandler CharacterRegen;
 
         // Experience
@@ -543,7 +548,7 @@ namespace MuEmu
         public Character(Player plr, CharacterDto characterDto)
         {
             _autoRecuperationTime = DateTime.Now;
-            PlayerDie += OnDead;
+            CharacterDie += OnDead;
             Id = characterDto.CharacterId;
             Player = plr;
             Name = characterDto.Name;

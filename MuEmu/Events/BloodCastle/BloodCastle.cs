@@ -101,7 +101,7 @@ namespace MuEmu.Events.BloodCastle
                 return false;
             }
 
-            plr.Character.PlayerDie += OnPlayerDead;
+            plr.Character.CharacterDie += OnPlayerDead;
 
             return true;
         }

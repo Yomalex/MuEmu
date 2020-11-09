@@ -2,6 +2,7 @@
 using MuEmu.Events.BloodCastle;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events.EventChips;
+using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
 using MuEmu.Network.ConnectServer;
@@ -1301,7 +1302,7 @@ namespace MuEmu.Network.Game
                         var vp = @char.MonstersVP
                             .ToList() // clone for preveen collection changes
                             .Select(x => MonstersMng.Instance.GetMonster(x))
-                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
 
                         foreach (var mob in vp)
                         {
@@ -1321,7 +1322,7 @@ namespace MuEmu.Network.Game
                         var vp = @char.MonstersVP
                             .ToList() // clone for preveen collection changes
                             .Select(x => MonstersMng.Instance.GetMonster(x))
-                            .Where(x => x.Position.Substract(@char.Position).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                            .Where(x => x.Position.Substract(@char.Position).Length() <= 2.0 && x.Type != ObjectType.NPC);
 
                         foreach (var mob in vp)
                         {
@@ -1337,7 +1338,7 @@ namespace MuEmu.Network.Game
                         var vp = @char.MonstersVP
                             .ToList() // clone for preveen collection changes
                             .Select(x => MonstersMng.Instance.GetMonster(x))
-                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
                             DamageType type;
@@ -1358,7 +1359,7 @@ namespace MuEmu.Network.Game
                         var vp = @char.MonstersVP
                             .ToList() // clone for preveen collection changes
                             .Select(x => MonstersMng.Instance.GetMonster(x))
-                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
                             DamageType type;
@@ -1375,7 +1376,7 @@ namespace MuEmu.Network.Game
                         var vp = @char.MonstersVP
                             .ToList() // clone for preveen collection changes
                             .Select(x => MonstersMng.Instance.GetMonster(x))
-                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type == ObjectType.Monster);
+                            .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
                             DamageType type;
@@ -1638,6 +1639,12 @@ namespace MuEmu.Network.Game
                     log.Error("Invalid source gate {0}", message.MoveNumber);
                     await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
                     return;
+                }
+
+                var ev = Program.EventManager.GetEvent<ImperialGuardian>();
+                if(gate.Map == ev.Map)
+                {
+                    await ev.UsePortal(@char, message.MoveNumber);
                 }
 
                 log.Information("Warp request to {1}:{0}", message.MoveNumber, gate.Map);

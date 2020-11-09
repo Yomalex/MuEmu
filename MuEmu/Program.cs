@@ -38,6 +38,8 @@ using MuEmu.Resources.Game;
 using MuEmu.Network.PCPShop;
 using Serilog.Core;
 using MuEmu.Events.Crywolf;
+using MuEmu.Events.ImperialGuardian;
+using MuEmu.Events.DoubleGoer;
 
 namespace MuEmu
 {
@@ -164,6 +166,7 @@ namespace MuEmu
                 EventConfig(xml);
                 MonstersMng.Initialize();
                 MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
+                MonsterIA.Initialize("./Data/Monsters/");
                 EventInitialize();
 
                 MapServerManager.Initialize("./Data/MapServer.xml");
@@ -362,6 +365,41 @@ namespace MuEmu
                 MakeXOR(data, 0, 80);
                 fs.Write(data, 0, data.Length);
             }
+
+            Log.Information("MoveReq.bmd Created");
+
+            using (var fs = new FileStream("./Gate.bmd", FileMode.Create))
+            {
+                var num = BitConverter.GetBytes(moves.Count());
+                //fs.Write(num, 0, 4);
+
+                var data = new byte[7168];
+                using (var ms = new MemoryStream(data))
+                {
+                    foreach (var mov in moves)
+                    {
+                        var bmdData = new GateBMD
+                        {
+                            Flag = mov.GateType,
+                            Map = mov.Map,
+                            Dir = mov.Dir,
+                            Level = mov.ReqLevel,
+                            X1 = (byte)mov.Door.Left,
+                            Y1 = (byte)mov.Door.Top,
+                            X2 = (byte)mov.Door.Right,
+                            Y2 = (byte)mov.Door.Bottom,
+                            GateNumber = (ushort)mov.Number,
+                            BZLevel = 400,
+                            BZone = 1,
+                        };
+                        Serializer.Serialize(ms, bmdData);
+                    }
+                }
+
+                MakeXOR(data, 0, 14);
+                fs.Write(data, 0, data.Length);
+            }
+            Log.Information("Gate.bmd Created");
         }
 
         static void EventInitialize()
@@ -372,7 +410,10 @@ namespace MuEmu
                 .AddEvent(Events.Events.DevilSquared, new DevilSquares())
                 .AddEvent(Events.Events.Kanturu, new Kanturu())
                 .AddEvent(Events.Events.ChaosCastle, new ChaosCastles())
-                .AddEvent(Events.Events.Crywolf, new Crywolf());
+                .AddEvent(Events.Events.Crywolf, new Crywolf())
+                .AddEvent(Events.Events.ImperialGuardian, new ImperialGuardian())
+                //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
+                ;
             LuckyCoins.Initialize();
             EventChips.Initialize();
         }

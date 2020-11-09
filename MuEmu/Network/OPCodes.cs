@@ -204,6 +204,9 @@ namespace MuEmu.Network
         CrywolfBenefit = 0x09BD,
 
         KanturuState = 0x00D1,
+
+        ImperialGuardianEnter = 0x01F7,
+        ImperialGuardianEnterResult = 0x02F7,
     }
     public enum CashOpCode : ushort
     {

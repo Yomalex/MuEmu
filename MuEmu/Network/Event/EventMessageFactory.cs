@@ -60,6 +60,10 @@ namespace MuEmu.Network.Event
 
             // Kanturu
             Register<SKanturuStateInfo>(EventOpCode.KanturuState);
+
+            // Imperial
+            Register<CImperialGuardianEnter>(EventOpCode.ImperialGuardianEnter);
+            Register<SImperialEnterResult>(EventOpCode.ImperialGuardianEnterResult);
         }
     }
 }

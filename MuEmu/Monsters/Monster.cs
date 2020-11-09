@@ -93,7 +93,7 @@ namespace MuEmu.Monsters
 
                 if (_target != null)
                 {
-                    _target.Character.PlayerDie -= EnemyDie;
+                    _target.Character.CharacterDie -= EnemyDie;
                     _target.Character.MapChanged -= EnemyDie;
                 }
 
@@ -102,7 +102,7 @@ namespace MuEmu.Monsters
                 if (value == null)
                     return;
 
-                _target.Character.PlayerDie += EnemyDie;
+                _target.Character.CharacterDie += EnemyDie;
                 _target.Character.MapChanged += EnemyDie;
             }
         }
@@ -118,7 +118,15 @@ namespace MuEmu.Monsters
         public int Attack => Info.Attack + (_rand.Next(Info.DmgMin,Info.DmgMax));
         public int Defense => Info.Defense;
 
+        /// <summary>
+        /// On die monster trigger this event with sender as Monster object
+        /// </summary>
         public event EventHandler Die;
+
+        /// <summary>
+        /// On regen monster trigger this event with sender as Monster object
+        /// </summary>
+        public event EventHandler Regen;
         public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction)
         {
             Type = type;
@@ -222,6 +230,8 @@ namespace MuEmu.Monsters
             DeadlyDmg = 0;
             _monsterState = MonsterState.Idle;
             State = ObjectState.Regen;
+
+            Regen?.Invoke(this, new EventArgs());
         }
 
         private int Distance(Point A, Point B)
@@ -231,7 +241,7 @@ namespace MuEmu.Monsters
 
         public void Update()
         {
-            if (Type == ObjectType.NPC)
+            if (Type != ObjectType.Monster)
                 return;
 
             if (Life == 0 && State == ObjectState.Live)
@@ -384,7 +394,7 @@ namespace MuEmu.Monsters
             _monsterState = MonsterState.Idle;
         }
 
-        private int MonsterAttack(out DamageType type, out Spell isMagic)
+        public int MonsterAttack(out DamageType type, out Spell isMagic)
         {
             var @char = Target.Character;
             var attack = 0;

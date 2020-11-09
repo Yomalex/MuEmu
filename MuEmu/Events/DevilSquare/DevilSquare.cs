@@ -189,7 +189,7 @@ namespace MuEmu.Events.DevilSquare
             {
                 _players.Add(new PlayerEventInfo { Eventer = true, Player = plr, Score = 0 });
                 plr.Character.WarpTo(_gate).Wait();
-                plr.Character.PlayerDie += OnPlayerDead;
+                plr.Character.CharacterDie += OnPlayerDead;
                 plr.Character.MapChanged += OnPlayerLeave;
 
                 return true;
