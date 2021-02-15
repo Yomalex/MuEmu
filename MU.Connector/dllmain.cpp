@@ -5,9 +5,12 @@
 #include "../../CryptoPP/cryptlib.h"
 #include "../../CryptoPP/modes.h"
 #include "../../CryptoPP/aes.h"
+#include "Offsets.h"
+#include "Protocol.h"
 #pragma comment(lib,"../../CryptoPP/Win32/Output/Release/cryptlib.lib")
 
 LPBYTE _GetStartupInfoA = (LPBYTE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetStartupInfoA");
+LPBYTE _OutputDebugStringA = (LPBYTE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "OutputDebugStringA");
 
 template<typename T>
 class Hook
@@ -70,41 +73,55 @@ public:
         *((LPBYTE)offset) = bt;
         VirtualProtect(offset, 1, VPOld, &VPOld);
     }
+
+    static void ChangeAddress(DWORD Addr, DWORD AddrNew)
+    {
+        DWORD OldProtect;
+        VirtualProtect((LPVOID)Addr, 4, PAGE_EXECUTE_READWRITE, &OldProtect);
+        __asm
+        {
+            MOV EAX, Addr;
+            MOV EDX, AddrNew;
+            MOV DWORD PTR DS : [EAX] , EDX;
+        }
+        VirtualProtect((LPVOID)Addr, 4, OldProtect, &OldProtect);
+    }
 };
 template<typename T>
 DWORD Hook<T>::VPOld = 0;
 
-typedef void(_stdcall* T_GetStartupInfoA)(LPSTARTUPINFOA lpStartupinfo);
-typedef void(*T_WZSend)(LPBYTE, DWORD, int, int);
-typedef void(*T_WZRecv)(LPBYTE,int,int);
-typedef void(*T_ProcCoreA)(int, int, BYTE*, int, int);
-typedef void(*T_ProcCoreB)(DWORD, BYTE*, DWORD, DWORD);
-
 Hook<T_GetStartupInfoA> kernel32_GetStartupInfoA;
+Hook<T_OutputDebugStringA> kernel32_OutputDebugStringA;
 Hook<T_WZSend> main_Send;
 Hook<T_WZRecv> main_Recv;
+Hook<T_sprintf> main_sprintf;
 T_GetStartupInfoA old_GetStartupInfoA;
+T_OutputDebugStringA old_OutputDebugStringA;
 
-// MU Online Season 12 V1.18.70 Offsets
-auto old_Send = (T_WZSend)0x00BAEBDD;
-auto old_Recv = (T_WZRecv)0x00C19CF5;
-auto ProtocolCoreA = (T_ProcCoreA)0xBE50E1;
-auto ProtocolCoreB = (T_ProcCoreB)0xC150A9;
-auto PARSE_PACKET_STREAM = (FARPROC)0xBAFACC;
-//auto MU_SENDER_CLASS = (DWORD*)0x159F3E4; // S12
-auto MU_SEND_PACKET = (DWORD)0x00BAF008; // S12
+// Crypto
+CryptoPP::ECB_Mode<CryptoPP::AES>::Encryption m_Encryption;
+CryptoPP::ECB_Mode<CryptoPP::AES>::Decryption m_Decryption;
 
-auto szIP = (char*)0x01596520;
-auto iPort = (int*)0x01595A54;
-auto szClientVersion = (char*)0x0159F3C8;
-auto szClientSerial = szClientVersion + 8;
+// Functions
+auto old_Send = (T_WZSend)SEND_PACKET_HOOK;// 0x00BAEBDD;
+auto old_Recv = (T_WZRecv)PARSE_PACKET_HOOK;// 0x00C19CF5;
+auto ProtocolCoreA = (T_ProcCoreA)PROTOCOL_CORE1;// 0xBE50E1;
+auto ProtocolCoreB = (T_ProcCoreB)PROTOCOL_CORE2;// 0xC150A9;
+auto old_sprintf = (T_sprintf)0x00D0A18A;
+
 const char* cfgFile = ".\\config.ini";
-auto SerialOut = (LPBYTE)0xA17F99C;
 
 FILE* fp;
 bool SendHooked = false;
-CryptoPP::ECB_Mode<CryptoPP::AES>::Encryption m_Encryption;
-CryptoPP::ECB_Mode<CryptoPP::AES>::Decryption m_Decryption;
+
+void BuxConvert(char* buf, int size)
+{
+    static unsigned char bBuxCode[3] = { 0xFC, 0xCF, 0xAB };
+    for (int n = 0; n < size; n++)
+    {
+        buf[n] ^= bBuxCode[n % 3];		// Nice trick from WebZen
+    }
+}
 
 inline void PacketPrint(LPBYTE buff, DWORD size)
 {
@@ -113,13 +130,21 @@ inline void PacketPrint(LPBYTE buff, DWORD size)
     {
         char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '·' };
         auto a = (buff[i] >> 4) & 0x0f;
-        DecBuff[i * 3 + 0] = hex[a];
+
+        int j = 0;
+        DecBuff[i * 3 + (j++)] = hex[a];
         a = buff[i] & 0x0f;
-        DecBuff[i * 3 + 1] = hex[a];
-        DecBuff[i * 3 + 2] = ' ';
-        DecBuff[i * 3 + 3] = 0;
+        DecBuff[i * 3 + (j++)] = hex[a];
+        if (i + 1 < size)
+        {
+            DecBuff[i * 3 + (j++)] = ',';
+            DecBuff[i * 3 + (j++)] = ' ';
+            DecBuff[i * 3 + (j++)] = '0';
+            DecBuff[i * 3 + (j++)] = 'x';
+        }
+        DecBuff[i * 3 + (j++)] = 0;
     }
-    fprintf(fp, "     PACKET:%s\n", DecBuff);
+    fprintf(fp, "     PACKET[%d]={0x%s}\n", size, DecBuff);
 }
 
 inline void DataSend(BYTE* buff, DWORD len)
@@ -128,10 +153,26 @@ inline void DataSend(BYTE* buff, DWORD len)
     {
         PUSH len;
         PUSH buff;
-        MOV ECX, DWORD PTR DS : [0x159F3E4] ;//MU SENDER CLASS
-        CALL MU_SEND_PACKET;
+        MOV ECX, DWORD PTR DS : [MU_SENDER_CLASS] ;//MU SENDER CLASS
+        MOV EDX, MU_SEND_PACKET;
+        CALL EDX;
     }
 }
+
+std::map<WORD, const char*> packetName =
+{
+    { 0xFF00, "Join" },
+    { 0x06F4, "Server List" },
+    { 0x03F4, "Server Info" },
+    { 0x00F1, "JoinResult" },
+    { 0x01F1, "Login" },
+    { 0x00F3, "CharacterList" },
+    { 0x03F3, "JoinMap2" },
+    { 0x15F3, "JoinMap" },
+    { 0x144E, "MuunRideViewPort" },
+    { 0x03E7, "NPCInfo" },
+    { 0xFF27, "ManaUpdate" },
+};
 
 void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
 {
@@ -139,8 +180,44 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
     auto buff = send;
     DWORD size;
 
+    BYTE type = lpMsg[0];
+
+    WORD* p = (WORD*)(lpMsg + (type == 0xC1 ? 2 : 3));
+
+    BYTE proto = (*p)&0xff;
+    BYTE subco = ((*p)&0xff00)>>8;
+
     fprintf(fp, "SendPacket(0x%08X, 0x%08X, %d, %d)\n", (DWORD)lpMsg, len, enc, unk1);
     PacketPrint(lpMsg, len);
+
+    switch (proto)
+    {
+        case 0xF1:
+        {
+            switch (subco)
+            {
+                case 0x01:
+                {
+#ifdef CLIENT_S9
+                    PMSG_IDPASS_OLD* lpMsg2 = (PMSG_IDPASS_OLD*)lpMsg;
+                    // Fix account id save for s9
+                    DWORD OldProtect;
+                    VirtualProtect((LPVOID)0x08B97990, 12, PAGE_EXECUTE_READWRITE, &OldProtect);
+
+                    char AccountID[11];
+                    AccountID[10] = 0;
+                    memcpy(AccountID, lpMsg2->Id, 10);
+                    BuxConvert(AccountID, 10);
+
+                    memcpy((void*)0x08B97990, AccountID, 11);
+#endif
+                }
+                break;
+            }
+            
+        }
+        break;
+    }
 
     if (enc)
     {
@@ -162,7 +239,7 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
             send[1] = (BYTE)(size >> 8) & 0xff;
             send[2] = (BYTE)(size) & 0xff;
         }
-        printf("     RawSize: %d, DataSize %d, EncSize %d, PaddingSize %d", len, newSize, size, send[newSize + offset]);
+        printf("     RawSize: %d, DataSize %d, EncSize %d, PaddingSize %d\n", len, newSize, size, send[newSize + offset]);
         PacketPrint(send, size);
     }
     else
@@ -206,7 +283,7 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
             break;
         case 0xC2:
             proto = buff[3];
-            size = buff[1]*16+ buff[2];
+            size = MAKEWORD(buff[2], buff[1]);
             enc = 0;
             break;
         case 0xC3:
@@ -225,15 +302,34 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
             size = MAKEWORD(buff[2], buff[1]);
             DecSize = size - buff[size - 1];
             m_Decryption.ProcessData(&DecBuff[2], &buff[3], size - 4);
-            DecBuff[0] = 0xC2;
-            DecBuff[2] = LOBYTE(DecSize + 3);
-            DecBuff[1] = HIBYTE(DecSize + 3);
             size = DecSize + 3;
+            DecBuff[0] = 0xC2;
+            DecBuff[2] = LOBYTE(size);
+            DecBuff[1] = HIBYTE(size);
             buff = DecBuff;
             proto = buff[3];
             break;
         }
-        fprintf(fp, "proto:0x%02X, buff:0x%08X, size:%d, enc:%d\n", proto, (DWORD)buff, size, enc);
+
+        WORD* p = (WORD*)(buff + (buff[0] == 0xC1 ? 2 : 3));
+
+        BYTE subco = (BYTE)(((*p) & 0xff00) >> 8);
+
+        auto r = packetName.find(*p);
+        auto r2 = packetName.find(*p | 0xFF00);
+        if (r != packetName.end())
+        {
+            fprintf(fp, "proto:0x%02X, size:%d, enc:%d, %s\n", proto, size, enc, (*r).second);
+        }
+        else if (r2 != packetName.end())
+        {
+            fprintf(fp, "proto:0x%02X, size:%d, enc:%d, %s\n", proto, size, enc, (*r2).second);
+        }
+        else
+        {
+            fprintf(fp, "proto:0x%02X, size:%d, enc:%d\n", proto, size, enc);
+        }
+
         PacketPrint(buff, size);
         fflush(fp);
         if (unk1 == 1)
@@ -243,6 +339,107 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
     }
 }
 
+#ifdef CLIENT_S9
+auto ConnectToCS = (T_ConnToCS)MU_CONNECT_FUNC;
+char szVersion[] = "10525";
+char szSerial[18] = "fughy683dfu7teqg";
+
+void Connect()
+{
+    char szIp[128];
+    int port;
+    GetPrivateProfileStringA("MU", "URL", "127.0.0.1", szIp, 128, cfgFile);
+    port = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
+    printf("Connecto to %s:%d\n", szIp, port);
+    ConnectToCS(szIp, port);
+}
+
+void onCsHook2()
+{
+    Connect();
+
+    _asm
+    {
+        mov ecx, CONNECT_HOOK2;
+        sub ecx, onCsHook2;
+        jmp ecx;
+    }
+}
+
+void __declspec(naked) onCsHook()
+{
+    Connect();
+
+    _asm
+    {
+        push eax;
+        //call 0x00635371; // it's not needed, 635371 is original Connect function, we use muConnectToCS
+        mov edx, 0x004DEA9A; // S9
+        jmp edx;
+    }
+}
+
+int __cdecl loc_sprintf(char* buffer, const char* format, ...)
+{
+    int ret = -1;
+
+    if (IsBadReadPtr(buffer, 1) || IsBadReadPtr(format, 1))
+    {
+        printf("IsBadReadPtr sprintf(%p, %p, ...)\n", buffer, format);
+        if (!IsBadReadPtr(buffer, 1))
+            strcpy(buffer, "<Bad_Format>");
+        return ret;
+    }
+
+    //printf("sprintf(%s, %s, ...)\n", buffer, format);
+    va_list va;
+    va_start(va, format);
+    ret = vsprintf(buffer, format, va);
+    va_end(va);
+
+    return ret;
+}
+
+void ProcLoading()
+{
+    fp = fopen("ParsePacket.log", "a+");
+    BYTE key[] = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
+
+    m_Encryption.SetKey(key, sizeof(key));
+    m_Decryption.SetKey(key, sizeof(key));
+
+    old_Send = main_Send.Set(old_Send, SendPacket);
+    old_Recv = main_Recv.Set(old_Recv, ParsePacket);
+    old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
+
+    BYTE c[32];
+    memset(c, 0x90, 32);
+
+    Hook<void>::Jump((void*)CONNECT_HOOK1, onCsHook);
+    Hook<void>::Write((void*)CONNECT_HOOK2, c, 6);
+    Hook<void>::Jump((void*)CONNECT_HOOK2, onCsHook2);
+    //Hook<void>::ChangeAddress(VERSION_HOOK1, (DWORD)szVersion);
+    //Hook<void>::ChangeAddress(VERSION_HOOK2, (DWORD)szVersion);
+    //Hook<void>::ChangeAddress(VERSION_HOOK3, (DWORD)szVersion);
+    Hook<void>::ChangeAddress(SERIAL_HOOK1, (DWORD)szSerial);
+    Hook<void>::ChangeAddress(SERIAL_HOOK2, (DWORD)szSerial);
+    Hook<void>::Jump((void*)0x0063562F, (void*)0x0063564C);//remove filter.bmd
+    //009C79AC   |> C9              LEAVE
+    Hook<void>::Jump((void*)0x009C77C8, (void*)0x009C79AC);// HelpData_Eng.bmd Corrupt
+    Hook<void>::WriteByte((void*)CTRL_FREEZE_FIX, 0x02);
+    Hook<void>::Write((void*)MAPSRV_DELACCID_FIX, c, 5); // nop call to memcpy in mapserver, because buff source is empty, due to no account id from webzen http (remove new login system)
+
+
+    GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", szSerial, 18, cfgFile);
+    GetPrivateProfileStringA("MU", "Version", "10525", szVersion, 5, cfgFile);
+
+    for (int i = 0; i < 5; i++)
+    {
+        szVersion[i] = szVersion[i] + (i + 1);
+    }
+}
+#endif
+#ifdef CLIENT_S12
 void ProcLoading()
 {
     fp = fopen("ParsePacket.log", "a+");
@@ -270,7 +467,7 @@ void ProcLoading()
     // Disable Log encoder
     BYTE c[32];
     memset(c, 0x90, 32);
-    Hook<void>::Write((void*)0x00D42114, c, sizeof(c));
+    //Hook<void>::Write((void*)0x00D42114, c, sizeof(c));
 
     BYTE GG_JMP[] = { 0xE9,0x88,0x00,0x00,0x00,0x90 };
     Hook<void>::Write((void*)0x00507524, GG_JMP, sizeof(GG_JMP));//1.18.70
@@ -291,7 +488,7 @@ void ProcLoading()
     Hook<void>::WriteByte((void*)0x00AD5F93, 0xEB);
     Hook<void>::WriteByte((void*)0x00AD5F94, 0x43);
     Hook<void>::WriteByte((void*)0x00B100D2, 0xEB);
-    Hook<void>::Write((void*)0x00C7B11C, c, sizeof(2));//1.18.70
+    Hook<void>::Write((void*)0x00C7B11C, c, 2);//1.18.70
 
     //?ItemtooltipBmd
     Hook<void>::WriteByte((void*)0x0085216E, 0xEB);//1.18.70
@@ -303,18 +500,24 @@ void ProcLoading()
     BYTE SKILL_JMP[] = { 0xE9,0xAD,0x00,0x00,0x00,0x90 };
     Hook<void>::Write((void*)0x00CCA2F8, SKILL_JMP, sizeof(SKILL_JMP));//1.18.70
 
-    GetPrivateProfileStringA("MU", "URL", "127.0.0.1", szIP, 256, cfgFile);
-    GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", szClientSerial, 18, cfgFile);
-    *iPort = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
+    GetPrivateProfileStringA("MU", "URL", "127.0.0.1", (char*)CLIENIP, 256, cfgFile);
+    GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", (char*)CLIENTSERIAL, 18, cfgFile);
+    *((int*)CLIENTPORT) = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
 
     kernel32_GetStartupInfoA.Release();
 }
-
+#endif
 void _stdcall new_GetStartupInfoA(LPSTARTUPINFOA lpStartupinfo)
 {
     ProcLoading();
 
     GetStartupInfoA(lpStartupinfo);
+}
+
+void _stdcall new_OutputDebugStringA(LPCSTR lpOutputString)
+{
+    printf("OutputDebugString: %s", lpOutputString);
+    //old_OutputDebugStringA(lpOutputString);
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -325,7 +528,15 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+#ifdef  CLIENT_S9
+        ProcLoading();
+#endif //  CLIENT_S9
+#ifdef CLIENT_S12
         old_GetStartupInfoA = kernel32_GetStartupInfoA.Set(_GetStartupInfoA, new_GetStartupInfoA);
+#endif // CLIENT_S12
+        old_OutputDebugStringA = kernel32_OutputDebugStringA.Set(_OutputDebugStringA, new_OutputDebugStringA);
+        AllocConsole();
+        freopen("CONOUT$", "w", stdout);
         break;
     case DLL_THREAD_ATTACH:
         break;

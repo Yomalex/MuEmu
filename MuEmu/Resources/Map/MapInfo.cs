@@ -29,6 +29,16 @@ namespace MuEmu.Resources.Map
         Deleting,
         Deleted,
     }
+
+    public enum MiniMapTag : byte
+    {
+        unk1 = 1,
+        unk2,
+        unk3,
+        unk4,
+        Storage = 5,
+    }
+
     public class ItemInMap
     {
         public ushort Index { get; set; }
@@ -46,6 +56,8 @@ namespace MuEmu.Resources.Map
         private DateTime _nextWeater;
         private MapAttributes[] Layer { get; }
         private List<Point> SafePoints { get; set; }
+        private IEnumerable<Monster> NPC => Monsters.Where(x => x.Type == ObjectType.NPC);
+        private IEnumerable<Monster> Gates => Monsters.Where(x => x.Type == ObjectType.Gate);
 
         public int Width { get; }
         public int Height { get; }
@@ -239,11 +251,25 @@ namespace MuEmu.Resources.Map
 
         public void AddPlayer(Character @char)
         {
+            SendMinimapInfo(@char);
             SendWeather(@char);
             var pos = @char.Position;
             SetAttribute(pos.X, pos.Y, MapAttributes.Stand);
             Players.Add(@char);
             PlayerJoins?.Invoke(@char.Player, new EventArgs());
+        }
+
+        public async void SendMinimapInfo(Character @char)
+        {
+            byte i = 0;
+            foreach(var npc in NPC)
+            {
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 0));
+            }
+            foreach (var npc in Gates)
+            {
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 0));
+            }
         }
 
         public void SendWeather(Character @char)

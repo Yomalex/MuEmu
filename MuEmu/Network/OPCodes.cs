@@ -36,10 +36,14 @@ namespace MuEmu.Network
         JoinMap = 0x15F3,
         ServerMove = 0x00B1,
         ServerMoveAuth = 0x01B1,
+
+
+        Resets = 0x0BFA,
     }
 
     public enum GameOpCode : ushort
     {
+        MapMoveCheckSum = 0x018E,
         Warp = 0x028E,
 
         DuelRequest = 0x01AA,
@@ -160,6 +164,19 @@ namespace MuEmu.Network
         Move = 0xFFD3,
         Attack = 0xFFD7,
         Position = 0xFFDF,
+        MuunRideRequest = 0x114E,
+        MuunRideViewPort = 0x144E,
+
+        MiniMapNPC = 0x03E7,
+        PeriodItemCount = 0x11D2,
+
+        PentagramaJInfo = 0x01EE,
+        UBFInfo = 0x01CD,
+    }
+
+    public enum GensOpCode
+    {
+        SendGensInfo = 0x07F8,
     }
 
     public enum GuildOpCode
@@ -207,6 +224,9 @@ namespace MuEmu.Network
 
         ImperialGuardianEnter = 0x01F7,
         ImperialGuardianEnterResult = 0x02F7,
+
+        ArcaBattleState = 0x38F8,
+        Banner = 0x184D,
     }
     public enum CashOpCode : ushort
     {

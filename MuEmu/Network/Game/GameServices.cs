@@ -6,6 +6,7 @@ using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
 using MuEmu.Network.ConnectServer;
+using MuEmu.Network.MuunSystem;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Resources;
 using MuEmu.Resources.Game;
@@ -743,7 +744,6 @@ namespace MuEmu.Network.Game
         {
             await session.SendAsync(new SEventEnterCount { Type = message.Type, Left = 10 });
         }
-
 
         [MessageHandler(typeof(CTalk))]
         public async Task CTalk(GSSession session, CTalk message)
@@ -2204,6 +2204,12 @@ namespace MuEmu.Network.Game
         {
             session.Player.Character.Friends
                 .AcceptFriend(message.Name, message.Result);
+        }
+
+        [MessageHandler(typeof(CMuunRideReq))]
+        public async Task CMuunRideReq(GSSession session, CMuunRideReq message)
+        {
+            await session.SendAsync(new SMuunRideVP { ViewPort = new MuunRideVPDto[] { new MuunRideVPDto(session.Player.ID, 0xffff) } });
         }
     }
 }

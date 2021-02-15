@@ -1,4 +1,7 @@
 ﻿using MuEmu.Network.Event;
+using MuEmu.Network.MuunSystem;
+using MuEmu.Network.Pentagrama;
+using MuEmu.Network.UBFSystem;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +18,7 @@ namespace MuEmu.Network.Game
         {
             // C2S
             Register<CCheckSum>(GameOpCode.GameSecurity);
+            Register<SMapMoveCheckSum>(GameOpCode.MapMoveCheckSum);
             Register<CClientMessage>(GameOpCode.ClientMessage);
             Register<CCloseWindow>(GameOpCode.CloseWindow);
 
@@ -207,6 +211,19 @@ namespace MuEmu.Network.Game
             Register<CTradeButtonOk>(GameOpCode.TradeButtonOk);
             Register<CTradeButtonCancel>(GameOpCode.TradeButtonCancel);
             Register<STradeResult>(GameOpCode.TradeButtonCancel);
+
+            #region MuunSystem
+            Register<CMuunRideReq>(GameOpCode.MuunRideRequest);
+            Register<SMuunRideVP>(GameOpCode.MuunRideViewPort);
+            #endregion
+
+            Register<SMiniMapNPC>(GameOpCode.MiniMapNPC);
+
+            Register<SPeriodItemCount>(GameOpCode.PeriodItemCount);
+
+            Register<SPentagramaJewelInfo>(GameOpCode.PentagramaJInfo);
+
+            Register<SUBFInfo>(GameOpCode.UBFInfo);
         }
     }
 }

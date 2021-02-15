@@ -217,15 +217,17 @@ namespace WebZen.Network
             _sock.BeginReceive(_recvBuffer, 0, _recvBuffer.Length, SocketFlags.None, _onRecv, this);
         }
 
-        public async Task Send(byte[] data)
+        public async Task<int> Send(byte[] data)
         {
+            int result = 0;
             try
             {
-                await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
-            }catch(ObjectDisposedException)
+                result = await _sock.SendAsync(data, SocketFlags.None);//, OnSend, this
+            }catch(Exception)
             {
                 Closed = true;
             }
+            return result;
         }
 
         //private void OnSend(IAsyncResult result)

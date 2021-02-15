@@ -1,4 +1,5 @@
-﻿using MuEmu.Network.Data;
+﻿using MuEmu.Monsters;
+using MuEmu.Network.Data;
 using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,12 @@ namespace MuEmu.Network.Game
 
         [WZMember(1)]
         public ushort Key { get; set; }
+    }
+
+    [WZContract]
+    public class SMapMoveCheckSum:IGameMessage
+    {
+        [WZMember(0)] public uint key { get; set; }
     }
 
     [WZContract]
@@ -1806,6 +1813,40 @@ namespace MuEmu.Network.Game
         [WZMember(0, 10)] public byte[] btName { get; set; } // 4
 
         public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
+    }
+
+    [WZContract]
+    public class SMiniMapNPC : IGameMessage
+    {
+        [WZMember(0)] public byte btIdentNo { get; set; }
+        [WZMember(1)] public byte btIsNpc { get; set; }
+        [WZMember(2)] public MiniMapTag btTag { get; set; }
+        [WZMember(3)] public byte btType { get; set; }
+        [WZMember(4)] public byte btPosX { get; set; }
+        [WZMember(5)] public byte btPosY { get; set; }
+        [WZMember(6, typeof(BinaryStringSerializer), 31)] public string szName { get; set; }
+
+        public SMiniMapNPC()
+        {
+            szName = "";
+        }
+
+        public SMiniMapNPC(Monster monster, byte ident, MiniMapTag tag, byte addType)
+        {
+            btPosX = (byte)monster.Position.X;
+            btPosY = (byte)monster.Position.Y;
+            btTag = tag;
+            btType = addType;
+            btIdentNo = ident;
+            szName = monster.Info.Name;
+            btIsNpc = (byte)((monster.Type == ObjectType.NPC) ? 1 : 0);
+        }
+    }
+
+    [WZContract]
+    public class SPeriodItemCount : IGameMessage
+    {
+        [WZMember(0)] public byte Count { get; set; }
     }
 }
 

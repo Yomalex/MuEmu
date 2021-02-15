@@ -2,8 +2,12 @@
 using MuEmu.Events;
 using MuEmu.Network.CashShop;
 using MuEmu.Network.ConnectServer;
+using MuEmu.Network.Event;
 using MuEmu.Network.Game;
+using MuEmu.Network.GensSystem;
 using MuEmu.Network.Global;
+using MuEmu.Network.Pentagrama;
+using MuEmu.Network.UBFSystem;
 using MuEmu.Resources;
 using Serilog;
 using Serilog.Core;
@@ -147,35 +151,23 @@ namespace MuEmu.Network.Auth
                                    select item).ToList();
                 }
 
-                if (Program.Season12)
-                {
-                    var charList = session.Player.Account.Characters
-                        .Select(x => new CharacterPreviewS12Dto(
-                            x.Key,
-                            x.Value.Name,
-                            x.Value.Level,
-                            (ControlCode)x.Value.CtlCode,
-                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value), 0),
-                            GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember,
-                            3))
-                        .ToArray();
+                Type a;
 
-                    await session.SendAsync(new SCharacterListS12(5, 0, charList, 5, 3));
-                }
-                else
+                switch(Program.Season)
                 {
-                    var charList = session.Player.Account.Characters
-                        .Select(x => new CharacterPreviewDto(
-                            x.Key,
-                            x.Value.Name,
-                            x.Value.Level,
-                            (ControlCode)x.Value.CtlCode,
-                            Inventory.GetCharset((HeroClass)x.Value.Class, new Inventory(null, x.Value), 0),
-                            GuildManager.Instance.FindCharacter(x.Value.Name)?.Rank ?? GuildStatus.NoMember))
-                        .ToArray();
-
-                    await session.SendAsync(new SCharacterList(5, 0, charList));
+                    case 9:
+                        a = typeof(SCharacterListS9);
+                        break;
+                    case 12:
+                        a = typeof(SCharacterListS12);
+                        break;
+                    default:
+                        a = typeof(SCharacterList);
+                        break;
                 }
+
+                var b = Activator.CreateInstance(a, (byte)5, (byte)0, acc.Characters, (byte)5, (byte)3);
+                await session.SendAsync(b);
             }
         }
 
@@ -234,6 +226,21 @@ namespace MuEmu.Network.Auth
 
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
+
+            //GCSendAllItemInfo
+            //#if (ENABLETEST_MUUN == 1)
+            //g_CMuunSystem.GDReqLoadMuunInvenItem(*lpObj);
+            //#endif
+
+            //#if (ENABLETEST_RUMMY == 1)
+            //g_CMuRummyMng.GDReqCardInfo(lpObj);
+            //#endif
+
+            await session.Send(new byte[] { 0xC2, 0x00, 0x06, 0xF3, 0x53, 0x00 });
+
+            await session.SendAsync(new SPeriodItemCount());
+
+            await session.SendAsync(new SGensSendInfoS9());
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
             
@@ -253,15 +260,36 @@ namespace MuEmu.Network.Auth
 
             GuildManager.Instance.AddPlayer(session.Player);
 
+            await session.SendAsync(new SNewQuestInfo());
+
+            await session.SendAsync(new SPentagramaJewelInfo
+            {
+                JewelCnt = 0,
+                JewelPos = 0,
+                List = Array.Empty<PentagramaJewelDto>(),
+                Result = 0,
+            });
+
+            await session.SendAsync(new SPentagramaJewelInfo
+            {
+                JewelCnt = 0,
+                JewelPos = 1,
+                List = Array.Empty<PentagramaJewelDto>(),
+                Result = 0,
+            });
+
+            await session.SendAsync(new SUBFInfo());
+            await session.SendAsync(new SSendBanner { Type = 3 });
+
+            await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
+
+            //ConnectServer dataSend
+            Program.client.SendAsync(new SCAdd { Server = (byte)Program.ServerCode, btName = @charDto.Name.GetBytes() });
+
             if((@char.CtlCode & ControlCode.GameMaster) == ControlCode.GameMaster)
             {
                 @char.Spells.SetBuff(SkillStates.GameMaster, TimeSpan.FromDays(100));
             }
-
-            await session.SendAsync(new SNewQuestInfo());
-
-            //ConnectServer dataSend
-            Program.client.SendAsync(new SCAdd { Server = (byte)Program.ServerCode, btName = @charDto.Name.GetBytes() });
         }
 
         [MessageHandler(typeof(CCharacterCreate))]

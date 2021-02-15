@@ -40,6 +40,7 @@ using Serilog.Core;
 using MuEmu.Events.Crywolf;
 using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.DoubleGoer;
+using MuEmu.Network.GensSystem;
 
 namespace MuEmu
 {
@@ -56,7 +57,7 @@ namespace MuEmu
         public static float Experience { get; set; }
         public static float Zen { get; set; }
         public static int DropRate { get; set; }
-        public static bool Season12 { get; set; }
+        public static int Season { get; set; }
 
         public static EventManagement EventManager;
         public static GlobalEvents GlobalEventsManager;
@@ -111,7 +112,7 @@ namespace MuEmu
             Experience = xml.Experience;
             Zen = xml.Zen;
             DropRate = xml.DropRate;
-            Season12 = xml.Rijndael;
+            Season = xml.Season;
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<GSSession>()
@@ -124,6 +125,7 @@ namespace MuEmu
                     .AddHandler(new GuildServices())
                     .AddHandler(new AntiHackServices())
                     .AddHandler(new PCPShopServices())
+                    .AddHandler(new GensServices())
                     .RegisterRule<CIDAndPass>(MustNotBeLoggedIn)
                     .RegisterRule<CCharacterList>(MustBeLoggedIn)
                     .RegisterRule<CCharacterMapJoin>(MustBeLoggedIn)
@@ -131,6 +133,7 @@ namespace MuEmu
                     .RegisterRule<CCloseWindow>(MustBePlaying)
                     .RegisterRule<CDataLoadOK>(MustBePlaying)
                     .RegisterRule<CAction>(MustBePlaying)
+                    .RegisterRule<SSkillKey>(MustBePlaying)
             };
             var mf = new MessageFactory[]
             {
@@ -143,6 +146,7 @@ namespace MuEmu
                 new GuildMessageFactory(),
                 new AntiHackMessageFactory(),
                 new PCPShopMessageFactory(),
+                new GensMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf, xml.Rijndael);
             server.ClientVersion = xml.Version;
@@ -213,9 +217,8 @@ namespace MuEmu
                 }
             }catch(Exception)
             {
-                Log.Error("MySQL unavailable.");
+                Log.Error("MySQL unavailable. please use \"db create\" or \"db migrate\" command");
                 Task.Delay(15000);
-                return;
             }
 
             Log.Information(ServerMessages.GetMessage(Messages.Server_Ready));
@@ -264,7 +267,18 @@ namespace MuEmu
             GlobalEventsManager = new GlobalEvents();
             GoldenInvasionManager = new GoldenInvasion();
 
-            GlobalEventsManager
+            foreach(var e in xml.Events)
+            {
+                var ev = new GlobalEvent(GlobalEventsManager)
+                { Active = e.active, Rate = e.rate };
+
+                foreach (var c in e.Conditions)
+                    ev.AddRange(new Item((ItemNumber)c.item, Options: new { Plus = c.itemLevel }), c.mobMinLevel, c.mobMaxLevel, c.map);
+
+                GlobalEventsManager.AddEvent(e.name, ev);
+            }
+
+            /*GlobalEventsManager
                 .AddEvent(
                 "BoxOfRibbon", 
                 new GlobalEvent(GlobalEventsManager) 
@@ -314,7 +328,7 @@ namespace MuEmu
                 .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Davias)
                 .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Raklion)
                 .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Selupan)
-                );
+                );*/
         }
 
         public static int RandomProvider(int Max, int Min = 0)

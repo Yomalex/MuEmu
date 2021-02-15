@@ -315,4 +315,17 @@ namespace MuEmu.Network.Event
         [WZMember(4)] public ushort Index { get; set; }	// 8
         [WZMember(5)] public ushort EntryTime { get; set; }	// A
     }
+
+    // ArcaBattle
+    [WZContract]
+    public class SArcaBattleState : IEventMessage
+    {
+        [WZMember(0)] public byte State { get; set; }
+    }
+
+    [WZContract]
+    public class SSendBanner : IEventMessage
+    {
+        [WZMember(0)] public int Type { get; set; }
+    }
 }

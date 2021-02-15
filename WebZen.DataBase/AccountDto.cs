@@ -28,7 +28,6 @@ namespace MU.DataBase
         [Column(TypeName = "TINYINT(1)")]
         public bool IsConnected { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime LastConnection { get; set; } = DateTime.Now;
 
         [MaxLength(33)]

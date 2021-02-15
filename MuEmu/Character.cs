@@ -533,16 +533,25 @@ namespace MuEmu
 
         public static byte GetClientClass(HeroClass dbClass)
         {
-            if (Program.Season12)
+            var @class = (int)dbClass;
+            var changeUp = @class & 0x03;
+
+            var result = @class & 0xF0;
+            result |= (changeUp == 1) ? 0x08 : 0x00;
+            result |= (changeUp == 2) ? 0x0C : 0x00;
+            result <<= Program.Season == 12 ? 0 : 1;
+            result &= 0xFF;
+            return (byte)result;
+
+            /*if (Program.Season12)
             {
-                int @class = (int)dbClass;
                 return (byte)((@class & 0xF0) | ((@class << 3) & 0x08) | (((@class << 1) & 0x04) != 0?0x0C:0x00));
             }
             else
             {
-                int @class = (int)dbClass;
-                return (byte)(((@class & 0x70) << 1) | ((@class & 0x03) == 1 ? 0x10 : (((@class & 0x03) == 2) ? 0x18 : 0x00)));
-            }
+                // CCC1 2000
+                return (byte)(((@class & 0x70) << 1) | ((@class) == 1 ? 0x10 : (((@class & 0x03) == 2) ? 0x18 : 0x00)));
+            }*/
         }
 
         public Character(Player plr, CharacterDto characterDto)
@@ -620,6 +629,7 @@ namespace MuEmu
                 MaxMinusPoints = MaxMinusPoints,
             };
 
+            //plr.Session.SendAsync(new SResets { Resets = 0 }).Wait();
             plr.Session.SendAsync(StatsInfo).Wait();
 
             Inventory.SendInventory();

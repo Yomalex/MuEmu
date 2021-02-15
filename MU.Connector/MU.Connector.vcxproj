@@ -155,7 +155,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Offsets.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Protocol.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

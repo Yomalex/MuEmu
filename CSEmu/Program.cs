@@ -26,10 +26,28 @@ namespace CSEmu
             Log.Logger = logger;
 
             var name = Dns.GetHostName();
-            var ipaddr = Dns.GetHostEntry(name).AddressList
+            var ipaddrs = Dns.GetHostEntry(name).AddressList
                 .Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 .Select(x => x)
-                .FirstOrDefault();
+                .ToList();
+
+            var ipaddr = ipaddrs.FirstOrDefault();
+
+            if(ipaddrs.Count() > 1)
+            {
+                logger.Information("Found {0} Ip's", ipaddrs.Count());
+
+                var id = 0;
+                foreach(var i in ipaddrs)
+                {
+                    logger.Information("{0}). {1}", id++, i.ToString());
+                }
+
+                logger.Information("Select:");
+                var l = Console.ReadLine();
+
+                ipaddr = ipaddrs[int.Parse(l)];
+            }
 
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<CSSession>()

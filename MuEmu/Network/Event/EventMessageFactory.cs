@@ -64,6 +64,12 @@ namespace MuEmu.Network.Event
             // Imperial
             Register<CImperialGuardianEnter>(EventOpCode.ImperialGuardianEnter);
             Register<SImperialEnterResult>(EventOpCode.ImperialGuardianEnterResult);
+
+            // ArcaBattle
+            Register<SArcaBattleState>(EventOpCode.ArcaBattleState);
+
+            // Banner
+            Register<SSendBanner>(EventOpCode.Banner);
         }
     }
 }

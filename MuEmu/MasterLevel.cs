@@ -104,7 +104,9 @@ namespace MuEmu
         public void SendInfo()
         {
             if (Character.MasterClass)
-                Character.Player.Session.SendAsync(new SMasterInfo((ushort)(Level + Character.Level -1), Character.Level>=400?Experience:Character.Experience, NextExperience, Points, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
+            {
+                Character.Player.Session.SendAsync(new SMasterInfo((ushort)(Level + Character.Level - 1), Character.Level >= 400 ? Experience : Character.Experience, NextExperience, Points, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
+            }
         }
 
         public void Save(GameContext db)
