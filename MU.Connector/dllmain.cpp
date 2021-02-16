@@ -99,8 +99,8 @@ T_GetStartupInfoA old_GetStartupInfoA;
 T_OutputDebugStringA old_OutputDebugStringA;
 
 // Crypto
-CryptoPP::ECB_Mode<CryptoPP::AES>::Encryption m_Encryption;
-CryptoPP::ECB_Mode<CryptoPP::AES>::Decryption m_Decryption;
+CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Encryption m_Encryption;
+CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Decryption m_Decryption;
 
 // Functions
 auto old_Send = (T_WZSend)SEND_PACKET_HOOK;// 0x00BAEBDD;
@@ -145,6 +145,7 @@ inline void PacketPrint(LPBYTE buff, DWORD size)
         DecBuff[i * 3 + (j++)] = 0;
     }
     fprintf(fp, "     PACKET[%d]={0x%s}\n", size, DecBuff);
+    printf("     PACKET[%d]={0x%s}\n", size, DecBuff);
 }
 
 inline void DataSend(BYTE* buff, DWORD len)
@@ -273,6 +274,7 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
         int proto;
         int size;
         int enc;
+        int padding;
 
         switch (buff[0])
         {
@@ -289,25 +291,45 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
         case 0xC3:
             enc = 1;
             size = buff[1];
-            DecSize = size - buff[size-1];
-            m_Decryption.ProcessData(&DecBuff[1], &buff[2], size - 3);
+            padding = buff[size - 1];
+            if ((size - 3) % 16 != 0)
+            {
+                printf("0xC3 Error on Encripted packet, data size:%d, raw Size:%d, padding:%d\n", size - 3, size, padding);
+                return;
+            }
+            m_Decryption.ProcessData(&DecBuff[2], &buff[2], size - 3);
+            //memcpy(&DecBuff[2], &buff[2], DecSize - 2);
+            DecSize = size - padding;
             DecBuff[0] = 0xC1;
-            DecBuff[1] = DecSize + 2;
-            size = DecSize + 2;
+            DecBuff[1] = DecSize;
+            size = DecSize;
             buff = DecBuff;
             proto = DecBuff[2];
+
+            PacketPrint(buff, size);
+            fflush(fp);
             break;
         case 0xC4:
             enc = 1;
-            size = MAKEWORD(buff[2], buff[1]);
-            DecSize = size - buff[size - 1];
-            m_Decryption.ProcessData(&DecBuff[2], &buff[3], size - 4);
-            size = DecSize + 3;
+            size = buff[2] | (buff[1]<<8);
+
+            if ((size - 4) % 16 != 0)
+            {
+                printf("Error on Encripted packet, data size:%d", size - 4);
+                return;
+            }
+            m_Decryption.ProcessData(&DecBuff[3], &buff[3], size - 4);
+            //memcpy(&DecBuff[3], &buff[3], DecSize - 3);
+            DecSize = size;//-buff[size - 1];
+            size = DecSize;
             DecBuff[0] = 0xC2;
             DecBuff[2] = LOBYTE(size);
             DecBuff[1] = HIBYTE(size);
             buff = DecBuff;
             proto = buff[3];
+
+            PacketPrint(buff, size);
+            fflush(fp);
             break;
         }
 
@@ -329,9 +351,6 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
         {
             fprintf(fp, "proto:0x%02X, size:%d, enc:%d\n", proto, size, enc);
         }
-
-        PacketPrint(buff, size);
-        fflush(fp);
         if (unk1 == 1)
             ProtocolCoreA(unk2, proto, buff, size, enc);
         else

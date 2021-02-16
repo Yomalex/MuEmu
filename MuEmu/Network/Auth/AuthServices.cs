@@ -231,11 +231,16 @@ namespace MuEmu.Network.Auth
             //#if (ENABLETEST_MUUN == 1)
             //g_CMuunSystem.GDReqLoadMuunInvenItem(*lpObj);
             //#endif
+            await session.SendAsync(new SMuunInventory());
+
+
 
             //#if (ENABLETEST_RUMMY == 1)
             //g_CMuRummyMng.GDReqCardInfo(lpObj);
             //#endif
+            //this->IsMuRummyEventOn()
 
+            // packet for skill tree list
             await session.Send(new byte[] { 0xC2, 0x00, 0x06, 0xF3, 0x53, 0x00 });
 
             await session.SendAsync(new SPeriodItemCount());

@@ -164,6 +164,7 @@ namespace MuEmu.Network
         Move = 0xFFD3,
         Attack = 0xFFD7,
         Position = 0xFFDF,
+        MuunInventory = 0x024E,
         MuunRideRequest = 0x114E,
         MuunRideViewPort = 0x144E,
 
@@ -172,6 +173,7 @@ namespace MuEmu.Network
 
         PentagramaJInfo = 0x01EE,
         UBFInfo = 0x01CD,
+        PopUpType = 0x26F3,
     }
 
     public enum GensOpCode

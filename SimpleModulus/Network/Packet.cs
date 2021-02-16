@@ -334,6 +334,20 @@ namespace WebZen.Network
             _packetRijndael = useRijndael;
         }
 
+        public static void PacketPrint(MemoryStream mem)
+        {
+            var l = mem.Length;
+            var b = mem.ToArray();
+            var s = "";
+
+            foreach(var i in b)
+            {
+                s += i.ToString("X2");
+            }
+
+            Logger.Debug("Packet: {0}", s);
+        }
+
         public byte[] Encode(object message, ref short serial)
         {
             MessageFactory factory = null;
@@ -384,7 +398,10 @@ namespace WebZen.Network
                 {
                     data.Position = (att.LongMessage ? 3 : 2);
                     if (_packetRijndael == true)
+                    {
                         PacketEncrypt.Encrypt(data, data);
+                        //PacketPrint(data);
+                    }
                     else
                         SimpleModulus.Encrypt(data, (byte)serial, data);
 
@@ -403,100 +420,13 @@ namespace WebZen.Network
                     data.Write(BitConverter.GetBytes((byte)data.Length), 0, 1);
                 }
                 res = data.ToArray();
+
+                if(att.Serialized)
+                    Logger.Debug("Packet Len:{0}", res.Length);
+
                 //if(!att.Serialized)
                     return res;
             }
-
-            /*byte[] result;
-            using (var h = new MemoryStream())
-            using (var b = new MemoryStream())
-            {
-                try
-                {
-                    Serializer.Serialize(b, message);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "");
-                }
-                var body = b.ToArray();
-                var length = body.Length;
-                var sizeFix = (((opCode & 0xFF00) == 0xFF00) ? 1 : 0);
-                var sizeFix2 = 0;
-
-                if (att.LongMessage)
-                {
-                    var header = new WZWPacket
-                    {
-                        Type = (byte)0xC2,
-                        Size = (ushort)(length + 5 - sizeFix),
-                        Operation = opCode
-                    };
-                    Serializer.Serialize(h, header);
-
-                    sizeFix2 = 3;
-                }
-                else
-                {
-                    var header = new WZBPacket
-                    {
-                        Type = (byte)0xC1,
-                        Size = (byte)(length + 4 - sizeFix),
-                        Operation = opCode
-                    };
-                    Serializer.Serialize(h, header);
-
-                    sizeFix2 = 2;
-                }
-
-                var head = h.ToArray();
-                var headLen = head.Length - sizeFix;
-                result = new byte[headLen + body.Length];
-                Array.Copy(head, result, headLen);
-                Array.Copy(body, 0, result, headLen, body.Length);
-
-                if (att.Serialized)
-                {
-                    result[0] += 2;
-
-                    var temp = new byte[result.Length - sizeFix2];
-                    Array.Copy(result, sizeFix2, temp, 0, temp.Length);
-
-                    //temp[0] = (byte)serial;
-
-                    byte[] enc;// = SimpleModulus.Encoder(temp);
-                    using (var ms = new MemoryStream())
-                    {
-                        if (_packetRijndael == true)
-                            PacketEncrypt.Encrypt(ms, new MemoryStream(temp));
-                        else
-                            SimpleModulus.Encrypt(ms, (byte)serial, new MemoryStream(temp));
-
-                        enc = new byte[ms.Length];
-                        ms.Seek(0, SeekOrigin.Begin);
-                        ms.Read(enc, 0, (int)ms.Length);
-                    }
-
-                    var resultTemp = new byte[sizeFix2 + enc.Length + 1];
-                    Array.Copy(result, resultTemp, sizeFix2 + 1);
-                    if (resultTemp[0] == 0xC3)
-                    {
-                        resultTemp[1] = (byte)(resultTemp.Length);
-                    }
-                    else
-                    {
-                        resultTemp[1] = (byte)(resultTemp.Length >> 8);
-                        resultTemp[2] = (byte)(resultTemp.Length & 0xff);
-                    }
-                    Array.Copy(enc, 0, resultTemp, sizeFix2 + 1, enc.Length);
-                    serial++;
-
-                    Logger.Debug("\nA:{0}\nB{1}", result.GetHex(), res.GetHex());
-                    return res;
-                }
-            }
-
-            return result;*/
         }
     }
 

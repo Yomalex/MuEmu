@@ -224,6 +224,10 @@ namespace MuEmu.Network.Game
             Register<SPentagramaJewelInfo>(GameOpCode.PentagramaJInfo);
 
             Register<SUBFInfo>(GameOpCode.UBFInfo);
+            Register<CUsePopUpType>(GameOpCode.PopUpType);
+            Register<SUBFPopUpType>(GameOpCode.PopUpType);
+
+            Register<SMuunInventory>(GameOpCode.MuunInventory);
         }
     }
 }

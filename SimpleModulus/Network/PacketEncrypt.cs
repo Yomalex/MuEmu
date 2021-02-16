@@ -34,16 +34,19 @@ namespace WebZen.Network
 
         public static void Encrypt(MemoryStream dest, MemoryStream src)
         {
-            var r = (byte)(src.Length % 16);
+            var destPos = dest.Position;
+            var dataLen = (src.Length - src.Position);
+            var r = (byte)(dataLen % 16);
             byte paddingSize = 0;
             if(r != 0)
             {
                 paddingSize = (byte)(16 - r);
             }
 
-            var tmp = new byte[src.Length + paddingSize];
+            var tmp = new byte[dataLen + paddingSize];
             src.Read(tmp, 0, (int)src.Length);
 
+            dest.Seek(destPos, SeekOrigin.Begin);
             var cs = new CryptoStream(dest, _rijndael.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(tmp, 0, tmp.Length);
             dest.WriteByte(paddingSize);

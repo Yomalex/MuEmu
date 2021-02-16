@@ -11,4 +11,10 @@ namespace MuEmu.Network.UBFSystem
     {
         public byte Result { get; set; }
     }
+
+    [WZContract]
+    public class SUBFPopUpType : IGameMessage
+    {
+        public int Type { get; set; }
+    }
 }

@@ -8,6 +8,7 @@ using MuEmu.Monsters;
 using MuEmu.Network.ConnectServer;
 using MuEmu.Network.MuunSystem;
 using MuEmu.Network.QuestSystem;
+using MuEmu.Network.UBFSystem;
 using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
@@ -2210,6 +2211,12 @@ namespace MuEmu.Network.Game
         public async Task CMuunRideReq(GSSession session, CMuunRideReq message)
         {
             await session.SendAsync(new SMuunRideVP { ViewPort = new MuunRideVPDto[] { new MuunRideVPDto(session.Player.ID, 0xffff) } });
+        }
+
+        [MessageHandler(typeof(CUsePopUpType))]
+        public async Task CUsePopUpType(GSSession session)
+        {
+            await session.SendAsync(new SUBFPopUpType { Type = 1 });
         }
     }
 }

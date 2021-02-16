@@ -29,6 +29,23 @@ namespace MuEmu.Network.Game
         }
     }
 
+    [WZContract(LongMessage = true, Serialized = true)]
+    public class SMuunInventory : IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryDto[] Inventory { get; set; }
+
+        public SMuunInventory()
+        {
+            Inventory = Array.Empty<InventoryDto>();
+        }
+
+        public SMuunInventory(InventoryDto[] inv)
+        {
+            Inventory = inv;
+        }
+    }
+
     [WZContract]
     public class SEquipament : IGameMessage
     {
