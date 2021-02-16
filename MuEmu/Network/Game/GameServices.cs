@@ -113,6 +113,12 @@ namespace MuEmu.Network.Game
             session.Player.Character.TPosition = Cpos;
         }
 
+        [MessageHandler(typeof(CMoveEng))]
+        public async Task CMoveEng(GSSession session, CMoveEng message)
+        {
+            await CMove(session, new Game.CMove { Path = message.Path, X = message.X, Y = message.Y });
+        }
+
         [MessageHandler(typeof(CPositionSet))]
         public async Task CPositionSet(GSSession session, CPositionSet message)
         {
@@ -2217,6 +2223,16 @@ namespace MuEmu.Network.Game
         public async Task CUsePopUpType(GSSession session)
         {
             await session.SendAsync(new SUBFPopUpType { Type = 1 });
+        }
+
+        [MessageHandler(typeof(CMemberPosInfoStart))]
+        public void CMemberPosInfoStart(GSSession session)
+        {
+        }
+
+        [MessageHandler(typeof(CMemberPosInfoStop))]
+        public void CMemberPosInfoStop(GSSession session)
+        {
         }
     }
 }

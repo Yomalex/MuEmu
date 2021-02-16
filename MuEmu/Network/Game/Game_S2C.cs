@@ -203,6 +203,18 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract(LongMessage = true)]
+    public class SViewPortCreateS9 : IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public VPCreateS9Dto[] ViewPort { get; set; }
+
+        public SViewPortCreateS9()
+        {
+            ViewPort = Array.Empty<VPCreateS9Dto>();
+        }
+    }
+
+    [WZContract(LongMessage = true)]
     public class SViewPortChange : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
@@ -215,6 +227,18 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract(LongMessage = true)]
+    public class SViewPortChangeS9 : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPChangeS9Dto[] ViewPort { get; set; }
+
+        public SViewPortChangeS9()
+        {
+            ViewPort = Array.Empty<VPChangeS9Dto>();
+        }
+    }
+
+    [WZContract(LongMessage = true)]
     public class SViewPortMonCreate : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
@@ -223,6 +247,18 @@ namespace MuEmu.Network.Game
         public SViewPortMonCreate()
         {
             ViewPort = Array.Empty<VPMCreateDto>();
+        }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SViewPortMonCreateS9 : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPMCreateS9Dto[] ViewPort { get; set; }
+
+        public SViewPortMonCreateS9()
+        {
+            ViewPort = Array.Empty<VPMCreateS9Dto>();
         }
     }
 

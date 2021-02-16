@@ -155,7 +155,7 @@ namespace WebZen.Network
 
         private int FreeIndex()
         {
-            for(var i = 0; i < 1000; i++)
+            for(var i = 1; i < 1000; i++)
             {
                 if (_clients.Keys.Any(k => k == i))
                     continue;

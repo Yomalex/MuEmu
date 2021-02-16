@@ -179,13 +179,13 @@ namespace MuEmu
             get => _sd;
             set
             {
-                if (_sd == value)
-                    return;
-
                 if (value > _sdMax)
                 {
                     value = _sdMax;
                 }
+
+                if (_sd == value)
+                    return;
 
                 var arg = _sd > value ? RefillInfo.Update : RefillInfo.Drink;
                 _sd = value;

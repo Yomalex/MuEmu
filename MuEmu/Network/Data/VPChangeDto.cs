@@ -8,7 +8,7 @@ using WebZen.Util;
 namespace MuEmu.Network.Data
 {
     [WZContract]
-    public class VPChangeDto
+    public abstract class VPChangeAbs
     {
         [WZMember(0)]
         public byte NumberH { get; set; }
@@ -27,7 +27,6 @@ namespace MuEmu.Network.Data
 
         [WZMember(5)]
         public byte SkinL { get; set; }
-        /*<thisrel this+0x8>*/ /*|0x4|*/ //int ViewSkillState;
 
         [WZMember(6, 10)]
         public byte[] Id { get; set; } //10
@@ -44,18 +43,6 @@ namespace MuEmu.Network.Data
 
         [WZMember(10, 18)]
         public byte[] CharSet { get; set; } //18
-
-        [WZMember(11, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        //public byte SkillStateCount { get; set; }
-        public SkillStates[] ViewSkillState { get; set; } //Num_ViewSkillState
-
-
-        public VPChangeDto()
-        {
-            CharSet = Array.Empty<byte>();
-            Id = Array.Empty<byte>();
-            ViewSkillState = Array.Empty<SkillStates>();
-        }
 
         public int Number
         {
@@ -92,5 +79,51 @@ namespace MuEmu.Network.Data
             get => Id.MakeString();
             set => Id = value.GetBytes();
         }
+
+    }
+
+    [WZContract]
+    public class VPChangeDto : VPChangeAbs
+    {
+        [WZMember(11, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        //public byte SkillStateCount { get; set; }
+        public SkillStates[] ViewSkillState { get; set; } //Num_ViewSkillState
+
+        public VPChangeDto()
+        {
+            CharSet = Array.Empty<byte>();
+            Id = Array.Empty<byte>();
+            ViewSkillState = Array.Empty<SkillStates>();
+        }
+    }
+
+    [WZContract]
+    public class VPChangeS9Dto : VPChangeAbs
+    {
+        [WZMember(11)] public byte PentagramMainAttribute { get; set; }
+        [WZMember(12)] public ushort wzMuunItem { get; set; }
+        [WZMember(13)] public ushort wzMuunSubItem { get; set; }
+        [WZMember(14)] public ushort wzMuunRideItem { get; set; }
+        [WZMember(15)] public ushort wzLevel { get; set; }
+        [WZMember(16)] public uint wzMaxLife { get; set; }
+        [WZMember(17)] public uint wzCurLife { get; set; }
+        [WZMember(18)] public ushort ServerCodeOfHomeWorld { get; set; }
+
+        [WZMember(19, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public SkillStates[] ViewSkillState { get; set; }
+
+        public VPChangeS9Dto()
+        {
+            CharSet = Array.Empty<byte>();
+            Id = Array.Empty<byte>();
+            ViewSkillState = Array.Empty<SkillStates>();
+        }
+
+        public ushort MuunItem { get => wzMuunItem.ShufleEnding(); set => wzMuunItem = value.ShufleEnding(); }
+        public ushort MuunSubItem { get => wzMuunSubItem.ShufleEnding(); set => wzMuunSubItem = value.ShufleEnding(); }
+        public ushort MuunRideItem { get => wzMuunRideItem.ShufleEnding(); set => wzMuunRideItem = value.ShufleEnding(); }
+        public ushort Level { get => wzLevel.ShufleEnding(); set => wzLevel = value.ShufleEnding(); }
+        public uint MaxLife { get => wzMaxLife.ShufleEnding(); set => wzMaxLife = value.ShufleEnding(); }
+        public uint CurLife { get => wzCurLife.ShufleEnding(); set => wzCurLife = value.ShufleEnding(); }
     }
 }

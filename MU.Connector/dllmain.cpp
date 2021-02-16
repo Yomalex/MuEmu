@@ -123,31 +123,6 @@ void BuxConvert(char* buf, int size)
     }
 }
 
-inline void PacketPrint(LPBYTE buff, DWORD size)
-{
-    static BYTE DecBuff[7024];
-    for (unsigned int i = 0; i < size; i++)
-    {
-        char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '·' };
-        auto a = (buff[i] >> 4) & 0x0f;
-
-        int j = 0;
-        DecBuff[i * 3 + (j++)] = hex[a];
-        a = buff[i] & 0x0f;
-        DecBuff[i * 3 + (j++)] = hex[a];
-        if (i + 1 < size)
-        {
-            DecBuff[i * 3 + (j++)] = ',';
-            DecBuff[i * 3 + (j++)] = ' ';
-            DecBuff[i * 3 + (j++)] = '0';
-            DecBuff[i * 3 + (j++)] = 'x';
-        }
-        DecBuff[i * 3 + (j++)] = 0;
-    }
-    fprintf(fp, "     PACKET[%d]={0x%s}\n", size, DecBuff);
-    printf("     PACKET[%d]={0x%s}\n", size, DecBuff);
-}
-
 inline void DataSend(BYTE* buff, DWORD len)
 {
     __asm
@@ -172,8 +147,54 @@ std::map<WORD, const char*> packetName =
     { 0x15F3, "JoinMap" },
     { 0x144E, "MuunRideViewPort" },
     { 0x03E7, "NPCInfo" },
+    { 0xFF26, "HpUpdate" },
     { 0xFF27, "ManaUpdate" },
+    { 0xFF13, "VPMonsterCreate" },
+    { 0xFF0E, "LiveClient" },
+    { 0xFF0F, "Weather" },
+    { 0xFF0D, "Notice" },
+    { 0xFF18, "Rotation" },
 };
+
+void Print(const char * format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    vfprintf(fp, format, ap);
+    vprintf(format, ap);
+    va_end(ap);
+}
+
+inline void PacketPrint(LPBYTE buff, DWORD size, const char* szName, const char * szDesc)
+{
+    static char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '·' };
+    static char DecBuff[100];
+    unsigned int j, a;
+
+    Print("%s PACKET %s [%d]={0x", szDesc, szName, size);
+    for (unsigned int i = 0; i < size; i++)
+    {
+        j = 0;
+        a = (buff[i] >> 4) & 0x0f;
+        DecBuff[j++] = hex[a];
+        a = buff[i] & 0x0f;
+        DecBuff[j++] = hex[a];
+        if (i + 1 < size)
+        {
+            DecBuff[j++] = ',';
+            DecBuff[j++] = ' ';
+            DecBuff[j++] = '0';
+            DecBuff[j++] = 'x';
+        }
+
+        DecBuff[j++] = 0;
+
+        fprintf(fp, DecBuff);
+        printf(DecBuff);
+    }
+
+    Print("}\n");
+}
 
 void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
 {
@@ -188,8 +209,25 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
     BYTE proto = (*p)&0xff;
     BYTE subco = ((*p)&0xff00)>>8;
 
-    fprintf(fp, "SendPacket(0x%08X, 0x%08X, %d, %d)\n", (DWORD)lpMsg, len, enc, unk1);
-    PacketPrint(lpMsg, len);
+    auto r = packetName.find(*p);
+    if (r == packetName.end())
+    {
+        r = packetName.find(*p | 0xFF00);
+    }
+    if (r == packetName.end())
+    {
+        r = packetName.find(*p | 0xFF00);
+    }
+
+    if (r != packetName.end())
+    {
+        PacketPrint(lpMsg, len, (*r).second, "Send>");
+    }
+    else
+    {
+        PacketPrint(lpMsg, len, "unknow", "Send>");
+    }
+
 
     switch (proto)
     {
@@ -240,8 +278,6 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
             send[1] = (BYTE)(size >> 8) & 0xff;
             send[2] = (BYTE)(size) & 0xff;
         }
-        printf("     RawSize: %d, DataSize %d, EncSize %d, PaddingSize %d\n", len, newSize, size, send[newSize + offset]);
-        PacketPrint(send, size);
     }
     else
     {
@@ -305,9 +341,6 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
             size = DecSize;
             buff = DecBuff;
             proto = DecBuff[2];
-
-            PacketPrint(buff, size);
-            fflush(fp);
             break;
         case 0xC4:
             enc = 1;
@@ -327,9 +360,6 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
             DecBuff[1] = HIBYTE(size);
             buff = DecBuff;
             proto = buff[3];
-
-            PacketPrint(buff, size);
-            fflush(fp);
             break;
         }
 
@@ -339,18 +369,25 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
 
         auto r = packetName.find(*p);
         auto r2 = packetName.find(*p | 0xFF00);
+
+        if (r == packetName.end())
+        {
+            r = packetName.find(*p | 0xFF00);
+        }
+        if (r == packetName.end())
+        {
+            r = packetName.find(*p | 0xFF00);
+        }
+
         if (r != packetName.end())
         {
-            fprintf(fp, "proto:0x%02X, size:%d, enc:%d, %s\n", proto, size, enc, (*r).second);
-        }
-        else if (r2 != packetName.end())
-        {
-            fprintf(fp, "proto:0x%02X, size:%d, enc:%d, %s\n", proto, size, enc, (*r2).second);
+            PacketPrint(buff, size, (*r).second, "Recv<");
         }
         else
         {
-            fprintf(fp, "proto:0x%02X, size:%d, enc:%d\n", proto, size, enc);
+            PacketPrint(buff, size, "unknow", "Recv<");
         }
+
         if (unk1 == 1)
             ProtocolCoreA(unk2, proto, buff, size, enc);
         else

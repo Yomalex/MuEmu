@@ -74,6 +74,19 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class CMoveEng : IGameMessage
+    {
+        [WZMember(0)]
+        public byte X { get; set; } // 3
+
+        [WZMember(1)]
+        public byte Y { get; set; } // 4
+
+        [WZMember(2, 8)]
+        public byte[] Path { get; set; }   // 5 - 8
+    }
+
+    [WZContract]
     public class CChatNickname : IGameMessage
     {
         [WZMember(0, 10)]
@@ -628,4 +641,12 @@ namespace MuEmu.Network.Game
 
         public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
     }
+
+    [WZContract]
+    public class CMemberPosInfoStart : IGameMessage
+    { }
+
+    [WZContract]
+    public class CMemberPosInfoStop : IGameMessage
+    { }
 }

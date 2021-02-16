@@ -1,6 +1,7 @@
 #pragma once
 
-#define CLIENT_S9
+#define CLIENT_S9 //1.05.25
+//#define CLIENT_S12
 
 typedef void(_stdcall* T_GetStartupInfoA)(LPSTARTUPINFOA lpStartupinfo);
 typedef void(_stdcall* T_OutputDebugStringA)(LPCSTR lpOutputString);

@@ -421,9 +421,6 @@ namespace WebZen.Network
                 }
                 res = data.ToArray();
 
-                if(att.Serialized)
-                    Logger.Debug("Packet Len:{0}", res.Length);
-
                 //if(!att.Serialized)
                     return res;
             }

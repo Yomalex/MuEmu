@@ -252,32 +252,87 @@ namespace MuEmu
             foreach (var it in lostPlr)
                 plr.PlayersVP.Remove(it);
 
-            var addPlr = new List<VPCreateDto>();
-            addPlr.AddRange(newPlr.Select(x => new VPCreateDto
+            var addPlr = new List<VPCreateAbs>();
+            switch(Program.Season)
             {
-                CharSet = x.Inventory.GetCharset(),
-                DirAndPkLevel = (byte)((x.Direction << 4) | 0),
-                Name = x.Name,
-                Number = (ushort)(x.Player.Session.ID|0x8000),
-                Position = x.Position,
-                TPosition = x.TPosition,
-                ViewSkillState = x.Spells.ViewSkillStates,
-                Player = x.Player
-            }));
-            addPlr.AddRange(existPlr.Select(x => new VPCreateDto
-            {
-                CharSet = x.Inventory.GetCharset(),
-                DirAndPkLevel = (byte)((x.Direction << 4) | 0),
-                Name = x.Name,
-                Number = (ushort)x.Player.Session.ID,
-                Position = x.Position,
-                TPosition = x.TPosition,
-                ViewSkillState = x.Spells.ViewSkillStates,
-                Player = x.Player
-            }));
+                case 9:
+                    addPlr.AddRange(newPlr.Select(x => new VPCreateS9Dto
+                    {
+                        CharSet = x.Inventory.GetCharset(),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        Name = x.Name,
+                        Number = (ushort)(x.Player.Session.ID | 0x8000),
+                        Position = x.Position,
+                        TPosition = x.TPosition,
+                        ViewSkillState = x.Spells.ViewSkillStates,
+                        Player = x.Player,
+                        PentagramMainAttribute = 0,
+                        CurLife = (uint)x.Health,
+                        MaxLife = (uint)x.MaxHealth,
+                        Level = x.Level,
+                        MuunItem = 0xffff,
+                        MuunRideItem = 0xffff,
+                        MuunSubItem = 0xffff,
+                        ServerCodeOfHomeWorld = 0,
+                    }));
+                    addPlr.AddRange(existPlr.Select(x => new VPCreateS9Dto
+                    {
+                        CharSet = x.Inventory.GetCharset(),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        Name = x.Name,
+                        Number = (ushort)x.Player.Session.ID,
+                        Position = x.Position,
+                        TPosition = x.TPosition,
+                        ViewSkillState = x.Spells.ViewSkillStates,
+                        Player = x.Player,
+                        PentagramMainAttribute = 0,
+                        CurLife = (uint)x.Health,
+                        MaxLife = (uint)x.MaxHealth,
+                        Level = x.Level,
+                        MuunItem = 0xffff,
+                        MuunRideItem = 0xffff,
+                        MuunSubItem = 0xffff,
+                        ServerCodeOfHomeWorld = 0,
+                    }));
+                    break;
+                default:
+                    addPlr.AddRange(newPlr.Select(x => new VPCreateDto
+                    {
+                        CharSet = x.Inventory.GetCharset(),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        Name = x.Name,
+                        Number = (ushort)(x.Player.Session.ID|0x8000),
+                        Position = x.Position,
+                        TPosition = x.TPosition,
+                        ViewSkillState = x.Spells.ViewSkillStates,
+                        Player = x.Player
+                    }));
+                    addPlr.AddRange(existPlr.Select(x => new VPCreateDto
+                    {
+                        CharSet = x.Inventory.GetCharset(),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        Name = x.Name,
+                        Number = (ushort)x.Player.Session.ID,
+                        Position = x.Position,
+                        TPosition = x.TPosition,
+                        ViewSkillState = x.Spells.ViewSkillStates,
+                        Player = x.Player
+                    }));
+                    break;
+            }
 
-            if (addPlr.Any())
-                await plr.Player.Session.SendAsync(new SViewPortCreate { ViewPort = addPlr.ToArray() });
+            
+            switch (Program.Season)
+            {
+                case 9:
+                    if (addPlr.Any())
+                        await plr.Player.Session.SendAsync(new SViewPortCreateS9 { ViewPort = addPlr.Select(x => (VPCreateS9Dto)x).ToArray() });
+                    break;
+                default:
+                    if (addPlr.Any())
+                        await plr.Player.Session.SendAsync(new SViewPortCreate { ViewPort = addPlr.Select(x => (VPCreateDto)x).ToArray() });
+                    break;
+            }
 
             if (lostPlr.Any())
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
@@ -306,6 +361,8 @@ namespace MuEmu
                 var playerVP = from obj in targetVP
                                where obj.Position.Substract(plr.Position).LengthSquared() <= 10
                                select obj;
+
+                //var playerVP = targetVP;
 
                 newObj = (from obj in playerVP
                               where obj.State == ObjectState.Regen && obj.Active
@@ -345,39 +402,107 @@ namespace MuEmu
             oldVP.AddRange(newObj.Select(x => x.Index));
             oldVP.AddRange(existObj.Select(x => x.Index));
 
-            var addObj = new List<VPMCreateDto>();
+            var addObj = new List<VPMCreateAbs>();
 
             if (newObj.Any())
-                addObj.AddRange(newObj.Select(x => new VPMCreateDto
+            {
+                switch (Program.Season)
                 {
-                    Number = (ushort)(x.Index | 0x8000),
-                    Position = x.Position,
-                    TPosition = x.TPosition,
-                    Type = x.Info.Monster,
-                    ViewSkillState = Array.Empty<byte>(),
-                    Path = (byte)(x.Direction << 4)
-                }));
+                    case 9:
+                        addObj.AddRange(newObj.Select(x => new VPMCreateS9Dto
+                        {
+                            Number = (ushort)(x.Index | 0x8000),
+                            Position = x.Position,
+                            TPosition = x.TPosition,
+                            Type = x.Info.Monster,
+                            ViewSkillState = Array.Empty<byte>(),
+                            Path = (byte)(x.Direction << 4),
+                            PentagramMainAttribute = 0,
+                            Level = x.Level,
+                            Life = (uint)x.Life,
+                            MaxLife = (uint)x.MaxLife,
+                        }));
+                        break;
+                    default:
+                        addObj.AddRange(newObj.Select(x => new VPMCreateDto
+                        {
+                            Number = (ushort)(x.Index | 0x8000),
+                            Position = x.Position,
+                            TPosition = x.TPosition,
+                            Type = x.Info.Monster,
+                            ViewSkillState = Array.Empty<byte>(),
+                            Path = (byte)(x.Direction << 4),
+                        }));
+                        break;
+                }
+            }
+                
 
             if (existObj.Any())
-                addObj.AddRange(existObj.Select(x => new VPMCreateDto
+            {
+                switch (Program.Season)
                 {
-                    Number = x.Index,
-                    Position = x.Position,
-                    TPosition = x.TPosition,
-                    Type = x.Info.Monster,
-                    ViewSkillState = Array.Empty<byte>(),
-                    Path = (byte)(x.Direction << 4)
-                }));
+                    case 9:
+                        addObj.AddRange(existObj.Select(x => new VPMCreateS9Dto
+                        {
+                            Number = x.Index,
+                            Position = x.Position,
+                            TPosition = x.TPosition,
+                            Type = x.Info.Monster,
+                            ViewSkillState = Array.Empty<byte>(),
+                            Path = (byte)(x.Direction << 4),
+                            PentagramMainAttribute = 0,
+                            Level = x.Level,
+                            Life = (uint)x.Life,
+                            MaxLife = (uint)x.MaxLife,
+                        }));
+                        break;
+                    default:
+                        addObj.AddRange(existObj.Select(x => new VPMCreateDto
+                        {
+                            Number = x.Index,
+                            Position = x.Position,
+                            TPosition = x.TPosition,
+                            Type = x.Info.Monster,
+                            ViewSkillState = Array.Empty<byte>(),
+                            Path = (byte)(x.Direction << 4),
+                        }));
+                        break;
+                }
+            }
 
             var remObj = new List<VPDestroyDto>();
                 remObj.AddRange(deadObj.Select(x => new VPDestroyDto(x.Index)));
                 remObj.AddRange(lostObj.Select(x => new VPDestroyDto(x.Index)));
 
             if (remObj.Any())
-                await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
+            {
+                switch(Program.Season)
+                {
+                    default:
+                        await plr.Player.Session.SendAsync(new SViewPortDestroy(remObj.ToArray()));
+                        break;
+                }
+            }
 
             if (addObj.Any())
-                await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = addObj.ToArray() });
+            {
+                var c = 0;
+                while(c < addObj.Count)
+                {
+                    var send = addObj.Skip(c).Take(0xff);
+                    c += 0xff;
+                    switch (Program.Season)
+                    {
+                        case 9:
+                            await plr.Player.Session.SendAsync(new SViewPortMonCreateS9 { ViewPort = send.Select(x => (VPMCreateS9Dto)x).ToArray() });
+                            break;
+                        default:
+                            await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = send.Select(x => (VPMCreateDto)x).ToArray() });
+                            break;
+                    }
+                }                
+            }
         }
 
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)

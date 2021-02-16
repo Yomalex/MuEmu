@@ -162,6 +162,7 @@ namespace MuEmu.Network
         LetterList = 0xC9,
 
         Move = 0xFFD3,
+        MoveEng = 0xFFD4,
         Attack = 0xFFD7,
         Position = 0xFFDF,
         MuunInventory = 0x024E,
@@ -174,6 +175,9 @@ namespace MuEmu.Network
         PentagramaJInfo = 0x01EE,
         UBFInfo = 0x01CD,
         PopUpType = 0x26F3,
+
+        MemberPosInfoStart = 0x01E7,
+        MemberPosInfoStop = 0x02E7,
     }
 
     public enum GensOpCode

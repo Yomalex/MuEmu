@@ -24,6 +24,7 @@ namespace MuEmu.Network.Game
 
             Register<CAction>(GameOpCode.Rotation);
             Register<CMove>(GameOpCode.Move);
+            Register<CMoveEng>(GameOpCode.MoveEng);
             Register<CPositionSet>(GameOpCode.Position);
 
             #region Client ChatMessages
@@ -113,7 +114,10 @@ namespace MuEmu.Network.Game
             #region Server ViewPortMessages
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
+            Register<SViewPortCreateS9>(GameOpCode.ViewPortCreate);
+            Register<SViewPortChangeS9>(GameOpCode.ViewPortChange);
             Register<SViewPortMonCreate>(GameOpCode.ViewPortMCreate);
+            Register<SViewPortMonCreateS9>(GameOpCode.ViewPortMCreate);
             Register<SViewPortDestroy>(GameOpCode.ViewPortDestroy);
             Register<SViewPortItemDestroy>(GameOpCode.ViewPortItemDestroy);
             #endregion
@@ -228,6 +232,9 @@ namespace MuEmu.Network.Game
             Register<SUBFPopUpType>(GameOpCode.PopUpType);
 
             Register<SMuunInventory>(GameOpCode.MuunInventory);
+
+            Register<CMemberPosInfoStart>(GameOpCode.MemberPosInfoStart);
+            Register<CMemberPosInfoStop>(GameOpCode.MemberPosInfoStop);
         }
     }
 }

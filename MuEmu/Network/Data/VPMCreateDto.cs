@@ -8,7 +8,7 @@ using WebZen.Util;
 namespace MuEmu.Network.Data
 {
     [WZContract]
-    public class VPMCreateDto
+    public abstract class VPMCreateAbs
     {
         [WZMember(0)]
         public ushort wzNumber { get; set; }
@@ -30,15 +30,6 @@ namespace MuEmu.Network.Data
 
         [WZMember(8)]
         public byte Path { get; set; }
-
-        [WZMember(9, typeof(ArrayWithScalarSerializer<byte>))]
-        //public byte SkillStateCount { get; set; }
-        public byte[] ViewSkillState { get; set; } //Num_ViewSkillState
-
-        public VPMCreateDto()
-        {
-            ViewSkillState = Array.Empty<byte>();
-        }
 
         public ushort Number
         {
@@ -79,6 +70,78 @@ namespace MuEmu.Network.Data
             {
                 TX = (byte)value.X;
                 TY = (byte)value.Y;
+            }
+        }
+    }
+
+    [WZContract]
+    public class VPMCreateDto : VPMCreateAbs
+    {
+        [WZMember(9, typeof(ArrayWithScalarSerializer<byte>))]
+        public byte[] ViewSkillState { get; set; }
+
+        public VPMCreateDto()
+        {
+            ViewSkillState = Array.Empty<byte>();
+        }
+    }
+
+    [WZContract]
+    public class VPMCreateS9Dto : VPMCreateAbs
+    {
+        [WZMember(9)]
+        public byte PentagramMainAttribute { get; set; }
+        [WZMember(10)]
+        public ushort wzLevel { get; set; }
+        [WZMember(11)]
+        public uint wzMaxLife { get; set; }
+        [WZMember(12)]
+        public uint wzLife { get; set; }
+
+        [WZMember(13, typeof(ArrayWithScalarSerializer<byte>))]
+        public byte[] ViewSkillState { get; set; }
+
+        public VPMCreateS9Dto()
+        {
+            ViewSkillState = Array.Empty<byte>();
+        }
+
+        public ushort Level
+        {
+            get
+            {
+                return wzLevel.ShufleEnding();
+            }
+
+            set
+            {
+                wzLevel = value.ShufleEnding();
+            }
+        }
+
+        public uint MaxLife
+        {
+            get
+            {
+                return wzMaxLife.ShufleEnding();
+            }
+
+            set
+            {
+                wzMaxLife = value.ShufleEnding();
+            }
+        }
+
+        public uint Life
+        {
+            get
+            {
+                return wzLife.ShufleEnding();
+            }
+
+            set
+            {
+                wzLife = value.ShufleEnding();
             }
         }
     }
