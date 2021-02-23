@@ -69,7 +69,9 @@ namespace MuEmu.Monsters
                     State = ObjectState.Dying;
                 }
 
-                ViewPort.Select(x => x.Session).SendAsync(new SLifeInfo { Life = (uint)_life, MaxLife = (uint)MaxLife, Number = Index });
+                var life = _life / MaxLife * 255.0f;
+
+                ViewPort.Select(x => x.Session).SendAsync(new SLifeInfo { Life = (uint)life, MaxLife = 255u, Number = Index }).Wait();
             }
         }
         public float MaxLife => Info.HP;

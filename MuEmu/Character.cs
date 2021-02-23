@@ -629,6 +629,7 @@ namespace MuEmu
                 MaxMinusPoints = MaxMinusPoints,
             };
 
+            plr.Session.SendAsync(new SResets { Resets = 0 }).Wait();
             plr.Session.SendAsync(StatsInfo).Wait();
 
             Inventory.SendInventory();
