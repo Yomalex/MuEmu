@@ -1670,7 +1670,16 @@ namespace MuEmu.Network.Game
                 if (spell.Mana < @char.Mana && spell.BP < @char.Stamina)
                 {
                     //@char.Position = new Point(message.X, message.Y);
-                    var msg = new SMagicAttack(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
+                    object msg = null;
+                    switch (Program.Season)
+                    {
+                        case 9:
+                            msg = new SMagicAttackS9(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
+                            break;
+                        default:
+                            msg = new SMagicAttack(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
+                            break;
+                    }
                     await session.SendAsync(msg);
                     await @char.SendV2Message(msg);
 
@@ -2234,6 +2243,7 @@ namespace MuEmu.Network.Game
         [MessageHandler(typeof(CMemberPosInfoStart))]
         public void CMemberPosInfoStart(GSSession session)
         {
+            session.Player.Character.Map.SendMinimapInfo(session.Player.Character);
         }
 
         [MessageHandler(typeof(CMemberPosInfoStop))]

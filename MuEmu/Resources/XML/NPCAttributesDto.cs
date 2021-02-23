@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuEmu.Resources.Map;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
@@ -19,5 +20,6 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public ushort NPC { get; set; }
         [XmlAttribute] public string Type { get; set; }
         [XmlAttribute] public string Data { get; set; }
+        [XmlAttribute] public MiniMapTag Icon { get; set; } = MiniMapTag.Shield;
     }
 }

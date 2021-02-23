@@ -32,11 +32,11 @@ namespace MuEmu.Resources.Map
 
     public enum MiniMapTag : byte
     {
-        unk1 = 1,
-        unk2,
-        unk3,
-        unk4,
-        Storage = 5,
+        Shield = 1,
+        Conversation,
+        Hammer,
+        Elixir,
+        Storage,
     }
 
     public class ItemInMap
@@ -262,13 +262,19 @@ namespace MuEmu.Resources.Map
         public async void SendMinimapInfo(Character @char)
         {
             byte i = 0;
-            foreach(var npc in NPC)
+            var npcs = ResourceCache.Instance.GetNPCs();
+            foreach (var npc in NPC)
             {
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 1));
+                var icon = MiniMapTag.Shield;
+                if(npcs.TryGetValue(npc.Info.Monster, out var npcInfo))
+                {
+                    icon = npcInfo.Icon;
+                }
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, i++, icon, 0));
             }
             foreach (var npc in Gates)
             {
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 1));
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, i++, MiniMapTag.Shield, 0));
             }
         }
 

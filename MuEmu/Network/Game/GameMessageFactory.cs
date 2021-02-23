@@ -72,12 +72,14 @@ namespace MuEmu.Network.Game
                     Register<SMove>(GameOpCode.MoveEng);
                     Register<SAttackResultS9>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
+                    Register<SMagicAttackS9>(GameOpCode.MagicAttack);
                     break;
                 default:
                     Register<CAttack>(GameOpCode.Attack);
                     Register<SMove>(GameOpCode.Move);
                     Register<SAttackResult>(GameOpCode.Attack);
                     Register<CMagicAttack>(GameOpCode.MagicAttack);
+                    Register<SMagicAttack>(GameOpCode.MagicAttack);
                     break;
             }
             Register<CMagicDuration>(GameOpCode.MagicDuration);
@@ -173,7 +175,6 @@ namespace MuEmu.Network.Game
             Register<SDamage>(GameOpCode.Damage);
             Register<SKillPlayer>(GameOpCode.KillPlayer);
             Register<SDiePlayer>(GameOpCode.DiePlayer);
-            Register<SMagicAttack>(GameOpCode.MagicAttack);
             Register<SMagicDuration>(GameOpCode.MagicDuration);
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);

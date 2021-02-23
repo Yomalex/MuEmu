@@ -516,11 +516,20 @@ namespace MuEmu
             Target &= 0x7FFF;
             Target = Success ? (ushort)(Target | 0x8000) : Target;
 
-            var message = new SMagicAttack(spell, (ushort)Player.Session.ID, Target);
+            object message = null;
+
+            switch (Program.Season)
+            {
+                case 9:
+                    message = new SMagicAttackS9(spell, (ushort)Player.Session.ID, Target);
+                    break;
+                default:
+                    message = new SMagicAttack(spell, (ushort)Player.Session.ID, Target);
+                    break;
+            }
 
             if (Monster == null)
             {
-
                 await Player
                     .Session
                     .SendAsync(message);

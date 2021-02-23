@@ -1281,9 +1281,19 @@ namespace MuEmu
                     SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), message);
                     SubSystem.Instance.AddDelayedMessage(sourceSession?.Player, TimeSpan.FromMilliseconds(100), message);
 
-                    var msg2 = new SMagicAttack(isMagic, source, (ushort)Player.Session.ID);
-                    await Player.Session.SendAsync(msg2);
-                    await Player.SendV2Message(msg2);
+
+                    switch (Program.Season)
+                    {
+                        case 9:
+                            message = new SMagicAttackS9(isMagic, source, (ushort)Player.Session.ID);
+                            break;
+                        default:
+                            message = new SMagicAttack(isMagic, source, (ushort)Player.Session.ID);
+                            break;
+                    }
+
+                    await Player.Session.SendAsync(message);
+                    await Player.SendV2Message(message);
                 }
             }
         }

@@ -645,6 +645,7 @@ namespace MuEmu.Resources
                     NPC = npc.NPC,
                     Data = 0xffff,
                     Class = type,
+                    Icon = npc.Icon,
                 };
                 switch (type)
                 {

@@ -1153,6 +1153,28 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract(Serialized = true)]
+    public class SMagicAttackS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzSource { get; set; }
+
+        [WZMember(1)]
+        public ushort wzMagicNumber { get; set; }
+
+        [WZMember(2)]
+        public ushort wzTarget { get; set; }
+
+        public SMagicAttackS9() { }
+
+        public SMagicAttackS9(Spell magic, ushort source, ushort target)
+        {
+            wzMagicNumber = ((ushort)magic).ShufleEnding();
+            wzSource = source.ShufleEnding();
+            wzTarget = target.ShufleEnding();
+        }
+    }
+
+    [WZContract(Serialized = true)]
     public class SMagicDuration : IGameMessage
     {
         [WZMember(0)]
