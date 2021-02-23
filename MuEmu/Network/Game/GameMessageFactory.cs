@@ -65,8 +65,21 @@ namespace MuEmu.Network.Game
 
             #region Client AttackMessages
             //Register<CAttackS5E2>(GameOpCode.Attack);
-            Register<CAttack>(GameOpCode.Attack);
-            Register<CMagicAttack>(GameOpCode.MagicAttack);
+            switch(Program.Season)
+            {
+                case 9:// ENG
+                    Register<CAttack>(GameOpCode.AttackEng);
+                    Register<SMove>(GameOpCode.MoveEng);
+                    Register<SAttackResultS9>(GameOpCode.AttackEng);
+                    Register<CMagicAttackS9>(GameOpCode.MagicAttack);
+                    break;
+                default:
+                    Register<CAttack>(GameOpCode.Attack);
+                    Register<SMove>(GameOpCode.Move);
+                    Register<SAttackResult>(GameOpCode.Attack);
+                    Register<CMagicAttack>(GameOpCode.MagicAttack);
+                    break;
+            }
             Register<CMagicDuration>(GameOpCode.MagicDuration);
             Register<CBeattack>(GameOpCode.Beattack);
             #endregion
@@ -129,7 +142,6 @@ namespace MuEmu.Network.Game
             Register<SManaUpdate>(GameOpCode.ManaUpdate);
             Register<SSkillKey>(GameOpCode.SkillKey);
             Register<SAction>(GameOpCode.Rotation);
-            Register<SMove>(GameOpCode.Move);
             Register<SPositionSet>(GameOpCode.Position);
             Register<SPointAdd>(GameOpCode.PointAdd);
             Register<SCharRegen>(GameOpCode.CharRegen);
@@ -161,7 +173,6 @@ namespace MuEmu.Network.Game
             Register<SDamage>(GameOpCode.Damage);
             Register<SKillPlayer>(GameOpCode.KillPlayer);
             Register<SDiePlayer>(GameOpCode.DiePlayer);
-            Register<SAttackResult>(GameOpCode.Attack);
             Register<SMagicAttack>(GameOpCode.MagicAttack);
             Register<SMagicDuration>(GameOpCode.MagicDuration);
             Register<SEffect>(GameOpCode.Effect);
@@ -235,6 +246,8 @@ namespace MuEmu.Network.Game
 
             Register<CMemberPosInfoStart>(GameOpCode.MemberPosInfoStart);
             Register<CMemberPosInfoStop>(GameOpCode.MemberPosInfoStop);
+
+            Register<SLifeInfo>(GameOpCode.LifeInfo);
         }
     }
 }

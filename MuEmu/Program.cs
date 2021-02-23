@@ -169,7 +169,7 @@ namespace MuEmu
                 // Event Config
                 EventConfig(xml);
                 MonstersMng.Initialize();
-                MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster.txt");
+                MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster");
                 MonsterIA.Initialize("./Data/Monsters/");
                 EventInitialize();
 

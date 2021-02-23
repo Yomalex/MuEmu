@@ -164,6 +164,7 @@ namespace MuEmu.Network
         Move = 0xFFD3,
         MoveEng = 0xFFD4,
         Attack = 0xFFD7,
+        AttackEng = 0xFF11,
         Position = 0xFFDF,
         MuunInventory = 0x024E,
         MuunRideRequest = 0x114E,
@@ -178,6 +179,7 @@ namespace MuEmu.Network
 
         MemberPosInfoStart = 0x01E7,
         MemberPosInfoStop = 0x02E7,
+        LifeInfo = 0x10EC,
     }
 
     public enum GensOpCode

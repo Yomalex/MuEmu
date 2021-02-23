@@ -1080,7 +1080,7 @@ namespace MuEmu.Network.Game
         public ushort wzDamage { get; set; }
 
         [WZMember(2)]
-        public DamageType DamageType { get; set; }
+        public byte DamageType { get; set; }
 
         [WZMember(3)]
         public ushort wzDamageShield { get; set; }
@@ -1096,7 +1096,37 @@ namespace MuEmu.Network.Game
             Number = number;
             Damage = dmg;
             DamageShield = dmgShield;
-            DamageType = dmgType;
+            DamageType = (byte)dmgType;
+        }
+    }
+
+    [WZContract]
+    public class SAttackResultS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        [WZMember(1)]
+        public ushort wzDamage { get; set; }
+
+        [WZMember(2)]
+        public ushort DamageType { get; set; }
+
+        [WZMember(3)]
+        public ushort wzDamageShield { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+        public ushort Damage { get => wzDamage.ShufleEnding(); set => wzDamage = value.ShufleEnding(); }
+        public ushort DamageShield { get => wzDamageShield.ShufleEnding(); set => wzDamageShield = value.ShufleEnding(); }
+
+        public SAttackResultS9() { }
+
+        public SAttackResultS9(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
+        {
+            Number = number;
+            Damage = dmg;
+            DamageShield = dmgShield;
+            DamageType = (ushort)dmgType;
         }
     }
 
@@ -1900,6 +1930,17 @@ namespace MuEmu.Network.Game
     public class SPeriodItemCount : IGameMessage
     {
         [WZMember(0)] public byte Count { get; set; }
+    }
+
+    [WZContract]
+    public class SLifeInfo : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1)] public uint wzMaxLife { get; set; }
+        [WZMember(2)] public uint wzLife { get; set; }
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+        public uint MaxLife { get => wzMaxLife.ShufleEnding(); set => wzMaxLife = value.ShufleEnding(); }
+        public uint Life { get => wzLife.ShufleEnding(); set => wzLife = value.ShufleEnding(); }
     }
 }
 

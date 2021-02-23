@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MuEmu.Data;
 using System.Threading;
+using MuEmu.Util;
 
 namespace MuEmu.Monsters
 {
@@ -60,12 +61,15 @@ namespace MuEmu.Monsters
                     return;
 
                 _life = value;
+
                 if (_life <= 0)
                 {
                     _life = 0;
                     Die?.Invoke(this, new EventArgs());
                     State = ObjectState.Dying;
                 }
+
+                ViewPort.Select(x => x.Session).SendAsync(new SLifeInfo { Life = (uint)_life, MaxLife = (uint)MaxLife, Number = Index });
             }
         }
         public float MaxLife => Info.HP;
@@ -112,6 +116,7 @@ namespace MuEmu.Monsters
         public byte Direction { get; set; }
         public List<Item> ItemBag { get; set; }
         public bool Active { get => _active; set { _active = value; State = ObjectState.Regen; } }
+        public Element Element { get; set; }
 
         public bool CanDrop { get; set; }
         public Dictionary<Player, int> DamageSum { get; private set; } = new Dictionary<Player, int>();
@@ -127,7 +132,7 @@ namespace MuEmu.Monsters
         /// On regen monster trigger this event with sender as Monster object
         /// </summary>
         public event EventHandler Regen;
-        public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction)
+        public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction, Element element = Element.None)
         {
             Type = type;
             MapID = mapID;
@@ -147,6 +152,7 @@ namespace MuEmu.Monsters
             Spells = new Spells(this);
             ItemBag = new List<Item>();
             _nextAction = DateTimeOffset.Now;
+            Element = element;
             if (_rand == null)
             {
                 _rand = new Random();
@@ -188,7 +194,15 @@ namespace MuEmu.Monsters
 
             if(State != ObjectState.Dying)
             {
-                await plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
+                switch(Program.Season)
+                {
+                    case 9:
+                        await plr.Session.SendAsync(new SAttackResultS9(Index, dmgSend, type, 0));
+                        break;
+                    default:
+                        await plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
+                        break;
+                }
             }
         }
 
@@ -209,8 +223,18 @@ namespace MuEmu.Monsters
 
             if (State != ObjectState.Dying)
             {
-                //plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
-                SubSystem.Instance.AddDelayedMessage(plr, TimeSpan.FromMilliseconds(100), new SAttackResult(Index, dmgSend, type, 0));
+                object message = null;
+                switch(Program.Season)
+                {
+                    case 9:
+                        message = new SAttackResultS9(Index, dmgSend, type, 0);
+                        break;
+                    default:
+                        message = new SAttackResult(Index, dmgSend, type, 0);
+                        break;
+                }
+
+                SubSystem.Instance.AddDelayedMessage(plr, TimeSpan.FromMilliseconds(100), message);
             }
         }
 

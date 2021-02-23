@@ -1,6 +1,7 @@
 ﻿using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
+using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -52,52 +53,29 @@ namespace MuEmu.Monsters
 
         public void LoadMonster(string file)
         {
-            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading), file);
-            using (var tf = File.OpenText(file))
+            if(File.Exists(file+".xml"))
             {
-                var contents = tf.ReadToEnd();
-                var MonsterRegex = new Regex(@"([\/0-9]+)\s+([0-9]+)\s+"+"\""+"(.*)"+"\""+@"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s*");
-                foreach(Match m in MonsterRegex.Matches(contents))
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading), file + ".xml");
+                var xml = ResourceLoader.XmlLoader<XmlMonsterInfo>(file + ".xml");
+                _monsterInfo = xml.Monsters.ToDictionary(x => x.Monster);
+            }
+            else if (File.Exists(file + ".txt"))
+            {
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading), file + ".txt");
+                var loader = new LoadWZTXT<XmlMonsterInfo>();
+                var xml = loader.Load(file + ".txt");
+                foreach (var monst in xml.Monsters)
                 {
-                    //Console.WriteLine(m.Value);
-                    if (m.Value.StartsWith("//"))
-                        continue;
-
-                    var monst = new MonsterBase
-                    {
-                        Monster = ushort.Parse(m.Groups[1].Value),
-                        Rate = int.Parse(m.Groups[2].Value),
-                        Name = m.Groups[3].Value,
-                        Level = ushort.Parse(m.Groups[4].Value),
-                        HP = int.Parse(m.Groups[5].Value),
-                        MP = int.Parse(m.Groups[6].Value),
-                        DmgMin = int.Parse(m.Groups[7].Value),
-                        DmgMax = int.Parse(m.Groups[8].Value),
-                        Defense = int.Parse(m.Groups[9].Value),
-                        MagicDefense = int.Parse(m.Groups[10].Value),
-                        Attack = int.Parse(m.Groups[11].Value),
-                        Success = int.Parse(m.Groups[12].Value),
-                        MoveRange = int.Parse(m.Groups[13].Value),
-                        Spell = (Spell)ushort.Parse(m.Groups[14].Value),
-                        AttackRange = int.Parse(m.Groups[15].Value),
-                        ViewRange = int.Parse(m.Groups[16].Value),
-                        MoveSpeed = int.Parse(m.Groups[17].Value),
-                        AttackSpeed = int.Parse(m.Groups[18].Value),
-                        RegenTime = int.Parse(m.Groups[19].Value),
-                        Attribute = int.Parse(m.Groups[20].Value),
-                        ItemRate = int.Parse(m.Groups[21].Value),
-                        M_Rate = int.Parse(m.Groups[22].Value),
-                        MaxItem = int.Parse(m.Groups[23].Value),
-                        Skill = int.Parse(m.Groups[24].Value),
-                    };
-
-                    if(monst.Spell >= (Spell)100 && monst.Spell < (Spell)200)
+                    if (monst.Spell >= (Spell)100 && monst.Spell < (Spell)200)
                     {
                         monst.Spell -= 100;
                         monst.AttackRange += 2;
                     }
                     _monsterInfo.Add(monst.Monster, monst);
                 }
+
+                //xml.Monsters = _monsterInfo.Select(x => x.Value).ToArray();
+                ResourceLoader.XmlSaver(file + ".xml", xml);
             }
 
             Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Types), _monsterInfo.Count);
@@ -105,109 +83,56 @@ namespace MuEmu.Monsters
 
         public void LoadSetBase(string file)
         {
-            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file);
-            using (var tf = File.OpenText(file))
+            XmlMonsterSetBase xml = null;
+            if (File.Exists(file + ".xml"))
             {
-                var contents = tf.ReadToEnd();
-                var NPCRegex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)end");
-                var NPCSubRegex = new Regex(@"([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s*(?s)(.*?)\n");
-                var SpotRegex = new Regex(@"\n+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(\-*[0-9]+)\s+([0-9]+)\s*");
-
-                foreach (Match m in NPCRegex.Matches(contents))
-                {
-                    switch (int.Parse(m.Groups[1].Value))
-                    {
-                        case 0:
-                            foreach (Match sm in NPCSubRegex.Matches(m.Groups[2].Value))
-                            {
-                                var mType = ushort.Parse(sm.Groups[1].Value);
-                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
-                                var mPos = new Point(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[5].Value));
-                                var mDir = byte.Parse(sm.Groups[6].Value);
-                                Monsters.Add(new Monster(mType, ObjectType.NPC, mMap, mPos, mDir) { Index = GetNewIndex() });
-                            }
-                            break;
-                        case 1:
-                            foreach(Match sm in SpotRegex.Matches(m.Groups[2].Value))
-                            {
-                                var mIndex = ushort.Parse(sm.Groups[1].Value);
-                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
-                                var minX = Math.Min(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
-                                var maxX = Math.Max(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
-                                var minY = Math.Min(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
-                                var maxY = Math.Max(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
-                                var Quant = int.Parse(sm.Groups[9].Value);
-                                try
-                                {
-                                    for (var i = 0; i < Quant; i++)
-                                    {
-                                        var dir = (byte)_rand.Next(7);
-                                        var mPos = GetSpawn(mMap, minX, maxX, minY, maxY);
-                                        var mob = new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() };
-                                        Monsters.Add(mob);
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    //Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
-                                }
-                            }
-                            break;
-                        case 2:
-                            foreach (Match sm in NPCSubRegex.Matches(m.Groups[2].Value))
-                            {
-                                var mIndex = ushort.Parse(sm.Groups[1].Value);
-                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
-                                var dir = (byte)int.Parse(sm.Groups[6].Value);
-                                var mPos = new Point(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[5].Value));
-                                if (dir > 7)
-                                    dir = 0;
-                                Monsters.Add(new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() });
-                            }
-                            break;
-                        case 3:
-                            foreach(Match sm in SpotRegex.Matches(m.Groups[2].Value))
-                            {
-                                var mIndex = ushort.Parse(sm.Groups[1].Value);
-                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
-                                var minX = Math.Min(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
-                                var maxX = Math.Max(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[6].Value));
-                                var minY = Math.Min(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
-                                var maxY = Math.Max(int.Parse(sm.Groups[5].Value), int.Parse(sm.Groups[7].Value));
-                                var Quant = int.Parse(sm.Groups[9].Value);
-                                try
-                                {
-                                    for (var i = 0; i < Quant; i++)
-                                    {
-                                        var dir = (byte)_rand.Next(7);
-                                        var mPos = GetSpawn(mMap, minX, maxX, minY, maxY);
-                                        var mob = new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() };
-                                        Monsters.Add(mob);
-                                        Program.GoldenInvasionManager.AddMonster(mob);
-                                    }
-                                }
-                                catch (Exception)
-                                {
-                                    //Logger.Error("Invalid monster spawn area Map:{4} X:{0}-{1} Y:{2}-{3}", minX, maxX, minY, maxY, mMap);
-                                }
-                            }
-                            break;
-                        case 4:
-                            foreach (Match sm in NPCSubRegex.Matches(m.Groups[2].Value))
-                            {
-                                var mIndex = ushort.Parse(sm.Groups[1].Value);
-                                var mMap = (Maps)ushort.Parse(sm.Groups[2].Value);
-                                var dir = (byte)int.Parse(sm.Groups[6].Value);
-                                var mPos = new Point(int.Parse(sm.Groups[4].Value), int.Parse(sm.Groups[5].Value));
-                                if (dir > 7)
-                                    dir = 0;
-                                Monsters.Add(new Monster(mIndex, ObjectType.Monster, mMap, mPos, dir) { Index = GetNewIndex() });
-                            }
-                            break;
-                    }
-                }
-                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loaded), Monsters.Count);
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file + ".xml");
+                xml = ResourceLoader.XmlLoader<XmlMonsterSetBase>(file + ".xml");
             }
+            else if (File.Exists(file + ".txt"))
+            {
+                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file + ".txt");
+                var loader = new LoadWZTXT<XmlMonsterSetBase>();
+                xml = loader.Load(file + ".txt");
+                ResourceLoader.XmlSaver(file + ".xml", xml);
+            }
+
+            foreach(var npc in xml.NPCs)
+                Monsters.Add(new Monster(npc.Type, ObjectType.NPC, npc.Map, new Point(npc.PosX, npc.PosY), (byte)npc.Dir) { Index = GetNewIndex() });
+
+            foreach (var npc in xml.Normal)
+                Monsters.Add(new Monster(npc.Type, ObjectType.Monster, npc.Map, new Point(npc.PosX, npc.PosY), (byte)npc.Dir) { Index = GetNewIndex() });
+
+            foreach (var npc in xml.BloodCastles)
+                Monsters.Add(new Monster(npc.Type, ObjectType.Monster, npc.Map, new Point(npc.PosX, npc.PosY), (byte)npc.Dir) { Index = GetNewIndex() });
+
+            foreach (var npc in xml.Golden)
+            {
+                for (var i = 0; i < npc.Quant; i++)
+                {
+                    var dir = (byte)_rand.Next(7);
+                    var mPos = GetSpawn(npc.Map, npc.PosX, npc.PosX2, npc.PosY, npc.PosY2);
+                    var mob = new Monster(npc.Type, ObjectType.Monster, npc.Map, mPos, dir) { Index = GetNewIndex() };
+                    Monsters.Add(mob);
+                    Program.GoldenInvasionManager.AddMonster(mob);
+                }
+            }
+
+            foreach (var npc in xml.Spots)
+            {
+                for (var i = 0; i < npc.Quant; i++)
+                {
+                    try
+                    {
+                        var dir = (byte)_rand.Next(7);
+                        var mPos = GetSpawn(npc.Map, npc.PosX, npc.PosX2, npc.PosY, npc.PosY2);
+                        var mob = new Monster(npc.Type, ObjectType.Monster, npc.Map, mPos, dir, npc.Element) { Index = GetNewIndex() };
+                        Monsters.Add(mob);
+                    }catch(InvalidOperationException)
+                    { }
+                }
+            }
+            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loaded), Monsters.Count);
         }
 
         public Monster GetMonster(ushort Index)
@@ -226,11 +151,20 @@ namespace MuEmu.Monsters
             var y = 0;
             var z = 0;
             var mMap = ResourceCache.Instance.GetMaps()[map];
+
+            if(maxX == 0 && maxY == 0)
+                return new Point(minX, minY);
+
+            var _minX = Math.Min(minX, maxX);
+            var _maxX = Math.Max(minX, maxX);
+            var _minY = Math.Min(minY, maxY);
+            var _maxY = Math.Max(minY, maxY);
+
             MapAttributes[] att = new MapAttributes[] { MapAttributes.Safe, MapAttributes.NoWalk, MapAttributes.Hide};
             do
             {
-                x = _rand.Next(minX, maxX);
-                y = _rand.Next(minY, maxY);
+                x = _rand.Next(_minX, _maxX);
+                y = _rand.Next(_minY, _maxY);
             } while (
                 mMap.ContainsAny(x,y, att)
                 && ++z < 10

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,51 +8,55 @@ namespace MuEmu.Util
 {
     public static class ObjectExtensions
     {
+        public static void AssingProperty(this PropertyInfo pinfo, object a, Group g)
+        {
+            if (pinfo.PropertyType == typeof(string))
+            {
+                pinfo.SetValue(a, g.Value);
+            }
+            else if (pinfo.PropertyType == typeof(sbyte))
+            {
+                pinfo.SetValue(a, sbyte.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(short))
+            {
+                pinfo.SetValue(a, short.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(int))
+            {
+                pinfo.SetValue(a, int.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(long))
+            {
+                pinfo.SetValue(a, long.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(byte))
+            {
+                pinfo.SetValue(a, byte.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(ushort))
+            {
+                pinfo.SetValue(a, ushort.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(uint))
+            {
+                pinfo.SetValue(a, uint.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType == typeof(ulong))
+            {
+                pinfo.SetValue(a, ulong.Parse(g.Value));
+            }
+            else if (pinfo.PropertyType.IsEnum)
+            {
+                pinfo.SetValue(a, Enum.Parse(pinfo.PropertyType, g.Value));
+            }
+        }
         public static T AssignRegex<T>(this T a, Group[] g)
         {
             var props = typeof(T).GetProperties();
             for (var i = 0; i < Math.Min(props.Length, g.Length); i++)
             {
-                if (props[i].PropertyType == typeof(string))
-                {
-                    props[i].SetValue(a, g[i + 1].Value);
-                }
-                else if (props[i].PropertyType == typeof(sbyte))
-                {
-                    props[i].SetValue(a, sbyte.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(short))
-                {
-                    props[i].SetValue(a, short.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(int))
-                {
-                    props[i].SetValue(a, int.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(long))
-                {
-                    props[i].SetValue(a, long.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(byte))
-                {
-                    props[i].SetValue(a, byte.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(ushort))
-                {
-                    props[i].SetValue(a, ushort.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(uint))
-                {
-                    props[i].SetValue(a, uint.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType == typeof(ulong))
-                {
-                    props[i].SetValue(a, ulong.Parse(g[i + 1].Value));
-                }
-                else if (props[i].PropertyType.IsEnum)
-                {
-                    props[i].SetValue(a, Enum.Parse(props[i].PropertyType, g[i + 1].Value));
-                }
+                props[i].AssingProperty(a, g[i + 1]);
             }
 
             return a;

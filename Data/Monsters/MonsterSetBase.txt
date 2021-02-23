@@ -55,7 +55,7 @@ end
 
 257	0	0	96	129	1	//Elf Soldier
 257	0	0	174	129	1	//Elf Soldier
-406	0	0	137	121	3       // Priend devil (3 Quest)
+406	0	0	137	121	3   // Priend devil (3 Quest)
 					
 256	0	0	130	126	3	//JewelMix
 379	0	0	130	121	3	//Fireworks Girl

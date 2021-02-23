@@ -245,6 +245,7 @@ namespace MuEmu
                 OnItemChange();
             }
         }
+        public DateTime ExpireTime { get; set; } = DateTime.MinValue;
         public byte OptionExe { get; set; }
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
@@ -408,7 +409,16 @@ namespace MuEmu
                     ms.WriteByte(Durability);
                     ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0) | (byte)OptionExe));
                     ms.WriteByte(SetOption); // Acient Option
-                    ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | (((byte)OptionExe & 0x80) >> 4)));
+
+                    byte itemPeriod = 0;
+                    if(ExpireTime != DateTime.MinValue)
+                    {
+                        itemPeriod |= 0x01;
+                        itemPeriod |= (DateTime.Now > ExpireTime) ? 0x02 : 0x00;
+                        itemPeriod <<= 1;
+                    }
+
+                    ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | (((byte)OptionExe & 0x80) >> 4) | itemPeriod));
                     ms.WriteByte(Harmony); // Harmony
                     foreach (var slot in Slots)
                     {

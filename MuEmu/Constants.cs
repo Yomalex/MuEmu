@@ -513,7 +513,7 @@ namespace MuEmu
         DevilSquare = 4,
     }
 
-    public enum DamageType : byte
+    public enum DamageType : ushort
     {
         Regular,
         Excellent = 2,

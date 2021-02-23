@@ -44,7 +44,7 @@ namespace WebZen.Network
             }
 
             var tmp = new byte[dataLen + paddingSize];
-            src.Read(tmp, 0, (int)src.Length);
+            src.Read(tmp, 0, (int)dataLen);
 
             dest.Seek(destPos, SeekOrigin.Begin);
             var cs = new CryptoStream(dest, _rijndael.CreateEncryptor(), CryptoStreamMode.Write);

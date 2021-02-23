@@ -2,6 +2,8 @@
 #include "pch.h"
 #include <stdio.h>
 #include <WinSock2.h>
+#include <windows.h>
+#include <DBGHELP.H>
 #include "../../CryptoPP/cryptlib.h"
 #include "../../CryptoPP/modes.h"
 #include "../../CryptoPP/aes.h"
@@ -570,9 +572,96 @@ void _stdcall new_GetStartupInfoA(LPSTARTUPINFOA lpStartupinfo)
     GetStartupInfoA(lpStartupinfo);
 }
 
+typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)( // Callback ??? ??
+    HANDLE hProcess,
+    DWORD dwPid,
+    HANDLE hFile,
+    MINIDUMP_TYPE DumpType,
+    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+    CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+
+LPTOP_LEVEL_EXCEPTION_FILTER PreviousExceptionFilter = NULL;
+
+LONG WINAPI UnHandledExceptionFilter(struct _EXCEPTION_POINTERS* exceptionInfo)
+{
+    fflush(fp);
+    HMODULE    DllHandle = NULL;
+
+    // Windows 2000 ???? ?? DBGHELP? ???? ??? ??? ??.
+    DllHandle = LoadLibraryA("DBGHELP.DLL");
+
+    if (DllHandle)
+    {
+        MINIDUMPWRITEDUMP Dump = (MINIDUMPWRITEDUMP)GetProcAddress(DllHandle, "MiniDumpWriteDump");
+
+        if (Dump)
+        {
+            char DumpPath[MAX_PATH] = { 0, };
+            SYSTEMTIME SystemTime;
+
+            GetLocalTime(&SystemTime);
+
+            sprintf_s(DumpPath, MAX_PATH, "%d-%d-%d_%dh%dm%ds.dmp",
+                SystemTime.wYear,
+                SystemTime.wMonth,
+                SystemTime.wDay,
+                SystemTime.wHour,
+                SystemTime.wMinute,
+                SystemTime.wSecond);
+
+            HANDLE FileHandle = CreateFileA(
+                DumpPath,
+                GENERIC_WRITE,
+                FILE_SHARE_WRITE,
+                NULL, CREATE_ALWAYS,
+                FILE_ATTRIBUTE_NORMAL,
+                NULL);
+
+            if (FileHandle != INVALID_HANDLE_VALUE)
+            {
+                _MINIDUMP_EXCEPTION_INFORMATION MiniDumpExceptionInfo;
+
+                MiniDumpExceptionInfo.ThreadId = GetCurrentThreadId();
+                MiniDumpExceptionInfo.ExceptionPointers = exceptionInfo;
+                MiniDumpExceptionInfo.ClientPointers = NULL;
+
+                BOOL Success = Dump(
+                    GetCurrentProcess(),
+                    GetCurrentProcessId(),
+                    FileHandle,
+                    (_MINIDUMP_TYPE)(MiniDumpWithUnloadedModules +
+                        MiniDumpWithHandleData +
+                        MiniDumpWithFullMemory), //webzen...
+                    &MiniDumpExceptionInfo,
+                    NULL,
+                    NULL);
+
+                if (Success)
+                {
+                    CloseHandle(FileHandle);
+
+                    return EXCEPTION_CONTINUE_SEARCH;// EXCEPTION_EXECUTE_HANDLER;
+                }
+            }
+
+            CloseHandle(FileHandle);
+        }
+    }
+
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
+bool UEF = false;
 void _stdcall new_OutputDebugStringA(LPCSTR lpOutputString)
 {
     printf("OutputDebugString: %s", lpOutputString);
+    if (!UEF)
+    {
+        SetErrorMode(SEM_FAILCRITICALERRORS);
+        PreviousExceptionFilter = SetUnhandledExceptionFilter(UnHandledExceptionFilter);
+        UEF = true;
+    }
     //old_OutputDebugStringA(lpOutputString);
 }
 

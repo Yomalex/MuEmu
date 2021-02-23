@@ -90,7 +90,7 @@ namespace MuEmu.Network.Data
     public class VPMCreateS9Dto : VPMCreateAbs
     {
         [WZMember(9)]
-        public byte PentagramMainAttribute { get; set; }
+        public Element PentagramMainAttribute { get; set; }
         [WZMember(10)]
         public ushort wzLevel { get; set; }
         [WZMember(11)]

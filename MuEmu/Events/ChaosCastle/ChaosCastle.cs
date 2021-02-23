@@ -70,7 +70,7 @@ namespace MuEmu.Events.ChaosCastle
             plrInfo.Score += 100;
 
             var playersInBlowArea = _mapInfo.Players.Where(x => x.Position.Substract(mob.Position).Length() <= 2);
-            foreach(var plr in playersInBlowArea)
+            foreach (var plr in playersInBlowArea)
             {
                 var distance = mob.Position.Substract(plr.Position);
                 var ls = Math.Max(distance.LengthSquared(), 0);
@@ -81,7 +81,15 @@ namespace MuEmu.Events.ChaosCastle
                 var dmg = 15 / ls;
                 plr.Health -= (float)dmg;
                 plr.Player.Session.SendAsync(msg).Wait();
-                plr.Player.Session.SendAsync(new SAttackResult((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0)).Wait();
+                switch (Program.Season)
+                {
+                    case 9:
+                        plr.Player.Session.SendAsync(new SAttackResultS9((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0)).Wait();
+                        break;
+                    default:
+                        plr.Player.Session.SendAsync(new SAttackResult((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0)).Wait();
+                        break;                
+                }
                 plr.Player.SendV2Message(msg).Wait();
             }
 

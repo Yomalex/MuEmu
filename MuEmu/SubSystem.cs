@@ -381,13 +381,6 @@ namespace MuEmu
                            select obj).ToList();
             }
 
-            // Update the old player VP
-            /*foreach (var obj in newObj)
-                obj.ViewPort.Add(plr.Player);
-
-            foreach (var obj in existObj)
-                obj.ViewPort.Add(plr.Player);*/
-
             foreach (var it in deadObj)
             {
                 oldVP.Remove(it.Index);
@@ -417,7 +410,7 @@ namespace MuEmu
                             Type = x.Info.Monster,
                             ViewSkillState = Array.Empty<byte>(),
                             Path = (byte)(x.Direction << 4),
-                            PentagramMainAttribute = 0,
+                            PentagramMainAttribute = x.Element,
                             Level = x.Level,
                             Life = (uint)x.Life,
                             MaxLife = (uint)x.MaxLife,
@@ -451,7 +444,7 @@ namespace MuEmu
                             Type = x.Info.Monster,
                             ViewSkillState = Array.Empty<byte>(),
                             Path = (byte)(x.Direction << 4),
-                            PentagramMainAttribute = 0,
+                            PentagramMainAttribute = x.Element,
                             Level = x.Level,
                             Life = (uint)x.Life,
                             MaxLife = (uint)x.MaxLife,

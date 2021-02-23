@@ -283,8 +283,26 @@ namespace MuEmu.Network.Game
         [WZMember(2)]
         public byte Dis { get; set; }
 
-        public ushort Target => wzTarget.ShufleEnding();
-        public Spell MagicNumber => (Spell)wzMagicNumber.ShufleEnding();
+        public ushort Target { get => wzTarget.ShufleEnding(); set => wzTarget = value.ShufleEnding(); }
+        public Spell MagicNumber { get => (Spell)wzMagicNumber.ShufleEnding(); set => wzMagicNumber = ((ushort)value).ShufleEnding(); }
+    }
+
+    [WZContract]
+    public class CMagicAttackS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte TargetH { get; set; }
+
+        [WZMember(1)]
+        public byte MagicNumberH { get; set; }
+        [WZMember(2)]
+        public byte TargetL { get; set; }
+
+        [WZMember(3)]
+        public byte MagicNumberL { get; set; }
+
+        public ushort Target => (ushort)(TargetH << 8 | TargetL);
+        public Spell MagicNumber => (Spell)(MagicNumberH << 8 | MagicNumberL);
     }
 
     [WZContract]

@@ -1233,7 +1233,7 @@ namespace MuEmu
             _deadlyDmg = dmgSend;
             _killerId = source;
             Health -= dmg;
-            switch(_rand.Next(6))
+            switch (_rand.Next(6))
             {
                 case 0:
                     Inventory.Get(Equipament.Helm)?.ArmorDurabilityDown(dmg);
@@ -1254,7 +1254,16 @@ namespace MuEmu
                     Inventory.Get(Equipament.Wings)?.ArmorDurabilityDown(dmg);
                     break;
             }
-            var message = new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0);
+            object message;
+            switch (Program.Season)
+            {
+                case 9:
+                    message = new SAttackResultS9((ushort)Player.Session.ID, dmgSend, type, 0);
+                    break;
+                default:
+                    message = new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0);
+                    break;
+            }
 
             if (State != ObjectState.Dying)
             {

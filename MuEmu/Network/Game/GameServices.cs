@@ -1235,6 +1235,12 @@ namespace MuEmu.Network.Game
             }
         }
 
+        [MessageHandler(typeof(CMagicAttackS9))]
+        public void CMagicAttackS9(GSSession session, CMagicAttackS9 message)
+        {
+            CMagicAttack(session, new Game.CMagicAttack { MagicNumber = message.MagicNumber, Target = message.Target });
+        }
+
         [MessageHandler(typeof(CMagicDuration))]
         public async Task CMagicDuration(GSSession session, CMagicDuration message)
         {

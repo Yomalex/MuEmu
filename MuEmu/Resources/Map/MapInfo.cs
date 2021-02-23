@@ -264,11 +264,11 @@ namespace MuEmu.Resources.Map
             byte i = 0;
             foreach(var npc in NPC)
             {
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 0));
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 1));
             }
             foreach (var npc in Gates)
             {
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 0));
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, ++i, MiniMapTag.unk1, 1));
             }
         }
 

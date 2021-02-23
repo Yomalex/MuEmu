@@ -241,7 +241,7 @@ namespace MuEmu.Network.Auth
             //this->IsMuRummyEventOn()
 
             // packet for skill tree list
-            await session.Send(new byte[] { 0xC2, 0x00, 0x06, 0xF3, 0x53, 0x00 });
+            //await session.Send(new byte[] { 0xC2, 0x00, 0x06, 0xF3, 0x53, 0x00 });
 
             await session.SendAsync(new SPeriodItemCount());
 
