@@ -57,7 +57,6 @@ namespace MuEmu.Resources.Map
         private MapAttributes[] Layer { get; }
         private List<Point> SafePoints { get; set; }
         private IEnumerable<Monster> NPC => Monsters.Where(x => x.Type == ObjectType.NPC);
-        private IEnumerable<Monster> Gates => Monsters.Where(x => x.Type == ObjectType.Gate);
 
         public int Width { get; }
         public int Height { get; }
@@ -263,6 +262,11 @@ namespace MuEmu.Resources.Map
         {
             byte i = 0;
             var npcs = ResourceCache.Instance.GetNPCs();
+            var gates = ResourceCache.Instance.GetGates();
+            var mapGates = gates
+                .Where(x => x.Value.Map == (Maps)Map && x.Value.GateType == GateType.Entrance)
+                .Select(x => x.Value);
+
             foreach (var npc in NPC)
             {
                 var icon = MiniMapTag.Shield;
@@ -272,9 +276,10 @@ namespace MuEmu.Resources.Map
                 }
                 await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, i++, icon, 0));
             }
-            foreach (var npc in Gates)
+            foreach (var gate in mapGates)
             {
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, i++, MiniMapTag.Shield, 0));
+                var target = gates[gate.Target].Map;
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(gate, i++, MiniMapTag.Shield, 0, target));
             }
         }
 

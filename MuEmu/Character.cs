@@ -108,7 +108,7 @@ namespace MuEmu
         public Friends Friends { get; set; }
 
         public PShop Shop { get; set; }
-
+        public CashShop CashShop { get; }
         public List<ushort> MonstersVP { get; set; }
         public List<Player> PlayersVP { get; set; }
         public List<ushort> ItemsVP { get; set; }
@@ -629,6 +629,7 @@ namespace MuEmu
                 MaxMinusPoints = MaxMinusPoints,
             };
 
+            CashShop = new CashShop(plr.Session, characterDto);
             plr.Session.SendAsync(new SResets { Resets = 0 }).Wait();
             plr.Session.SendAsync(StatsInfo).Wait();
 

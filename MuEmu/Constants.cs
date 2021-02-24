@@ -4,6 +4,14 @@ using System.Text;
 
 namespace MuEmu
 {
+    public enum BannerType : byte
+    {
+        MuRummy,
+        EvenInven,
+        Unk,
+        UnityBattleField,
+    }
+
     public enum TradeResult : byte
     {
         Error = 0,

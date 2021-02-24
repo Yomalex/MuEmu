@@ -1241,6 +1241,12 @@ namespace MuEmu.Network.Game
             CMagicAttack(session, new Game.CMagicAttack { MagicNumber = message.MagicNumber, Target = message.Target });
         }
 
+        [MessageHandler(typeof(CMagicDurationS9))]
+        public void CMagicDurationS9(GSSession session, CMagicDurationS9 message)
+        {
+            CMagicDuration(session, new Game.CMagicDuration { MagicNumber = message.MagicNumber, Target = message.Target });
+        }
+
         [MessageHandler(typeof(CMagicDuration))]
         public async Task CMagicDuration(GSSession session, CMagicDuration message)
         {
@@ -1281,7 +1287,16 @@ namespace MuEmu.Network.Game
             @char.Mana -= magic.Mana;
             @char.Stamina -= magic.BP;
 
-            var msgdef = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
+            object msgdef = null;
+            switch (Program.Season)
+            {
+                case 9:
+                    msgdef = new SMagicDurationS9(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
+                    break;
+                default:
+                    msgdef = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
+                    break;
+            } 
             await session.SendAsync(msgdef);
             await session.Player.SendV2Message(msgdef);
 
@@ -1635,6 +1650,12 @@ namespace MuEmu.Network.Game
             await session.SendAsync(res);
         }
 
+        [MessageHandler(typeof(CTeleportS9))]
+        public async Task CTeleportS9(GSSession session, CTeleportS9 message)
+        {
+            await CTeleport(session, new Game.CTeleport { MoveNumber = message.MoveNumber.ShufleEnding(), X = message.X, Y = message.Y });
+        }
+
         [MessageHandler(typeof(CTeleport))]
         public async Task CTeleport(GSSession session, CTeleport message)
         {
@@ -1645,9 +1666,24 @@ namespace MuEmu.Network.Game
 
             if (message.MoveNumber != 0)
             {
-                var gate = gates[message.MoveNumber];
+                int target = message.MoveNumber;
+                Gate gate= null;
 
-                if (gate == null)
+                if(!gates.TryGetValue(target, out gate))
+                {
+                    log.Error("Invalid source gate {0}", message.MoveNumber);
+                    await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
+                    return;
+                }
+
+                if (gate.GateType == GateType.Entrance)
+                {
+                    target = gate.Target;
+                    gate = null;
+                    gates.TryGetValue(target, out gate);
+                }
+
+                if(gate == null)
                 {
                     log.Error("Invalid source gate {0}", message.MoveNumber);
                     await @char.WarpTo(@char.MapID, @char.Position, @char.Direction);
@@ -1660,8 +1696,8 @@ namespace MuEmu.Network.Game
                     await ev.UsePortal(@char, message.MoveNumber);
                 }
 
-                log.Information("Warp request to {1}:{0}", message.MoveNumber, gate.Map);
-                await @char.WarpTo(message.MoveNumber);
+                log.Information("Warp request to {1}:{0}", target, gate.Map);
+                await @char.WarpTo(target);
             }
             else
             {
@@ -1697,8 +1733,6 @@ namespace MuEmu.Network.Game
                 //@char.TeleportTo(@char.Position);
             }
         }
-
-
 
         #region Party MessageHandlers
         [MessageHandler(typeof(CPartyRequest))]

@@ -1,5 +1,6 @@
 ﻿using MuEmu.Monsters;
 using MuEmu.Network.Data;
+using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
@@ -1204,6 +1205,46 @@ namespace MuEmu.Network.Game
         }
     }
 
+    [WZContract(Serialized = true)]
+    public class SMagicDurationS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte X { get; set; }
+
+        [WZMember(1)]
+        public byte Y { get; set; }
+
+        [WZMember(2)]
+        public byte Dis { get; set; }
+
+        [WZMember(3)]
+        public byte MagicNumberH { get; set; }
+
+        [WZMember(4)]
+        public byte NumberH { get; set; }
+
+        [WZMember(5)]
+        public byte MagicNumberL { get; set; }
+
+        [WZMember(6)]
+        public byte NumberL { get; set; }
+
+        public SMagicDurationS9() { }
+
+        public SMagicDurationS9(Spell magic, ushort Number, byte x, byte y, byte dis)
+        {
+            var mag = BitConverter.GetBytes((ushort)magic);
+            MagicNumberH = mag[1];
+            MagicNumberL = mag[0];
+            mag = BitConverter.GetBytes((ushort)Number);
+            NumberH = mag[1];
+            NumberL = mag[0];
+            X = x;
+            Y = y;
+            Dis = dis;
+        }
+    }
+
     [WZContract]
     public class SDiePlayer : IGameMessage
     {
@@ -1944,7 +1985,18 @@ namespace MuEmu.Network.Game
             btType = addType;
             btIdentNo = ident;
             szName = monster.Info.Name;
-            btIsNpc = (byte)((monster.Type == ObjectType.NPC) ? 1 : 0);
+            btIsNpc = 1;
+        }
+
+        public SMiniMapNPC(Gate value, byte ident, MiniMapTag tag, byte addType, Maps map)
+        {
+            btPosX = (byte)value.Door.X;
+            btPosY = (byte)value.Door.Y;
+            btTag = tag;
+            btType = addType;
+            btIdentNo = ident;
+            szName = "To " + map;
+            btIsNpc = 0;
         }
     }
 

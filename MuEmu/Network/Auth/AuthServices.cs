@@ -222,8 +222,6 @@ namespace MuEmu.Network.Auth
 
             await session.SendAsync(new SCheckSum { Key = session.Player.CheckSum.GetKey(), Padding = 0xff });
 
-            await session.SendAsync(new SCashPoints { CashPoints = 0 });
-
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
 
@@ -284,7 +282,7 @@ namespace MuEmu.Network.Auth
             });
 
             await session.SendAsync(new SUBFInfo());
-            await session.SendAsync(new SSendBanner { Type = 3 });
+            await session.SendAsync(new SSendBanner { Type = BannerType.UnityBattleField });
 
             await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
 

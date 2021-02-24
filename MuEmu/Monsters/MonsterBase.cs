@@ -43,13 +43,13 @@ namespace MuEmu.Monsters
         [XmlAttribute] public int Possion_Resistance { get; set; }
         [XmlAttribute] public int Lightning_Resistance { get; set; }
         [XmlAttribute] public int Fire_Resistance { get; set; }
-        public int MainAttribute { get; set; }
-        public int AttributePattern { get; set; }
-        public int PentagramDamageMin { get; set; }
-        public int PentagramDamageMax { get; set; }
-        public int PentagramAttackRate { get; set; }
-        public int PentagramDefenseRate { get; set; }
-        public int PentagramDefense { get; set; }
+        public int MainAttribute { get; set; } = 0;
+        public int AttributePattern { get; set; } = 0;
+        public int PentagramDamageMin { get; set; } = 0;
+        public int PentagramDamageMax { get; set; } = 0;
+        public int PentagramAttackRate { get; set; } = 0;
+        public int PentagramDefenseRate { get; set; } = 0;
+        public int PentagramDefense { get; set; } = 7;
     }
 
     [XmlType(AnonymousType = true)]

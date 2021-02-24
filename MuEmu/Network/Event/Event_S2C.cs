@@ -326,6 +326,6 @@ namespace MuEmu.Network.Event
     [WZContract]
     public class SSendBanner : IEventMessage
     {
-        [WZMember(0)] public int Type { get; set; }
+        [WZMember(0)] public BannerType Type { get; set; }
     }
 }

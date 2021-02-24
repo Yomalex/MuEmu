@@ -33,7 +33,6 @@ namespace MuEmu.Network.Game
             Register<CChatWhisper>(GameOpCode.WhisperChat);
             #endregion
 
-            Register<CTeleport>(GameOpCode.Teleport);
             Register<CInventory>(GameOpCode.Inventory);
             Register<CNewQuestInfo>(GameOpCode.QuestDetails);
             Register<CPointAdd>(GameOpCode.PointAdd);
@@ -73,6 +72,9 @@ namespace MuEmu.Network.Game
                     Register<SAttackResultS9>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<SMagicAttackS9>(GameOpCode.MagicAttack);
+                    Register<CMagicDurationS9>(GameOpCode.MagicDuration);
+                    Register<SMagicDurationS9>(GameOpCode.MagicDuration);
+                    Register<CTeleportS9>(GameOpCode.Teleport);
                     break;
                 default:
                     Register<CAttack>(GameOpCode.Attack);
@@ -80,9 +82,11 @@ namespace MuEmu.Network.Game
                     Register<SAttackResult>(GameOpCode.Attack);
                     Register<CMagicAttack>(GameOpCode.MagicAttack);
                     Register<SMagicAttack>(GameOpCode.MagicAttack);
+                    Register<CMagicDuration>(GameOpCode.MagicDuration);
+                    Register<SMagicDuration>(GameOpCode.MagicDuration);
+                    Register<CTeleport>(GameOpCode.Teleport);
                     break;
             }
-            Register<CMagicDuration>(GameOpCode.MagicDuration);
             Register<CBeattack>(GameOpCode.Beattack);
             #endregion
 
@@ -175,7 +179,6 @@ namespace MuEmu.Network.Game
             Register<SDamage>(GameOpCode.Damage);
             Register<SKillPlayer>(GameOpCode.KillPlayer);
             Register<SDiePlayer>(GameOpCode.DiePlayer);
-            Register<SMagicDuration>(GameOpCode.MagicDuration);
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);
             Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);

@@ -39,6 +39,16 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class CTeleportS9 : IGameMessage
+    {
+        [WZMember(1)] public ushort MoveNumber { get; set; }
+        [WZMember(2)] public byte X { get; set; }
+        [WZMember(3)] public byte Y { get; set; }
+
+        //public ushort MoveNumber => wzMoveNumber.ShufleEnding();
+    }
+
+    [WZContract]
     public class CAction : IGameMessage
     {
         [WZMember(0)]
@@ -330,8 +340,44 @@ namespace MuEmu.Network.Game
         [WZMember(8,5)]
         public byte[] Unk { get; set; }
 
-        public ushort Target => wzTarget.ShufleEnding();
-        public Spell MagicNumber => (Spell)wzMagicNumber.ShufleEnding();
+        public ushort Target { get => wzTarget.ShufleEnding(); set => wzTarget = value.ShufleEnding(); }
+        public Spell MagicNumber
+        {
+            get => (Spell)wzMagicNumber.ShufleEnding();
+            set => wzMagicNumber = ((ushort)value).ShufleEnding();
+        }
+    }
+
+    [WZContract]
+    public class CMagicDurationS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte X { get; set; }
+        [WZMember(1)]
+        public byte MagicNumberH { get; set; }
+        [WZMember(2)]
+        public byte Y { get; set; }
+        [WZMember(3)]
+        public byte MagicNumberL { get; set; }
+        [WZMember(4)]
+        public byte Dir { get; set; }
+
+        [WZMember(5)]
+        public byte TargetH { get; set; }
+        [WZMember(6)]
+        public byte Dis { get; set; }
+
+        [WZMember(7)]
+        public byte TargetL { get; set; }
+
+        [WZMember(8)]
+        public byte TargetPos { get; set; }
+
+        [WZMember(9)]
+        public byte MagicKey { get; set; }
+
+        public ushort Target => (ushort)(TargetH << 8 | TargetL);
+        public Spell MagicNumber => (Spell)(MagicNumberH<<8|MagicNumberL);
     }
 
     [WZContract]

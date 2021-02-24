@@ -180,7 +180,9 @@ namespace MuEmu
                 DuelSystem.Initialize();
                 SubSystem.Initialize();
                 Marlon.Initialize();
-            }catch(MySql.Data.MySqlClient.MySqlException ex)
+                CashShop.Initialize(512, 2014, 124);
+            }
+            catch(MySql.Data.MySqlClient.MySqlException ex)
             {
                 Log.Error(ex, ServerMessages.GetMessage(Messages.Server_MySQL_Error));
                 //Migrate(null, new EventArgs());

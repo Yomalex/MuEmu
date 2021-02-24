@@ -240,6 +240,15 @@ namespace MuEmu.Network
     {
         CashItems = 0x05D0,
         CashPoints = 0x04F5,
+
+        CashInit = 0x00D2,
+        CashPointsS9 = 0x01D2,
+        CashOpen = 0x02D2,
+        CashItemBuy = 0x03D2,
+        CashItemGif = 0x04D2,
+        CashInventoryCount = 0x05D2,
+        CashVersion = 0x0CD2,
+        CashBanner = 0x15D2,
     }
 
     public enum PCPShopOpCode : ushort
