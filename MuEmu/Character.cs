@@ -1399,40 +1399,46 @@ namespace MuEmu
         public void Autorecovery()
         {
             var elapsed = DateTime.Now - _autoRecuperationTime;
-            if(elapsed.TotalSeconds > 25)
-            {
-                Health += 10;
-                Shield += 10;
-            }else if(elapsed.TotalSeconds > 15)
-            {
-                Health += 5;
-                Shield += 5;
-            }
-            else if(elapsed.TotalSeconds > 10)
-            {
-                Health += 1;
-                Shield += 1;
-            }
 
-            switch(BaseClass)
+            var add = (elapsed.TotalSeconds > 25)? 10 : (elapsed.TotalSeconds > 15)? 5 : (elapsed.TotalSeconds > 10)? 1 : 0;
+
+            var update1 = add > 0 && (_hp < MaxHealth || _sd < MaxShield);
+            var update2 = _mp < MaxMana || _bp < MaxStamina;
+
+            if (_hp < MaxHealth) _hp += Math.Min(add, MaxHealth - _hp);
+            if (_sd < MaxShield) _sd += Math.Min(add, MaxShield - _sd);
+
+            float addMp = 0;
+            float addBp = 0;
+
+            switch (BaseClass)
             {
                 case HeroClass.DarkKnight:
-                    Mana += MaxMana / 27.5f;
-                    Stamina += 2 + (float)MaxStamina / 20;
+                    addMp = MaxMana / 27.5f;
+                    addBp = 2 + (float)MaxStamina / 20;
                     break;
                 case HeroClass.DarkWizard:
                 case HeroClass.FaryElf:
                 case HeroClass.Summoner:
-                    Mana += (float)MaxMana / 27.5f;
-                    Stamina += 2 + (float)MaxStamina / 33.333f;
+                    addMp = (float)MaxMana / 27.5f;
+                    addBp = 2 + (float)MaxStamina / 33.333f;
                     break;
                 case HeroClass.MagicGladiator:
                 case HeroClass.DarkLord:
-                    Mana += (float)MaxMana / 27.5f;
-                    Stamina += 1.9f + (float)MaxStamina / 33;
+                    addMp = (float)MaxMana / 27.5f;
+                    addBp = 1.9f + (float)MaxStamina / 33;
                     break;
 
             }
+
+            if (_mp < MaxMana) _hp += Math.Min(addMp, MaxMana - _mp);
+            if (_bp < MaxStamina) _sd += Math.Min(addBp, MaxStamina - _bp);
+
+            if (update1)
+                HPorSDChanged(RefillInfo.Drink);
+
+            if (update2)
+                MPorBPChanged(RefillInfo.Drink);
         }
 
         public void WeaponDurDown(int Defense)
