@@ -1431,8 +1431,8 @@ namespace MuEmu
 
             }
 
-            if (_mp < MaxMana) _hp += Math.Min(addMp, MaxMana - _mp);
-            if (_bp < MaxStamina) _sd += Math.Min(addBp, MaxStamina - _bp);
+            if (_mp < MaxMana) _mp += Math.Min(addMp, MaxMana - _mp);
+            if (_bp < MaxStamina) _bp += Math.Min(addBp, MaxStamina - _bp);
 
             if (update1)
                 HPorSDChanged(RefillInfo.Drink);
