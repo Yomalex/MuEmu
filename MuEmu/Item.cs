@@ -142,111 +142,111 @@ namespace MuEmu
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
         //private static Random _rand = new Random();
-        private byte _plus;
-        private byte _durability;
-        private byte _option;
-        private int _aid;
-        private int _cid;
-        private int _vid;
-        private int _slot;
+        //private byte _plus;
+        //private byte _durability;
+        //private byte _option;
+        //private int _aid;
+        //private int _cid;
+        //private int _vid;
+        //private int _slot;
         private float _durabilityDown;
         private SocketOption[] _slots;
         private JewelOfHarmony _jewelOfHarmony = new JewelOfHarmony();
+        private ItemDto _db;
 
         public int AccountId {
-            get => _aid;
+            get => _db.AccountId;
             set
             {
-                if (_aid == value)
+                if (_db.AccountId == value)
                     return;
-                _aid = value;
+                _db.AccountId = value;
 
                 NeedSave = true;
             }
         }
         public int CharacterId
         {
-            get => _cid;
+            get => _db.CharacterId;
             set
             {
-                if (_cid == value)
+                if (_db.CharacterId == value)
                     return;
-                _cid = value;
+                _db.CharacterId = value;
 
                 NeedSave = true;
             }
         }
         public Character Character { get; set; }
         public int VaultId {
-            get => _vid;
+            get => _db.VaultId;
             set {
-                if (_vid == value)
+                if (_db.VaultId == value)
                     return;
-                _vid = value;
+                _db.VaultId = value;
 
                 NeedSave = true;
             }
         }
         public int SlotId {
-            get => _slot;
+            get => _db.SlotId;
             set {
-                if (_slot == value)
+                if (_db.SlotId == value)
                     return;
-                _slot = value;
+                _db.SlotId = value;
                 NeedSave = true;
             }
         }
 
         public ItemInfo BasicInfo { get; set; }
-        public ItemNumber Number { get; set; }
-        public int Serial { get; set; }
+        public ItemNumber Number { get => _db.Number; set => _db.Number = value; }
+        public int Serial => _db.ItemId;
         public byte Plus {
-            get => _plus;
+            get => _db.Plus;
             set
             {
-                if (_plus == value)
+                if (_db.Plus == value)
                     return;
-                _plus = value;
+                _db.Plus = value;
 
                 NeedSave = true;
                 OnItemChange();
             }
         }
         public byte SmallPlus => (byte)(Plus > 0 ? (Plus - 1) / 2 : 0);
-        public bool Luck { get; set; }
-        public bool Skill { get; set; }
+        public bool Luck { get => _db.Luck; set => _db.Luck = value; }
+        public bool Skill { get => _db.Skill; set => _db.Skill = value; }
         public Spell Spell { get; set; }
         public byte Durability {
             get =>
-                _durability;
+                _db.Durability;
             set {
-                if (_durability == value)
+                if (_db.Durability == value)
                     return;
 
                 if (value > DurabilityBase)
                     value = DurabilityBase;
 
-                _durability = value;
+                _db.Durability = value;
                 OnDurabilityChange(false);
                 NeedSave = true;
             }
         }
-        public byte DurabilityBase
-        { get => GetDurabilityBase(); }
+        public byte DurabilityBase => GetDurabilityBase();
         public byte Option28
         {
-            get => _option;
+            get => _db.Option;
             set
             {
-                if (_option == value)
+                if (_db.Option == value)
                     return;
 
-                _option = value;
+                _db.Option = value;
                 OnItemChange();
             }
         }
         public DateTime ExpireTime { get; set; } = DateTime.MinValue;
-        public byte OptionExe { get; set; }
+        public byte OptionExe { get => _db.OptionExe; set => _db.OptionExe = value; }
         public byte SetOption { get; set; }
         public uint BuyPrice { get; private set; }
         public uint SellPrice { get; private set; }
@@ -325,9 +325,12 @@ namespace MuEmu
             if (!ItemDB.ContainsKey(number))
                 throw new Exception("Item don't exists " + number);
 
+            _db = new ItemDto();
+
             BasicInfo = ItemDB[number];
-            _durability = BasicInfo.Durability;
+            _db.Durability = BasicInfo.Durability;
             _slots = Array.Empty<SocketOption>();
+            _db.Number = number;
 
             if (Options != null)
                 Extensions.AnonymousMap(this, Options);
@@ -347,20 +350,21 @@ namespace MuEmu
                 throw new Exception("Item don't exists " + dto.Number);
 
             BasicInfo = ItemDB[dto.Number];
+            _db = dto;
 
-            _aid = dto.AccountId;
-            _cid = dto.CharacterId;
-            _vid = dto.VaultId;
-            _slot = dto.SlotId;
-            Serial = dto.ItemId;
+            //_aid = dto.AccountId;
+            //_cid = dto.CharacterId;
+            //_vid = dto.VaultId;
+            //_slot = dto.SlotId;
+            //Serial = dto.ItemId;
             Skill = dto.Skill;
             Number = dto.Number;
-            _plus= dto.Plus;
+            //_plus= dto.Plus;
             Luck = dto.Luck;
-            _option = dto.Option;
+            //_option = dto.Option;
             OptionExe = dto.OptionExe;
             
-            _durability = dto.Durability;
+            //_durability = dto.Durability;
             if(string.IsNullOrEmpty(dto.SocketOptions))
             {
                 _slots = Array.Empty<SocketOption>();
@@ -910,65 +914,34 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            ItemDto item = null;
+            if (!NeedSave)
+                return;
+
             var log = Logger;
             if (Character != null)
                 log = Logger.ForAccount(Character.Player.Session);
 
-            if (Serial != 0 && NeedSave)
+            if(_db.ItemId == 0)
             {
-                try
-                {
-                    item = db.Items.First(x => x.ItemId == Serial);
-                    item.AccountId = _aid;
-                    item.CharacterId = _cid;
-                    item.VaultId = _vid;
-                    item.Durability = _durability;
-                    item.HarmonyOption = _jewelOfHarmony;
-                    item.Option = _option;
-                    item.Plus = _plus;
-                    item.SlotId = _slot;
-                    item.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
-                    db.Items.Update(item);
-                }
-                catch(Exception) //?? Don't exists any more?
-                {
-                    NeedSave = false;
-                    log.Information("[A{2}:{3}{4}]Item Deleted?:[{5}] {0} {1}", Number, ToString(), _aid, _vid == 0 ? "C":"V", _vid == 0 ? _cid : _vid, Serial);
-
-                    return;
-                }
-            }
-            else if(Serial == 0)
-            {
-                item = new ItemDto
-                {
-                    Number = Number,
-                    Luck = Luck,
-                    OptionExe = (byte)OptionExe,
-                    Skill = Skill,
-                    AccountId = _aid,
-                    CharacterId = _cid,
-                    VaultId = _vid,
-                    Durability = _durability,
-                    HarmonyOption = _jewelOfHarmony,
-                    Option = _option,
-                    Plus = _plus,
-                    SlotId = _slot,
-                    DateCreation = DateTime.Now,
-                    SocketOptions = string.Join(",", _slots.Select(x => x.ToString()))
-                };
-                await db.Items.AddAsync(item);
-                Serial = item.ItemId;
-            }
-            else
-            {
+                _db.DateCreation = DateTime.Now;
+                _db.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
+                await db.Items.AddAsync(_db);
                 return;
             }
+            db.Items.Update(_db);
 
-            log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", item.Number, ToString(), item.AccountId, item.VaultId == 0 ? "C" : "V", item.VaultId == 0 ? item.CharacterId : item.VaultId, SlotId);
+            log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", _db.Number, ToString(), _db.AccountId, _db.VaultId == 0 ? "C" : "V", _db.VaultId == 0 ? _db.CharacterId : _db.VaultId, SlotId);
 
             NeedSave = false;
+        }
+
+        public void Delete(GameContext db)
+        {
+            if (_db.ItemId <= 0)
+                return;
+
+            Logger.Information("Deleting item {0}", ToString());
+            db.Remove(_db);
         }
 
         private void CalcItemAttributes()
@@ -1246,7 +1219,7 @@ namespace MuEmu
             var p = new SInventoryItemDurSend
             {
                 IPos = (byte)SlotId,
-                Dur = _durability,
+                Dur = _db.Durability,
                 Flag = (byte)(flag ? 1 : 0)
             };
             Character?.Player.Session.SendAsync(p);

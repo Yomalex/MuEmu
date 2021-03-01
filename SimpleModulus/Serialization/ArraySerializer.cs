@@ -25,6 +25,7 @@ namespace WebZen.Serialization
             emiter.LoadConstant(100);
             emiter.NewArray(elementType);
             emiter.StoreLocal(value);
+            var ex = emiter.DeclareLocal<Exception>("_ex");
 
             var loop = emiter.DefineLabel();
             var loopCheck = emiter.DefineLabel();
@@ -32,38 +33,37 @@ namespace WebZen.Serialization
             using (var element = emiter.DeclareLocal(elementType, "element"))
             using (var i = emiter.DeclareLocal<int>("i"))
             {
+                emiter.MarkLabel(loop);
 
-                try
-                {
-                    emiter.MarkLabel(loop);
-                    if (_compiler != null)
-                        _compiler.EmitDeserialize(emiter, element);
-                    else if (_serializer != null)
-                        emiter.CallDeserializer(_serializer, element);
-                    else
-                        emiter.CallDeserializerForType(elementType, element);
+                var eb = emiter.BeginExceptionBlock();
+                if (_compiler != null)
+                    _compiler.EmitDeserialize(emiter, element);
+                else if (_serializer != null)
+                    emiter.CallDeserializer(_serializer, element);
+                else
+                    emiter.CallDeserializerForType(elementType, element);
+                var cb = emiter.BeginCatchBlock<Exception>(eb);
+                emiter.StoreLocal(ex);
+                emiter.EndCatchBlock(cb);
+                emiter.EndExceptionBlock(eb);
 
-                    // value[i] = element
-                    emiter.LoadLocal(value);
-                    emiter.LoadLocal(i);
-                    emiter.LoadLocal(element);
-                    emiter.StoreElement(elementType);
+                // value[i] = element
+                emiter.LoadLocal(value);
+                emiter.LoadLocal(i);
+                emiter.LoadLocal(element);
+                emiter.StoreElement(elementType);
 
-                    // ++i
-                    emiter.LoadLocal(i);
-                    emiter.LoadConstant(1);
-                    emiter.Add();
-                    emiter.StoreLocal(i);
+                // ++i
+                emiter.LoadLocal(i);
+                emiter.LoadConstant(1);
+                emiter.Add();
+                emiter.StoreLocal(i);
 
-                    // i < length
-                    emiter.MarkLabel(loopCheck);
-                    emiter.LoadLocal(i);
-                    emiter.LoadConstant(100);
-                    emiter.BranchIfLess(loop);
-                }
-                catch(Exception)
-                {
-                }
+                // i < length
+                emiter.MarkLabel(loopCheck);
+                emiter.LoadLocal(i);
+                emiter.LoadConstant(100);
+                emiter.BranchIfLess(loop);
             }
         }
 

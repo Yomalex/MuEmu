@@ -404,6 +404,32 @@ namespace MuEmu.Network.Game
     }
 
     [WZContract]
+    public class CBeattackS9Dto
+    {
+        [WZMember(0)] public byte NumberH { get; set; }   // 0
+        [WZMember(1)] public byte MagicKey { get; set; }  // 1
+        [WZMember(2)] public byte NumberL { get; set; }	// 2
+
+        public ushort Number => (ushort)(NumberH << 8 | NumberL);
+    }
+
+    [WZContract]
+    public class CBeattackS9 : IGameMessage
+    {
+        [WZMember(0)] public byte MagicNumberH { get; set; }
+        [WZMember(1)] public byte Count { get; set; }
+        [WZMember(2)] public byte MagicNumberL { get; set; }
+        [WZMember(3)] public byte X { get; set; }
+        [WZMember(4)] public byte Serial { get; set; }
+        [WZMember(5)] public byte Y { get; set; }
+        //[WZMember(1)] public byte Count { get; set; }
+        [WZMember(6, typeof(ArraySerializer))] public CBeattackS9Dto[] Beattack { get; set; }
+
+        public Spell MagicNumber => (Spell)(MagicNumberH<<8|MagicNumberL);
+        public Point Position => new Point(X, Y);
+    }
+
+    [WZContract]
     public class CWarp : IGameMessage
     {
         [WZMember(0)]
@@ -712,5 +738,9 @@ namespace MuEmu.Network.Game
 
     [WZContract]
     public class CMemberPosInfoStop : IGameMessage
+    { }
+
+    [WZContract]
+    public class CNPCJulia : IGameMessage
     { }
 }

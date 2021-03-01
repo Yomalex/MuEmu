@@ -441,4 +441,11 @@ namespace MuEmu.Network.Auth
     {
         [WZMember(0)] public ushort Resets { get; set; }
     }
+
+    [WZContract]
+    public class SEnableCreation : IAuthMessage
+    {
+        [WZMember(0)]
+        public EnableClassCreation EnableCreation { get; set; }
+    }
 }

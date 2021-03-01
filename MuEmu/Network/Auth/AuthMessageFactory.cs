@@ -26,7 +26,8 @@ namespace MuEmu.Network.Auth
                     Register<SResets>(CSOpCode.Resets);
                     break;
             }
-            
+
+            Register<SEnableCreation>(CSOpCode.EnableCreate);
             Register<CCharacterList>(CSOpCode.CharacterList);
             Register<CCharacterCreate>(CSOpCode.CharacterCreate);
             Register<CCharacterDelete>(CSOpCode.CharacterDelete);

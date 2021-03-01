@@ -25,7 +25,6 @@ namespace MuEmu.Network.Game
             Register<CAction>(GameOpCode.Rotation);
             Register<CMove>(GameOpCode.Move);
             Register<CMoveEng>(GameOpCode.MoveEng);
-            Register<CPositionSet>(GameOpCode.Position);
 
             #region Client ChatMessages
             Register<CChatNickname>(GameOpCode.GeneralChat0);
@@ -62,32 +61,37 @@ namespace MuEmu.Network.Game
             Register<CPShopRequestBuy>(GameOpCode.PShopRequestBuy);
             #endregion
 
+
+            Register<CNPCJulia>(GameOpCode.NPCJulia);
             #region Client AttackMessages
             //Register<CAttackS5E2>(GameOpCode.Attack);
             switch(Program.Season)
             {
                 case 9:// ENG
                     Register<CAttack>(GameOpCode.AttackEng);
-                    Register<SMove>(GameOpCode.MoveEng);
-                    Register<SAttackResultS9>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
-                    Register<SMagicAttackS9>(GameOpCode.MagicAttack);
-                    Register<CMagicDurationS9>(GameOpCode.MagicDuration);
-                    Register<SMagicDurationS9>(GameOpCode.MagicDuration);
                     Register<CTeleportS9>(GameOpCode.Teleport);
+                    Register<CMagicDurationS9>(GameOpCode.MagicDuration);
+                    //Register<CPositionSet>(GameOpCode.Position);
+                    Register<CBeattackS9>(GameOpCode.Position);
+                    Register<SMagicAttackS9>(GameOpCode.MagicAttack);
+                    Register<SMagicDurationS9>(GameOpCode.MagicDuration);
+                    Register<SAttackResultS9>(GameOpCode.AttackEng);
+                    Register<SMove>(GameOpCode.MoveEng);
                     break;
                 default:
                     Register<CAttack>(GameOpCode.Attack);
+                    Register<CMagicAttack>(GameOpCode.MagicAttack);
+                    Register<CMagicDuration>(GameOpCode.MagicDuration);
+                    Register<CTeleport>(GameOpCode.Teleport);
+                    Register<CPositionSet>(GameOpCode.Position);
+                    Register<CBeattack>(GameOpCode.Beattack);
                     Register<SMove>(GameOpCode.Move);
                     Register<SAttackResult>(GameOpCode.Attack);
-                    Register<CMagicAttack>(GameOpCode.MagicAttack);
-                    Register<SMagicAttack>(GameOpCode.MagicAttack);
-                    Register<CMagicDuration>(GameOpCode.MagicDuration);
                     Register<SMagicDuration>(GameOpCode.MagicDuration);
-                    Register<CTeleport>(GameOpCode.Teleport);
+                    Register<SMagicAttack>(GameOpCode.MagicAttack);
                     break;
             }
-            Register<CBeattack>(GameOpCode.Beattack);
             #endregion
 
             #region Client PartyMessages

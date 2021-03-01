@@ -39,6 +39,7 @@ namespace MuEmu.Network
 
 
         Resets = 0x0BFA,
+        EnableCreate = 0x00DE,
     }
 
     public enum GameOpCode : ushort
@@ -180,6 +181,7 @@ namespace MuEmu.Network
         MemberPosInfoStart = 0x01E7,
         MemberPosInfoStop = 0x02E7,
         LifeInfo = 0x10EC,
+        NPCJulia = 0x17BF,
     }
 
     public enum GensOpCode

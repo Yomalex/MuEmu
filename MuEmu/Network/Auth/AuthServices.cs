@@ -168,6 +168,12 @@ namespace MuEmu.Network.Auth
 
                 var b = Activator.CreateInstance(a, (byte)5, (byte)0, acc.Characters, (byte)5, (byte)3);
                 await session.SendAsync(b);
+
+
+
+                await session.SendAsync(new SEnableCreation { 
+                    EnableCreation = EnableClassCreation.Summoner | EnableClassCreation.RageFighter | EnableClassCreation.MagicGladiator | EnableClassCreation.GrowLancer | EnableClassCreation.DarkLord 
+                });
             }
         }
 
@@ -407,6 +413,9 @@ namespace MuEmu.Network.Auth
         [MessageHandler(typeof(SSkillKey))]
         public void CSkillKey(GSSession session, SSkillKey message)
         {
+            if (session.Player == null || session.Player.Character == null)
+                return;
+
             using (var db = new GameContext())
             {
                 var res = db.Config.FirstOrDefault(x => x.SkillKeyId == session.Player.Character.Id);

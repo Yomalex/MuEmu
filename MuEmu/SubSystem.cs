@@ -163,20 +163,24 @@ namespace MuEmu
                         }
 
                         // Update item section
-                        foreach(var it in map.Items)
+                        lock (map.Items)
                         {
-                            switch(it.State)
+                            foreach (var it in map.Items)
                             {
-                                case ItemState.Creating:
-                                    it.State = ItemState.Created;
-                                    break;
-                                case ItemState.Deleting:
-                                    it.State = ItemState.Deleted;
-                                    break;
+                                switch (it.State)
+                                {
+                                    case ItemState.Creating:
+                                        it.State = ItemState.Created;
+                                        break;
+                                    case ItemState.Created:
+                                        if (it.validTime < DateTimeOffset.Now)
+                                            it.State = ItemState.Deleting;
+                                        break;
+                                    case ItemState.Deleting:
+                                        it.State = ItemState.Deleted;
+                                        break;
+                                }
                             }
-
-                            if (it.validTime < DateTimeOffset.Now)
-                                it.State = ItemState.Deleting;
                         }
                     }
                     Thread.Sleep(1000);
@@ -194,63 +198,65 @@ namespace MuEmu
             pos.Offset(15, 15);
 
             PartyManager.SendAll(plr.Party);
-
-            var playerVP = from obj in Map.Players
-                           let rect = new Rectangle(obj.Position, new Size(30, 30))
-                           where rect.Contains(pos) && obj.Player.Session.ID != plr.Player.Session.ID
-                           select obj;
-
-            var PShop = (from obj in playerVP
-                        where obj.Shop.Open
-                        select obj).ToList();
-
-            var newPlr = (from obj in playerVP
-                          where obj.State == ObjectState.Regen
-                          select obj).ToList();
-
-            var existPlr = (from obj in playerVP
-                           where !plr.PlayersVP.Contains(obj.Player) && obj.State == ObjectState.Live
-                           select obj).ToList();
-
-            var deadPlr = (from obj in playerVP
-                           where obj.State == ObjectState.WaitRegen
-                           select obj.Player).ToList();
-
-            var lostPlr = (from obj in plr.PlayersVP
-                          where !playerVP.Contains(obj.Character)
-                          select obj).ToList();
-
-            plr.PlayersVP.AddRange(newPlr.Select(x => x.Player));
-            plr.PlayersVP.AddRange(existPlr.Select(x => x.Player));
-
-            var guildVP = newPlr
-                .Where(x => x.Guild != null)
-                .Select(x => new GuildViewPortDto
+            lock (plr.PlayersVP)
             {
-                ID = x.Guild.Index,
-                Number = x.Index,
-                RelationShip = plr.Guild?.GetRelation(x.Guild) ?? GuildRelation.None,
-                CastleState = 0,
-                Status = x.Guild.Find(x.Name).Rank,
-                Type = x.Guild.Type,
-            }).ToList();
 
-            guildVP.AddRange(existPlr
-                .Where(x => x.Guild != null)
-                .Select(x => new GuildViewPortDto
-                {
-                    ID = x.Guild.Index,
-                    Number = x.Index,
-                    RelationShip = plr.Guild?.GetRelation(x.Guild) ?? GuildRelation.None,
-                    CastleState = 0,
-                    Status = x.Guild.Find(x.Name).Rank,
-                    Type = x.Guild.Type,
-                }));
+                var playerVP = from obj in Map.Players
+                               let rect = new Rectangle(obj.Position, new Size(30, 30))
+                               where rect.Contains(pos) && obj.Player.Session.ID != plr.Player.Session.ID
+                               select obj;
 
-            foreach (var it in deadPlr)
-                plr.PlayersVP.Remove(it);
-            foreach (var it in lostPlr)
-                plr.PlayersVP.Remove(it);
+                var PShop = (from obj in playerVP
+                             where obj.Shop.Open
+                             select obj).ToList();
+
+                var newPlr = (from obj in playerVP
+                              where obj.State == ObjectState.Regen
+                              select obj).ToList();
+
+                var existPlr = (from obj in playerVP
+                                where !plr.PlayersVP.Contains(obj.Player) && obj.State == ObjectState.Live
+                                select obj).ToList();
+
+                var deadPlr = (from obj in playerVP
+                               where obj.State == ObjectState.WaitRegen
+                               select obj.Player).ToList();
+
+                var lostPlr = (from obj in plr.PlayersVP
+                               where !playerVP.Contains(obj.Character)
+                               select obj).ToList();
+
+                plr.PlayersVP.AddRange(newPlr.Select(x => x.Player));
+                plr.PlayersVP.AddRange(existPlr.Select(x => x.Player));
+
+                var guildVP = newPlr
+                    .Where(x => x.Guild != null)
+                    .Select(x => new GuildViewPortDto
+                    {
+                        ID = x.Guild.Index,
+                        Number = x.Index,
+                        RelationShip = plr.Guild?.GetRelation(x.Guild) ?? GuildRelation.None,
+                        CastleState = 0,
+                        Status = x.Guild.Find(x.Name).Rank,
+                        Type = x.Guild.Type,
+                    }).ToList();
+
+                guildVP.AddRange(existPlr
+                    .Where(x => x.Guild != null)
+                    .Select(x => new GuildViewPortDto
+                    {
+                        ID = x.Guild.Index,
+                        Number = x.Index,
+                        RelationShip = plr.Guild?.GetRelation(x.Guild) ?? GuildRelation.None,
+                        CastleState = 0,
+                        Status = x.Guild.Find(x.Name).Rank,
+                        Type = x.Guild.Type,
+                    }));
+
+                foreach (var it in deadPlr)
+                    plr.PlayersVP.Remove(it);
+                foreach (var it in lostPlr)
+                    plr.PlayersVP.Remove(it);
 
             var addPlr = new List<VPCreateAbs>();
             switch(Program.Season)
@@ -326,22 +332,24 @@ namespace MuEmu
             {
                 case 9:
                     if (addPlr.Any())
-                        await plr.Player.Session.SendAsync(new SViewPortCreateS9 { ViewPort = addPlr.Select(x => (VPCreateS9Dto)x).ToArray() });
+                        plr.Player.Session.SendAsync(new SViewPortCreateS9 { ViewPort = addPlr.Select(x => (VPCreateS9Dto)x).ToArray() });
                     break;
                 default:
                     if (addPlr.Any())
-                        await plr.Player.Session.SendAsync(new SViewPortCreate { ViewPort = addPlr.Select(x => (VPCreateDto)x).ToArray() });
+                        plr.Player.Session.SendAsync(new SViewPortCreate { ViewPort = addPlr.Select(x => (VPCreateDto)x).ToArray() });
                     break;
             }
 
             if (lostPlr.Any())
-                await plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
+                plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
 
             if(PShop.Any())
-                await plr.Player.Session.SendAsync(new SViewPortPShop { VPShops = PShop.Select(x => new VPPShopDto { btName = x.Shop.Name.GetBytes(), wzNumber = x.Index.ShufleEnding() }).ToArray() });
+                plr.Player.Session.SendAsync(new SViewPortPShop { VPShops = PShop.Select(x => new VPPShopDto { btName = x.Shop.Name.GetBytes(), wzNumber = x.Index.ShufleEnding() }).ToArray() });
 
             if (guildVP.Any())
-                await plr.Player.Session.SendAsync(new SGuildViewPort { Guilds = guildVP.ToArray() });
+                plr.Player.Session.SendAsync(new SGuildViewPort { Guilds = guildVP.ToArray() });
+
+            }
         }
 
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)
@@ -620,6 +628,20 @@ namespace MuEmu
                         foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
                         {
                             await plr.Save(db);
+                        }
+
+                        var maps = ResourceCache.Instance.GetMaps();
+                        foreach(var map in maps)
+                        {
+                            lock (map.Value.Items)
+                            {
+                                var fordel = map.Value.Items.Where(x => x.State == ItemState.Deleted).ToList();
+                                fordel.ForEach(x =>
+                                {
+                                    x.Item.Delete(db);
+                                    map.Value.Items.Remove(x);
+                                });
+                            }
                         }
 
                         db.SaveChanges();

@@ -725,27 +725,20 @@ namespace MuEmu
         }
 
         public async Task Save(GameContext db)
-        {            
+        {
+            var _log = _logger.ForAccount(Character.Player.Session);
             if(_forDelete.Any())
             {
-                var forDel = from it in db.Items
-                             from del in _forDelete
-                             where it.ItemId == del.Serial
-                             select it;
-
-                if (forDel.Any())
-                {
-                    db.Items.RemoveRange(forDel);
-                    _logger.Information("Deleting {0} items", forDel.Count());
-                }
+                _forDelete.ForEach(x => x.Delete(db));
+                _log.Information("Deleting {0} items", _forDelete.Count());
 
                 _forDelete.Clear();
             }
 
-            if (!_needSave || Lock)
+            if (Lock)
                 return;
 
-            _logger.Information("----- Main Inventory Save");
+            //_log.Information("----- Main Inventory Save");
 
             foreach(var e in _equipament.Values)
                 await e.Save(db);
@@ -755,8 +748,6 @@ namespace MuEmu
 
             foreach (var e in _personalShop.Items.Values)
                 await e.Save(db);
-
-            _needSave = false;
         }
 
         public void DeleteAll(Storage storage)

@@ -63,9 +63,19 @@
   <NPC NPC="478" Type="Window" Icon="Conversation" Data="32" />
   <!-- GateKeeper Titus -->
   <NPC NPC="479" Type="Window" Icon="Conversation" Data="33" />
-  <NPC NPC="492" Type="Shop" Data="16" />
+  <NPC NPC="492" Type="Shop" Icon="Elixir" Data="16" />
   <!-- Jerry The Adviseru -->
   <NPC NPC="522" Type="Window" Icon="Conversation" Data="36" />
   <!-- Sartigan the Angel -->
   <NPC NPC="540" Type="Window" Icon="Conversation" Data="35" />
+  <!-- NPC Julia -->
+  <NPC NPC="543" Type="Window" Icon="Conversation" Data="37" />
+  <!-- NPC Jeweller Raul -->
+  <NPC NPC="546" Type="Window" Icon="Conversation" Data="9" />
+  <!-- NPC  -->
+  <NPC NPC="547" Type="Window" Icon="Conversation" Data="37" />
+  <!-- NPC Sir Lesnar -->
+  <NPC NPC="584" Type="Window" Icon="Conversation" Data="40" />
+  <!-- NPC Private Store Bulletin Board -->
+  <NPC NPC="651" Type="Window" Icon="Conversation" Data="48" />
 </NPCs>

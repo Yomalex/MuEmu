@@ -58,6 +58,10 @@ namespace MuEmu.Network.Game
             session.Player.SendV2Message(ans).Wait();
         }
 
+        [MessageHandler(typeof(CDataLoadOK))]
+        public void CDataLoadOk(GSSession session)
+        { }
+
         [MessageHandler(typeof(CMove))]
         public async Task CMove(GSSession session, CMove message)
         {
@@ -260,6 +264,13 @@ namespace MuEmu.Network.Game
             {
                 Result = (byte)(0x10 | (byte)message.Type),
             };
+
+            if(@char.LevelUpPoints==0)
+            {
+                msg.Result = 0;
+                await session.SendAsync(msg);
+                return;
+            }
 
             switch(message.Type)
             {
@@ -675,7 +686,6 @@ namespace MuEmu.Network.Game
             var inv = plr.Character.Inventory;
             var item = inv.Get(message.Source);
             DateTimeOffset date;
-            await inv.Delete(message.Source);
 
             var bag = (from b in itemBags
                       where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0xffff)
@@ -683,6 +693,7 @@ namespace MuEmu.Network.Game
 
             if (bag != null)
             {
+                await inv.Delete(message.Source);
                 if (bag.LevelMin < plr.Character.Level)
                 {
                     var c = bag.Storage.Count;
@@ -702,6 +713,7 @@ namespace MuEmu.Network.Game
             }
             else
             {
+                inv.Remove(message.Source);
                 date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
             }
             await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
@@ -1236,16 +1248,20 @@ namespace MuEmu.Network.Game
         }
 
         [MessageHandler(typeof(CMagicAttackS9))]
-        public void CMagicAttackS9(GSSession session, CMagicAttackS9 message)
-        {
-            CMagicAttack(session, new Game.CMagicAttack { MagicNumber = message.MagicNumber, Target = message.Target });
-        }
+        public void CMagicAttackS9(GSSession session, CMagicAttackS9 message) => CMagicAttack(session, new Game.CMagicAttack { MagicNumber = message.MagicNumber, Target = message.Target });
 
         [MessageHandler(typeof(CMagicDurationS9))]
-        public void CMagicDurationS9(GSSession session, CMagicDurationS9 message)
-        {
-            CMagicDuration(session, new Game.CMagicDuration { MagicNumber = message.MagicNumber, Target = message.Target });
-        }
+        public async Task CMagicDurationS9(GSSession session, CMagicDurationS9 message) => await CMagicDuration(session, new Game.CMagicDuration 
+        { 
+            MagicNumber = message.MagicNumber, 
+            Target = message.Target,
+            Dir = message.Dir,
+            Dis = message.Dis,
+            MagicKey = message.MagicKey,
+            TargetPos = message.TargetPos,
+            X = message.X,
+            Y = message.Y,
+        });
 
         [MessageHandler(typeof(CMagicDuration))]
         public async Task CMagicDuration(GSSession session, CMagicDuration message)
@@ -1436,6 +1452,16 @@ namespace MuEmu.Network.Game
                 await mob.GetAttacked(session.Player, dmg, dmgType);
             }
         }
+
+        [MessageHandler(typeof(CBeattackS9))]
+        public async Task CBeattackS9(GSSession session, CBeattackS9 message) => await CBeattack(session, new Game.CBeattack
+        {
+            wzMagicNumber = ((ushort)message.MagicNumber).ShufleEnding(),
+            Beattack = message.Beattack.Take(message.Count).Select(x => new CBeattackDto { MagicKey = x.MagicKey, wzNumber = x.Number.ShufleEnding() }).ToArray(),
+            Serial = message.Serial,
+            X = message.X,
+            Y = message.Y,
+        });
         #endregion
 
         [MessageHandler(typeof(CWarp))]
@@ -2283,6 +2309,18 @@ namespace MuEmu.Network.Game
         [MessageHandler(typeof(CMemberPosInfoStop))]
         public void CMemberPosInfoStop(GSSession session)
         {
+        }
+
+        [MessageHandler(typeof(CNPCJulia))]
+        public void CNPCJulia(GSSession session)
+        {
+            if(session.Player.Character.MapID == Maps.LorenMarket)
+            {
+                session.Player.Character.WarpTo(17);
+            }else
+            {
+                session.Player.Character.WarpTo(333);
+            }
         }
     }
 }

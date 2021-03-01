@@ -133,7 +133,6 @@ namespace MuEmu
                     .RegisterRule<CCloseWindow>(MustBePlaying)
                     .RegisterRule<CDataLoadOK>(MustBePlaying)
                     .RegisterRule<CAction>(MustBePlaying)
-                    .RegisterRule<SSkillKey>(MustBePlaying)
             };
             var mf = new MessageFactory[]
             {

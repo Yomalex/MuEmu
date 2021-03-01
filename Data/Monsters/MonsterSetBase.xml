@@ -25,6 +25,9 @@
   <NPC Type="478" Map="Lorencia" Radio="0" PosX="129" PosY="118" Dir="3">//Lucky Coins</NPC>
   <NPC Type="452" Map="Lorencia" Radio="0" PosX="150" PosY="139" Dir="1">//Seed Jewel creator</NPC>
   <NPC Type="479" Map="Lorencia" Radio="0" PosX="131" PosY="147" Dir="1">//Chaos Card Master</NPC>
+  <NPC Type="543" Map="Lorencia" Radio="0" PosX="144" PosY="127" Dir="3">//Gens Duprian Steward</NPC>
+  <NPC Type="547" Map="Lorencia" Radio="0" PosX="139" PosY="138" Dir="3">//Market Union Member Julia</NPC>
+  <NPC Type="584" Map="Lorencia" Radio="0" PosX="114" PosY="132" Dir="3">//Sir Lesnar</NPC>
   <NPC Type="229" Map="Davias" Radio="0" PosX="183" PosY="30" Dir="3">//Marlon</NPC>
   <NPC Type="231" Map="Davias" Radio="0" PosX="8" PosY="77" Dir="3">//Thomson Cannel</NPC>
   <NPC Type="233" Map="Davias" Radio="0" PosX="209" PosY="30" Dir="1">//Spirit of Archangel</NPC>
@@ -114,6 +117,20 @@
   <NPC Type="473" Map="SantaTown" Radio="0" PosX="223" PosY="29" Dir="1">//Little Santa Black</NPC>
   <NPC Type="474" Map="SantaTown" Radio="0" PosX="213" PosY="27" Dir="1">//Little Santa Orange</NPC>
   <NPC Type="475" Map="SantaTown" Radio="0" PosX="214" PosY="17" Dir="1">//Little Santa Pink</NPC>
+
+  <NPC Type="240" Map="LorenMarket" Radio="0" PosX="115" PosY="144" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="240" Map="LorenMarket" Radio="0" PosX="147" PosY="115" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="385" Map="LorenMarket" Radio="0" PosX="94" PosY="137" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="540" Map="LorenMarket" Radio="0" PosX="84" PosY="129" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="545" Map="LorenMarket" Radio="0" PosX="113" PosY="116" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="546" Map="LorenMarket" Radio="0" PosX="131" PosY="109" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="547" Map="LorenMarket" Radio="0" PosX="123" PosY="140" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="643" Map="LorenMarket" Radio="0" PosX="113" PosY="127" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="643" Map="LorenMarket" Radio="0" PosX="113" PosY="132" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="643" Map="LorenMarket" Radio="0" PosX="113" PosY="119" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="651" Map="LorenMarket" Radio="0" PosX="108" PosY="134" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="651" Map="LorenMarket" Radio="0" PosX="138" PosY="143" Dir="1">//Little Santa Pink</NPC>
+  <NPC Type="669" Map="LorenMarket" Radio="0" PosX="113" PosY="132" Dir="1">//Little Santa Pink</NPC>
   <Spot Type="0" Map="Lorencia" Radio="30" PosX="135" PosY="20" PosX2="240" PosY2="88" Dir="-1" Quant="35">//Bull Fighter<Element>Fire</Element></Spot>
   <Spot Type="0" Map="Lorencia" Radio="10" PosX="183" PosY="158" PosX2="190" PosY2="165" Dir="-1" Quant="20">//Bull Fighter<Element>None</Element></Spot>
   <Spot Type="0" Map="Lorencia" Radio="10" PosX="217" PosY="187" PosX2="247" PosY2="221" Dir="-1" Quant="30">//Bull Fighter<Element>None</Element></Spot>

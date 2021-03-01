@@ -317,26 +317,8 @@ namespace MuEmu.Resources.Map
                 OwnedTime = own,
             };
 
-            if (Items.Count > 0)
-            {
-                try
-                {
-                    var fit = Items.First(x => x.State == ItemState.Deleted);
-                    it.Index = fit.Index;
-                    Items.Remove(fit);
-                }
-                catch(Exception) { }
-            }
-
-            Items.Add(it);
-
-            //var pitem = new SViewPortItemCreate(new Network.Data.VPICreateDto[] { new Network.Data.VPICreateDto {
-            //    ItemInfo = item.GetBytes(),
-            //    wzNumber = ((ushort)(it.index | 0x8000)).ShufleEnding(),
-            //    X = (byte)X,
-            //    Y = (byte)Y,
-            //} });
-            //await SendAll(pitem);
+            lock(Items)
+                Items.Add(it);
 
             return valid;
         }

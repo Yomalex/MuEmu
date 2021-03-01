@@ -646,8 +646,11 @@ namespace MuEmu
 
         public async Task SendV2Message(object message, Player exclude = null)
         {
-            foreach (var plr in PlayersVP.Where(x => x != exclude))
-                await plr.Session.SendAsync(message);
+            lock (PlayersVP)
+            {
+                foreach (var plr in PlayersVP.Where(x => x != exclude))
+                    plr.Session.SendAsync(message).Wait();
+            }
         }
 
         #region EventHandlers
@@ -690,6 +693,10 @@ namespace MuEmu
             var levelPoint = BaseClass == HeroClass.MagicGladiator || BaseClass == HeroClass.DarkLord ? 7 : 5;
             levelPoint += MasterClass ? 1 : 0;
             LevelUpPoints += (ushort)(levelPoint * (Level - curLevel));
+            _hp = MaxHealth;
+            _mp = MaxMana;
+            _bp = MaxStamina;
+            _sd = MaxShield;
 
             await Player.Session.SendAsync(new SLevelUp
             {
@@ -1455,6 +1462,7 @@ namespace MuEmu
 
                 if(!Spells.BufActive(SkillStates.InfinityArrow))
                     right.Durability--;
+
                 if(right.Durability == 0)
                 {
                     Inventory.Delete(right).Wait();
@@ -1472,7 +1480,7 @@ namespace MuEmu
                     right.Durability--;
                 if (left.Durability == 0)
                 {
-                    Inventory.Delete(right).Wait();
+                    Inventory.Delete(left).Wait();
                 }
                 right.BowWeaponDurabilityDown(Defense);
             }

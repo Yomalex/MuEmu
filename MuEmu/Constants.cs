@@ -4,6 +4,15 @@ using System.Text;
 
 namespace MuEmu
 {
+    [Flags]
+    public enum EnableClassCreation : byte
+    {
+        Summoner = 1,
+        DarkLord = 2,
+        MagicGladiator = 4,
+        RageFighter = 8,
+        GrowLancer = 16,
+    }
     public enum BannerType : byte
     {
         MuRummy,
