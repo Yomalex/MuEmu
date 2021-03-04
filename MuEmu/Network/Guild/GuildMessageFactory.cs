@@ -27,6 +27,7 @@ namespace MuEmu.Network.Guild
             Register<SGuildViewPort>(GuildOpCode.GuildViewPort);
             Register<SGuildAnsViewport>(GuildOpCode.GuildReqViewport);
             Register<SGuildList>(GuildOpCode.GuildListAll);
+            Register<SGuildListS9>(GuildOpCode.GuildListAll);
             Register<SGuildCreateResult>(GuildOpCode.GuildSaveInfo);
             Register<SGuildResult>(GuildOpCode.GuildResult);
             Register<SGuildSetStatus>(GuildOpCode.GuildSetStatus);

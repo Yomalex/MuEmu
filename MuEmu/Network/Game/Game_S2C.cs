@@ -1071,6 +1071,43 @@ namespace MuEmu.Network.Game
         }
     }
 
+    [WZContract(Serialized = true)]
+    public class SKillPlayerEXT : IGameMessage
+    {
+        [WZMember(0)]
+        public ushort wzNumber { get; set; }
+
+        [WZMember(1)]
+        public byte padding { get; set; }
+
+        [WZMember(2)]
+        public ushort ExpH { get; set; }
+
+        [WZMember(3)]
+        public ushort ExpL { get; set; }
+
+        [WZMember(4)]
+        public ushort wzDamage { get; set; }
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+        public int Exp { get => ExpH<<16 | ExpL; set
+            {
+                ExpH = (ushort)(value >> 16);
+                ExpL = (ushort)(value & 0xFFFF);
+            }
+        }
+        public ushort Damage { get => wzDamage.ShufleEnding(); set => wzDamage = value.ShufleEnding(); }
+
+        public SKillPlayerEXT() { }
+
+        public SKillPlayerEXT(ushort number, int exp, ushort dmg)
+        {
+            Number = (ushort)(number | 0x80);
+            Exp = exp;
+            Damage = dmg;
+        }
+    }
+
     [WZContract]
     public class SAttackResult : IGameMessage
     {
@@ -1330,6 +1367,22 @@ namespace MuEmu.Network.Game
         public SPartyList()
         {
             PartyMembers = Array.Empty<PartyDto>();
+        }
+    }
+
+    //0xC1 0x42
+    [WZContract]
+    public class SPartyListS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public PartyResults Result { get; set; }
+
+        [WZMember(1, typeof(ArrayWithScalarSerializer<byte>))]
+        public PartyS9Dto[] PartyMembers { get; set; }
+
+        public SPartyListS9()
+        {
+            PartyMembers = Array.Empty<PartyS9Dto>();
         }
     }
 
@@ -2015,6 +2068,39 @@ namespace MuEmu.Network.Game
         public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
         public uint MaxLife { get => wzMaxLife.ShufleEnding(); set => wzMaxLife = value.ShufleEnding(); }
         public uint Life { get => wzLife.ShufleEnding(); set => wzLife = value.ShufleEnding(); }
+    }
+
+    [WZContract]
+    public class SMuHelperState : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Time { get; set; }
+        [WZMember(1)]
+        public byte TimeMultipler { get; set; }
+        [WZMember(2)]
+        public ushort padding { get; set; }
+        [WZMember(3)]
+        public uint Money { get; set; }
+        [WZMember(4)]
+        public byte Status { get; set; }
+
+        public ushort usTime { 
+            get => (ushort)(TimeMultipler * 0xff + Time); 
+            set
+            {
+                Time = (byte)(value % 0xff);
+                TimeMultipler = (byte)(value / 0xff);
+            }                
+         }
+    }
+
+    [WZContract]
+    public class SAttackSpeed : IGameMessage
+    {
+        [WZMember(0)]
+        public uint AttackSpeed { get; set; }
+        [WZMember(1)]
+        public uint MagicSpeed { get; set; }
     }
 }
 

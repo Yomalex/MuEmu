@@ -11,6 +11,7 @@ namespace MuEmu
 {
     public class Player
     {
+        private LoginStatus _loginStatus;
         /// <summary>
         /// Session ID or Connection ID
         /// </summary>
@@ -22,7 +23,12 @@ namespace MuEmu
         /// <summary>
         /// Connection Status on GS, NotLogged - Logged - Playing
         /// </summary>
-        public LoginStatus Status { get; set; }
+        public LoginStatus Status { get => _loginStatus; set
+            {
+                _loginStatus = value;
+                OnStatusChange?.Invoke(this, new EventArgs());
+            }
+        }
 
         public GameCheckSum CheckSum { get; set; }
 
@@ -38,6 +44,11 @@ namespace MuEmu
         {
             Session = session;
             Status = LoginStatus.NotLogged;
+            OnStatusChange += Player_OnStatusChange;
+        }
+
+        private void Player_OnStatusChange(object sender, EventArgs e)
+        {
         }
 
         public void SetAccount(AccountDto acc)
@@ -69,5 +80,10 @@ namespace MuEmu
             if(Character != null)
                 await Character.Save(db);
         }
+
+        /// <summary>
+        /// Sender Player
+        /// </summary>
+        public event EventHandler OnStatusChange;
     }
 }

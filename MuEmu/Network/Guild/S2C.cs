@@ -72,6 +72,31 @@ namespace MuEmu.Network.Guild
         }
     }
 
+    [WZContract(LongMessage = true)]
+    public class SGuildListS9 : IGuildMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }    // 4
+        [WZMember(1)] public byte Count { get; set; } // 5
+        [WZMember(2)] public ushort Padding { get; set; } // 6, 7
+        [WZMember(3)] public int TotalScore { get; set; } // 8, 9, A, B
+        [WZMember(4)] public byte Score { get; set; } // C
+        [WZMember(5, typeof(BinaryStringSerializer), 8)] public string RivalGuild1 { get; set; }	// D
+        [WZMember(6, typeof(BinaryStringSerializer), 8)] public string RivalGuild2 { get; set; }	// D
+        [WZMember(7, typeof(BinaryStringSerializer), 8)] public string RivalGuild3 { get; set; }	// D
+        [WZMember(8, typeof(BinaryStringSerializer), 8)] public string RivalGuild4 { get; set; }	// D
+        [WZMember(9, typeof(BinaryStringSerializer), 8)] public string RivalGuild5 { get; set; }	// D
+        [WZMember(10)] public ushort Padding2 { get; set; }
+        [WZMember(11)] public byte Padding3 { get; set; }
+
+        [WZMember(12, SerializerType = typeof(ArraySerializer))]
+        public GuildListDto[] Members { get; set; }
+
+        public SGuildListS9()
+        {
+            Members = Array.Empty<GuildListDto>();
+        }
+    }
+
     [WZContract]
     public class SGuildResult : IGuildMessage
     {

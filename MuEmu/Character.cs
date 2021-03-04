@@ -106,6 +106,8 @@ namespace MuEmu
         public Party Party { get; set; }
         public MasterLevel MasterLevel { get; set; }
         public Friends Friends { get; set; }
+        public GensManager Gens { get; set; }
+        public MuBot MuHelper { get; set; }
 
         public PShop Shop { get; set; }
         public CashShop CashShop { get; }
@@ -556,10 +558,11 @@ namespace MuEmu
 
         public Character(Player plr, CharacterDto characterDto)
         {
+            Player = plr;
+            Player.Character = this;
             _autoRecuperationTime = DateTime.Now;
             CharacterDie += OnDead;
             Id = characterDto.CharacterId;
-            Player = plr;
             Name = characterDto.Name;
             Class = (HeroClass)characterDto.Class;
             Level = characterDto.Level;
@@ -572,6 +575,7 @@ namespace MuEmu
             MonstersVP = new List<ushort>();
             ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
+            MuHelper = new MuBot(plr);
             State = ObjectState.Regen;
             CtlCode = (ControlCode)characterDto.CtlCode;
 
@@ -971,6 +975,11 @@ namespace MuEmu
             _defense += Inventory.Defense;
             _defenseRatePvP += Inventory.DefenseRate;
             _defenseRatePvM += Inventory.DefenseRate;
+
+            Player.Session.SendAsync(new SAttackSpeed {
+                AttackSpeed = (uint)_attackSpeed,
+                MagicSpeed = (uint)_attackSpeed / 2,
+            }).Wait();
         }
         private ulong GetExperienceFromLevel(ushort level)
         {
@@ -1213,7 +1222,7 @@ namespace MuEmu
 
         private bool MissCheck(Character target)
         {
-            if (AttackRatePvM < target.DefenseRatePvP)
+            if (AttackRatePvP < target.DefenseRatePvP)
             {
                 if (_rand.Next(100) >= 5)
                 {
@@ -1222,7 +1231,7 @@ namespace MuEmu
             }
             else
             {
-                if (_rand.Next(AttackRatePvM) < target.DefenseRatePvP)
+                if (_rand.Next(AttackRatePvP) < target.DefenseRatePvP)
                 {
                     return false;
                 }
@@ -1234,6 +1243,9 @@ namespace MuEmu
         {
             if (State != ObjectState.Live)
                 return;
+
+            if (dmg < 0)
+                dmg = 0;
 
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
 

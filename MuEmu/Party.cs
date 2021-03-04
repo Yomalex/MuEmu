@@ -59,14 +59,25 @@ namespace MuEmu
             if (party == null)
                 return;
 
-            var data = new SPartyList
-            {
-                Result = PartyResults.Success,
-                PartyMembers = party.List(),
-            };
+            var members = party.Members.Select(x => x.Session);
 
-            foreach (var memb in party.Members)
-                memb.Session.SendAsync(data).Wait();
+            switch (Program.Season)
+            {
+                case 9:
+                    members.SendAsync(new SPartyListS9
+                    {
+                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
+                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
+                    }).Wait();
+                    break;
+                default:
+                    members.SendAsync(new SPartyList
+                    {
+                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
+                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
+                    }).Wait();
+                    break;
+            }
         }
 
         public static void Remove(Player plr)
@@ -160,18 +171,21 @@ namespace MuEmu
             _members.Clear();
         }
 
-        public PartyDto[] List()
+        public PartyS9Dto[] List()
         {
             byte i = 0;
-            var data = _members.Select(x => new Network.Data.PartyDto
+            var data = _members.Select(x => new Network.Data.PartyS9Dto
             {
                 Number = i++,
                 Id = x.Character.Name,
-                Life = (int)x.Character.Health,
-                MaxLife = (int)x.Character.MaxHealth,
+                Life = (int)(x.Character.Health/x.Character.MaxHealth*255.0f),
+                MaxLife = (int)255,
                 Map = x.Character.MapID,
                 X = (byte)x.Character.Position.X,
                 Y = (byte)x.Character.Position.Y,
+                ServerChannel = Program.ServerCode + 1,
+                Mana = (int)x.Character.Mana,
+                MaxMana = (int)x.Character.MaxMana,
             });
 
             return data.ToArray();

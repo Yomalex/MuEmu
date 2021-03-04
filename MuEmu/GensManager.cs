@@ -1,4 +1,5 @@
-﻿using MuEmu.Entity;
+﻿using MU.DataBase;
+using MuEmu.Entity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,6 +22,11 @@ namespace MuEmu
             {
 
             }*/
+        }
+
+        public GensManager(CharacterDto dto)
+        {
+
         }
 
         public void NPCTalk(Player player)

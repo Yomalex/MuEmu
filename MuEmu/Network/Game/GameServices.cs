@@ -6,6 +6,7 @@ using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.Kanturu;
 using MuEmu.Monsters;
 using MuEmu.Network.ConnectServer;
+using MuEmu.Network.Data;
 using MuEmu.Network.MuunSystem;
 using MuEmu.Network.QuestSystem;
 using MuEmu.Network.UBFSystem;
@@ -1239,6 +1240,12 @@ namespace MuEmu.Network.Game
                         {
                             attack = @char.SkillAttack(spell, defense, out type);
                         }
+
+                        if (attack <= 0)
+                        {
+                            attack = 0;
+                            type = DamageType.Miss;
+                        }
                         break;
                 }
 
@@ -1332,6 +1339,22 @@ namespace MuEmu.Network.Game
                 new Point(-1, 1),
                 new Point(-1, 0)
             };
+            DamageType type;
+
+            if(message.Target != 0)
+            {
+                if(message.Target < MonstersMng.MonsterStartIndex)
+                {
+                    var plr = Program.server.Clients.First(x => x.ID == message.Target).Player;
+                    var attack = @char.SkillAttack(magic, plr.Character.Defense, out type);
+                    await plr.Character.GetAttacked(@char.Player.ID, message.Dir, 0, attack, type, message.MagicNumber);
+                }else
+                {
+                    var mom = MonstersMng.Instance.GetMonster(message.Target);
+                    var attack = @char.SkillAttack(magic, mom.Defense, out type);
+                    await mom.GetAttacked(@char.Player, attack, type);
+                }
+            }
 
             switch (message.MagicNumber)
             {
@@ -1350,7 +1373,6 @@ namespace MuEmu.Network.Game
 
                         foreach (var mob in vp)
                         {
-                            DamageType type;
                             var attack = @char.SkillAttack(magic, mob.Defense, out type);
                             await mob.GetAttacked(@char.Player, attack, type);
                         }
@@ -1370,7 +1392,6 @@ namespace MuEmu.Network.Game
 
                         foreach (var mob in vp)
                         {
-                            DamageType type;
                             var attack = @char.SkillAttack(magic, mob.Defense, out type);
                             await mob.GetAttacked(@char.Player, attack, type);
                         }
@@ -1385,7 +1406,6 @@ namespace MuEmu.Network.Game
                             .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
-                            DamageType type;
                             var attack = @char.SkillAttack(magic, mob.Defense, out type);
                             await mob.GetAttacked(@char.Player, attack, type);
                             mob.Spells.SetBuff(SkillStates.Poison, TimeSpan.FromSeconds(60), @char);
@@ -1406,7 +1426,6 @@ namespace MuEmu.Network.Game
                             .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
-                            DamageType type;
                             var attack = @char.SkillAttack(magic, mob.Defense, out type);
                             await mob.GetAttacked(@char.Player, attack, type);
                             mob.Spells.SetBuff(SkillStates.Ice, TimeSpan.FromSeconds(60), @char);
@@ -1423,7 +1442,6 @@ namespace MuEmu.Network.Game
                             .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
-                            DamageType type;
                             var attack = @char.MagicAttack(magic, mob.Defense, out type);
                             mob.GetAttackedDelayed(@char.Player, attack, type, TimeSpan.FromMilliseconds(300));
                             //mob.Spells.SetBuff(SkillStates.f, TimeSpan.FromSeconds(60), @char);
@@ -1810,18 +1828,26 @@ namespace MuEmu.Network.Game
         [MessageHandler(typeof(CPartyList))]
         public async Task CPartyList(GSSession session)
         {
-            var partyInfo = new SPartyList();
             var party = session.Player.Character.Party;
 
-            if (party == null)
+            switch(Program.Season)
             {
-                await session.SendAsync(partyInfo);
-                return;
+                case 9:
+                    await session.SendAsync(new SPartyListS9 
+                    { 
+                        Result = party==null? PartyResults.Fail : PartyResults.Success,
+                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
+                    });
+                    break;
+                default:
+                    await session.SendAsync(new SPartyList
+                    {
+                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
+                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
+                    });
+                    break;
             }
-
-            partyInfo.Result = PartyResults.Success;
-            partyInfo.PartyMembers = party.List();
-            await session.SendAsync(partyInfo);
+            
         }
 
         [MessageHandler(typeof(CPartyDelUser))]
@@ -2321,6 +2347,18 @@ namespace MuEmu.Network.Game
             {
                 session.Player.Character.WarpTo(333);
             }
+        }
+
+        [MessageHandler(typeof(CMUBotData))]
+        public void CMUBotData(GSSession session, CMUBotData message)
+        {
+
+        }
+
+        [MessageHandler(typeof(CMuHelperState))]
+        public void CMuHelperState(GSSession session, CMuHelperState message)
+        {
+            session.Player.Character.MuHelper.Enable(message.State == 0);
         }
     }
 }

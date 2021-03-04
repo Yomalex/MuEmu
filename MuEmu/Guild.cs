@@ -121,23 +121,57 @@ namespace MuEmu
         public static void SendList(Player plr)
         {
             var guild = Instance.Guilds.Values.Where(x => x.Members.Any(y => y.Player == plr)).FirstOrDefault();
-            var pMsg = new SGuildList();
+            object pMsg;
+
             if (guild == null)
             {
+                switch (Program.Season)
+                {
+                    case 9:
+                        pMsg = new SGuildListS9
+                        {
+                            Result = 0,
+                        };
+                        break;
+                    default:
+                        pMsg = new SGuildList
+                        {
+                            Result = 0,
+                        };
+                        break;
+                }
                 Logger.Error("NO GUILD");
-                plr.Session.SendAsync(pMsg);
+                plr.Session.SendAsync(pMsg).Wait();
                 return;
             }
 
-            pMsg.Result = 1;
-            pMsg.Members = guild.Members.Select((x,i) => new GuildListDto
+            var members = guild.Members.Select((x,i) => new GuildListDto
             {
                 Name = x.Name,
                 ConnectAServer = 0x80,
                 Number = (byte)i,
                 btGuildStatus = x.Rank,
             }).ToArray();
-            pMsg.Count = (byte)pMsg.Members.Length;
+
+            switch (Program.Season)
+            {
+                case 9:
+                    pMsg = new SGuildListS9
+                    {
+                        Result = 1,
+                        Members = members,
+                        Count = (byte)members.Length,
+                    };
+                    break;
+                default:
+                    pMsg = new SGuildList
+                    {
+                        Result = 1,
+                        Members = members,
+                        Count = (byte)members.Length,
+                    };
+                    break;
+            }
 
             plr.Session.SendAsync(pMsg).Wait();
             Logger.Debug("Player List:{0}", string.Join(", ", guild.Members.Select(x => x.Name)));

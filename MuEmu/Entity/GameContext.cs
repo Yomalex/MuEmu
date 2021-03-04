@@ -8,10 +8,11 @@ namespace MuEmu.Entity
 {
     public class GameContext : DbContext
     {
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySQL(Program.ConnectionString);
+            optionsBuilder
+                .EnableSensitiveDataLogging()
+                .UseMySQL(Program.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -743,4 +743,18 @@ namespace MuEmu.Network.Game
     [WZContract]
     public class CNPCJulia : IGameMessage
     { }
+
+    [WZContract]
+    public class CMUBotData : IGameMessage
+    {
+        [WZMember(0, typeof(BinarySerializer), 257)]
+        public byte[] Data { get; set; }
+    }
+
+    [WZContract]
+    public class CMuHelperState : IGameMessage
+    {
+        [WZMember(0)]
+        public byte State { get; set; }
+    }
 }

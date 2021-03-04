@@ -628,6 +628,14 @@ namespace MuEmu
                         foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
                         {
                             await plr.Save(db);
+                            plr.Character?.MuHelper.Update();
+                            try
+                            {
+                                db.SaveChanges();
+                            }catch(Exception ex)
+                            {
+                                Logger.ForAccount(plr.Session).Error("Player Save:", ex);
+                            }
                         }
 
                         var maps = ResourceCache.Instance.GetMaps();
@@ -643,8 +651,15 @@ namespace MuEmu
                                 });
                             }
                         }
+                        try
+                        {
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Map Save:", ex);
+                        }
 
-                        db.SaveChanges();
                     }
                     Logger.Information("Saved players");
                     Thread.Sleep(60000);

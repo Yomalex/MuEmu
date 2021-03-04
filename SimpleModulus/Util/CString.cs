@@ -20,13 +20,19 @@ namespace WebZen.Util
 
         public static byte[] GetBytes(this string String)
         {
+            if (String == null)
+                return Array.Empty<byte>();
+
             return Encoding.ASCII.GetBytes(String);
         }
 
         public static void WriteString(this BinaryWriter w, string value, int length)
         {
             var a = new byte[length];
-            Array.Copy(value.GetBytes(), a, Math.Min(length, value.Length));
+
+            if(value != null)
+                Array.Copy(value.GetBytes(), a, Math.Min(length, value.Length));
+
             w.Write(a, 0, length);
         }
 

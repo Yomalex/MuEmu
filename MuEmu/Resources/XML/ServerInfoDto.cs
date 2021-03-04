@@ -18,7 +18,7 @@ namespace MuEmu.Resources.XML
         [XmlElement] public int Port { get; set; } = 55901;
         [XmlElement] public string ConnectServerIP { get; set; } = "127.0.0.1";
         [XmlElement] public float Experience { get; set; } = 10.0f;
-        [XmlElement] public bool AutoRegistre { get; set; } = true;
+        [XmlElement] public bool AutoRegister { get; set; } = true;
         [XmlElement] public float Zen { get; set; } = 10.0f;
         [XmlElement] public int DropRate { get; set; } = 60;
         [XmlElement] public string Lang { get; set; } = "es";

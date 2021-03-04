@@ -169,8 +169,6 @@ namespace MuEmu.Network.Auth
                 var b = Activator.CreateInstance(a, (byte)5, (byte)0, acc.Characters, (byte)5, (byte)3);
                 await session.SendAsync(b);
 
-
-
                 await session.SendAsync(new SEnableCreation { 
                     EnableCreation = EnableClassCreation.Summoner | EnableClassCreation.RageFighter | EnableClassCreation.MagicGladiator | EnableClassCreation.GrowLancer | EnableClassCreation.DarkLord 
                 });

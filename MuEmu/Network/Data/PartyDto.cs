@@ -35,4 +35,16 @@ namespace MuEmu.Network.Data
 
         public string Id { get => btId.MakeString(); set => btId = value.GetBytes(); }
     }
+    [WZContract]
+    public class PartyS9Dto : PartyDto
+    {
+        [WZMember(8)]
+        public int ServerChannel { get; set; }
+
+        [WZMember(9)]
+        public int Mana { get; set; }
+
+        [WZMember(10)]
+        public int MaxMana { get; set; }
+    }
 }

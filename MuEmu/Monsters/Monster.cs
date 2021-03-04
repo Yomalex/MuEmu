@@ -525,16 +525,26 @@ namespace MuEmu.Monsters
 
                 EXP *= pair.Value / MaxLife;
 
-                if(pair.Key == Killer)
+                if (pair.Key == Killer)
                     Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen + Killer.Character.Spells.IncreaseZen);
 
                 EXP *= Program.Experience;
                 Zen *= Program.Zen;
 
                 pair.Key.Character.Experience += (ulong)EXP;
-                pair.Key.Session
-                    .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
-                    .Wait();
+                switch (Program.Season)
+                {
+                    case 9:
+                        pair.Key.Session
+                            .SendAsync(new SKillPlayerEXT(Index, (int)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
+                            .Wait();
+                        break;
+                    default:
+                        pair.Key.Session
+                            .SendAsync(new SKillPlayer(Index, (ushort)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
+                            .Wait();
+                        break;
+                }
 
                 var usedMana = pair.Key.Character.MaxMana - pair.Key.Character.Mana;
                 var usedHealth = pair.Key.Character.MaxHealth - pair.Key.Character.Health;

@@ -182,6 +182,7 @@ namespace MuEmu.Network.Game
             Register<SChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
             Register<SDamage>(GameOpCode.Damage);
             Register<SKillPlayer>(GameOpCode.KillPlayer);
+            Register<SKillPlayerEXT>(GameOpCode.KillPlayerEXT);
             Register<SDiePlayer>(GameOpCode.DiePlayer);
             Register<SEffect>(GameOpCode.Effect);
             Register<SItemModify>(GameOpCode.ItemModify);
@@ -197,6 +198,7 @@ namespace MuEmu.Network.Game
             #region Server PartyMessages
             Register<SPartyResult>(GameOpCode.PartyResult);
             Register<SPartyList>(GameOpCode.PartyList);
+            Register<SPartyListS9>(GameOpCode.PartyList);
             Register<SPartyDelUser>(GameOpCode.PartyDelUser);
             Register<SPartyLifeAll>(GameOpCode.PartyLifeUpdate);
             #endregion
@@ -256,6 +258,9 @@ namespace MuEmu.Network.Game
             Register<CMemberPosInfoStop>(GameOpCode.MemberPosInfoStop);
 
             Register<SLifeInfo>(GameOpCode.LifeInfo);
+            Register<CMuHelperState>(GameOpCode.MuHelperSwitch);
+            Register<SMuHelperState>(GameOpCode.MuHelperSwitch);
+            Register<SAttackSpeed>(GameOpCode.AttackSpeed);
         }
     }
 }

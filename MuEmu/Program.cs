@@ -107,7 +107,7 @@ namespace MuEmu
 
             var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
             var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
-            AutoRegistre = xml.AutoRegistre;
+            AutoRegistre = xml.AutoRegister;
             ServerCode = (ushort)xml.Code;
             Experience = xml.Experience;
             Zen = xml.Zen;

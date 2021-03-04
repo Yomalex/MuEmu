@@ -311,6 +311,9 @@ namespace MuEmu.Network.Auth
         [WZMember(6)]
         public byte PKLevel { get; set; }
 
+        [WZMember(7)]
+        public byte unk { get; set; }
+
         public CharacterPreviewS9Dto() { }
 
         public CharacterPreviewS9Dto(byte Id, string name, ushort level, ControlCode cc, byte[] charSet, GuildStatus gStatus, byte pkLevel)

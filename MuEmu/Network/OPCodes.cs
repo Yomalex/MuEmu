@@ -182,6 +182,9 @@ namespace MuEmu.Network
         MemberPosInfoStop = 0x02E7,
         LifeInfo = 0x10EC,
         NPCJulia = 0x17BF,
+        MuHelperSwitch = 0x51BF,
+        AttackSpeed = 0x30EC,
+        KillPlayerEXT = 0xFF9C,
     }
 
     public enum GensOpCode
