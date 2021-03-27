@@ -1,11 +1,11 @@
 <MapServer>
   <Group>
       <GameServer Code="0" IP="192.168.1.106" Port="55901" Default="1">
-          <Map ID="ValleyofLoren" MoveAbleOption="0" Dest="19" />
+          <!--<Map ID="ValleyofLoren" MoveAbleOption="0" Dest="19" />
           <Map ID="LandofTrial" MoveAbleOption="0" Dest="19" />
           <Map ID="Crywolf" MoveAbleOption="0" Dest="19" />
           <Map ID="BarracksofBalgass" MoveAbleOption="0" Dest="19" />
-          <Map ID="BalgassRefuge" MoveAbleOption="0" Dest="19" />
+          <Map ID="BalgassRefuge" MoveAbleOption="0" Dest="19" />-->
       </GameServer>
       <GameServer Code="19" IP="192.168.1.106" Port="55919" Default="0">
           <Map ID="ValleyofLoren" MoveAbleOption="1" Dest="-1" />

@@ -1,6 +1,7 @@
 ﻿using MU.DataBase;
 using MuEmu.Entity;
-using MuEmu.Network.Game;
+using MU.Resources;
+using MU.Network.Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;

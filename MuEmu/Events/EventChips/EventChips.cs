@@ -1,4 +1,5 @@
-﻿using MuEmu.Network.Event;
+﻿using MU.Network.Event;
+using MU.Resources;
 using System;
 using System.Collections.Generic;
 using System.Text;

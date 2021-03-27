@@ -1,5 +1,6 @@
-﻿using MuEmu.Network.Event;
-using MuEmu.Network.Game;
+﻿using MU.Network.Event;
+using MU.Resources;
+using MU.Network.Game;
 using Serilog;
 using Serilog.Core;
 using System;

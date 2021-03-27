@@ -1,12 +1,13 @@
 ﻿using MU.DataBase;
 using MuEmu.Entity;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
+using MU.Resources;
 
 namespace MuEmu
 {

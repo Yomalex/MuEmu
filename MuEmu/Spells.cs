@@ -1,9 +1,9 @@
 ﻿using MU.DataBase;
+using MU.Resources;
 using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Monsters;
-using MuEmu.Network.Data;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using MuEmu.Resources;
 using MuEmu.Util;
 using Serilog;
@@ -16,154 +16,6 @@ using System.Threading.Tasks;
 
 namespace MuEmu
 {
-    public enum Spell : ushort
-    {
-        None,
-        Poison,
-        Meteorite,
-        Lighting,
-        FireBall,
-        Flame,
-        Teleport,
-        Ice,
-        Twister,
-        EvilSpirit,
-        Hellfire,
-        PowerWave,
-        AquaBeam,
-        Cometfall,
-        Inferno,
-        TeleportAlly,
-        SoulBarrier,
-        EnergyBall,
-        Defense,
-        Falling_Slash,
-        Lunge,
-        Uppercut,
-        Cyclone,
-        Slash,
-        Triple_Shot,
-        Heal = 26,
-        GreaterDefense,
-        GreaterDamage,
-        Summon_Goblin = 30,
-        Summon_StoneGolem,
-        Summon_Assassin,
-        Summon_EliteYeti,
-        Summon_DarkKnight,
-        Summon_Bali,
-        Summon_Soldier,
-        Decay = 38,
-        IceStorm,
-        Nova,
-        TwistingSlash,
-        RagefulBlow,
-        DeathStab,
-        CrescentMoonSlash,
-        ManaGlaive,
-        Starfall,
-        Impale,
-        GreaterFortitude,
-        FireBreath,
-        FlameofEvilMonster,
-        IceArrow,
-        Penetration,
-        FireSlash = 55,
-        PowerSlash,
-        SpiralSlash,
-        Force = 60,
-        FireBurst,
-        Earthshake,
-        Summon,
-        IncreaseCriticalDmg,
-        ElectricSpike,
-        ForceWave,
-        Stern,
-        CancelStern,
-        SwellMana,
-        Transparency,
-        CancelTransparency,
-        CancelMagic,
-        ManaRays,
-        FireBlast,
-        PlasmaStorm = 76,
-        InfinityArrow,
-        FireScream,
-        DrainLife = 214,
-        ChainLighting,
-        ElectricSurge,
-        Reflex,
-        Sleep = 219,
-        Night,
-        MagicSpeedUp,
-        MagicDefenseUp,
-        Sahamutt,
-        Neil,
-        GhostPhantom,
-
-        RedStorm = 230,
-        MagicCircle = 233,
-        Recovery = 234,
-        MultiShot = 235,
-        LightingStorm = 237,
-
-        // Master Level
-        SoulBarrier1 = 435,
-        SoulBarrier2,
-        SoulBarrier3,
-        SoulBarrier4,
-        SoulBarrier5,
-        Hellfire1 = 440,
-        Hellfire2,
-        Hellfire3,
-        Hellfire4,
-        Hellfire5,
-        EvilSpirit1 = 445,
-        EvilSpirit2,
-        EvilSpirit3,
-        EvilSpirit4,
-        EvilSpirit5,
-        IceStorm1 = 450,
-        IceStorm2,
-        IceStorm3,
-        IceStorm4,
-        IceStorm5,
-        TwistingSlash1 = 455,
-        TwistingSlash2,
-        TwistingSlash3,
-        TwistingSlash4,
-        TwistingSlash5,
-        DeathStab1 = 460,
-        DeathStab2,
-        DeathStab3,
-        DeathStab4,
-        DeathStab5,
-        RagefulBlow1 = 465,
-        RagefulBlow2,
-        RagefulBlow3,
-        RagefulBlow4,
-        RagefulBlow5,
-        GreatFortitude1 = 470,
-        GreatFortitude2,
-        GreatFortitude3,
-        GreatFortitude4,
-        GreatFortitude5,
-        Heal1 = 475,
-        Heal2,
-        Heal3,
-        Heal4,
-        Heal5,
-        GreaterDefense1 = 480,
-        GreaterDefense2,
-        GreaterDefense3,
-        GreaterDefense4,
-        GreaterDefense5,
-        GreaterDamage1 = 485,
-        GreaterDamage2,
-        GreaterDamage3,
-        GreaterDamage4,
-        GreaterDamage5,
-    }
     public class Spells
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Spells));
@@ -422,6 +274,9 @@ namespace MuEmu
                 case SkillStates.Poison:
                     buff.PoisonDamage = 12 + source.EnergyTotal / 10;
                     break;
+                case SkillStates.SkillDamageDeflection:
+                    buff.DamageDeflection = (30 + (source.EnergyTotal / 42))/100.0f;
+                    break;
             }
 
             _buffs.Add(buff);
@@ -620,7 +475,7 @@ namespace MuEmu
 
             _delSpell.ForEach(x => _newSpell.Remove(x));
 
-            await db.Spells.AddRangeAsync(_newSpell.Select(x => new MU.DataBase.SpellDto
+            await db.Spells.AddRangeAsync(_newSpell.Select(x => new SpellDto
             {
                 CharacterId = Character.Id,
                 Level = 1,

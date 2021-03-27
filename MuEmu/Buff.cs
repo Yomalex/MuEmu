@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -29,6 +30,8 @@ namespace MuEmu
 
         public int CoolDamage { get; set; }
         public int PoisonDamage { get; set; }
+
+        public float DamageDeflection { get; set; }
 
         public SkillStates State { get; set; }
     }

@@ -1,10 +1,4 @@
 ﻿using BlubLib.Serialization;
-using MuEmu.Network;
-using MuEmu.Network.Auth;
-using MuEmu.Network.CashShop;
-using MuEmu.Network.ConnectServer;
-using MuEmu.Network.Game;
-using MuEmu.Network.Global;
 using MuEmu.Resources;
 using Serilog;
 using Serilog.Formatting.Json;
@@ -16,17 +10,13 @@ using WebZen.Network;
 using WebZen.Serialization;
 using MuEmu.Resources.XML;
 using MuEmu.Monsters;
-using MuEmu.Network.Event;
 using WebZen.Util;
-using MuEmu.Network.QuestSystem;
 using MuEmu.Events.LuckyCoins;
 using MuEmu.Events.EventChips;
 using MuEmu.Events.BloodCastle;
 using System.Threading.Tasks;
 using MuEmu.Entity;
 using System.Linq;
-using MuEmu.Network.Guild;
-using MuEmu.Network.AntiHack;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events;
 using MuEmu.Util;
@@ -35,12 +25,26 @@ using MuEmu.Events.ChaosCastle;
 using MuEmu.Resources.BMD;
 using Serilog.Sinks.File;
 using MuEmu.Resources.Game;
-using MuEmu.Network.PCPShop;
 using Serilog.Core;
 using MuEmu.Events.Crywolf;
 using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.DoubleGoer;
-using MuEmu.Network.GensSystem;
+using MuEmu.Network;
+using MU.Network.CashShop;
+using MU.Network.Auth;
+using MU.Network.Global;
+using MU.Network.Game;
+using MU.Network.Event;
+using MU.Network.Guild;
+using MU.Network.AntiHack;
+using MU.Network.PCPShop;
+using MU.Network.GensSystem;
+using MU.Network.QuestSystem;
+using MU.Network;
+using MU.Resources;
+using MU.Resources.Game;
+using MU.Resources.BMD;
+using MuEmu.Network.ConnectServer;
 
 namespace MuEmu
 {
@@ -63,7 +67,6 @@ namespace MuEmu
         public static GlobalEvents GlobalEventsManager;
         public static GoldenInvasion GoldenInvasionManager;
 
-        public static ServerMessages ServerMessages { get; private set; }
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
@@ -82,7 +85,7 @@ namespace MuEmu
                 .MinimumLevel.Debug()
                 .CreateLogger();
 
-            ServerMessages = new ServerMessages();
+            ServerMessages.Initialize();
             ServerMessages.LoadMessages("./Data/Lang/ServerMessages(es).xml");
 
             if (!File.Exists("./Server.xml"))
@@ -99,7 +102,8 @@ namespace MuEmu
             Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Version, xml.Serial, xml.DataBase);
 
             ConnectionString = $"Server={xml.DBIp};port=3306;Database={xml.DataBase};user={xml.BDUser};password={xml.DBPassword};Convert Zero Datetime=True;";
-            
+
+            GameContext.ConnectionString = ConnectionString;
             SimpleModulus.LoadDecryptionKey("./Data/Dec1.dat");
             SimpleModulus.LoadEncryptionKey("./Data/Enc2.dat");
             byte[] key = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
@@ -136,10 +140,10 @@ namespace MuEmu
             };
             var mf = new MessageFactory[]
             {
-                new AuthMessageFactory(),
+                new AuthMessageFactory(Season),
                 new GlobalMessageFactory(),
-                new GameMessageFactory(),
-                new CashShopMessageFactory(),
+                new GameMessageFactory(Season),
+                new CashShopMessageFactory(Season),
                 new EventMessageFactory(),
                 new QuestSystemMessageFactory(),
                 new GuildMessageFactory(),
@@ -248,7 +252,8 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
                         .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument))
                         .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument)))))
-                    .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster)))
+                    .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster))
+                    .AddCommand(new Command<GSSession>("reset", Character.Reset)))
                 .AddCommand(new Command<GSSession>("#", PostCommand).SetPartial())//Post
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;

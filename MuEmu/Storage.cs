@@ -1,4 +1,5 @@
-﻿using MuEmu.Network.Data;
+﻿using MU.Resources;
+using MuEmu.Network.Data;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

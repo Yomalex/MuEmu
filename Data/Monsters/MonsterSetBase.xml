@@ -62,7 +62,9 @@
   <NPC Type="247" Map="Stadium" Radio="0" PosX="66" PosY="117" Dir="1">//Crossbow Guard</NPC>
   <NPC Type="247" Map="Stadium" Radio="0" PosX="102" PosY="114" Dir="7">//Crossbow Guard</NPC>
   <NPC Type="247" Map="Stadium" Radio="0" PosX="102" PosY="116" Dir="7">//Crossbow Guard</NPC>
-  <NPC Type="369" Map="Aida" Radio="0" PosX="80" PosY="14" Dir="3">//Osborne</NPC>
+  <NPC Type="369" Map="Aida" Radio="0" PosX="78" PosY="13" Dir="2">//Osborne</NPC>
+  <NPC Type="370" Map="Aida" Radio="0" PosX="86" PosY="13" Dir="1">//Osborne</NPC>
+  <NPC Type="371" Map="Aida" Radio="0" PosX="82" PosY="16" Dir="1">//Osborne</NPC>
   <NPC Type="259" Map="Kalima1" Radio="0" PosX="19" PosY="31" Dir="1">//Kalnac [Kalima 1]</NPC>
   <NPC Type="259" Map="Kalima2" Radio="0" PosX="19" PosY="31" Dir="1">//Kalnac [Kalima 2]</NPC>
   <NPC Type="259" Map="Kalima3" Radio="0" PosX="19" PosY="31" Dir="1">//Kalnac [Kalima 3]</NPC>

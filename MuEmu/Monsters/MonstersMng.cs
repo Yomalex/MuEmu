@@ -1,4 +1,5 @@
-﻿using MuEmu.Resources;
+﻿using MU.Resources;
+using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Util;
@@ -55,13 +56,13 @@ namespace MuEmu.Monsters
         {
             if(File.Exists(file+".xml"))
             {
-                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading), file + ".xml");
+                Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Loading), file + ".xml");
                 var xml = ResourceLoader.XmlLoader<XmlMonsterInfo>(file + ".xml");
                 _monsterInfo = xml.Monsters.ToDictionary(x => x.Monster);
             }
             else if (File.Exists(file + ".txt"))
             {
-                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading), file + ".txt");
+                Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Loading), file + ".txt");
                 var loader = new LoadWZTXT<XmlMonsterInfo>();
                 var xml = loader.Load(file + ".txt");
                 foreach (var monst in xml.Monsters)
@@ -78,7 +79,7 @@ namespace MuEmu.Monsters
                 ResourceLoader.XmlSaver(file + ".xml", xml);
             }
 
-            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Types), _monsterInfo.Count);
+            Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Types), _monsterInfo.Count);
         }
 
         public void LoadSetBase(string file)
@@ -86,12 +87,12 @@ namespace MuEmu.Monsters
             XmlMonsterSetBase xml = null;
             if (File.Exists(file + ".xml"))
             {
-                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file + ".xml");
+                Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file + ".xml");
                 xml = ResourceLoader.XmlLoader<XmlMonsterSetBase>(file + ".xml");
             }
             else if (File.Exists(file + ".txt"))
             {
-                Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file + ".txt");
+                Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Loading2), file + ".txt");
                 var loader = new LoadWZTXT<XmlMonsterSetBase>();
                 xml = loader.Load(file + ".txt");
                 ResourceLoader.XmlSaver(file + ".xml", xml);
@@ -132,7 +133,7 @@ namespace MuEmu.Monsters
                     { }
                 }
             }
-            Logger.Information(Program.ServerMessages.GetMessage(Messages.MonsterMng_Loaded), Monsters.Count);
+            Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Loaded), Monsters.Count);
         }
 
         public Monster GetMonster(ushort Index)

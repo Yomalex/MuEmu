@@ -1,4 +1,5 @@
-﻿using MuEmu.Resources;
+﻿using MU.Resources;
+using MuEmu.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;

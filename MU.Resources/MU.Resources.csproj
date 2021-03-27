@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="2.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleModulus\WebZen.csproj" />
+    <ProjectReference Include="..\WebZen.DataBase\MU.DataBase.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BlubLib">
+      <HintPath>..\BlubLib\0.1.4\BlubLib.dll</HintPath>
+    </Reference>
+    <Reference Include="BlubLib.Serialization">
+      <HintPath>..\BlubLib\0.1.4\BlubLib.Serialization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

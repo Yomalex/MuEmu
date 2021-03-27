@@ -40,7 +40,7 @@ namespace MuEmu
                         .Where(x => x.VaultId == ID * 10 + i);
 
                     foreach(var it in items)
-                        _vaults[i].Add(new Item(it));
+                        _vaults[i].Add(new Item(it, this));
                 }
         }
 

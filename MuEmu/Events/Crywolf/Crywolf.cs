@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
 using MuEmu.Monsters;
 using MuEmu.Network;
-using MuEmu.Network.Event;
-using MuEmu.Network.Game;
+using MU.Network.Event;
+using MU.Network.Game;
+using MU.Resources;
 using MuEmu.Resources;
 using MuEmu.Resources.Map;
 using MuEmu.Util;

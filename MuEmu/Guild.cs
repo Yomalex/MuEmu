@@ -2,15 +2,16 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-using MuEmu.Network.Guild;
+using MU.Network.Guild;
 using MuEmu.Network.Data;
 using Serilog;
 using Serilog.Core;
 using MuEmu.Entity;
 using MU.DataBase;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using MuEmu.Util;
 using MuEmu.Monsters;
+using MU.Resources;
 
 namespace MuEmu
 {
@@ -26,8 +27,9 @@ namespace MuEmu
             Guilds = new Dictionary<int, Guild>();
             using (var game = new GameContext())
             {
-                foreach(var guild in game.Guilds)
+                foreach(var guild in game.Guilds.ToList())
                 {
+                    //guild.MembersInfo = game.GuildMembers.Where(x => x.GuildId == guild.GuildId).ToList();
                     Guilds.Add(guild.GuildId, new Guild(guild));
                 }
             }
@@ -145,10 +147,13 @@ namespace MuEmu
                 return;
             }
 
-            var members = guild.Members.Select((x,i) => new GuildListDto
+            var members = guild.Members
+                .OrderBy(x => x.Name)
+                .OrderByDescending(x => x.Rank)
+                .Select((x,i) => new GuildListDto
             {
                 Name = x.Name,
-                ConnectAServer = 0x80,
+                ConnectAServer = (byte)(guild.ActiveMembers.Any(y => y.Name == x.Name)?0x80:0x00),
                 Number = (byte)i,
                 btGuildStatus = x.Rank,
             }).ToArray();
@@ -224,18 +229,7 @@ namespace MuEmu
             Index = guildDto.GuildId;
             Name = guildDto.Name;
             Mark = guildDto.Mark;
-
-            using (var game = new GameContext())
-            {
-                var membsDb = (from memb in game.GuildMembers
-                                where memb.GuildId == Index
-                                select memb).ToList();
-
-                Members = (from @char in game.Characters
-                          from memb in membsDb
-                          where @char.CharacterId == memb.MembId
-                          select new GuildMember(this, @char.Name, (GuildStatus)memb.Rank)).ToList();
-            }
+            Members = guildDto.MembersInfo.Select(x => new GuildMember(this, x.Memb.Name, (GuildStatus)x.Rank)).ToList();
             Type = guildDto.GuildType;
         }
 

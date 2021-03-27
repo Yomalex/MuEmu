@@ -3,9 +3,10 @@ using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Monsters;
 using MuEmu.Network.Data;
-using MuEmu.Network.Game;
-using MuEmu.Network.QuestSystem;
+using MU.Network.Game;
+using MU.Network.QuestSystem;
 using MuEmu.Resources;
+using MuEmu.Resources.XML;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -13,13 +14,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MU.Resources;
 
 namespace MuEmu
 {
+    public class QuestInfoIndex
+    {
+        public AskType Type { get; set; }
+        public uint Index { get; set; }
+        public uint Episode { get => (Index >> 0x10); set => Index = Switch + value << 0x10; }
+        public uint Switch { get => (Index & 0xFFFF); set => Index = (Episode << 0x10) + value; }
+
+        public static implicit operator QuestInfoIndex(uint id)
+        {
+            return new QuestInfoIndex { Index = id };
+        }
+
+        public static implicit operator uint(QuestInfoIndex info)
+        {
+            return info.Index;
+        }
+
+        public static QuestInfoIndex FromEpisodeSwitch(uint Ep, uint Sw)
+        {
+            return new QuestInfoIndex { Episode = Ep, Switch = Sw };
+        }
+
+        public override string ToString()
+        {
+            return $"EP{Episode}-{Switch}";
+        }
+    }
+    public class QuestInfoMonster : QuestInfoIndex
+    {
+        public ushort MonsterClass { get; set; }
+        public uint Current { get; set; }
+        public uint Value { get; set; }
+    }
     public class Quests
     {
         private static Random _rand = new Random();
         private List<Quest> _quests;
+        private Dictionary<int, QuestInfoIndex> _episodes = new Dictionary<int, QuestInfoIndex>();
+        private QuestEXPDto _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>("./Data/QuestEXP.xml");
+        private QuestInfoIndex _currentQuest;
+        //private List<List<>>
 
         internal static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Quests));
         internal Dictionary<uint, byte> _questMonsterKillCount = new Dictionary<uint, byte>();
@@ -60,12 +99,62 @@ namespace MuEmu
             }
         }
 
+        internal uint GetEpisodeState(uint episode)
+        {
+            if (_episodes.TryGetValue((int)episode, out QuestInfoIndex value))
+            {
+                return value.Switch;
+            }
+
+            return 0;
+        }
+        internal void SetEpisodeState(uint episode, uint _switch)
+        {
+            if(_episodes.TryGetValue((int)episode, out QuestInfoIndex value))
+            {
+                value.Switch = _switch;
+                return;
+            }
+
+            _episodes.Add((int)episode, QuestInfoIndex.FromEpisodeSwitch(episode, _switch));
+        }
+
         public async void SendList()
         {
             var standarQuest = _quests.Where(x => x.Standar).ToArray();
             await Player.Session.SendAsync(new SQuestInfo { Count = (byte)standarQuest.Length, State = QuestStates });
             var customQuest = _quests.Where(x => !x.Standar).ToArray();
             await Player.Session.SendAsync(new SNewQuestInfo { QuestList = Array.Empty<NewQuestInfoDto>() });
+        }
+
+        public async void SendEXPListNPC(ushort npc)
+        {
+            var session = Player.Session;
+            var list = _questEXP.QuestList.FirstOrDefault(x => x.Index == npc)?.QuestInfo??null;
+
+            var quest = Array.Empty<QuestInfoIndex>();
+            if(list != null)
+            {
+                quest = (from l in list
+                        where 
+                        l.MinLevel <= Player.Character.Level && 
+                        l.MaxLevel >= Player.Character.Level && 
+                        (_episodes.Values.Contains((QuestInfoIndex)l.ReqEpisode) || l.ReqEpisode == 0) && !_episodes.Values.Contains(QuestInfoIndex.FromEpisodeSwitch(l.Episode, 65535))
+                         select QuestInfoIndex.FromEpisodeSwitch(l.Episode, 0)).ToArray();
+
+                foreach(var q in quest)
+                {
+                    if(_episodes.ContainsKey((int)q.Episode))
+                    {
+                        q.Switch = _episodes[(int)q.Episode].Switch;
+                    }
+                }
+            }
+            await session.SendAsync(new SQuestSwitchListNPC
+            {
+                NPC = npc,
+                QuestList = quest.Select(x => (uint)x).ToArray()
+            });
         }
 
         public void OnMonsterDie(Monster monster)
@@ -121,6 +210,47 @@ namespace MuEmu
                     }
                 }
             }
+
+            foreach(var episode in _episodes.Values)
+            {
+                if (episode.Type != AskType.Monster)
+                    continue;
+
+                var mons = episode as QuestInfoMonster;
+                if(mons.MonsterClass == monster.Info.Monster)
+                {
+                    mons.Current++;
+                }
+            }
+        }
+
+        internal T GetEpisode<T>(int episode, uint _switch)
+            where T: class
+        {
+            if(_episodes.ContainsKey(episode))
+            {
+                if(_episodes[episode] is T)
+                    return (T)(object)_episodes[episode];
+            }
+
+            var newObject = (QuestInfoIndex)Activator.CreateInstance(typeof(T));
+            newObject.Index = QuestInfoIndex.FromEpisodeSwitch((uint)episode, _switch);
+
+            if(_episodes.ContainsKey(episode))
+            {
+                _episodes[episode] = newObject;
+            }
+            else
+            {
+                _episodes.Add(episode, newObject);
+            }
+
+            return (T)(object)newObject;
+        }
+
+        internal QuestInfoIndex GetLastEpisode()
+        {
+            return _episodes.Last().Value;
         }
 
         public Quest GetByIndex(int Index)
@@ -184,6 +314,31 @@ namespace MuEmu
         {
             foreach (var q in _quests)
                 await q.Save(db);
+        }
+
+        internal QuestInfoIndex GetEpisodeByIndex(uint dwQuestInfoIndexID)
+        {
+            return _episodes[(int)dwQuestInfoIndexID];
+        }
+
+        internal void QuestWindow(uint index, byte _switch)
+        {
+            if(_currentQuest.Index != index)
+            {
+                _currentQuest.Index = index;
+                _switch = 0;
+            }
+
+            var eState = GetEpisodeState(_currentQuest.Episode);
+            var questList = ResourceLoader.XmlLoader<QuestEXPDto>("./Data/QuestEXP.xml");
+            var npcQuest = from q in questList.QuestList
+                           where q.Index == (Player.Window as Monster).Info.Monster
+                           select q;
+
+            if (_switch != 0)
+            {
+
+            }
         }
     }
 
@@ -357,7 +512,7 @@ namespace MuEmu
                 .Select(x => x.Key+"="+x.Value));
 
             var dto =
-                    new QuestDto
+                    new MU.DataBase.QuestDto
                     {
                         QuestId = _dbId,
                         Quest = Index,

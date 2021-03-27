@@ -1,6 +1,6 @@
 ﻿using MuEmu.Monsters;
-using MuEmu.Network.Event;
-using MuEmu.Network.Game;
+using MU.Network.Event;
+using MU.Network.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Util;
 using Serilog;
@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using WebZen.Util;
+using MU.Resources;
 
 namespace MuEmu.Events.ChaosCastle
 {

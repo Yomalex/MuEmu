@@ -1,5 +1,6 @@
-﻿using MuEmu.Network;
-using MuEmu.Network.Game;
+﻿using MU.Network;
+using MU.Network.Game;
+using MU.Resources;
 using MuEmu.Util;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
-﻿using MuEmu.Entity;
-using MuEmu.Network.Auth;
+﻿using MU.Network.Auth;
+using MU.Resources;
+using MuEmu.Entity;
 using MuEmu.Resources;
 using MuEmu.Resources.XML;
 using Serilog;
@@ -47,7 +48,7 @@ namespace MuEmu.Network
 
             var GS = group.GameServers.Where(y => y.Code == Program.ServerCode).First();
 
-            var data = GS.Maps.FirstOrDefault(x => x.ID == map);
+            var data = GS.Maps?.FirstOrDefault(x => x.ID == map)??null;
 
             if(data == null)
             {

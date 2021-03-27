@@ -5,7 +5,7 @@ using System.Threading;
 using System.Linq;
 using MuEmu.Resources;
 using System.Drawing;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using MuEmu.Network.Data;
 using MuEmu.Events.BloodCastle;
 using Serilog;
@@ -13,10 +13,11 @@ using Serilog.Core;
 using MuEmu.Entity;
 using WebZen.Util;
 using MuEmu.Resources.Map;
-using MuEmu.Network.QuestSystem;
 using System.Threading.Tasks;
-using MuEmu.Network.Guild;
 using MuEmu.Util;
+using MU.Resources;
+using MU.Network.Guild;
+using MU.Network.GensSystem;
 
 namespace MuEmu
 {
@@ -29,6 +30,7 @@ namespace MuEmu
 
     public class SubSystem
     {
+        public static GameContext db;
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(SubSystem));
         private Thread _workerDelayed;
         private Thread _workerViewPort;
@@ -253,6 +255,27 @@ namespace MuEmu
                         Type = x.Guild.Type,
                     }));
 
+                var gensVP = newPlr
+                    .Where(x => x.Gens.Influence != GensType.None)
+                    .Select(x => new VPGensDto
+                    {
+                        Influence = x.Gens.Influence,
+                        iGensClass = 0,
+                        iGensRanking = 0,
+                        iContributePoint = 100,
+                        wzNumber = x.Index.ShufleEnding()
+                    }).ToList();
+
+                gensVP.AddRange(existPlr.Where(x => x.Gens.Influence != GensType.None)
+                    .Select(x => new VPGensDto
+                    {
+                        Influence = x.Gens.Influence,
+                        iGensClass = 1,
+                        iGensRanking = 1,
+                        iContributePoint = 100,
+                        wzNumber = x.Index.ShufleEnding()
+                    }));
+
                 foreach (var it in deadPlr)
                     plr.PlayersVP.Remove(it);
                 foreach (var it in lostPlr)
@@ -349,6 +372,8 @@ namespace MuEmu
             if (guildVP.Any())
                 plr.Player.Session.SendAsync(new SGuildViewPort { Guilds = guildVP.ToArray() });
 
+            if (gensVP.Any())
+                plr.Player.Session.SendAsync(new SViewPortGens { VPGens = gensVP.ToArray() });
             }
         }
 
@@ -359,6 +384,7 @@ namespace MuEmu
             List<Monsters.Monster> deadObj;
             List<Monsters.Monster> lostObj;
             List<ushort> oldVP;
+            List<ushort> missing;
             lock (Map.Monsters)
             {
                 oldVP = plr.MonstersVP;
@@ -387,6 +413,10 @@ namespace MuEmu
                 lostObj = (from obj in targetVP
                            where !(obj.Position.Substract(plr.Position).LengthSquared() <= 10) && oldVP.Contains(obj.Index)
                            select obj).ToList();
+
+                missing = (from old in oldVP
+                          where !targetVP.Any(x => x.Index == old)
+                          select old).ToList();
             }
 
             foreach (var it in deadObj)
@@ -475,6 +505,7 @@ namespace MuEmu
             var remObj = new List<VPDestroyDto>();
                 remObj.AddRange(deadObj.Select(x => new VPDestroyDto(x.Index)));
                 remObj.AddRange(lostObj.Select(x => new VPDestroyDto(x.Index)));
+                remObj.AddRange(missing.Select(x => new VPDestroyDto(x)));
 
             if (remObj.Any())
             {
@@ -618,56 +649,65 @@ namespace MuEmu
 
         private static async void WorkerSavePlayers()
         {
-            while (true)
+            using (db = new GameContext())
             {
-                try
+                while (true)
                 {
-                    Logger.Information("Saving players");
-                    using (var db = new GameContext())
+                    try
                     {
-                        foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
-                        {
-                            await plr.Save(db);
-                            plr.Character?.MuHelper.Update();
-                            try
+                        Logger.Information("Saving players");
+                            foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
                             {
-                                db.SaveChanges();
-                            }catch(Exception ex)
-                            {
-                                Logger.ForAccount(plr.Session).Error("Player Save:", ex);
-                            }
-                        }
+                                var plrLog = Logger
+                                        .ForAccount(plr.Session);
 
-                        var maps = ResourceCache.Instance.GetMaps();
-                        foreach(var map in maps)
-                        {
-                            lock (map.Value.Items)
-                            {
-                                var fordel = map.Value.Items.Where(x => x.State == ItemState.Deleted).ToList();
-                                fordel.ForEach(x =>
+                                plrLog.Information("Saving for {0}", plr.Character?.Name ?? "UNK");
+
+                                try
                                 {
-                                    x.Item.Delete(db);
-                                    map.Value.Items.Remove(x);
-                                });
+                                    await plr.Save(db);
+                                    plr.Character?.MuHelper.Update();
+                                }catch(Exception ex)
+                                {
+                                    plrLog.Error(ex, "Player Save:");
+                                }
                             }
-                        }
-                        try
-                        {
                             db.SaveChanges();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error("Map Save:", ex);
-                        }
+                        Logger.Information("Saved players");
+                            var maps = ResourceCache.Instance.GetMaps();
+                            foreach(var map in maps)
+                            {
+                                lock (map.Value.Items)
+                                {
+                                    using (var transaction = db.Database.BeginTransaction())
+                                    {
+                                        var fordel = map.Value.Items.Where(x => x.State == ItemState.Deleted).ToList();
+                                        fordel.ForEach(x =>
+                                        {
+                                            map.Value.Items.Remove(x);
+                                            x.Item.Delete(db);
+                                        });
 
+                                        try
+                                        {
+                                            db.SaveChanges();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Logger.Error(ex, "Map " + map.Key + "Save:");
+                                        }
+                                        transaction.Commit();
+                                    }
+                                }
+                            }
+                        Thread.Sleep(60000);
                     }
-                    Logger.Information("Saved players");
-                    Thread.Sleep(60000);
+                    catch (Exception e)
+                    {
+                        Logger.Error(e, DateTime.Now.ToString());
+                    }
                 }
-                catch (Exception e)
-                {
-                    Logger.Error(e, DateTime.Now.ToString());
-                }
+
             }
         }
 

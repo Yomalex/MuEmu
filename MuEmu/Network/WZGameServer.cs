@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using WebZen.Network;
 using WebZen.Handlers;
-using MuEmu.Network.Auth;
 using WebZen.Util;
 using System.Threading.Tasks;
 using System.Linq;
@@ -12,6 +11,8 @@ using MuEmu.Entity;
 using Serilog;
 using Serilog.Core;
 using MuEmu.Monsters;
+using MU.Resources;
+using MU.Network.Auth;
 using MuEmu.Network.ConnectServer;
 
 namespace MuEmu.Network
@@ -33,51 +34,46 @@ namespace MuEmu.Network
 
             Session.Player = new Player(Session);
 
-            Session.SendAsync(new SJoinResult(1, Session.ID, ClientVersion));
+            Session.SendAsync(new SJoinResult(1, Session.ID, ClientVersion)).Wait();
         }
 
         public override void OnDisconnect(WZClient session)
         {
             var Session = session as GSSession;
-            using (var db = new GameContext())
+            if (Session.Player != null)
             {
-                if (Session.Player != null)
+                if (Session.Player.Character != null)
                 {
-                    if (Session.Player.Status == LoginStatus.Playing && Session.Player.Character != null)
-                    {
-                        var @char = Session.Player.Character;
-                        var mobVp = @char.MonstersVP.Select(x => MonstersMng.Instance.GetMonster(x)).ToList();
-                        //mobVp.ForEach(x => x.ViewPort.Remove(Session.Player));
-                        Program.client.SendAsync(new SCRem { Server = (byte)Program.ServerCode, List = new CliRemDto[] { new CliRemDto { btName = @char.Name.GetBytes() } } });
-                        @char.Map.DelPlayer(Session.Player.Character);
-                        @char.Party?.Remove(Session.Player);
-                        @char.Duel?.Leave(@char.Player);
-                        @char.Party = null;
-                        Game.GameServices.CCloseWindow(Session);
-                        foreach(var m in mobVp.Where(x => x.Target == Session.Player))
+                    Program.client
+                        .SendAsync(new SCRem
                         {
-                            m.Target = null;
-                        }
-                    }
-
-                    Session.Player.Status = LoginStatus.NotLogged;
-                    Logger.ForAccount(Session).Information("Saving...");
-                    Session.Player.Save(db).Wait();
-                    Logger.ForAccount(Session).Information("Saved!");
+                            Server = (byte)Program.ServerCode,
+                            List = new CliRemDto[] {
+                                new CliRemDto {
+                                    btName = Session.Player.Character.Name.GetBytes()
+                                }
+                            }
+                        });
                 }
-                if(Session.Player.Account != null)
-                {
-                    var acc = (from a in db.Accounts
-                              where a.AccountId == Session.Player.Account.ID
-                              select a).First();
-
-                    acc.IsConnected = false;
-
-                    db.Accounts.Update(acc);
-                    Logger.ForAccount(Session).Information("Disconnecting...");
-                }
-                db.SaveChanges();
+                Session.Player.Status = LoginStatus.NotLogged;
             }
+
+            var db = SubSystem.db;
+            if(Session.Player.Account != null)
+            {
+                var acc = (from a in db.Accounts
+                            where a.AccountId == Session.Player.Account.ID
+                            select a).First();
+
+                acc.IsConnected = false;
+
+                db.Accounts.Update(acc);
+                Logger.ForAccount(Session).Information("Disconnecting...");
+            }
+            Session.Player.Account = null;
+            //db.SaveChanges();
+
+            Session.Player = null;
             base.OnDisconnect(session);
         }
 

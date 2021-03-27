@@ -1,10 +1,11 @@
 ﻿using MuEmu.Network.Data;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using MuEmu.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MU.Resources;
 
 namespace MuEmu
 {
@@ -109,7 +110,7 @@ namespace MuEmu
 
         public IEnumerable<Player> Members => _members;
 
-        public Party(Player plr, Player memb)
+        internal Party(Player plr, Player memb)
         {
             _members = new List<Player>
             {
@@ -123,12 +124,12 @@ namespace MuEmu
             LifeUpdate();
         }
 
-        public bool Any(Player plr)
+        internal bool Any(Player plr)
         {
             return _members.Any(x => x == plr);
         }
 
-        public bool Add(Player plr)
+        internal bool Add(Player plr)
         {
             if (_members.Count == 5)
                 return false;
@@ -138,7 +139,7 @@ namespace MuEmu
             return true;
         }
 
-        public bool Remove(Player plr)
+        internal bool Remove(Player plr)
         {
             if (!Any(plr))
                 return false;
@@ -148,18 +149,10 @@ namespace MuEmu
             plr.Session.SendAsync(new SPartyDelUser()).Wait();
             LifeUpdate();
 
-            if (_members.Count == 1)
-            {
-                plr = _members.First();
-                plr.Session.SendAsync(new SPartyDelUser()).Wait();
-                plr.Character.Party = null;
-                _members.Clear();
-            }
-
             return true;
         }
 
-        public void Close()
+        internal void Close()
         {
             var del = new SPartyDelUser();
             foreach (var memb in Members)

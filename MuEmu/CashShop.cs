@@ -1,6 +1,6 @@
 ﻿using MU.DataBase;
 using MuEmu.Network;
-using MuEmu.Network.CashShop;
+using MU.Network.CashShop;
 using Serilog;
 using Serilog.Core;
 using System;

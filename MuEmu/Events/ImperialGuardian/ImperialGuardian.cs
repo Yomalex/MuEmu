@@ -1,6 +1,6 @@
 ﻿using Serilog;
 using Serilog.Core;
-using MuEmu.Network.Event;
+using MU.Network.Event;
 using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ using MuEmu.Resources;
 using System.Drawing;
 using System.Threading.Tasks;
 using MuEmu.Util;
+using MU.Resources;
 
 namespace MuEmu.Events.ImperialGuardian
 {

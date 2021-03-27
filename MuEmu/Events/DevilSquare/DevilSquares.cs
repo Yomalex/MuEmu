@@ -1,6 +1,7 @@
 ﻿using MuEmu.Monsters;
-using MuEmu.Network.Event;
-using MuEmu.Network.Game;
+using MU.Network.Event;
+using MU.Network.Game;
+using MU.Resources;
 using MuEmu.Resources.Map;
 using MuEmu.Util;
 using Serilog;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using MuEmu.Resources;
 
 namespace MuEmu.Events.DevilSquare
 {
@@ -202,7 +204,7 @@ namespace MuEmu.Events.DevilSquare
                     if (TimeLeft.TotalMinutes <= 16 && ((int)TimeLeft.TotalMinutes) % 5 == 0 && _nextMessage < DateTimeOffset.Now)
                     {
                         _nextMessage = DateTimeOffset.Now.AddMinutes(4);
-                        Program.NoEventMapAnoucement(Program.ServerMessages.GetMessage(Resources.Game.Messages.DS_Closed, (int)TimeLeft.TotalMinutes))
+                        Program.NoEventMapAnoucement(ServerMessages.GetMessage(Messages.DS_Closed, (int)TimeLeft.TotalMinutes))
                             .Wait();
                     }
                     if((int)TimeLeft.TotalSeconds == 30)

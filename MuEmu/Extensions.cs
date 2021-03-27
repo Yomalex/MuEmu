@@ -18,7 +18,9 @@ namespace MuEmu
 
         public static ILogger ForAccount(this ILogger logger, GSSession session)
         {
-            return logger.ForAccount(session.ID, session.Player?.Account?.Nickname??"");
+            var plr = session.Player;
+            var acc = plr?.Account??null;
+            return logger.ForAccount(session.ID, acc?.Nickname??"");
         }
 
         public static void AnonymousMap(object dest, object src)

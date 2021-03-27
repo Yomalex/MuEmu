@@ -1,4 +1,6 @@
 ﻿using Google.Protobuf.WellKnownTypes;
+using MU.Resources;
+using MU.Resources.Game;
 using MuEmu.Data;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;

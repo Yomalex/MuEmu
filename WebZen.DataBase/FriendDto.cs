@@ -14,8 +14,10 @@ namespace MU.DataBase
         public int Id { get; set; }
 
         public int CharacterId { get; set; }
+        public CharacterDto Character { get; set; }
 
         public int FriendId { get; set; }
+        public CharacterDto Friend { get; set; }
 
         public int State { get; set; }
     }

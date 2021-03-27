@@ -33,13 +33,17 @@
   <!-- Jewel Mixer -->
   <NPC NPC="256" Type="Window" Icon="Conversation" Data="9" />
   <!-- Shadow Phantom -->
-  <NPC NPC="257" Type="Buff" Icon="Shield" Data="3" />
+  <!--<NPC NPC="257" Type="Buff" Icon="Shield" Data="3" /> Season 6-->
+  <NPC NPC="257" Type="Talk" Icon="Shield" Data="0" />
   <!-- Leo, the Helper -->
   <NPC NPC="258" Type="Window" Icon="Conversation" Data="38" />
   <NPC NPC="259" Type="Shop" Data="18" />
   <!-- MainatenceMachine -->
   <NPC NPC="367" Type="Kanturu" Icon="Conversation" Data="0" />
   <!-- <NPC NPC="371" Type="Shop" Data="11" /> -->
+  <NPC NPC="368" Type="Window" Icon="Conversation" Data="17" />
+  <NPC NPC="369" Type="Window" Icon="Conversation" Data="18" />
+  <NPC NPC="370" Type="Window" Icon="Conversation" Data="19" />
   <!-- Elite Soldier -->
   <NPC NPC="371" Type="Window" Icon="Conversation" Data="38" />                                                  
   <!-- ChaosCard Dealer -->
@@ -68,11 +72,13 @@
   <NPC NPC="522" Type="Window" Icon="Conversation" Data="36" />
   <!-- Sartigan the Angel -->
   <NPC NPC="540" Type="Window" Icon="Conversation" Data="35" />
-  <!-- NPC Julia -->
-  <NPC NPC="543" Type="Window" Icon="Conversation" Data="37" />
+  <!-- NPC Gens Duprian Steward -->
+  <NPC NPC="543" Type="Gens" Icon="Conversation" Data="0" />
+  <!-- Gens Vanert Steward -->
+  <NPC NPC="544" Type="Gens" Icon="Conversation" Data="0" />
   <!-- NPC Jeweller Raul -->
   <NPC NPC="546" Type="Window" Icon="Conversation" Data="9" />
-  <!-- NPC  -->
+  <!-- NPC Market Union Member Julia -->
   <NPC NPC="547" Type="Window" Icon="Conversation" Data="37" />
   <!-- NPC Sir Lesnar -->
   <NPC NPC="584" Type="Window" Icon="Conversation" Data="40" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -152,8 +153,8 @@ namespace MuEmu.Data
             mix.Skill = res.Skill == -1 ? res2?.Item.Skill??false : (res.Skill > 0 ? true : false);
             mix.Option28 = (byte)(res.Option == -1 ? res2?.Item.Option28??0x00 : res.Option);
             mix.Character = @char;
-            mix.AccountId = @char.Account.ID;
-            mix.CharacterId = @char.Id;
+            mix.Account = @char.Account;
+            mix.Character = @char;
             @char.Inventory.ChaosBox.Add(mix);
 
             return ChaosBoxMixResult.Success;
@@ -170,25 +171,35 @@ namespace MuEmu.Data
             var items = from obj in cbItems select obj.Value;
             var MixMatching = new Dictionary<MixInfo, int>();
 
-            foreach (var m in Mixes)
+            foreach (var m in Mixes/*.OrderByDescending(x => x.Ingredients.Count())*/)
             {
                 var ingCount = 0;
                 var iteCount = 0;
+                var itemsUsed = new List<Item>();
                 foreach(var ing in m.Ingredients)
                 {
                     ingCount += ing.Count;
-                    iteCount += items.Where(x => ing.Match(x)).Count();
+                    var a = items.Where(x => ing.Match(x));
+                    itemsUsed.AddRange(a);
+                    iteCount += a.Count();
                 }
                 var res = (float)iteCount;
 
                 res /= ingCount;
                 res *= 100.0f;
+                var leftItems = items.Except(itemsUsed);
+                var leftItemsWithOutJewels = leftItems.Where(x => x.Number != ItemNumber.FromTypeIndex(14, 13) && x.Number != ItemNumber.FromTypeIndex(14, 14));
+
+                if (leftItemsWithOutJewels.Count() > 0)
+                {
+                    res = 0;
+                }
 
                 MixMatching.Add(m, (int)res);
             }
 
             return MixMatching
-                .OrderByDescending(x => x.Value)
+                //.OrderByDescending(x => x.Value)
                 .Where(x => x.Value == 100)
                 .Select(x => x.Key)
                 .FirstOrDefault();

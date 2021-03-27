@@ -1,30 +1,39 @@
-﻿using MuEmu.Resources;
+﻿using MU.Resources;
+using MuEmu.Resources;
 using MuEmu.Util;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 
 namespace MuEmu.Monsters
 {
-    internal class MonsterIAGroup
+    [XmlType(AnonymousType = true)]
+    [XmlRoot("MonsterIA")]
+    public class XmlMonsterIAInfo
     {
-        public int GroupNumber { get; set; }
-        public int Guid { get; set; }
-        public ushort Class { get; set; }
-        public int Rank { get; set; }
-        public int StartAI { get; set; }
-        public int AI01 { get; set; }
-        public int AI02 { get; set; }
-        public int AI03 { get; set; }
-        public int CreateType { get; set; }
-        public Maps MapNumber { get; set; }
-        public int StartX { get; set; }
-        public int StartY { get; set; }
-        public sbyte StartDir { get; set; }
-        public int RegenType { get; set; }
+        [XmlElement("Info")] public MonsterIAGroup[] Monsters { get; set; }
+    }
+    public class MonsterIAGroup
+    {
+        [XmlAttribute] public int GroupNumber { get; set; }
+        [XmlAttribute] public int Guid { get; set; }
+        [XmlAttribute] public ushort Class { get; set; }
+        [XmlAttribute] public int Rank { get; set; }
+        [XmlAttribute] public int StartAI { get; set; }
+        [XmlAttribute] public int AI01 { get; set; }
+        [XmlAttribute] public int AI02 { get; set; }
+        [XmlAttribute] public int AI03 { get; set; }
+        [XmlAttribute] public int CreateType { get; set; }
+        [XmlAttribute] public Maps MapNumber { get; set; }
+        [XmlAttribute] public int StartX { get; set; }
+        [XmlAttribute] public int StartY { get; set; }
+        [XmlAttribute] public sbyte StartDir { get; set; }
+        [XmlAttribute] public int RegenType { get; set; }
 
         internal Monster monster;
     }
@@ -40,7 +49,45 @@ namespace MuEmu.Monsters
 
         private void LoadGroups(string file)
         {
-            using (var tf = File.OpenText(file))
+            var loader = new LoadWZTXT<XmlMonsterIAInfo>();
+            var xml = loader.Load(file);
+            _IAGroups = xml.Monsters.GroupBy(x => x.GroupNumber)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var group in _IAGroups)
+            {
+                foreach (var mob in group.Value)
+                {
+                    Point point = new Point();
+                    var mapInfo = ResourceCache.Instance.GetMaps()[mob.MapNumber];
+                    switch (mob.CreateType)
+                    {
+                        case 0:
+                            point = new Point(mob.StartX, mob.StartY);
+                            break;
+                        case 1:
+                            for (var y = mob.StartY - 5; y <= (mob.StartY + 5) && point.X == 0; y++)
+                                for (var x = mob.StartX - 5; x <= (mob.StartX + 5) && point.X == 0; x++)
+                                {
+                                    if (mapInfo.GetAttributes(x, y).Length == 0)
+                                    {
+                                        point = new Point(mob.StartX, mob.StartY);
+                                    }
+                                }
+                            break;
+                        default:
+                            continue;
+                    }
+                    if (point.X == 0)
+                        continue;
+
+                    mob.monster = new Monster(mob.Class, ObjectType.Monster, mob.MapNumber, point, mob.StartDir == -1 ? (byte)Program.RandomProvider(7) : (byte)mob.StartDir) { Index = MonstersMng.Instance.GetNewIndex() };
+                    mob.monster.Active = false;
+                    MonstersMng.Instance.Monsters.Add(mob.monster);
+                }
+            }
+
+            /*using (var tf = File.OpenText(file))
             {
                 var content = tf.ReadToEnd();
                 var IAGroup0Regex = new Regex(@"\n+([0-9]+)\s*\n+(?s)(.*?)end");
@@ -86,7 +133,7 @@ namespace MuEmu.Monsters
                         MonstersMng.Instance.Monsters.Add(mob.monster);
                     }
                 }
-            }
+            }*/
         }
 
         public static void Initialize(string root)

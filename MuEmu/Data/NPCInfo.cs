@@ -1,4 +1,5 @@
-﻿using MuEmu.Resources.Map;
+﻿using MU.Resources;
+using MuEmu.Resources.Map;
 using System;
 using System.Collections.Generic;
 using System.Text;

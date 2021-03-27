@@ -1,18 +1,10 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace MuEmu
 {
-    public enum Element : byte
-    {
-        None,
-        Fire,
-        Water,
-        Earth,
-        Wind,
-        Dark,
-    }
     public class Pentagrama
     {
         private static Pentagrama _instance;

@@ -64,7 +64,185 @@
     <RewardSuccess iid="0" level="15" />
     <RewardFail iid="-1" />   
   </Mix>
-  
+
+  <Mix name="Condor Feather Wings of Spirit" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="3" level="9-15" luck="-1" skill="-1" option="4" count="1" />
+    <!-- JOChaos -->
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- JOCreation -->
+    <Ingredient iid="2" Type="14" index="22" count="1" />
+    <!-- Jewel of Soul Compressed -->
+    <Ingredient iid="3" Type="12" index="31" count="1" />
+    <!-- 1 Ancient Item+7+option -->
+    <Ingredient iid="4" Type="-1" index="-1" level="7-15" option="4" count="1" />
+    <!-- Wings of Spirit -->
+    <RewardSuccess type="12" index="3" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Soul -->
+    <RewardSuccess type="12" index="4" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Dragon -->
+    <RewardSuccess type="12" index="5" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Darkness -->
+    <RewardSuccess type="12" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Despair -->
+    <RewardSuccess type="12" index="42" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 2 Wings of Fairy" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="0" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" count="1" />
+    <!-- Wings of Spirit -->
+    <RewardSuccess type="12" index="3" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Soul -->
+    <RewardSuccess type="12" index="4" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Dragon -->
+    <RewardSuccess type="12" index="5" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Darkness -->
+    <RewardSuccess type="12" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Despair -->
+    <RewardSuccess type="12" index="42" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 2 Wings of Angel" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="1" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" count="1" />
+    <!-- Wings of Spirit -->
+    <RewardSuccess type="12" index="3" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Soul -->
+    <RewardSuccess type="12" index="4" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Dragon -->
+    <RewardSuccess type="12" index="5" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Darkness -->
+    <RewardSuccess type="12" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Despair -->
+    <RewardSuccess type="12" index="42" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 2 Wings of Satan" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="2" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" count="1" />
+    <!-- Wings of Spirit -->
+    <RewardSuccess type="12" index="3" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Soul -->
+    <RewardSuccess type="12" index="4" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Dragon -->
+    <RewardSuccess type="12" index="5" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Darkness -->
+    <RewardSuccess type="12" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Despair -->
+    <RewardSuccess type="12" index="42" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 2 Wings of Mistery" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="41" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" count="1" />
+    <!-- Wings of Spirit -->
+    <RewardSuccess type="12" index="3" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Soul -->
+    <RewardSuccess type="12" index="4" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Dragon -->
+    <RewardSuccess type="12" index="5" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Darkness -->
+    <RewardSuccess type="12" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Despair -->
+    <RewardSuccess type="12" index="42" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+
+  <Mix name="Cape of Lord Wings of Fairy" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="0" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" level="1" count="1" />
+    <!-- Mantle of Monarch -->
+    <RewardSuccess type="12" index="40" level="0-7" luck="-1" skill="-1" option="-1" success="100" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Cape of Lord Wings of Angel" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="1" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" level="1" count="1" />
+    <!-- Mantle of Monarch -->
+    <RewardSuccess type="12" index="40" level="0-7" luck="-1" skill="-1" option="-1" success="100" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Cape of Lord Wings of Satan" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="2" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" level="1" count="1" />
+    <!-- Mantle of Monarch -->
+    <RewardSuccess type="12" index="40" level="0-7" luck="-1" skill="-1" option="-1" success="100" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Cape of Lord Wings of Mistery" success="100" value="1000000">
+    <Ingredient iid="0" type="12" index="41" level="0-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Loch's Feather -->
+    <Ingredient iid="2" Type="13" index="14" level="1" count="1" />
+    <!-- Mantle of Monarch -->
+    <RewardSuccess type="12" index="40" level="0-7" luck="-1" skill="-1" option="-1" success="100" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 1 Dragon Axe" success="100" value="1000000">
+    <Ingredient iid="0" type="2" index="6" level="4-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Wings of Fairy -->
+    <RewardSuccess type="12" index="0" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Angel -->
+    <RewardSuccess type="12" index="1" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Satan -->
+    <RewardSuccess type="12" index="2" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Mistery -->
+    <RewardSuccess type="12" index="41" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 1 Nature Bow" success="100" value="1000000">
+    <Ingredient iid="0" type="4" index="6" level="4-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Wings of Fairy -->
+    <RewardSuccess type="12" index="0" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Angel -->
+    <RewardSuccess type="12" index="1" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Satan -->
+    <RewardSuccess type="12" index="2" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Mistery -->
+    <RewardSuccess type="12" index="41" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Wings 1 Lighting Staff" success="100" value="1000000">
+    <Ingredient iid="0" type="5" index="7" level="4-15" luck="-1" skill="-1" option="4" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <!-- Wings of Fairy -->
+    <RewardSuccess type="12" index="0" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Angel -->
+    <RewardSuccess type="12" index="1" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wings of Satan -->
+    <RewardSuccess type="12" index="2" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <!-- Wing of Mistery -->
+    <RewardSuccess type="12" index="41" level="0-7" luck="-1" skill="-1" option="-1" success="25" />
+    <RewardFail iid="-1" />
+  </Mix>
+
   <Mix name="Chaos Item" success="100" value="1000000">
     <Ingredient iid="0" type="-1" index="-1" level="4-7" luck="-1" skill="-1" option="4" count="1" />
     <Ingredient iid="1" type="12" index="15" count="1" />
@@ -74,7 +252,7 @@
     <RewardSuccess type="4" index="6" level="0-7" luck="-1" skill="-1" option="-1" success="33" />
     <!-- Chaos Lighting Staff -->
     <RewardSuccess type="5" index="7" level="0-7" luck="-1" skill="-1" option="-1" success="33" />
-    <RewardFail iid="-1" />   
+    <RewardFail iid="-1" />
   </Mix>
   
   <Mix name="Fruit" success="90" value="3000000">

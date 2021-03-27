@@ -1,4 +1,5 @@
-﻿using MuEmu.Util;
+﻿using MU.Resources;
+using MuEmu.Util;
 using Serilog;
 using System;
 using System.Collections.Generic;

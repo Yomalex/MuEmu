@@ -11,8 +11,10 @@ namespace MU.DataBase
     {
         [Key]
         public int MembId { get; set; }
+        public CharacterDto Memb { get; set; }
 
         public int GuildId { get; set; }
+        public GuildDto Guild { get; set; }
 
         public int Rank { get; set; }
     }

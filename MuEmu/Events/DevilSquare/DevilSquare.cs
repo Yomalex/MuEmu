@@ -1,5 +1,5 @@
 ﻿using MuEmu.Monsters;
-using MuEmu.Network.Event;
+using MU.Network.Event;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using MU.Resources;
 
 namespace MuEmu.Events.DevilSquare
 {

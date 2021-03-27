@@ -13,14 +13,13 @@ namespace MU.DataBase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ItemId { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public DateTime DateCreation { get; set; }
+        public DateTime DateCreation { get; set; } = DateTime.Now;
 
         public int AccountId { get; set; }
         public AccountDto Account { get; set; }
 
         public int CharacterId { get; set; }
-        //public CharacterDto Character { get; set; }
+        public CharacterDto Character { get; set; }
 
         public int VaultId { get; set; }
         public int SlotId { get; set; }

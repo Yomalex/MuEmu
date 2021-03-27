@@ -1,4 +1,4 @@
-﻿using MuEmu.Network.Game;
+﻿using MU.Network.Game;
 using MuEmu.Resources;
 using MuEmu.Resources.Map;
 using System;
@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using MuEmu.Data;
 using System.Threading;
 using MuEmu.Util;
+using MU.Resources;
 
 namespace MuEmu.Monsters
 {
@@ -97,7 +98,7 @@ namespace MuEmu.Monsters
                 if (_target == value)
                     return;
 
-                if (_target != null)
+                if (_target != null && _target.Character != null)
                 {
                     _target.Character.CharacterDie -= EnemyDie;
                     _target.Character.MapChanged -= EnemyDie;
@@ -481,7 +482,15 @@ namespace MuEmu.Monsters
 
             var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
 
+            if(Killer.Character == null)
+            {
+                return;
+            }
             Killer.Character.Quests.OnMonsterDie(this);
+
+            var result = DamageSum.Where(x => x.Key.Status != LoginStatus.Playing).Select(x => x.Key);
+            foreach (var r in result)
+                DamageSum.Remove(r);
 
             foreach (var plr in ViewPort)
                 plr.Session.SendAsync(die).Wait();

@@ -1,5 +1,5 @@
 ﻿using MuEmu.Monsters;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using MuEmu.Util;
 using System;
 using System.Collections.Generic;
@@ -10,33 +10,16 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
+using MU.Resources;
 
 namespace MuEmu.Resources.Map
 {
-    [Flags]
-    public enum MapAttributes : byte
-    {
-        Safe = 1,
-        Stand = 2,
-        NoWalk = 4,
-        Hide = 8,
-        Unknow = 16,
-    }
     public enum ItemState : byte
     {
         Creating,
         Created,
         Deleting,
         Deleted,
-    }
-
-    public enum MiniMapTag : byte
-    {
-        Shield = 1,
-        Conversation,
-        Hammer,
-        Elixir,
-        Storage,
     }
 
     public class ItemInMap
@@ -209,6 +192,9 @@ namespace MuEmu.Resources.Map
 
         private MapAttributes GetByte(int X, int Y)
         {
+            if (Y * 256 + X > Layer.Length)
+                return MapAttributes.Unknow;
+
             return Layer[Y * 256 + X];
         }
         private void SetByte(int X, int Y, MapAttributes val)
@@ -274,12 +260,12 @@ namespace MuEmu.Resources.Map
                 {
                     icon = npcInfo.Icon;
                 }
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc, i++, icon, 0));
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(npc.Position, i++, icon, 0, npc.Info.Name));
             }
             foreach (var gate in mapGates)
             {
                 var target = gates[gate.Target].Map;
-                await @char.Player.Session.SendAsync(new SMiniMapNPC(gate, i++, MiniMapTag.Shield, 0, target));
+                await @char.Player.Session.SendAsync(new SMiniMapNPC(gate.Door, i++, MiniMapTag.Shield, 0, target));
             }
         }
 

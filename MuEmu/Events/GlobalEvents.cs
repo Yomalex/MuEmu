@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using MU.Resources;
+using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;

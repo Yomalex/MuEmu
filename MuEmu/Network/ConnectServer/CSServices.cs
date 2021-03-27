@@ -28,7 +28,7 @@ namespace MuEmu.Network.ConnectServer
             {
                 foreach(var p in message.List)
                 {
-                    c.Player.Character.Friends.DisconnectFriend(p.btName.MakeString());
+                    c.Player.Character?.Friends.DisconnectFriend(p.btName.MakeString());
                 }                
             }
         }

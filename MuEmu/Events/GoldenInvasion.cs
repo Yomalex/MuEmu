@@ -1,5 +1,5 @@
 ﻿using MuEmu.Monsters;
-using MuEmu.Network.Game;
+using MU.Network.Game;
 using MuEmu.Resources;
 using MuEmu.Resources.Map;
 using Serilog;
@@ -7,6 +7,7 @@ using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MU.Resources;
 
 namespace MuEmu.Events
 {

@@ -3,9 +3,9 @@ using MuEmu.Data;
 using MuEmu.Entity;
 using MuEmu.Monsters;
 using MuEmu.Network;
-using MuEmu.Network.Auth;
-using MuEmu.Network.Game;
-using MuEmu.Network.PCPShop;
+using MU.Network.Auth;
+using MU.Network.Game;
+using MU.Network.PCPShop;
 using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
+using MU.Resources;
 
 namespace MuEmu
 {
@@ -35,7 +36,7 @@ namespace MuEmu
             _char = @char;
         }
     }
-    public class Character
+    public class Character : IDisposable
     {
         #region Private
         private float _hp;
@@ -91,26 +92,27 @@ namespace MuEmu
         /// Character ID in Database
         /// </summary>
         public int Id { get; }
-        public Player Player { get; }
+        public Player Player { get; private set; }
         public Account Account => Player.Account;
         public ushort Index => (ushort)Player.Session.ID;
 
         public ControlCode CtlCode;
         private ushort _pcPoints;
 
-        public Quests Quests { get; }
+        public Quests Quests { get; private set; }
         public Guild Guild { get; set; }
-        public Inventory Inventory { get; }
-        public Spells Spells { get; }
+        public Inventory Inventory { get; private set; }
+        public Spells Spells { get; private set; }
         public bool Change { get; set; }
         public Party Party { get; set; }
-        public MasterLevel MasterLevel { get; set; }
-        public Friends Friends { get; set; }
-        public GensManager Gens { get; set; }
-        public MuBot MuHelper { get; set; }
+        public MasterLevel MasterLevel { get; private set; }
+        public Friends Friends { get; private set; }
+        public Gens Gens { get; private set; }
+        public MuBot MuHelper { get; private set; }
 
-        public PShop Shop { get; set; }
-        public CashShop CashShop { get; }
+        public PShop Shop { get; private set; }
+        public CashShop CashShop { get; private set; }
+        public Duel Duel { get; set; }
         public List<ushort> MonstersVP { get; set; }
         public List<Player> PlayersVP { get; set; }
         public List<ushort> ItemsVP { get; set; }
@@ -139,6 +141,7 @@ namespace MuEmu
             }
         }
         public CharacterInfo BaseInfo { get; private set; }
+        public ushort Resets { get; set; }
         public string Name { get; set; }
         public ushort Level { get => _level; set { _level = value; _needSave = true; } }
         public float Health {
@@ -443,6 +446,40 @@ namespace MuEmu
                 CalcStats();
             }
         }
+
+        internal static void Reset(object session, CommandEventArgs e)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if(@char.Level < 400)
+            {
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Necesitas nivel 400")).Wait();
+                return;
+            }
+
+            if (@char.Money < 1000000)
+            {
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Necesitas 1000000zen")).Wait();
+                return;
+            }
+
+            
+            //var cinfo = @char.BaseInfo.Stats;
+
+            @char.Level = 1;
+            @char.Experience = 0;
+            @char.Money -= 1000000u;
+            //@char.Strength = (ushort)cinfo.Str;
+            //@char.Agility = (ushort)cinfo.Agi;
+            //@char.Vitality = (ushort)cinfo.Vit;
+            //@char.Energy = (ushort)cinfo.Ene;
+            //@char.Command = (ushort)cinfo.Cmd;
+            @char.Resets++;
+            //@char.LevelUpPoints = (ushort)Math.Min(@char.Resets*250, 65535);
+            GameServices.CClinetClose(Session, new CClientClose { Type = ClientCloseType.ServerList }).Wait();
+        }
+
         public ushort VitalityAdd
         {
             get => _vitAdd;
@@ -531,8 +568,6 @@ namespace MuEmu
         public DateTimeOffset RegenTime { get; private set; }
         public byte ClientClass => GetClientClass(Class);
 
-        public Duel Duel { get; set; }
-
         public static byte GetClientClass(HeroClass dbClass)
         {
             var @class = (int)dbClass;
@@ -576,6 +611,7 @@ namespace MuEmu
             ItemsVP = new List<ushort>();
             PlayersVP = new List<Player>();
             MuHelper = new MuBot(plr);
+            Gens = new Gens(this, characterDto);
             State = ObjectState.Regen;
             CtlCode = (ControlCode)characterDto.CtlCode;
 
@@ -646,6 +682,7 @@ namespace MuEmu
 
             Spells.SendList();
             MasterLevel.SendInfo();
+            Gens.SendMemberInfo();
         }
 
         public async Task SendV2Message(object message, Player exclude = null)
@@ -959,15 +996,15 @@ namespace MuEmu
                     _magicAttackMin = EnergyTotal / 9.0f;
                     _magicAttackMax = EnergyTotal / 4.0f;
                     break;
-                //case HeroClass.RageFighter:
-                //    _defense = AgilityTotal / 3.0f;
-                //    _defenseRatePvM = AgilityTotal / 3.0f;
-                //    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
-                //    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal * 4;
-                //    _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
-                //    _attackSpeed = AgilityTotal / 15.0f;
-                //    if (_attackSpeed > 288) _attackSpeed = 288.0f;
-                //    break;
+                case HeroClass.RageFighter:
+                    _defense = AgilityTotal / 3.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal * 4;
+                    _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
+                    _attackSpeed = AgilityTotal / 15.0f;
+                    if (_attackSpeed > 288) _attackSpeed = 288.0f;
+                    break;
             }
 
             if (_attackSpeed > 288) _attackSpeed = 288.0f;
@@ -1055,35 +1092,52 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
+            if (_needSave)
+            {
+                _needSave = false;
+                var charDto = db.Characters.First(x => x.CharacterId == Id);
+                charDto.Class = (byte)_class;
+                charDto.Level = _level;
+                charDto.LevelUpPoints = _levelUpPoints;
+                charDto.Map = (byte)_map;
+                charDto.X = (byte)_position.X;
+                charDto.Y = (byte)_position.Y;
+                charDto.Experience = (long)_exp;
+                charDto.Life = (ushort)_hp;
+                charDto.MaxLife = (ushort)_hpMax;
+                charDto.Mana = (ushort)_mp;
+                charDto.MaxMana = (ushort)_mpMax;
+                charDto.Str = _str;
+                charDto.Agility = _agi;
+                charDto.Vitality = _vit;
+                charDto.Energy = _ene;
+                charDto.Command = _cmd;
+                charDto.Money = _zen;
+                charDto.CtlCode = (int)CtlCode;
+                charDto.Resets = Resets;
+                if(charDto.Gens == null)
+                {
+                    charDto.Gens = new GensDto
+                    {
+                        CharacterId = charDto.CharacterId,
+                        Character = charDto,
+                        Class = 14,
+                        Contribution = 0,
+                        Influence = 0,
+                        Ranking = 9999,
+                    };
+                }
+                charDto.Gens.Influence = (int)Gens.Influence;
+                charDto.Gens.Ranking = Gens.Ranking;
+                charDto.Gens.Class = Gens.Class;
+                charDto.Gens.Contribution = Gens.Contribution;
+                db.Characters.Update(charDto);
+                await db.SaveChangesAsync();
+            }
             await Inventory.Save(db);
             await Spells.Save(db);
             await Quests.Save(db);
             MasterLevel.Save(db);
-
-            if (_needSave == false)
-                return;
-
-            var charDto = db.Characters.First(x => x.CharacterId == Id);
-            charDto.Class = (byte)_class;
-            charDto.Level = _level;
-            charDto.LevelUpPoints = _levelUpPoints;
-            charDto.Map = (byte)_map;
-            charDto.X = (byte)_position.X;
-            charDto.Y = (byte)_position.Y;
-            charDto.Experience = (long)_exp;
-            charDto.Life = (ushort)_hp;
-            charDto.MaxLife = (ushort)_hpMax;
-            charDto.Mana = (ushort)_mp;
-            charDto.MaxMana = (ushort)_mpMax;
-            charDto.Str = _str;
-            charDto.Agility = _agi;
-            charDto.Vitality = _vit;
-            charDto.Energy = _ene;
-            charDto.Command = _cmd;
-            charDto.Money = _zen;
-            db.Characters.Update(charDto);
-
-            _needSave = false;
         }
 
         #region Battle
@@ -1284,6 +1338,20 @@ namespace MuEmu
                 default:
                     message = new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0);
                     break;
+            }
+
+            var reflex = Inventory.Reflect + Spells.BuffList.Sum(x => x.DamageDeflection);
+            var dmgReflect = reflex * dmg;
+            if (dmgReflect>0)
+            {
+                if (sourceSession != null)
+                {
+                    await sourceSession.Player.Character.GetAttacked(Player.ID, 0, 0, (int)dmgReflect, DamageType.Reflect, Spell.None);
+                } else
+                {
+                    Monster mob = MonstersMng.Instance.GetMonster(source);
+                    await mob.GetAttacked(Player, (int)dmgReflect, DamageType.Reflect);
+                }
             }
 
             if (State != ObjectState.Dying)
@@ -1636,6 +1704,22 @@ namespace MuEmu
             }
 
             await Session.SendAsync(new SNotice(NoticeType.Blue, "Syntax error. command is: /add*** <Number>"));
+        }
+
+        public void Dispose()
+        {
+            Map.DelPlayer(this);
+            Map = null;
+
+            PartyManager.Remove(Player);
+            Duel?.Leave(Player);
+            Duel = null;
+
+            var mobVp = MonstersVP.Select(x => MonstersMng.Instance.GetMonster(x)).ToList();
+            foreach (var m in mobVp.Where(x => x.Target == Player))
+            {
+                m.Target = null;
+            }
         }
         #endregion
     }

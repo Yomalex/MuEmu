@@ -21,7 +21,7 @@ namespace MU.DataBase
 
         public byte GuildType { get; set; }
 
-        public List<GuildMemberDto> MembersInfo { get; set; }
+        public virtual ICollection<GuildMemberDto> MembersInfo { get; set; }
 
         //public List<CharacterDto> Characters { get; set; }
     }

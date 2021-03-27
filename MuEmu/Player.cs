@@ -6,6 +6,7 @@ using MuEmu.Security;
 using MU.DataBase;
 using System.Threading.Tasks;
 using MuEmu.Entity;
+using MU.Resources;
 
 namespace MuEmu
 {
@@ -39,6 +40,7 @@ namespace MuEmu
 
         public object Window { get; set; }
         public object Killer { get; internal set; }
+        public Gens Gens { get; internal set; }
 
         public Player(GSSession session)
         {
@@ -49,6 +51,21 @@ namespace MuEmu
 
         private void Player_OnStatusChange(object sender, EventArgs e)
         {
+            var plr = sender as Player;
+            switch(_loginStatus)
+            {
+                case LoginStatus.NotLogged:
+                case LoginStatus.Logged:
+                    GameServices.CCloseWindow(Session);
+                    var @char = plr.Character;
+
+                    using(var db = new GameContext())
+                        @char?.Save(db);
+
+                    @char?.Dispose();
+                    plr.Character = null;
+                    break;
+            }
         }
 
         public void SetAccount(AccountDto acc)
@@ -74,10 +91,13 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            if(Account != null)
+            if (Account != null)
+            {
                 await Account.Save(db);
+                await db.SaveChangesAsync();
+            }
 
-            if(Character != null)
+            if (Character != null)
                 await Character.Save(db);
         }
 

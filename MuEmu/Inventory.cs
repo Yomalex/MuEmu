@@ -1,7 +1,9 @@
 ﻿using MU.DataBase;
+using MU.Resources;
 using MuEmu.Entity;
 using MuEmu.Network;
-using MuEmu.Network.Game;
+using MU.Network.Game;
+using MU.Resources;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -151,7 +153,7 @@ namespace MuEmu
 
             foreach (var item in characterDto.Items.Where(x => x.VaultId == 0))
             {
-                var it = new Item(item);
+                var it = new Item(item, @char?.Account, @char);
                 try
                 {
                     Add((byte)item.SlotId, it, false);
@@ -193,8 +195,8 @@ namespace MuEmu
             
             if (Character != null)
             {
-                item.AccountId = Character.Account.ID;
-                item.CharacterId = Character.Id;
+                item.Account = Character.Account;
+                item.Character = Character;
                 item.Character = Character;
             }
 
@@ -247,8 +249,8 @@ namespace MuEmu
         {
             if (Character != null)
             {
-                it.AccountId = Character.Account.ID;
-                it.CharacterId = Character.Id;
+                it.Account = Character.Account;
+                it.Character = Character;
             }
             _needSave = true;
             return _inventory.Add(it);
@@ -287,7 +289,8 @@ namespace MuEmu
             item.VaultId = 0;
             _equipament.Add(slot, item);
             item.ApplyEffects(Character);
-            item.CharacterId = Character.Id;
+            item.Character = Character;
+            item.Account = Character.Account;
 
             if (item.Number.Type == ItemType.BowOrCrossbow && (item.Number.Index == 7 || item.Number.Index == 15))
                 Arrows = item;
@@ -397,7 +400,10 @@ namespace MuEmu
                     sTo.Add(toIndex, it);
 
                     if (to == MoveItemFlags.Warehouse)
+                    {
                         it.VaultId = Character.Account.ID * 10 + Character.Account.ActiveVault;
+                        it.Account = Character.Account;
+                    }
                 }catch (Exception ex)
                 {
                     Log.Logger.Error(ex, "Can't move, rolling back");
@@ -726,28 +732,42 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            var _log = _logger.ForAccount(Character.Player.Session);
-            if(_forDelete.Any())
+            try
             {
-                _forDelete.ForEach(x => x.Delete(db));
-                _log.Information("Deleting {0} items", _forDelete.Count());
+                if (Lock)
+                    return;
+                var _log = _logger.ForAccount(Character.Player.Session);
 
-                _forDelete.Clear();
+                if (_forDelete.Any())
+                {
+                    _forDelete.ForEach(x => x.Delete(db));
+                    _log.Information("Deleting {0} items", _forDelete.Count());
+
+                    _forDelete.Clear();
+                }
+                await db.SaveChangesAsync();
+
+                foreach (var e in _equipament.Values)
+                {
+                    await e.Save(db);
+                    await db.SaveChangesAsync();
+                }
+
+                foreach (var e in _inventory.Items.Values)
+                {
+                    await e.Save(db);
+                    await db.SaveChangesAsync();
+                }
+
+                foreach (var e in _personalShop.Items.Values)
+                {
+                    await e.Save(db);
+                    await db.SaveChangesAsync();
+                }
+            }catch(Exception ex)
+            {
+                _logger.Error(ex, "Inventory");
             }
-
-            if (Lock)
-                return;
-
-            //_log.Information("----- Main Inventory Save");
-
-            foreach(var e in _equipament.Values)
-                await e.Save(db);
-
-            foreach (var e in _inventory.Items.Values)
-                await e.Save(db);
-
-            foreach (var e in _personalShop.Items.Values)
-                await e.Save(db);
         }
 
         public void DeleteAll(Storage storage)

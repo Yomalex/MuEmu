@@ -1,4 +1,7 @@
-﻿using MuEmu.Network.Game;
+﻿using MU.Network.Game;
+using MU.Resources;
+using MU.Resources.Game;
+using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using Serilog;
@@ -22,7 +25,7 @@ namespace MuEmu.Events.BloodCastle
         private BloodCastle[] _bridges;
 
         public BloodCastles()
-            :base(TimeSpan.FromHours(2), TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(17))
+            :base(TimeSpan.FromHours(0.25), TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(17))
         {
             _eventLevelReqs = new List<EventLevelReq>
             {
@@ -67,10 +70,9 @@ namespace MuEmu.Events.BloodCastle
                     break;
                 case EventState.Open:
                     if (((int)TimeLeft.TotalSeconds) % 60 == 0 && TimeLeft.TotalSeconds >= 60)
-                        Program.NoEventMapAnoucement(Program.ServerMessages.GetMessage(Messages.BC_Open, (int)Math.Ceiling(TimeLeft.TotalMinutes))).Wait();
+                        Program.NoEventMapAnoucement(ServerMessages.GetMessage(Messages.BC_Open, (int)Math.Ceiling(TimeLeft.TotalMinutes))).Wait();
                     break;
                 case EventState.Playing:
-                    Program.NoEventMapAnoucement(Program.ServerMessages.GetMessage(Messages.BC_Closed)).Wait();
                     break;
             }
 
@@ -170,6 +172,7 @@ namespace MuEmu.Events.BloodCastle
                     break;
 
                 case EventState.Playing:
+                    Program.NoEventMapAnoucement(ServerMessages.GetMessage(Messages.BC_Closed)).Wait();
                     Trigger(EventState.Closed, _playingTime);
                     break;
             }

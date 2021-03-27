@@ -25,11 +25,11 @@ namespace WebZen.Serialization
             emiter.LoadConstant(100);
             emiter.NewArray(elementType);
             emiter.StoreLocal(value);
-            var ex = emiter.DeclareLocal<Exception>("_ex");
-
+            
             var loop = emiter.DefineLabel();
             var loopCheck = emiter.DefineLabel();
 
+            using (var ex = emiter.DeclareLocal<Exception>("_ex"))
             using (var element = emiter.DeclareLocal(elementType, "element"))
             using (var i = emiter.DeclareLocal<int>("i"))
             {

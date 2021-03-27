@@ -1,18 +1,18 @@
 ﻿using MuEmu.Monsters;
-using MuEmu.Network.Event;
-using MuEmu.Network.Game;
+using MU.Network.Event;
+using MU.Network.Game;
 using MuEmu.Resources;
-using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
-using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using MU.Resources;
+using MuEmu.Network;
+using MuEmu.Resources.Game;
 
 namespace MuEmu.Events.BloodCastle
 {
@@ -190,7 +190,7 @@ namespace MuEmu.Events.BloodCastle
             DoorWinner = mons.Killer;
             mons.Active = false;
             Program
-                .MapAnoucement(MapID, Program.ServerMessages.GetMessage(Messages.BC_DoorKiller, DoorWinner.Character.Name))
+                .MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_DoorKiller, DoorWinner.Character.Name))
                 .Wait();
             CastleDoor(true);
         }
@@ -202,7 +202,7 @@ namespace MuEmu.Events.BloodCastle
             mons.Active = false;
             _map.AddItem(mons.Position.X, mons.Position.Y, s_reward);
             Program
-                .MapAnoucement(MapID, Program.ServerMessages.GetMessage(Messages.BC_StatueKiller, StatueWinner.Character.Name))
+                .MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_StatueKiller, StatueWinner.Character.Name))
                 .Wait();
         }
 
@@ -245,7 +245,6 @@ namespace MuEmu.Events.BloodCastle
                     if ((int)Time.TotalSeconds == 60)
                     {
                         SendAsync(new SBloodCastleState(0, (ushort)(TimeLeft.TotalSeconds - 60), 0, 0, 0xffff, 1)).Wait();
-                        SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.GoAheadBC)).Wait();
                         foreach (var mons in Monsters)
                         {
                             mons.State = ObjectState.Regen;
@@ -316,8 +315,10 @@ namespace MuEmu.Events.BloodCastle
                     Trigger(EventState.Open, _closedTime);
                     break;
                 case EventState.Open:
+                    Trigger(EventState.Playing, _openTime);
                     break;
                 case EventState.Playing:
+                    SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.GoAheadBC)).Wait();
                     _playerForReward = Players.ToList();
                     MonsterCount = (ushort)(Players.Count * 40);
                     BossCount = (ushort)(10 * Players.Count);
@@ -348,8 +349,8 @@ namespace MuEmu.Events.BloodCastle
 
         private async void CastleDoor(bool free)
         {
-            if (free) await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(13, 70, 2, 5));
-            else await _map.AddAttribute(MapAttributes.NoWalk, new Rectangle(13, 70, 2, 5));
+            if (free) await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(13, 75, 2, 5));
+            else await _map.AddAttribute(MapAttributes.NoWalk, new Rectangle(13, 75, 2, 5));
         }
 
         private async void GiveReward()
@@ -449,7 +450,18 @@ namespace MuEmu.Events.BloodCastle
 
         public override void OnPlayerDead(object sender, EventArgs eventArgs)
         {
-            throw new NotImplementedException();
+            var @char = sender as Character;
+            var item = @char.Inventory.FindAll(s_reward.Number);
+            if(item.Length > 0)
+            {
+                GameServices.CItemThrow(@char.Player.Session, new CItemThrow
+                {
+                    MapX = (byte)@char.Position.X,
+                    MapY = (byte)@char.Position.Y,
+                    Source = item.First()
+                }).Wait();
+            }
+            @char.WarpTo(22).Wait();
         }
 
         public override void OnMonsterDead(object sender, EventArgs eventArgs)

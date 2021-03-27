@@ -83,5 +83,11 @@ namespace MU.DataBase
 
         public int AccountId { get; set; }
         public AccountDto Account { get; set; }
+
+        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        public ushort Resets { get; set; }
+
+        // Gens
+        public GensDto Gens { get; set; }
     }
 }
