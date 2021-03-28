@@ -10,7 +10,7 @@ namespace MU.Resources.Game
     {
         [XmlElement] public JOHSectionDto[] Section0 { get; set; }
         [XmlElement] public JOHSectionDto[] Weapon { get; set; }
-        [XmlElement] public JOHSectionDto[] Pet { get; set; }
+        [XmlElement] public JOHSectionDto[] Staff { get; set; }
         [XmlElement] public JOHSectionDto[] Defense { get; set; }
     }
 

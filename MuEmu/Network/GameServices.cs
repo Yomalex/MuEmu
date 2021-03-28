@@ -666,6 +666,36 @@ namespace MuEmu.Network
 
                     }
                     break;
+                case 7210:// Jewel of Harmony
+                    {
+                        var Target = inv.Get(message.Dest);
+                        if (Target.Harmony.Option != 0)
+                            break;
+
+                        var joh = ResourceCache.Instance.GetJOH();
+
+                        Target.Harmony = new JewelOfHarmony();
+                        Target.Harmony.Item = Target;
+                        switch(Target.Harmony.Type)
+                        {
+                            case 1:
+                                Target.Harmony.Option = (byte)Program.RandomProvider(joh.Weapon.Length+1, 1);
+                                break;
+                            case 2:
+                                Target.Harmony.Option = (byte)Program.RandomProvider(joh.Pet.Length+1, 1);
+                                break;
+                            case 3:
+                                Target.Harmony.Option = (byte)Program.RandomProvider(joh.Defense.Length+1, 1);
+                                break;
+                            default:
+                                return;
+                        }
+
+                        Logger.ForAccount(session).Information("Item {0} added JOH Option {1}", Target, Target.Harmony.EffectName);
+                        Target.OnItemChange();
+                        await inv.Delete(message.Source);
+                    }
+                    break;
                 case 13 * 512 + 66: //Invitation of the Santa Town's
 
                     break;

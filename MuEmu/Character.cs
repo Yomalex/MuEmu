@@ -465,7 +465,7 @@ namespace MuEmu
             }
 
             
-            //var cinfo = @char.BaseInfo.Stats;
+            var cinfo = @char.BaseInfo.Stats;
 
             @char.Level = 1;
             @char.Experience = 0;
@@ -475,6 +475,7 @@ namespace MuEmu
             //@char.Vitality = (ushort)cinfo.Vit;
             //@char.Energy = (ushort)cinfo.Ene;
             //@char.Command = (ushort)cinfo.Cmd;
+            @char.MapID = @char.BaseInfo.Map;
             @char.Resets++;
             //@char.LevelUpPoints = (ushort)Math.Min(@char.Resets*250, 65535);
             GameServices.CClinetClose(Session, new CClientClose { Type = ClientCloseType.ServerList }).Wait();
@@ -614,6 +615,7 @@ namespace MuEmu
             Gens = new Gens(this, characterDto);
             State = ObjectState.Regen;
             CtlCode = (ControlCode)characterDto.CtlCode;
+            Resets = characterDto.Resets;
 
             _position = new Point(characterDto.X, characterDto.Y);
             TPosition = _position;
@@ -670,7 +672,6 @@ namespace MuEmu
             };
 
             CashShop = new CashShop(plr.Session, characterDto);
-            plr.Session.SendAsync(new SResets { Resets = 0 }).Wait();
             plr.Session.SendAsync(StatsInfo).Wait();
 
             Inventory.SendInventory();
@@ -683,6 +684,7 @@ namespace MuEmu
             Spells.SendList();
             MasterLevel.SendInfo();
             Gens.SendMemberInfo();
+            plr.Session.SendAsync(new SResets { Resets = Resets }).Wait();
         }
 
         public async Task SendV2Message(object message, Player exclude = null)

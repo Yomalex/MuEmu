@@ -11,7 +11,7 @@ namespace MuEmu
         public byte Option { get; set; }
         public byte Level { get; set; }
         public Item Item { get; set; }
-        public byte Type => (byte)((Item!=null)?(Item.Number < 5 ? 1 : (Item.Number >= 5 && Item.Number < 6 ? 2 : (Item.Number >= 6 && Item.Number < 12 ? 3 : 0))):0);
+        public byte Type => GetItemType();
         public byte Index => (byte)(Type << 4 | Option);
 
         public static implicit operator byte(JewelOfHarmony a)
@@ -25,22 +25,42 @@ namespace MuEmu
         }
 
         public int EffectValue => GetEffectValue();
+        public string EffectName => GetEffectName();
 
+        private byte GetItemType()
+        {
+            if (Item == null)
+                return 0;
+
+            if (Item.Number.Type < ItemType.Staff)
+                return 1;
+
+            if (Item.Number.Type == ItemType.Staff)
+                return 2;
+
+            if (Item.Number.Type <= ItemType.Boots)
+                return 3;
+
+            return 0;
+        }
         private int GetEffectValue()
         {
             var joh = ResourceCache.Instance.GetJOH();
 
             JOHSectionDto dto = null;
+            if (Option < 1)
+                return 0;
+
             switch(Type)
             {
                 case 1:
-                    dto = joh.Weapon[Index];
+                    dto = joh.Weapon[Option-1];
                     break;
                 case 2:
-                    dto = joh.Pet[Index];
+                    dto = joh.Staff[Option-1];
                     break;
                 case 3:
-                    dto = joh.Defense[Index];
+                    dto = joh.Defense[Option-1];
                     break;
             }
 
@@ -51,6 +71,32 @@ namespace MuEmu
             var prop = type.GetProperty("Level" + Level);
             var get = prop.GetGetMethod();
             return (int)get.Invoke(dto, null);
+        }
+        private string GetEffectName()
+        {
+            var joh = ResourceCache.Instance.GetJOH();
+
+            JOHSectionDto dto = null;
+            if (Option < 1)
+                return "";
+
+            switch (Type)
+            {
+                case 1:
+                    dto = joh.Weapon[Option - 1];
+                    break;
+                case 2:
+                    dto = joh.Staff[Option - 1];
+                    break;
+                case 3:
+                    dto = joh.Defense[Option - 1];
+                    break;
+            }
+
+            if (dto == null)
+                return "";
+
+            return dto.Name;
         }
     }
 }

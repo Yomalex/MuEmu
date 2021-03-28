@@ -1192,7 +1192,7 @@ namespace MuEmu
             }
         }
 
-        private void OnItemChange()
+        public void OnItemChange()
         {
             CalcItemAttributes();
 
