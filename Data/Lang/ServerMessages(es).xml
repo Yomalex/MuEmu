@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServerMessage>
-    <Message ID="Server_Cfg" Message="El archivo de configuración del servidor es inexistente, primero configure los datos del servidor" />
-    <Message ID="Server_Title" Message="GameServer .NetCore2 [{0}]{1} Client:{2}#!{3} DB:{4}" />
+    <Message ID="Server_Cfg" Message="El archivo de configuracion del servidor es inexistente, primero configure los datos del servidor" />
+    <Message ID="Server_Title" Message="GameServer .NetCore3.1 [{0}]{1} Client:{2}#!{3} DB:{4}" />
     <Message ID="Server_MySQL_Error" Message="Error con la base de datos" />
     <Message ID="Server_Error" Message="Error interno" />
     <Message ID="Server_CSServer_Error" Message="No se puede conectar con el ConnectServer" />
@@ -11,7 +11,7 @@
     <Message ID="Server_MapAnnouncement" Message="Anuncio al mapa {0}:" />
     <Message ID="Server_NoEventMapAnnouncement" Message="Anuncio a mapas sin evento: {0}" />
     <Message ID="Server_Close" Message="Cerrando servidor" />
-    <Message ID="RCache_Initialized" Message="Ya se inicializó" />
+    <Message ID="RCache_Initialized" Message="Ya se inicializo" />
     <Message ID="RCache_Loading_Items" Message="Precargando Objetos..." />
     <Message ID="RCache_Loading_Spells" Message="Precargando Hechizos..." />
     <Message ID="RCache_Loading_Maps" Message="Precargando Mapas..." />
@@ -28,15 +28,22 @@
     <Message ID="MonsterMng_Loaded" Message="Cargados {0} mounstruos en los mapas" />
     <Message ID="BC_Closed" Message="[BloodCastle] Entrada cerrada." />
     <Message ID="BC_Open" Message="[BloodCastle] Quedan {0} minuto(s) de ingreso." />
-    <Message ID="BC_DoorKiller" Message="[BloodCastle] {0} Destruyó la puerta." />
-    <Message ID="BC_StatueKiller" Message="[BloodCastle] {0} Destruyó la estatua." />
-    <Message ID="DS_Closed" Message="[DevilSquare] Estará abierto en {0} minuto(s)." />
+    <Message ID="BC_Open2" Message="[BloodCastle] Quedan {0} minuto(s) para la incurcion." />
+    <Message ID="BC_MonstersKilled" Message="[BloodCastle] El puente ah caido!" />
+    <Message ID="BC_DoorKiller" Message="[BloodCastle] {0} Destruyo la puerta." />
+    <Message ID="BC_BossKilled" Message="[BloodCastle] La estatua ah aparecido!" />
+    <Message ID="BC_StatueKiller" Message="[BloodCastle] {0} Destruyo la estatua." />
+    <Message ID="BC_WeaponOwner" Message="[BloodCastle] {0} Tomo el arma." />
+    <Message ID="BC_Winner" Message="[BloodCastle] {0} Completo la busqueda!." />
+    <Message ID="BC_Time" Message="Cuando al reloj le queden 3:00 me entregas el arma, no ahora." />
+    <Message ID="BC_WeaponError" Message="El usuario ya tenia un arma en su inventario." />
+    <Message ID="DS_Closed" Message="[DevilSquare] Estara abierto en {0} minuto(s)." />
     <Message ID="Chat_Player_Offline" Message="El jugador {0} no esta conectado." />
-    <Message ID="Game_Close" Message="El jugado solicitó {0}." />
+    <Message ID="Game_Close" Message="El jugado solicito {0}." />
     <Message ID="Game_Close_Message" Message="Saldras en {0} segundo(s)." />
     <Message ID="Game_Vault_active" Message="Baul {0} activo." />
     <Message ID="Game_NoQuestAvailable" Message="Ya no tengo quest para ofrecerte." />
-    <Message ID="Game_DefaultNPCMessage" Message="Que tengas un buen día." />
+    <Message ID="Game_DefaultNPCMessage" Message="Que tengas un buen dia." />
     <Message ID="Game_Warp" Message="Necesitas ser nivel {0} para ir." />
     <Message ID="Game_Warp2" Message="Necesitas tener {0}zen para ir." />
     <Message ID="Game_ChaosBoxMixError" Message="Necesitas organizar tu inventario." />

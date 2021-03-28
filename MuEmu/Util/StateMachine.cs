@@ -7,7 +7,7 @@ namespace MuEmu.Util
     public abstract class StateMachine<T>
         where T : struct, IConvertible
     {
-        protected T CurrentState { get; private set; }
+        public T CurrentState { get; private set; }
         private T _nextState;
         private DateTimeOffset _nextStateIn;
         private DateTimeOffset _currentState;

@@ -62,6 +62,13 @@ namespace MU.Resources
         Game_Warp2,
         Game_ChaosBoxMixError,
         Game_MonsterOutOfRange,
+        BC_MonstersKilled,
+        BC_BossKilled,
+        BC_Open2,
+        BC_WeaponOwner,
+        BC_Winner,
+        BC_Time,
+        BC_WeaponError,
     }
     public enum Spell : ushort
     {

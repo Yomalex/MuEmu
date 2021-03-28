@@ -127,12 +127,21 @@ namespace MuEmu.Entity
                 .WithOne(y => y.Character);
 
             modelBuilder.Entity<CharacterDto>()
+                .HasOne(x => x.BloodCastle)
+                .WithOne(y => y.Character);
+
+            modelBuilder.Entity<CharacterDto>()
                 .Navigation(x => x.Items)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
 
             modelBuilder.Entity<CharacterDto>()
                 .Navigation(x => x.Gens)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
+
+            modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.BloodCastle)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
         }
@@ -150,5 +159,6 @@ namespace MuEmu.Entity
         public DbSet<MasterInfoDto> MasterLevel { get; set; }
 
         public DbSet<GensDto> Gens { get; set; }
+        public DbSet<BloodCastleDto> BloodCastles { get; set; }
     }
 }

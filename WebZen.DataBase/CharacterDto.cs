@@ -89,5 +89,6 @@ namespace MU.DataBase
 
         // Gens
         public GensDto Gens { get; set; }
+        public BloodCastleDto BloodCastle { get; set; }
     }
 }

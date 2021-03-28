@@ -667,12 +667,12 @@ namespace MuEmu
                                 {
                                     await plr.Save(db);
                                     plr.Character?.MuHelper.Update();
+                                    db.SaveChanges();
                                 }catch(Exception ex)
                                 {
                                     plrLog.Error(ex, "Player Save:");
                                 }
                             }
-                            db.SaveChanges();
                         Logger.Information("Saved players");
                             var maps = ResourceCache.Instance.GetMaps();
                             foreach(var map in maps)
@@ -700,12 +700,12 @@ namespace MuEmu
                                     }
                                 }
                             }
-                        Thread.Sleep(60000);
                     }
                     catch (Exception e)
                     {
                         Logger.Error(e, DateTime.Now.ToString());
                     }
+                    Thread.Sleep(60000);
                 }
 
             }

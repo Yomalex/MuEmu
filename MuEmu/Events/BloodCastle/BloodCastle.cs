@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using MU.Resources;
 using MuEmu.Network;
 using MuEmu.Resources.Game;
+using MuEmu.Entity;
 
 namespace MuEmu.Events.BloodCastle
 {
@@ -29,12 +30,13 @@ namespace MuEmu.Events.BloodCastle
             250000,
             250000,
         };
-        private static Item s_reward = new Item(new ItemNumber(13, 19));
+        private Item _reward = new Item(new ItemNumber(13, 19));
 
         private MapInfo _map;
         private BloodCastles _manager;
         private List<Player> _playerForReward = new List<Player>();
         private Player _winner;
+        private bool _ended;
 
         public Maps MapID { get; set; }
 
@@ -69,7 +71,7 @@ namespace MuEmu.Events.BloodCastle
             Bridge = bridge;
             Players = new List<Player>();
             Monsters = new List<Monster>();
-            MapID = (bridge < 8 ? (Maps)((int)Maps.BloodCastle1 + bridge) : Maps.BloodCastle8);
+            MapID = (bridge < 7 ? (Maps)((int)Maps.BloodCastle1 + bridge) : Maps.BloodCastle8);
             _map = ResourceCache.Instance.GetMaps()[MapID];
             _map.PlayerJoins += PlayerAdded;
             _map.PlayerLeaves += OnPlayerLeave;
@@ -102,18 +104,30 @@ namespace MuEmu.Events.BloodCastle
             }
 
             plr.Character.CharacterDie += OnPlayerDead;
+            //plr.Character.MapChanged += OnPlayerLeave;
 
             return true;
         }
 
         public override void OnPlayerLeave(object sender, EventArgs eventArgs)
         {
-            var plr = sender as Player;
+            var plr = (sender as Player);
             Players.Remove(plr);
             if (WeaponOwner == plr)
             {
+                try
+                {
+                    var a = plr.Character.Inventory.FindAll(_reward.Number).First();
+                    GameServices.CItemThrow(plr.Session, new CItemThrow
+                    {
+                        MapX = (byte)plr.Character.Position.X,
+                        MapY = (byte)plr.Character.Position.Y,
+                        Source = a,
+                    }).Wait();
+                }catch(Exception)
+                { }
                 WeaponOwner = null;
-                _map.AddItem(plr.Character.Position.X, plr.Character.Position.Y, s_reward);
+                //_map.AddItem(, , _reward);
             }
 
             if (Players.Count == 0 && CurrentState == EventState.Playing)
@@ -146,6 +160,7 @@ namespace MuEmu.Events.BloodCastle
                 case 143:
                 case 433:
                     mons.Die += SorcererDead;
+                    Monsters.Add(mons);
                     break;
                 // Castle Gate
                 case 131:
@@ -173,15 +188,28 @@ namespace MuEmu.Events.BloodCastle
 
         private void MonsterDead(object sender, EventArgs e)
         {
-            MonsterKill++;
-            if (MonsterKill == MonsterCount)
-                CastleBridge(true);
+            if (MonsterKill < MonsterCount)
+            {
+                MonsterKill++;
+                if (MonsterKill == MonsterCount)
+                {
+                    CastleBridge(true);
+                    Program.MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_MonstersKilled));
+                }
+            }
         }
 
         private void SorcererDead(object sender, EventArgs e)
         {
-            BossKill++;
-            //var mons = sender as Monster;
+            if (BossKill < BossCount)
+            {
+                BossKill++;
+                if (BossKill == BossCount)
+                {
+                    Statue.Active = true;
+                    Program.MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_BossKilled)).Wait();
+                }
+            }
         }
 
         private void GateDead(object sender, EventArgs e)
@@ -200,7 +228,8 @@ namespace MuEmu.Events.BloodCastle
             var mons = sender as Monster;
             StatueWinner = mons.Killer;
             mons.Active = false;
-            _map.AddItem(mons.Position.X, mons.Position.Y, s_reward);
+            _reward.Plus = (byte)(mons.Info.Monster - 132);
+            _map.AddItem(mons.Position.X, mons.Position.Y, _reward.Clone() as Item, mons.Killer.Character);
             Program
                 .MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_StatueKiller, StatueWinner.Character.Name))
                 .Wait();
@@ -217,12 +246,18 @@ namespace MuEmu.Events.BloodCastle
                 Gate.Active = true;
 
             if (Statue != null)
-                Statue.Active = true;
+                Statue.Active = false;
 
             if (Archangel != null)
                 Archangel.Active = true;
 
-            Players.Clear();
+            if (WeaponOwner != null)
+            {
+                var a = WeaponOwner.Character.Inventory.FindAll(_reward.Number).First();
+                WeaponOwner.Character.Inventory.Remove(a);
+                WeaponOwner = null;
+            }
+
             _playerForReward.Clear();
             _winner = null;
             DoorWinner = null;
@@ -234,6 +269,9 @@ namespace MuEmu.Events.BloodCastle
             switch(CurrentState)
             {
                 case EventState.Open:
+                    if (TimeLeft.Seconds != 0)
+                        break;
+                    Program.MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_Open2, TimeLeft.Minutes));
                     break;
                 case EventState.Playing:
                     if ((int)Time.TotalSeconds == 30)
@@ -254,15 +292,19 @@ namespace MuEmu.Events.BloodCastle
                         CastleEntrace(true);
                     }
 
-                    if (TimeLeft.TotalSeconds > 60)
+                    if (TimeLeft.TotalSeconds > 60 && !_ended)
                     {
                         var timeleft = (ushort)(TimeLeft.TotalSeconds - 60);
 
-                        var msg = new SBloodCastleState(4, timeleft, MonsterCount, MonsterKill, (ushort)(WeaponOwner?.Session.ID ?? 0xffff), 1);
+                        var msg = new SBloodCastleState(4, timeleft, MonsterCount, MonsterKill, (ushort)(WeaponOwner?.Session.ID ?? 0xffff), _reward.Plus);
 
-                        if (MonsterKill < MonsterCount || DoorWinner == null)
+                        if (MonsterKill < MonsterCount)
                         {
                             msg.State = 1;
+                        }
+                        else if(DoorWinner == null)
+                        {
+                            msg.State = 2;
                         }
                         else if (BossKill < BossCount || StatueWinner == null)
                         {
@@ -272,10 +314,16 @@ namespace MuEmu.Events.BloodCastle
                         }
                         else
                         {
+                            msg.State = 4;
+                            msg.MaxKillMonster = BossCount;
+                            msg.CurKillMonster = BossKill;
                             if (WeaponOwner == null)
                             {
                                 WeaponOwner = Players
-                                    .FirstOrDefault(x => x.Character.Inventory.FindAllItems(s_reward.Number).Any());
+                                    .FirstOrDefault(x => x.Character.Inventory.FindAllItems(_reward.Number).Any());
+
+                                if (WeaponOwner != null)
+                                    Program.MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_WeaponOwner, WeaponOwner.Character.Name));
                             }
                         }
 
@@ -285,9 +333,16 @@ namespace MuEmu.Events.BloodCastle
                             SendAsync(new SDevilSquareSet(DevilSquareState.BeforeEnd)).Wait();
                     }
 
-                    if((int)TimeLeft.TotalSeconds == 60)
+                    if((int)TimeLeft.TotalSeconds == 60 || Winner != null)
                     {
                         GiveReward();
+                        _ended = true;
+                        SendAsync(new SBloodCastleState(2, 59, 0, 0, 0xffff, 1)).Wait();
+
+                        if(Winner != null)
+                            Program.MapAnoucement(MapID, ServerMessages.GetMessage(Messages.BC_Winner, Winner.Character.Name)).Wait();
+                        Winner = null;
+                        Trigger(EventState.Closed, TimeSpan.FromSeconds(59));
                         Clear();
                     }
 
@@ -312,7 +367,8 @@ namespace MuEmu.Events.BloodCastle
                         plr.Character.WarpTo(22).Wait();
 
                     Players.Clear();
-                    Trigger(EventState.Open, _closedTime);
+                    if(_manager.CurrentState != EventState.Closed)
+                        Trigger(EventState.Open, _manager.TimeLeft + _closedTime);
                     break;
                 case EventState.Open:
                     Trigger(EventState.Playing, _openTime);
@@ -349,94 +405,151 @@ namespace MuEmu.Events.BloodCastle
 
         private async void CastleDoor(bool free)
         {
-            if (free) await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(13, 75, 2, 5));
-            else await _map.AddAttribute(MapAttributes.NoWalk, new Rectangle(13, 75, 2, 5));
+            if (free)
+            {
+                await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(13, 75, 2, 5));// Door Itself
+                await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(11, 80, 14, 9));// Zone Beginh Door
+                await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(8, 80, 2, 3));// Altar 
+
+            }
+            else
+            {
+                await _map.AddAttribute(MapAttributes.NoWalk, new Rectangle(13, 75, 2, 5));
+                await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(11, 80, 14, 9));// Zone Beginh Door
+                await _map.RemoveAttribute(MapAttributes.NoWalk, new Rectangle(8, 80, 2, 3));// Altar 
+            }
         }
 
         private async void GiveReward()
         {
             List<BCScore> bc = new List<BCScore>();
+            using (var db = new GameContext())
+            {
             if (Winner != null)
-            {
-                var party = Winner.Character.Party;
-                foreach (var plr in _playerForReward)
                 {
-                    int points;
-                    if (plr == Winner)
+                    var party = Winner.Character.Party;
+                    foreach (var plr in _playerForReward)
                     {
-                        points = 1000 + Bridge * 5;
-                    }
-                    else if (plr.Character.Party == party)
-                    {
-                        points = 800;
-                    }
-                    else if (Players.Any(x => x == plr))
-                    {
-                        points = 600;
-                    }
-                    else
-                    {
-                        points = 300;
-                    }
+                        int points;
+                        if (plr == Winner)
+                        {
+                            points = 1000 + Bridge * 5;
+                            // Jewel of Chaos
+                            _map.AddItem(plr.Character.Position.X, plr.Character.Position.Y, new Item(new ItemNumber(6159)), plr.Character);
+                        }
+                        else if (plr.Character.Party == party)
+                        {
+                            points = 800;
+                            // Jewel of Chaos
+                            _map.AddItem(plr.Character.Position.X, plr.Character.Position.Y, new Item(new ItemNumber(6159)), plr.Character);
+                        }
+                        else if (Players.Any(x => x == plr))
+                        {
+                            points = 600;
+                        }
+                        else
+                        {
+                            points = 300;
+                        }
 
-                    float experience = 0;
-                    if (plr == Winner || Winner.Character.Party == plr.Character.Party)
-                    {
-                        var mult = plr == Winner ? 1.0f : 0.5f;
-                        experience += (5000 + Bridge * 5000) * mult;
-                        experience += (float)(TimeLeft.TotalSeconds * (160 + 20 * Bridge)) * mult;
-                    }
+                        float experience = 0;
+                        if (plr == Winner || Winner.Character.Party == plr.Character.Party)
+                        {
+                            var mult = plr == Winner ? 1.0f : 0.5f;
+                            experience += (5000 + Bridge * 5000) * mult;
+                            experience += (float)(TimeLeft.TotalSeconds * (160 + 20 * Bridge)) * mult;
+                        }
 
-                    if (plr == DoorWinner || DoorWinner.Character.Party == plr.Character.Party)
-                    {
-                        var mult = plr == DoorWinner ? 1.0f : 0.5f;
-                        experience += (20000 + 30000 * Bridge) * mult;
-                    }
-
-                    if(plr == StatueWinner || StatueWinner.Character.Party == plr.Character.Party)
-                    {
-                        var mult = plr == StatueWinner ? 1.0f : 0.5f;
-                        experience += (20000 + 30000 * Bridge) * mult;
-                    }
-
-                    var zMult = Players.Any(x => x == plr)?1.0f:0.5f;
-
-                    if (plr.Status != LoginStatus.NotLogged)
-                        await plr.Session.SendAsync(new SBloodCastleReward(false, 255, new BCScore[] { new BCScore {
-                            Name = plr.Character.Name,
-                            Experience = (int)experience,
-                            Score = points,
-                            Zen = (int)(s_BCRewardZenIn[Bridge] * zMult),
-                        } }));
-                }
-            }
-            else
-            {
-                foreach (var plr in _playerForReward)
-                {
-                    float experience = 0;
-
-                    if(DoorWinner != null)
                         if (plr == DoorWinner || DoorWinner.Character.Party == plr.Character.Party)
                         {
                             var mult = plr == DoorWinner ? 1.0f : 0.5f;
                             experience += (20000 + 30000 * Bridge) * mult;
                         }
 
-                    if (StatueWinner != null)
                         if (plr == StatueWinner || StatueWinner.Character.Party == plr.Character.Party)
                         {
                             var mult = plr == StatueWinner ? 1.0f : 0.5f;
                             experience += (20000 + 30000 * Bridge) * mult;
                         }
 
-                    if (plr.Status != LoginStatus.NotLogged)
-                        await plr.Session.SendAsync(new SBloodCastleReward(false, 255, new BCScore[] { new BCScore {
+                        var zMult = Players.Any(x => x == plr) ? 1.0f : 0.5f;
+
+                        plr.Character.Experience += (uint)experience;
+                        plr.Character.Money += (uint)(s_BCRewardZenIn[Bridge] * zMult);
+
+                        if (plr.Status != LoginStatus.NotLogged)
+                            await plr.Session.SendAsync(new SBloodCastleReward(true, 255, new BCScore[] { new BCScore {
+                            Name = plr.Character.Name,
+                            Experience = (int)experience,
+                            Score = points,
+                            Zen = (int)(s_BCRewardZenIn[Bridge] * zMult),
+                        } }));
+                        var _dto = (from c in db.BloodCastles
+                                where c.CharacterId == plr.Character.Id
+                                select c).SingleOrDefault();
+
+                        if (_dto == null)
+                        {
+                            _dto = new MU.DataBase.BloodCastleDto
+                            {
+                                CharacterId = plr.Character.Id,
+                                Points = points
+                            };
+                            db.BloodCastles.Add(_dto);
+                        }
+                        else
+                        {
+                            _dto.Points += points;
+                            db.BloodCastles.Update(_dto);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var plr in _playerForReward)
+                    {
+                        float experience = 0;
+
+                        if (DoorWinner != null)
+                            if (plr == DoorWinner || DoorWinner.Character.Party == plr.Character.Party)
+                            {
+                                var mult = plr == DoorWinner ? 1.0f : 0.5f;
+                                experience += (20000 + 30000 * Bridge) * mult;
+                            }
+
+                        if (StatueWinner != null)
+                            if (plr == StatueWinner || StatueWinner.Character.Party == plr.Character.Party)
+                            {
+                                var mult = plr == StatueWinner ? 1.0f : 0.5f;
+                                experience += (20000 + 30000 * Bridge) * mult;
+                            }
+
+                        if (plr.Status != LoginStatus.NotLogged)
+                            await plr.Session.SendAsync(new SBloodCastleReward(false, 255, new BCScore[] { new BCScore {
                         Name = plr.Character.Name,
                             Experience = (int)experience,
                             Score = -300,
                             Zen = 0,
                         } }));
+                        var _dto = (from c in db.BloodCastles
+                                    where c.CharacterId == plr.Character.Id
+                                    select c).SingleOrDefault();
+
+                        if (_dto == null)
+                        {
+                            _dto = new MU.DataBase.BloodCastleDto
+                            {
+                                CharacterId = plr.Character.Id,
+                                Points = -300
+                            };
+                            db.BloodCastles.Add(_dto);
+                        }
+                        else
+                        {
+                            _dto.Points += -300;
+                            db.BloodCastles.Update(_dto);
+                        }
+                    }
                 }
             }
 
@@ -445,13 +558,43 @@ namespace MuEmu.Events.BloodCastle
 
         public override void NPCTalk(Player plr)
         {
-            throw new NotImplementedException();
+            var session = plr.Session;
+            if (CurrentState != EventState.Playing || (CurrentState == EventState.Playing && TimeLeft > TimeSpan.FromMinutes(4)))
+            {
+                session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.BC_Time))).Wait();
+                return;
+            }
+
+            if ((int)TimeLeft.TotalSeconds == 60 || Winner != null)
+            {
+                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.CompletedBC)).Wait();
+                return;
+            }
+
+            var item = plr.Character.Inventory.FindAllItems(_reward.Number).FirstOrDefault();
+
+            if (item == null)
+            {
+                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC)).Wait();
+                return;
+            }
+
+            plr.Character.Inventory.Delete(item).Wait();
+
+            if (DoorWinner == null || StatueWinner == null)
+            {
+                _logger.Error(ServerMessages.GetMessage(Messages.BC_WeaponError));
+                return;
+            }
+            session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.SucceedBC)).Wait();
+            Winner = plr;
+            WeaponOwner = null;
         }
 
         public override void OnPlayerDead(object sender, EventArgs eventArgs)
         {
             var @char = sender as Character;
-            var item = @char.Inventory.FindAll(s_reward.Number);
+            var item = @char.Inventory.FindAll(_reward.Number);
             if(item.Length > 0)
             {
                 GameServices.CItemThrow(@char.Player.Session, new CItemThrow

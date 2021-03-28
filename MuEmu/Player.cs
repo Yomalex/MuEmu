@@ -105,5 +105,10 @@ namespace MuEmu
         /// Sender Player
         /// </summary>
         public event EventHandler OnStatusChange;
+
+        public override string ToString()
+        {
+            return $"{Account?.ID??0}{Account?.Nickname??""}:{Character?.Name??""}";
+        }
     }
 }

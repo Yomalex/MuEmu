@@ -97,40 +97,14 @@ namespace MuEmu.Events.BloodCastle
 
         public void AngelKingTalk(Player plr)
         {
-            var session = plr.Session;
             var bridge = _bridges.FirstOrDefault(x => x.Players.Any(y => y == plr));
-
             if (bridge == null)
             {
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC)).Wait();
+                plr.Session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC)).Wait();
                 return;
             }
 
-            if(CurrentState == EventState.Playing && TimeLeft > TimeSpan.FromMinutes(4))
-            {
-                //await session.SendAsync(new SNotice(NoticeType.Blue, $"When the clock has 3:00 for finish give the weapon, not now."));
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC)).Wait();
-                return;
-            }
-
-            if((int)TimeLeft.TotalSeconds == 60)
-            {
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.CompletedBC)).Wait();
-                return;
-            }
-
-            var item = plr.Character.Inventory.FindAllItems(new ItemNumber(13, 19)).FirstOrDefault();
-
-            if (item == null)
-            {
-                session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.InvalidBC)).Wait();
-                return;
-            }
-
-            plr.Character.Inventory.Delete(item).Wait();
-
-            session.SendAsync(new SCommand(ServerCommandType.EventMsg, (byte)EventMsg.SucceedBC)).Wait();
-            bridge.Winner = plr;
+            bridge.NPCTalk(plr);
         }
 
         public override bool TryAdd(Player plr)
