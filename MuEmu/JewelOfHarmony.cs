@@ -1,4 +1,5 @@
-﻿using MuEmu.Resources;
+﻿using MU.Resources.Game;
+using MuEmu.Resources;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,12 +29,28 @@ namespace MuEmu
         private int GetEffectValue()
         {
             var joh = ResourceCache.Instance.GetJOH();
-            if(!joh.ContainsKey(Index))
+
+            JOHSectionDto dto = null;
+            switch(Type)
             {
-                return 0;
+                case 1:
+                    dto = joh.Weapon[Index];
+                    break;
+                case 2:
+                    dto = joh.Pet[Index];
+                    break;
+                case 3:
+                    dto = joh.Defense[Index];
+                    break;
             }
 
-            return joh[Index].Value[Level];
+            if (dto == null)
+                return 0;
+
+            var type = typeof(JOHSectionDto);
+            var prop = type.GetProperty("Level" + Level);
+            var get = prop.GetGetMethod();
+            return (int)get.Invoke(dto, null);
         }
     }
 }

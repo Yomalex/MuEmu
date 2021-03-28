@@ -5,6 +5,7 @@ using MuEmu.Data;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Resources.XML;
+using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -603,33 +604,28 @@ namespace MuEmu.Resources
                     Shop = shop.Shop,
                     Storage = new Storage(Storage.ShopSize),
                 };
-                var count = 0;
-                using (var tr = File.OpenText(Path.Combine(_root, shop.ItemList)))
-                {
-                    var contents = tr.ReadToEnd();
-                    var ShopRegex = new Regex(@"(\/*[0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s*(.*)\n+");
-                    foreach(Match m in ShopRegex.Matches(contents))
-                    {
-                        if (m.Groups[1].Value.StartsWith("//"))
-                            continue;
 
-                        var type = byte.Parse(m.Groups[1].Value);
-                        var index = ushort.Parse(m.Groups[2].Value);
-                        var Plus = byte.Parse(m.Groups[3].Value);
-                        var Durability = byte.Parse(m.Groups[4].Value);
-                        var Skill = byte.Parse(m.Groups[5].Value) !=0;
-                        var Luck = byte.Parse(m.Groups[6].Value) != 0;
-                        var Option28 = byte.Parse(m.Groups[7].Value);
-                        var OptionExe = byte.Parse(m.Groups[8].Value);
-                        try
-                        {
-                            result.Storage.Add(new Item(new ItemNumber(type, index), 0, new { Plus, Durability, Skill, Luck, Option28, OptionExe }));
-                        }catch(Exception e)
-                        {
-                            Logger.Error(e.Message);
-                        }
-                        count++;
-                    }
+                var loader = new LoadWZTXT<ShopInfoDto>();
+                var file = loader.Load(Path.Combine(_root, shop.ItemList));
+                var itemList = file.Item.Select(
+                    x => new Item(
+                        new ItemNumber(x.Type, x.Index),
+                        Options:
+                        new {
+                            x.Plus,
+                            x.Durability,
+                            x.Skill,
+                            x.Luck,
+                            Option28 = x.Option,
+                            OptionExe = x.Excellent })).ToList();
+
+                try
+                {
+                    itemList.ForEach(x => result.Storage.Add(x));
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e.Message);
                 }
 
                 yield return result;
@@ -676,60 +672,11 @@ namespace MuEmu.Resources
             }
         }
 
-        public IEnumerable<JewelOfHarmonyOption> LoadJOH()
+        public JOHDto LoadJOH()
         {
-            using (var tr = File.OpenText(Path.Combine(_root, "JewelOfHarmonyOption.txt")))
-            {
-                var OptionsRegex = new Regex(@"([0-9]+)\s*(.*?)\n+(?s)(.*?)\nend");
-                var OptionRegex = new Regex(@"([0-9]+)\s+" + "\"" + @"(.+)" + "\"" + @"\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
-
-                foreach (Match m in OptionsRegex.Matches(tr.ReadToEnd()))
-                {                   
-                    foreach(Match sm in OptionRegex.Matches(m.Groups[3].Value))
-                    {
-                        yield return new JewelOfHarmonyOption
-                        {
-                            Type = byte.Parse(m.Groups[1].Value),
-                            Index = byte.Parse(sm.Groups[1].Value),
-                            Name = sm.Groups[2].Value,
-                            Value = new int[]
-                            {
-                                int.Parse(sm.Groups[5].Value),
-                                int.Parse(sm.Groups[5+2].Value),
-                                int.Parse(sm.Groups[5+4].Value),
-                                int.Parse(sm.Groups[5+6].Value),
-                                int.Parse(sm.Groups[5+8].Value),
-                                int.Parse(sm.Groups[5+10].Value),
-                                int.Parse(sm.Groups[5+12].Value),
-                                int.Parse(sm.Groups[5+14].Value),
-                                int.Parse(sm.Groups[5+16].Value),
-                                int.Parse(sm.Groups[5+18].Value),
-                                int.Parse(sm.Groups[5+20].Value),
-                                int.Parse(sm.Groups[5+22].Value),
-                                int.Parse(sm.Groups[5+24].Value),
-                                int.Parse(sm.Groups[5+26].Value),
-                            },
-                            Zen = new int[]
-                            {
-                                int.Parse(sm.Groups[6].Value),
-                                int.Parse(sm.Groups[6+2].Value),
-                                int.Parse(sm.Groups[6+4].Value),
-                                int.Parse(sm.Groups[6+6].Value),
-                                int.Parse(sm.Groups[6+8].Value),
-                                int.Parse(sm.Groups[6+10].Value),
-                                int.Parse(sm.Groups[6+12].Value),
-                                int.Parse(sm.Groups[6+14].Value),
-                                int.Parse(sm.Groups[6+16].Value),
-                                int.Parse(sm.Groups[6+18].Value),
-                                int.Parse(sm.Groups[6+20].Value),
-                                int.Parse(sm.Groups[6+22].Value),
-                                int.Parse(sm.Groups[6+24].Value),
-                                int.Parse(sm.Groups[6+26].Value),
-                            },
-                        };
-                    }
-                }
-            }
+            var loader = new LoadWZTXT<JOHDto>();
+            var file = loader.Load(Path.Combine(_root, "JewelOfHarmonyOption.txt"));
+            return file;
         }
 
         public IEnumerable<Gate> LoadGates()

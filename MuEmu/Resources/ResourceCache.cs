@@ -126,13 +126,13 @@ namespace MuEmu.Resources
             return cache;
         }
 
-        public IDictionary<byte, JewelOfHarmonyOption> GetJOH()
+        public JOHDto GetJOH()
         {
-            var cache = _cache.Get<IDictionary<byte, JewelOfHarmonyOption>>("JOH");
+            var cache = _cache.Get<JOHDto>("JOH");
             if (cache == null)
             {
                 Logger.Information(ServerMessages.GetMessage(Messages.RCache_Loading_JoHs));
-                cache = _loader.LoadJOH().ToDictionary(x => (byte)(x.Type << 4 | x.Index));
+                cache = _loader.LoadJOH();//.ToDictionary(x => (byte)(x.Type << 4 | x.Index));
                 _cache.Set("JOH", cache);
             }
 

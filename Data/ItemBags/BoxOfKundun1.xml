@@ -1,0 +1,54 @@
+<ItemList>
+  <!-- Invitation of Devil Square +1 -->
+  <Item Number="7187" MinLevel="1" MaxLevel="1" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Invisibility Cloak +1 -->
+  <Item Number="6674" MinLevel="1" MaxLevel="1" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Kalima +1 -->
+  <!-- <Item Number="6674" MinLevel="1" MaxLevel="1" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" /> -->
+  <!-- Jewel of Chaos -->
+  <Item Number="6159" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Jewel of Bless -->
+  <Item Number="7181" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Jewel of Soul -->
+  <Item Number="6159" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Jewel of Life -->
+  <Item Number="7184" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Jewel of Creation -->
+  <Item Number="7190" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Jewel of Harmony -->
+  <Item Number="7210" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Excellent Kris -->
+  <Item Number="0" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Katana -->
+  <Item Number="3" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Double blade -->
+  <Item Number="13" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Sword of Salamander -->
+  <Item Number="9" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Helical -->
+  <Item Number="12" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Tomahawk -->
+  <Item Number="515" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Elven Bow -->
+  <Item Number="2050" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Tiger Bow -->
+  <Item Number="2052" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Arquebus -->
+  <Item Number="2058" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Bluewing Crossbow -->
+  <Item Number="2061" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Angelic Staff -->
+  <Item Number="2561" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Gorgon Staff -->
+  <Item Number="2564" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Battle Scepter -->
+  <Item Number="1032" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Mistery Staff -->
+  <Item Number="2574" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Buckler -->
+  <Item Number="3076" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Skull Shield -->
+  <Item Number="3078" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+  <!-- Excellent Spike Shield -->
+  <Item Number="3079" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MaxOption="4" MaxExcellent="4" />
+</ItemList>
