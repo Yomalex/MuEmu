@@ -682,7 +682,7 @@ namespace MuEmu.Network
                                 Target.Harmony.Option = (byte)Program.RandomProvider(joh.Weapon.Length+1, 1);
                                 break;
                             case 2:
-                                Target.Harmony.Option = (byte)Program.RandomProvider(joh.Pet.Length+1, 1);
+                                Target.Harmony.Option = (byte)Program.RandomProvider(joh.Staff.Length+1, 1);
                                 break;
                             case 3:
                                 Target.Harmony.Option = (byte)Program.RandomProvider(joh.Defense.Length+1, 1);

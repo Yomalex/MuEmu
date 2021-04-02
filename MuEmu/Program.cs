@@ -45,6 +45,7 @@ using MU.Resources;
 using MU.Resources.Game;
 using MU.Resources.BMD;
 using MuEmu.Network.ConnectServer;
+using System.Collections.Generic;
 
 namespace MuEmu
 {
@@ -228,18 +229,20 @@ namespace MuEmu
 
             Log.Information(ServerMessages.GetMessage(Messages.Server_Ready));
 
-            Handler.AddCommand(new Command<GSSession>("exit", Close, autority: MustBeGameMaster))
-                .AddCommand(new Command<GSSession>("quit", Close, autority: MustBeGameMaster))
-                .AddCommand(new Command<GSSession>("stop", Close, autority: MustBeGameMaster))
-                .AddCommand(new Command<GSSession>("reload", autority:MustBeGameMaster)
-                    .AddCommand(new Command<GSSession>("shops", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadShops()))
-                    .AddCommand(new Command<GSSession>("gates", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadGates())))
-                .AddCommand(new Command<GSSession>("create", autority: MustBeGameMaster)
-                    .AddCommand(new Command<GSSession>("movereq", DumpMoveReq)))
-                .AddCommand(new Command<GSSession>("db", autority: MustBeGameMaster)
-                    .AddCommand(new Command<GSSession>("migrate", Migrate))
-                    .AddCommand(new Command<GSSession>("create", Create))
-                    .AddCommand(new Command<GSSession>("delete", Delete)))
+            Handler
+                .AddCommand(new Command<GSSession>("help", Help, help:"Use help <cmd> for get help on any command"))
+                .AddCommand(new Command<GSSession>("exit", Close, autority: MustBeGameMaster, help: "Close game server"))
+                .AddCommand(new Command<GSSession>("quit", Close, autority: MustBeGameMaster, help: "Close game server"))
+                .AddCommand(new Command<GSSession>("stop", Close, autority: MustBeGameMaster, help: "Close game server"))
+                .AddCommand(new Command<GSSession>("reload", autority:MustBeGameMaster, help: "Reload GameServer section")
+                    .AddCommand(new Command<GSSession>("shops", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadShops(), help:"Reload shop List"))
+                    .AddCommand(new Command<GSSession>("gates", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadGates(), help:"Reload gate list")))
+                .AddCommand(new Command<GSSession>("create", autority: MustBeGameMaster, help:"Create client side files")
+                    .AddCommand(new Command<GSSession>("movereq", DumpMoveReq, null, "Create MoveRequest file for client")))
+                .AddCommand(new Command<GSSession>("db", autority: MustBeGameMaster, help:"Generate db changes, use help")
+                    .AddCommand(new Command<GSSession>("migrate", Migrate, help:"delete DB and create it again"))
+                    .AddCommand(new Command<GSSession>("create", Create, help:"Create DB"))
+                    .AddCommand(new Command<GSSession>("delete", Delete, help:"Delete DB")))
                 .AddCommand(new Command<GSSession>("!", (object a, CommandEventArgs b) => GlobalAnoucement(b.Argument).Wait(), MustBeGameMaster).SetPartial())
                 .AddCommand(new Command<GSSession>("/").SetPartial()
                     .AddCommand(new Command<GSSession>("add").SetPartial()
@@ -252,8 +255,8 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
                         .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument))
                         .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument)))))
-                    .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster))
-                    .AddCommand(new Command<GSSession>("reset", Character.Reset)))
+                    .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster, "Level up current character, use: '/levelup 100' add 100 levels to current character"))
+                    .AddCommand(new Command<GSSession>("reset", Character.Reset, null, "Resets current Character")))
                 .AddCommand(new Command<GSSession>("#", PostCommand).SetPartial())//Post
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
@@ -283,58 +286,6 @@ namespace MuEmu
 
                 GlobalEventsManager.AddEvent(e.name, ev);
             }
-
-            /*GlobalEventsManager
-                .AddEvent(
-                "BoxOfRibbon", 
-                new GlobalEvent(GlobalEventsManager) 
-                { Active = xml.BoxOfRibbon.active, Rate = xml.BoxOfRibbon.rate }
-                .AddRange(new Item(6176), 12, 49)
-                .AddRange(new Item(6177), 50, 69)
-                .AddRange(new Item(6178), 70, 1000)
-                )
-                .AddEvent(
-                "Medals", 
-                new GlobalEvent(GlobalEventsManager) 
-                { Active = xml.Medals.active, Rate = xml.Medals.rate }
-                .AddRange(new Item(7179, Options: new { Plus = (byte)5 }), 0, 1000, Maps.Dugeon)
-                .AddRange(new Item(7179, Options: new { Plus = (byte)5 }), 0, 1000, Maps.Davias)
-                .AddRange(new Item(7179, Options: new { Plus = (byte)6 }), 0, 1000, Maps.LostTower)
-                .AddRange(new Item(7179, Options: new { Plus = (byte)6 }), 0, 1000, Maps.Atlans)
-                .AddRange(new Item(7179, Options: new { Plus = (byte)6 }), 0, 1000, Maps.Tarkan)
-                )
-                .AddEvent(
-                "HeartOfLove",
-                new GlobalEvent(GlobalEventsManager)
-                { Active = xml.HeartOfLove.active, Rate = xml.HeartOfLove.rate }
-                .AddRange(new Item(7179, Options: new { Plus = (byte)3 }), 15, 1000)
-                )
-                .AddEvent(
-                "FireCracker",
-                new GlobalEvent(GlobalEventsManager)
-                { Active = xml.FireCracker.active, Rate = xml.FireCracker.rate }
-                .AddRange(new Item(7179, Options: new { Plus = (byte)2 }), 17, 1000)
-                )
-                .AddEvent(
-                "EventChip",
-                new GlobalEvent(GlobalEventsManager)
-                { Active = xml.EventChip.active, Rate = xml.EventChip.rate }
-                .AddRange(new Item(7179, Options: new { Plus = (byte)7 }), 0, 1000)
-                )
-                .AddEvent(
-                "Heart",
-                new GlobalEvent(GlobalEventsManager)
-                { Active = xml.Heart.active, Rate = xml.Heart.rate }
-                .AddRange(new Item(7180, Options: new { Plus = (byte)1 }), 0, 1000)
-                )
-                .AddEvent(
-                "StarOfXMas",
-                new GlobalEvent(GlobalEventsManager)
-                { Active = xml.StarOfXMas.active, Rate = xml.StarOfXMas.rate }
-                .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Davias)
-                .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Raklion)
-                .AddRange(new Item(7179, Options: new { Plus = (byte)1 }), 0, 1000, Maps.Selupan)
-                );*/
         }
 
         public static int RandomProvider(int Max, int Min = 0)
@@ -469,6 +420,33 @@ namespace MuEmu
         {
             var session = a as GSSession;
             await server.SendAll(new SChatNickName(session.Player.Character.Name, $"~# {b.Argument}"));
+        }
+
+        public static void Help(object a, CommandEventArgs b)
+        {
+            string output = "";
+            if (string.IsNullOrWhiteSpace(b.Argument))
+            {
+                var list = Handler.GetCommandList().Select(x => x.FullName());
+                output = "Command List:\n\t"+string.Join("\n\t", list);
+            }
+            else
+            {
+                var cmd = Handler.FindCommand(a as GSSession, b.Argument);
+                if (cmd != null)
+                    output = cmd.Help();
+                else
+                    output = "Invalid Command";
+            }
+
+            if(a==null)
+            {
+                Log.Information(output);
+            }else
+            {
+                var session = a as GSSession;
+                session.SendAsync(new SNotice(NoticeType.Blue, output)).Wait();
+            }
         }
 
         public static void Close(object a, EventArgs b)
