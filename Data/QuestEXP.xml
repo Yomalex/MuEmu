@@ -134,10 +134,15 @@
         <QuestState State="5" Select1="6" />
         <QuestState State="6" Select1="7" />
         <QuestState State="7" Select1="8" />
-        <QuestState State="8" Select1="10" Select2="9" />
+        <QuestState State="8" type="Tutorial" Select1="10" Select2="9" />
         <QuestState State="9" Select1="11" Select2="10" />
-        <QuestState State="10" Select1="9" />
-        <QuestState State="11" RewardEXP="5000" RewardZEN="3000" Select1="12" />
+        <QuestState State="10" Select1="9">
+            <RewardItem Type="13" Index="29" />
+        </QuestState>
+        <QuestState State="11" Type="Monster" RewardEXP="5000" RewardZEN="3000" Select1="12" >
+            <Monster Index="12" Count="30" />
+            <RewardItem Type="14" Index="1" Count="30" />
+          </QuestState>
         <QuestState State="12" Select1="14" Select2="13" />
         <QuestState State="13" Select1="12" />
         <QuestState State="14" RewardEXP="5000" RewardZEN="3000" Select1="15" />
@@ -192,7 +197,10 @@
         <QuestState State="76" Select1="78" Select2="77" />
         <QuestState State="78" RewardEXP="5000" RewardZEN="3000" Select1="79" />
         <QuestState State="79" Select1="81" Select2="80" />
-        <QuestState State="61" RewardEXP="5000" RewardZEN="3000" Select1="65535" />
+        <QuestState State="61" RewardEXP="5000" RewardZEN="3000" Select1="65535">
+            <RewardItem Type="13" Index="20" Level="1"/>
+            <RewardItem Type="13" Index="20" Level="2"/>
+        </QuestState>
       </QuestInfo>
     </QuestList>
 </Quests>

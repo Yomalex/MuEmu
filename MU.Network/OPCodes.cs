@@ -196,8 +196,10 @@ namespace MU.Network
     {
         RequestJoin = 0x01F8,
         RegMember = 0x02F8,
+        RequestLeave = 0x03F8,
         ViewPortGens = 0x05F8,
         SendGensInfo = 0x07F8,
+        RemoveMember = 0x7F9,
     }
 
     public enum GuildOpCode

@@ -33,5 +33,28 @@ namespace MuEmu.Network
             @char.Gens.Join(message.Influence);
             await session.SendAsync(new SRegMember(0, message.Influence));
         }
+        [MessageHandler(typeof(CRequestLeave))]
+        public async Task RequestLeave(GSSession session)
+        {
+            var @char = session.Player.Character;
+            if (@char.Guild != null && @char.Guild.Master.Player == session.Player)
+            {
+                await session.SendAsync(new SGensLeaveResult(2, (ushort)session.ID));
+                return;
+            }
+            if (@char.Gens.Influence == GensType.None)
+            {
+                await session.SendAsync(new SGensLeaveResult(1, (ushort)session.ID));
+                return;
+            }
+            if (@char.Party != null)
+            {
+                await session.SendAsync(new SGensLeaveResult(4, (ushort)session.ID));
+                return;
+            }
+
+            @char.Gens.Leave();
+            await session.SendAsync(new SGensLeaveResult(1, (ushort)session.ID));
+        }
     }
 }

@@ -11,4 +11,9 @@ namespace MU.Network.GensSystem
     {
         [WZMember(0)] public GensType Influence { get; set; }
     }
+    [WZContract]
+    public class CRequestLeave : IGensMessage
+    {
+        //[WZMember(0)] public byte Result { get; set; }
+    }
 }

@@ -159,6 +159,11 @@ namespace MuEmu.Data
 
             return ChaosBoxMixResult.Success;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
     public class ChaosMixInfo
     {

@@ -74,6 +74,9 @@ namespace MuEmu
             var nextCP = 0;
             if (Contribution < 9999)
             {
+                if (Class < 9)
+                    Class = 14;
+
                 nextCP = _class.First(x => x.Value == Class - 1).Key;
             }else
             {
@@ -104,6 +107,13 @@ namespace MuEmu
         internal void Join(GensType influence)
         {
             Influence = influence;
+            SendMemberInfo();
+        }
+        internal void Leave()
+        {
+            Influence = GensType.None;
+            Contribution = 0;
+            Ranking = 9999;
             SendMemberInfo();
         }
     }

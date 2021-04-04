@@ -116,17 +116,6 @@ namespace MuEmu.Network
                 db.Accounts.Update(acc);
                 db.SaveChanges();
 
-                //acc.Characters = (from @char in db.Characters
-                //                  where @char.AccountId == acc.AccountId
-                //                  select @char).ToList();
-
-                //foreach(var @char in acc.Characters)
-                //{
-                //    @char.Items = (from item in db.Items
-                //                   where item.CharacterId == @char.CharacterId
-                //                   select item).ToList();
-                //}
-
                 session.Player.SetAccount(acc);
             }
             
@@ -166,9 +155,9 @@ namespace MuEmu.Network
 
                 foreach (var @char in acc.Characters)
                 {
-                    /*@char.Value.Items = (from item in db.Items
+                    @char.Value.Items = (from item in db.Items
                                          where item.CharacterId == @char.Value.CharacterId
-                                         select item).ToList();*/
+                                         select item).ToList();
 
                     b.AddChar(
                         @char.Key,
@@ -207,6 +196,10 @@ namespace MuEmu.Network
 
             using (var db = new GameContext())
             {
+                charDto.Items = (from it in db.Items
+                                 where it.CharacterId == charDto.CharacterId
+                                 select it).ToList();
+
                 charDto.Spells = (from spell in db.Spells
                                   where spell.CharacterId == charDto.CharacterId
                                   select spell).ToList();
@@ -214,6 +207,10 @@ namespace MuEmu.Network
                 charDto.Quests = (from quest in db.Quests
                                    where quest.CharacterId == charDto.CharacterId
                                    select quest).ToList();
+
+                charDto.QuestEX = (from quest in db.QuestsEX
+                                  where quest.CharacterId == charDto.CharacterId
+                                  select quest).ToList();
 
                 charDto.SkillKey = (from config in db.Config
                                     where config.SkillKeyId == charDto.CharacterId
@@ -360,6 +357,12 @@ namespace MuEmu.Network
                     Vitality = (ushort)defaultChar.Stats.Vit,
                     Energy = (ushort)defaultChar.Stats.Ene,
                     Command = (ushort)defaultChar.Stats.Cmd,
+                    CtlCode = 0,
+                    Life = (ushort)defaultChar.Attributes.Life,
+                    Mana = (ushort)defaultChar.Attributes.Mana,
+                    MaxLife = (ushort)defaultChar.Attributes.Life,
+                    MaxMana = (ushort)defaultChar.Attributes.Mana,
+                    Resets = 0
                 };
 
                 db.Characters.Add(newChar);

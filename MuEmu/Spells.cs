@@ -297,7 +297,7 @@ namespace MuEmu
             var m = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);
 
             await Player.Session.SendAsync(m);
-            await Player.SendV2Message(m);
+            Player.SendV2Message(m);
         }
 
         public async Task ClearBuffByEffect(SkillStates effect)
@@ -363,7 +363,7 @@ namespace MuEmu
             }
 
             await Player.Session.SendAsync(m);
-            await Player.SendV2Message(m);
+            Player.SendV2Message(m);
         }
 
         public async void AttackSend(Spell spell, ushort Target, bool Success)
@@ -389,7 +389,7 @@ namespace MuEmu
                     .Session
                     .SendAsync(message);
 
-                await Player.SendV2Message(message);
+                Player.SendV2Message(message);
             }
         }
 

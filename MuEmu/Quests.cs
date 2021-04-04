@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MU.Resources;
+using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -58,7 +59,7 @@ namespace MuEmu
         private Dictionary<int, QuestInfoIndex> _episodes = new Dictionary<int, QuestInfoIndex>();
         private QuestEXPDto _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>("./Data/QuestEXP.xml");
         private QuestInfoIndex _currentQuest;
-        //private List<List<>>
+        private ushort _currentNpc;
 
         internal static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Quests));
         internal Dictionary<uint, byte> _questMonsterKillCount = new Dictionary<uint, byte>();
@@ -97,6 +98,15 @@ namespace MuEmu
                 foreach(var d in details)
                     _questMonsterKillCount.Add(d.Key, d.Value);
             }
+
+            foreach(var q in characterDto.QuestEX)
+            {
+                var qIndex = QuestInfoIndex.FromEpisodeSwitch((uint)q.Quest, (uint)q.State);
+                _episodes.Add(q.Quest, qIndex);
+                _logger
+                    .ForAccount(Player.Session)
+                    .Information("Quest Found:{0}", qIndex);
+            }
         }
 
         internal uint GetEpisodeState(uint episode)
@@ -131,6 +141,7 @@ namespace MuEmu
         {
             var session = Player.Session;
             var list = _questEXP.QuestList.FirstOrDefault(x => x.Index == npc)?.QuestInfo??null;
+            _currentNpc = npc;
 
             var quest = Array.Empty<QuestInfoIndex>();
             if(list != null)
@@ -138,8 +149,8 @@ namespace MuEmu
                 quest = (from l in list
                         where 
                         l.MinLevel <= Player.Character.Level && 
-                        l.MaxLevel >= Player.Character.Level && 
-                        (_episodes.Values.Contains((QuestInfoIndex)l.ReqEpisode) || l.ReqEpisode == 0) && !_episodes.Values.Contains(QuestInfoIndex.FromEpisodeSwitch(l.Episode, 65535))
+                        l.MaxLevel >= Player.Character.Level &&
+                        (l.ReqEpisode == 0 || _episodes.ContainsKey((int)l.ReqEpisode))
                          select QuestInfoIndex.FromEpisodeSwitch(l.Episode, 0)).ToArray();
 
                 foreach(var q in quest)
@@ -153,7 +164,191 @@ namespace MuEmu
             await session.SendAsync(new SQuestSwitchListNPC
             {
                 NPC = npc,
-                QuestList = quest.Select(x => (uint)x).ToArray()
+                QuestList = quest.Where(x => x.Switch < 65535).Select(x => (uint)x).ToArray()
+            });
+        }
+
+        private QuestNPCStateDto GetQuestEXPStateInfo(uint Episode, uint state)
+        {
+            var npcQuestList = (from q in _questEXP.QuestList
+                                where q.Index == _currentNpc
+                                select q.QuestInfo).FirstOrDefault();
+
+            var quest = (from q in npcQuestList
+                         where q.Episode == Episode
+                         select q).FirstOrDefault();
+
+            var nextState = (from q in quest.QuestState
+                             where q.State == state
+                             select q).FirstOrDefault();
+
+            return nextState;
+        }
+
+        public async Task QuestEXPInfo(QuestInfoIndex info)
+        {
+            var session = Player.Session;
+            var @char = Player.Character;
+
+            try
+            {
+                if (!_episodes.ContainsKey((int)info.Episode))
+                    _episodes.Add((int)info.Episode, info);
+
+                var state = _episodes[(int)info.Episode].Switch;
+                byte rewardCount = 0;
+
+                var nextState = GetQuestEXPStateInfo(info.Episode, state);
+
+                var ask = new AskInfoDto[5];
+                var reward = new RewardInfoDto[5];
+                for (var i = 0; i < 5; i++)
+                {
+                    ask[i] = new AskInfoDto();
+                    reward[i] = new RewardInfoDto();
+                }
+
+                if (nextState.RewardEXP > 0)
+                {
+                    reward[rewardCount].Type = RewardType.Exp;
+                    reward[rewardCount].Value = nextState.RewardEXP;
+                    rewardCount++;
+                }
+
+                if (nextState.RewardGENS > 0)
+                {
+                    reward[rewardCount].Type = RewardType.Point;
+                    reward[rewardCount].Value = nextState.RewardGENS;
+                    rewardCount++;
+                }
+
+                if (nextState.RewardZEN > 0)
+                {
+                    reward[rewardCount].Type = RewardType.Zen;
+                    reward[rewardCount].Value = nextState.RewardZEN;
+                    rewardCount++;
+                }
+
+                byte askCount = 0;
+                switch (nextState.Type)
+                {
+                    case AskType.Tutorial:
+                        ask[askCount].Type = nextState.Type;
+                        break;
+                    case AskType.Item:
+                        foreach (var it in nextState.Item)
+                        {
+                            var item = new Item(ItemNumber.FromTypeIndex(it.Type, it.Index), Options: new { Plus = it.Level });
+
+                            var list = @char.Inventory.FindAllItems(ItemNumber.FromTypeIndex(it.Type, it.Index))
+                            .Where(x => x.Plus == it.Level && it.Skill == x.Skill && it.Option == x.Option28 && it.Excellent == x.OptionExe);
+
+                            ask[askCount].Type = nextState.Type;
+                            ask[askCount].ItemInfo = item.GetBytes();
+                            ask[askCount].CurrentValue = (uint)list.Count();
+                            ask[askCount].Value = it.Count;
+                            askCount++;
+                        }
+                        break;
+                    case AskType.Monster:
+                        var infoM = @char.Quests.GetEpisode<QuestInfoMonster>((int)info.Episode, state);
+                        infoM.Type = nextState.Type;
+                        foreach (var it in nextState.Monster)
+                        {
+                            ask[askCount].Type = nextState.Type;
+                            ask[askCount].Index = it.Index;
+                            ask[askCount].CurrentValue = infoM.Current;
+                            ask[askCount].Value = it.Count;
+                            infoM.MonsterClass = it.Index;
+                            askCount++;
+                        }
+                        break;
+                }
+                if (rewardCount > 0 || askCount > 0)
+                {
+                    await session.SendAsync(new SSendQuestEXPProgressAsk
+                    {
+                        dwQuestInfoIndexID = QuestInfoIndex.FromEpisodeSwitch(info.Episode, state),
+                        AskCnt = askCount,
+                        RandRewardCnt = 0,
+                        RewardCnt = rewardCount,
+                        Asks = ask,
+                        Rewards = reward,
+                    });
+                }
+                else
+                {
+                    await session.SendAsync(new SSendQuestEXPProgress
+                    {
+                        dwQuestInfoIndexID = QuestInfoIndex.FromEpisodeSwitch(info.Episode, state),
+                        /*AskCnt = 0,
+                        RandRewardCnt = 0,
+                        RewardCnt = 0,*/
+                    });
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, "QuestInfo");
+                await session.SendAsync(new SQuestEXP { Result = 1 });
+            }
+        }
+
+        public void QuestEXPSetProgress(QuestInfoIndex info, int result)
+        {
+            var state = GetEpisodeState(info.Episode);
+            var nextState = GetQuestEXPStateInfo(info.Episode, state);
+            var select = (ushort)nextState.Get("Select" + result);
+            SetEpisodeState(info.Episode, select);
+            _logger.ForAccount(Player.Session).Information("Update state EP{0} {1}->{2}", info.Episode, state, select);
+        }
+
+        public async Task QuestEXPCompleted(QuestInfoIndex info)
+        {
+            var session = Player.Session;
+            var @char = Player.Character;
+
+            var ss = GetEpisodeState(info.Episode);
+            var state = GetQuestEXPStateInfo(info.Episode, ss);
+            SetEpisodeState(info.Episode, state.Select1);
+
+            if (state.Item != null && state.Item.Length > 0)
+            {
+                foreach (var it in state.Item)
+                {
+                    var list = @char.Inventory.FindAllItems(ItemNumber.FromTypeIndex(it.Type, it.Index))
+                        .Where(x => x.Plus == it.Level && it.Skill == x.Skill && it.Option == x.Option28 && it.Excellent == x.OptionExe);
+
+                    if (list.Count() < it.Count)
+                    {
+                        await session.SendAsync(new SQuestEXP { Result = 1 });
+                        return;
+                    }
+                }
+            }
+
+            @char.Money += state.RewardZEN;
+            @char.Experience += state.RewardEXP;
+            await session.SendAsync(new SKillPlayerEXT(ushort.MaxValue, (int)state.RewardEXP, 0));
+            @char.Gens.Contribution += (int)state.RewardGENS;
+
+            var rewardItemOut = "";
+            if (state.RewardItem != null)
+            {
+                foreach (var it in state.RewardItem)
+                {
+                    var item = new Item(ItemNumber.FromTypeIndex(it.Type, it.Index), Options: new { Plus = it.Level });
+                    @char.Inventory.Add(item);
+                    rewardItemOut += item.ToString() + "\n";
+                }
+            }
+
+            _logger
+                .Information($"[{info}] Quest completed! Reward List:\n\t\tZEN:{state.RewardZEN}\n\t\tEXP:{state.RewardEXP}\n\t\tGENS:{state.RewardGENS}\n\t\tItems:{rewardItemOut}\n");
+            await session.SendAsync(new SSendQuestEXPComplete
+            {
+                dwQuestInfoIndexID = QuestInfoIndex.FromEpisodeSwitch(info.Episode, state.Select1),
+                Result = 1,
             });
         }
 
@@ -165,8 +360,12 @@ namespace MuEmu
             {
                 foreach(var sq in q.Details.Sub.Where(x => x.Allowed.Contains(Player.Character.Class)))
                 {
+
                     if(sq.Monster != 0 && sq.Drop == 0)
                     {
+                        if (sq.Monster != monster.Info.Monster)
+                            continue;
+
                         var key = (sq.Monster | (uint)(q.Index << 16));
 
                         if (_questMonsterKillCount.ContainsKey(key))
@@ -268,7 +467,7 @@ namespace MuEmu
                         where NPCQuests.Any(x => x.Index == q.Index)
                         select q;
 
-            var running = listed.Where(x => x.State == QuestState.Reg || x.State == QuestState.Unreg);
+            var running = listed.Where(x => (x.State == QuestState.Reg || x.State == QuestState.Unreg) && x.Details.CanRun(Player.Character));
             if (running.Any())
                 return running.First();
 
@@ -314,30 +513,20 @@ namespace MuEmu
         {
             foreach (var q in _quests)
                 await q.Save(db);
-        }
 
-        internal QuestInfoIndex GetEpisodeByIndex(uint dwQuestInfoIndexID)
-        {
-            return _episodes[(int)dwQuestInfoIndexID];
-        }
-
-        internal void QuestWindow(uint index, byte _switch)
-        {
-            if(_currentQuest.Index != index)
+            foreach(var q in _episodes)
             {
-                _currentQuest.Index = index;
-                _switch = 0;
-            }
+                var entity = db.QuestsEX.SingleOrDefault(x => x.CharacterId == Player.Character.Id && x.Quest == q.Key);
+                if (entity == null)
+                    entity = new QuestEXDto();
 
-            var eState = GetEpisodeState(_currentQuest.Episode);
-            var questList = ResourceLoader.XmlLoader<QuestEXPDto>("./Data/QuestEXP.xml");
-            var npcQuest = from q in questList.QuestList
-                           where q.Index == (Player.Window as Monster).Info.Monster
-                           select q;
-
-            if (_switch != 0)
-            {
-
+                entity.Quest = q.Key;
+                entity.State = (int)q.Value.Switch;
+                entity.CharacterId = Player.Character.Id;
+                if (entity.QuestId == 0)
+                    db.QuestsEX.Add(entity);
+                else
+                    db.QuestsEX.Update(entity);
             }
         }
     }
@@ -497,7 +686,12 @@ namespace MuEmu
 
         private byte canRun()
         {
-            return (byte)(Details.Conditions
+            var sub = Details.Sub.Find(x => x.Allowed.Any(y => y == Character.Class));
+
+            if (sub == null)
+                return 0;
+
+            return (byte)(Details.Conditions.FindAll(x => x.Index == sub.Index || x.Index == -1)
                 .LastOrDefault(x => !x.CanRun(Character))?.Message ?? 0);
         }
 

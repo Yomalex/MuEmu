@@ -59,7 +59,7 @@ namespace MuEmu.Network
             session.Player.Character.Direction = message.Dir;
             var ans = new SAction((ushort)session.ID, message.Dir, message.ActionNumber, message.Target);
             //session.SendAsync(ans).Wait();
-            session.Player.SendV2Message(ans).Wait();
+            session.Player.SendV2Message(ans);
         }
 
         [MessageHandler(typeof(CDataLoadOK))]
@@ -107,7 +107,7 @@ namespace MuEmu.Network
             {
                 var msgp = new SPositionSet((ushort)session.ID, @char.Position);
                 await session.SendAsync(msgp);
-                await session.Player.SendV2Message(msgp);
+                session.Player.SendV2Message(msgp);
                 Logger
                     .ForAccount(session)
                     .Error("Invalid path");
@@ -117,7 +117,7 @@ namespace MuEmu.Network
             @char.Position = Cpos;
 
             var msg = new SMove((ushort)session.ID, (byte)Cpos.X, (byte)Cpos.Y, ld);
-            await session.Player.SendV2Message(msg);
+            session.Player.SendV2Message(msg);
             session.Player.Character.TPosition = Cpos;
         }
 
@@ -137,7 +137,7 @@ namespace MuEmu.Network
             @char.Position = pos;
             @char.TPosition = pos;
             await session.SendAsync(msg);
-            await @char.SendV2Message(msg);
+            @char.SendV2Message(msg);
         }
 
         #region Chat MessageHandlers
@@ -147,7 +147,7 @@ namespace MuEmu.Network
         {
             if(!Program.Handler.ProcessCommands(session, message.Message.MakeString()))
             {
-                await session.Player.SendV2Message(message);
+                session.Player.SendV2Message(message);
                 await session.SendAsync(message);
             }            
         }
@@ -157,7 +157,7 @@ namespace MuEmu.Network
         public async Task CChatNumber(GSSession session, CChatNumber message)
         {
             message.Number = (ushort)session.ID;
-            await session.Player.SendV2Message(message);
+            session.Player.SendV2Message(message);
             await session.SendAsync(message);
         }
 
@@ -195,10 +195,14 @@ namespace MuEmu.Network
                 if(mob.Info.Monster == 229)
                     Marlon.RemRef();
 
-                Logger.Debug("Player close window:{0}", mob.Info.Name);
+                Logger.Debug("Player close window:NPC{0}", mob.Info.Name);
             }else if(session.Player.Window.GetType() == typeof(Character))
             {
-
+                var @char = session.Player.Window as Character;
+                Logger.Debug("Player close window:Character{0}", @char.Name);
+            }else
+            {
+                Logger.Debug("Player close window:{0}", session.Player.Window.GetType());
             }
             session.Player.Window = null;
         }
@@ -229,7 +233,6 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CMoveItem))]
         public async Task CMoveItem(GSSession session, CMoveItem message)
         {
-            Logger.Debug("Move item {0}:{1} to {2}:{3}", message.sFlag, message.Source, message.tFlag, message.Dest);
 
             if (session.Player.Character.Inventory.Move(message.sFlag, message.Source, message.tFlag, message.Dest))
             {
@@ -349,7 +352,7 @@ namespace MuEmu.Network
 
             var Source = inv.Get(message.Source);
 
-            Logger.Debug("CUseItem {0} {1} {2} {3}", message.Source, message.Dest, message.Type, Source);
+            Logger.Debug("CUseItem Source:{0} Target:{1} Type:{2} ItemSource:{3}", message.Source, message.Dest, message.Type, Source);
 
             if(Source.BasicInfo.Skill != Spell.None)
             {
@@ -599,7 +602,7 @@ namespace MuEmu.Network
                     else
                         Source.Durability--;
 
-                    await @char.SendV2Message(new SCommand(ServerCommandType.Fireworks, (byte)@char.Position.X, (byte)@char.Position.Y));
+                    @char.SendV2Message(new SCommand(ServerCommandType.Fireworks, (byte)@char.Position.X, (byte)@char.Position.Y));
                     break;
                 case 14 * 512 + 35:// Small SD Potion
                 case 14 * 512 + 36:// Medium SD Potion
@@ -727,7 +730,7 @@ namespace MuEmu.Network
                     date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
                     var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
                     await plr.Session.SendAsync(msg);
-                    await plr.SendV2Message(msg);
+                    plr.SendV2Message(msg);
                 }
                 else
                 {
@@ -780,7 +783,7 @@ namespace MuEmu.Network
             item.State = ItemState.Deleted;
             var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
             await session.SendAsync(msg);
-            await session.Player.SendV2Message(msg);
+            session.Player.SendV2Message(msg);
         }
 
         [MessageHandler(typeof(CEventEnterCount))]
@@ -1012,7 +1015,7 @@ namespace MuEmu.Network
                     if (monster.Life <= 0)
                         return;
 
-                    await session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));
+                    session.Player.SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));
                     if (monster.Type == ObjectType.NPC)
                     {
                         return;
@@ -1040,18 +1043,11 @@ namespace MuEmu.Network
                         .SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));*/
 
                     var attack = session.Player.Character
-                        .Attack(target.Player.Character, out DamageType type, out int reflect);
+                        .Attack(target.Player.Character, out DamageType type);
 
                     target.Player.Character
                         .GetAttacked((ushort)session.ID, message.DirDis, message.AttackAction, attack, type, Spell.None)
                         .Wait();
-
-                    if (reflect != 0)
-                    {
-                        session.Player.Character
-                            .GetAttacked((ushort)target.ID, target.Player.Character.Direction, 0, reflect, DamageType.Reflect, Spell.None)
-                            .Wait();
-                    }
                 }
                 catch(Exception ex)
                 {
@@ -1367,7 +1363,7 @@ namespace MuEmu.Network
                     break;
             } 
             await session.SendAsync(msgdef);
-            await session.Player.SendV2Message(msgdef);
+            session.Player.SendV2Message(msgdef);
 
             var dir = (message.Dir & 0xF0) >> 4;
             var dis = (message.Dir & 0x0F);
@@ -1421,7 +1417,7 @@ namespace MuEmu.Network
                             @char.Health += (@char.EnergyTotal / 23.0f) + (attack * 0.1f);
                         }
                         var mg = new SMagicAttackS9(message.MagicNumber, @char.Player.ID, message.Target);
-                        @char.SendV2Message(mg).Wait();
+                        @char.SendV2Message(mg);
                         session.SendAsync(mg).Wait();
                     }
                     break;
@@ -1470,10 +1466,10 @@ namespace MuEmu.Network
                             Targets = l.ToArray(),
                         };
                         var mg = new SMagicAttackS9(message.MagicNumber, @char.Player.ID, message.Target);
-                        @char.SendV2Message(mg).Wait();
+                        @char.SendV2Message(mg);
                         session.SendAsync(mg).Wait();
                         session.SendAsync(obj).Wait();
-                        session.Player.SendV2Message(obj).Wait();
+                        session.Player.SendV2Message(obj);
                     }
                     break;
                 case Spell.RagefulBlow:
@@ -1879,7 +1875,7 @@ namespace MuEmu.Network
                             break;
                     }
                     await session.SendAsync(msg);
-                    await @char.SendV2Message(msg);
+                    @char.SendV2Message(msg);
 
                     @char.Mana -= spell.Mana;
                     @char.Stamina -= spell.BP;
@@ -2131,7 +2127,7 @@ namespace MuEmu.Network
             @char.Shop.Open = false;
             var msg = new SPShopRequestClose(PShopResult.Success, (ushort)session.ID);
             await session.SendAsync(msg);
-            await @char.SendV2Message(msg);
+            @char.SendV2Message(msg);
         }
 
         [MessageHandler(typeof(CPShopRequestList))]
@@ -2300,11 +2296,12 @@ namespace MuEmu.Network
             {
                 session.Player.Window = null;
                 tgt.Player.Window = null;
+            }else
+            {
+                session.Player.Character.Inventory.TradeOpen = true;
+                tgt.Player.Character.Inventory.TradeOpen = true;
             }
 
-
-            session.Player.Character.Inventory.TradeOpen = true;
-            tgt.Player.Character.Inventory.TradeOpen = true;
             await session.SendAsync(new STradeResponce { Result = message.Result, szId = tgt.Player.Character.Name.GetBytes(), Level = tgt.Player.Character.Level });
             await tgt.SendAsync(new STradeResponce { Result = message.Result, szId = session.Player.Character.Name.GetBytes(), Level = session.Player.Character.Level });
         }
@@ -2312,16 +2309,24 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CTradeMoney))]
         public async Task CTradeMoney(GSSession session, CTradeMoney message)
         {
+            var session2 = (session.Player.Window as GSSession);
+            Logger.ForAccount(session).Information("[TRADE] Money set:{0}", message.Money);
             var @char = session.Player.Character;
+            var @char2 = session2.Player.Character;
             if (message.Money > @char.Money)
             {
                 return;
             }
 
-            @char.Money -= message.Money;
-            @char.Inventory.TradeBox.Money += message.Money;
+            var modmoney = message.Money - @char.Inventory.TradeBox.Money;
+
+            @char.Money -= modmoney;
+            @char.Inventory.TradeBox.Money += modmoney;
+            @char2.Inventory.TradeOk = false;
             await session.SendAsync(new STradeMoney { Result = 1 });
-            await (session.Player.Window as GSSession).SendAsync(new STradeOtherMoney { Money = message.Money });
+            await session2.SendAsync(new STradeOtherMoney { Money = message.Money });
+            await session.SendAsync(new CTradeButtonOk { Flag = 0 });
+            await session2.SendAsync(new CTradeButtonOk { Flag = 0 });
         }
 
         [MessageHandler(typeof(CTradeButtonOk))]

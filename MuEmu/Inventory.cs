@@ -374,6 +374,8 @@ namespace MuEmu
                 sFrom.Remove(fromIndex);
             }
 
+            Log.Debug("Move item {0}:{1} {4} to {2}:{3}", from, fromIndex, to, toIndex, it.ToString());
+
             if (to == MoveItemFlags.Inventory && toIndex < (byte)Equipament.End)
             {
                 try

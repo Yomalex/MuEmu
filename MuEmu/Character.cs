@@ -154,14 +154,16 @@ namespace MuEmu
 
                 if (_hp == value)
                     return;
+                var arg = _hp > value ? RefillInfo.Update : RefillInfo.Drink;
                 if (value <= 0)
                 {
                     _hp = 0;
                     CharacterDie?.Invoke(this, new EventArgs());
+                }else
+                {
+                    _hp = value;
                 }
 
-                var arg = _hp > value ? RefillInfo.Update : RefillInfo.Drink;
-                _hp = value;
 
                 HPorSDChanged(arg);
             }
@@ -193,7 +195,15 @@ namespace MuEmu
                     return;
 
                 var arg = _sd > value ? RefillInfo.Update : RefillInfo.Drink;
-                _sd = value;
+                if(value < 0)
+                {
+                    _sd = 0;
+                }
+                else
+                {
+                    _sd = value;
+                }
+
                 HPorSDChanged(arg);
             }
         }
@@ -224,7 +234,16 @@ namespace MuEmu
                     return;
 
                 var arg = _mp > value ? RefillInfo.Update : RefillInfo.Drink;
-                _mp = value;
+
+                if(value < 0)
+                {
+                    _mp = 0;
+                }
+                else
+                {
+                    _mp = value;
+                }
+
                 MPorBPChanged(arg);
             }
         }
@@ -254,7 +273,14 @@ namespace MuEmu
                 if (_bp == value)
                     return;
                 var arg = _bp > value ? RefillInfo.Update : RefillInfo.Drink;
-                _bp = value;
+                if (value < 0)
+                {
+                    _bp = 0;
+                }
+                else
+                {
+                    _bp = value;
+                }
 
                 MPorBPChanged(arg);
             }
@@ -280,7 +306,14 @@ namespace MuEmu
                 if (value == _zen)
                     return;
 
-                _zen = value;
+                if (value < 0)
+                {
+                    _zen = 0;
+                }
+                else
+                {
+                    _zen = value;
+                }
                 _needSave = true;
                 OnMoneyChange();
             }
@@ -687,7 +720,7 @@ namespace MuEmu
             plr.Session.SendAsync(new SResets { Resets = Resets }).Wait();
         }
 
-        public async Task SendV2Message(object message, Player exclude = null)
+        public void SendV2Message(object message, Player exclude = null)
         {
             lock (PlayersVP)
             {
@@ -1140,10 +1173,11 @@ namespace MuEmu
             await Spells.Save(db);
             await Quests.Save(db);
             MasterLevel.Save(db);
+            await db.SaveChangesAsync();
         }
 
         #region Battle
-        public int Attack(Character target, out DamageType type, out int Reflect)
+        public int Attack(Character target, out DamageType type)
         {
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
@@ -1155,7 +1189,6 @@ namespace MuEmu
             var tReflect = target.Inventory.Reflect;
 
             type = DamageType.Regular;
-            Reflect = 0;
             var attack = 0.0f;
 
             if (MissCheck(target))
@@ -1197,7 +1230,6 @@ namespace MuEmu
                 attack *= 0.88f - twing.Plus * 0.02f;
 
             attack -= target.Inventory.Defense;
-            Reflect = (int)(attack * tReflect / 100.0f);
             WeaponDurDown(target.Inventory.Defense);
             return (int)attack;
         }
@@ -1303,13 +1335,9 @@ namespace MuEmu
             if (dmg < 0)
                 dmg = 0;
 
-            var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
-
             GSSession sourceSession = source >= MonstersMng.MonsterStartIndex ? null : Program.server.Clients.FirstOrDefault(x => x.ID == source);
 
-            _deadlyDmg = dmgSend;
             _killerId = source;
-            Health -= dmg;
             switch (_rand.Next(6))
             {
                 case 0:
@@ -1332,13 +1360,40 @@ namespace MuEmu
                     break;
             }
             object message;
+            var sdDamage = 0.0f;
+            var healthDamage = 0.0f;
+
+            if (sourceSession != null)
+            {
+                sdDamage = (dmg * 0.8f);
+                healthDamage = (dmg * 0.2f);
+                if(sdDamage > Shield)
+                {
+                    healthDamage += (sdDamage - Shield);
+                }
+
+                if(healthDamage > Health)
+                {
+                    healthDamage = Health;
+                }
+
+                Shield -= sdDamage;
+                Health -= healthDamage;
+            }
+            else
+            {
+                healthDamage = dmg;
+                Health -= healthDamage;
+            }
+            _deadlyDmg = (int)healthDamage;
+
             switch (Program.Season)
             {
                 case 9:
-                    message = new SAttackResultS9((ushort)Player.Session.ID, dmgSend, type, 0);
+                    message = new SAttackResultS9((ushort)Player.Session.ID, (ushort)healthDamage, type, (ushort)sdDamage);
                     break;
                 default:
-                    message = new SAttackResult((ushort)Player.Session.ID, dmgSend, type, 0);
+                    message = new SAttackResult((ushort)Player.Session.ID, (ushort)healthDamage, type, (ushort)sdDamage);
                     break;
             }
 
@@ -1365,7 +1420,7 @@ namespace MuEmu
                     if(sourceSession != null)
                         await sourceSession.SendAsync(message);
                     await Player.Session.SendAsync(msg);
-                    await Player.SendV2Message(msg, sourceSession?.Player);
+                    Player.SendV2Message(msg, sourceSession?.Player);
                 }
                 else
                 {
@@ -1384,7 +1439,7 @@ namespace MuEmu
                     }
 
                     await Player.Session.SendAsync(message);
-                    await Player.SendV2Message(message);
+                    Player.SendV2Message(message);
                 }
             }
         }
@@ -1404,6 +1459,8 @@ namespace MuEmu
                 type = DamageType.Excellent;
             else if (criticalRate > _rand.Next(100))
                 type = DamageType.Critical;
+
+            WeaponDurDown(targetDefense);
 
             attack = BaseAttack(type != DamageType.Regular);
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
@@ -1434,9 +1491,10 @@ namespace MuEmu
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
 
+            WeaponDurDown(targetDefense);
             var magicAdd = 0;
 
-            if(rightHand != null)
+            if (rightHand != null)
                 magicAdd = rightHand.BasicInfo.MagicPower / 2 + rightHand.Plus * 2;
 
             var attack = 0.0f;
@@ -1577,6 +1635,11 @@ namespace MuEmu
             {
                 right.NormalWeaponDurabilityDown(Defense);
             }
+        }
+
+        public override string ToString()
+        {
+            return Name+" Level:"+Level+" Class:"+Class;
         }
 
         #region Commands

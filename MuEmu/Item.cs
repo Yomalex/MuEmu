@@ -143,6 +143,7 @@ namespace MuEmu
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
         //private static Random _rand = new Random();
+        private bool _deleted;
         private byte _plus;
         private byte _durability;
         private byte _option;
@@ -161,6 +162,8 @@ namespace MuEmu
                 if (_vid == value)
                     return;
                 _vid = value;
+                if (_vid != 0)
+                    Character = null;
 
                 NeedSave = true;
             }
@@ -886,7 +889,7 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            if (!NeedSave)
+            if (!NeedSave || _deleted)
                 return;
             NeedSave = false;
 
@@ -899,8 +902,18 @@ namespace MuEmu
                 _db = new ItemDto();
 
             _db.AccountId = Account.ID;
-            if(Character != null) _db.CharacterId = Character.Id;
-            _db.VaultId = _vid;
+
+            if (Character != null)
+            {
+                _db.CharacterId = Character.Id;
+                _db.VaultId = 0;
+            }
+            else
+            {
+                _db.CharacterId = 0;
+                _db.VaultId = _vid;
+            }
+            
             _db.SlotId = _slot;
             _db.Number = Number;
             _db.Plus = _plus;
@@ -927,9 +940,10 @@ namespace MuEmu
         public void Delete(GameContext db)
         {
             var _db = db.Items.Find(Serial);
+            Logger.Information("Deleting item {0}", ToString());
+            _deleted = true;
             if (_db == null)
                 return;
-            Logger.Information("Deleting item {0}", ToString());
             db.Remove(_db);
         }
 

@@ -11,10 +11,12 @@ namespace MU.Network.GensSystem
         public GensMessageFactory()
         {
             Register<CRequestJoin>(GensOpCode.RequestJoin);
+            Register<CRequestLeave>(GensOpCode.RequestLeave);
             Register<SRequestJoin>(GensOpCode.RequestJoin);
             Register<SGensSendInfoS9>(GensOpCode.SendGensInfo);
             Register<SViewPortGens>(GensOpCode.ViewPortGens);
             Register<SRegMember>(GensOpCode.RegMember);
+            Register<SGensLeaveResult>(GensOpCode.RemoveMember);
         }
     }
 }

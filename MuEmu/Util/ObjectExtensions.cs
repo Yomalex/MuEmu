@@ -61,5 +61,13 @@ namespace MuEmu.Util
 
             return a;
         }
+
+        public static object Get<T>(this T a, string name)
+        {
+            var type = typeof(T);
+            var prop = type.GetProperty(name);
+            var get = prop.GetGetMethod();
+            return get.Invoke(a, null);
+        }
     }
 }

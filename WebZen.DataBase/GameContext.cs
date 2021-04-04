@@ -12,12 +12,12 @@ namespace MuEmu.Entity
         private static readonly LoggerFactory ChangeTrackingAndSqlConsoleLoggerFactory
             = new LoggerFactory(new[] {
                 new SerilogLoggerProvider (Log.ForContext(Constants.SourceContextPropertyName, nameof(GameContext)), true)
-            }, new LoggerFilterOptions().AddFilter((str, level) => str.Contains("Command")));
+            }, new LoggerFilterOptions().AddFilter((str, level) => str.Contains("Command") && level == LogLevel.Error));
         public static string ConnectionString;
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                //.UseLoggerFactory(ChangeTrackingAndSqlConsoleLoggerFactory)
+                .UseLoggerFactory(ChangeTrackingAndSqlConsoleLoggerFactory)
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors()
                 .UseMySQL(ConnectionString);
@@ -25,39 +25,16 @@ namespace MuEmu.Entity
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<ItemDto>(
-            //    x => {
-            //        x.Property(y => y.Luck).HasConversion<short>();
-            //        x.Property(y => y.Skill).HasConversion<short>();
-            //    });
+            modelBuilder.Entity<AccountDto>()
+                .HasMany(x => x.Characters)
+                .WithOne(y => y.Account);
+
+            modelBuilder.Entity<AccountDto>()
+                .Navigation(x => x.Characters)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
 
             modelBuilder
-                //.Entity<CharacterDto>(
-                //x =>
-                //{
-                //    x.Property(y => y.Str)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Agility)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Energy)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Vitality)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Command)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Level)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.LevelUpPoints)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Life)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.MaxLife)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.Mana)
-                //    .HasConversion<int>();
-                //    x.Property(y => y.MaxMana)
-                //    .HasConversion<int>();
-                //})
                 .Entity<CharacterDto>()
                 .HasOne(x => x.Account)
                 .WithMany(y => y.Characters);
@@ -69,6 +46,41 @@ namespace MuEmu.Entity
             modelBuilder.Entity<CharacterDto>()
                 .HasMany(x => x.Spells)
                 .WithOne(y => y.Character);
+
+            /*modelBuilder.Entity<CharacterDto>()
+                .HasMany(x => x.Items)
+                .WithOne(y => y.Character); */
+
+             modelBuilder.Entity<CharacterDto>()
+                 .HasMany(x => x.Friends)
+                 .WithOne(y => y.Character);
+
+            modelBuilder.Entity<CharacterDto>()
+                .HasOne(x => x.Gens)
+                .WithOne(y => y.Character);
+
+            modelBuilder.Entity<CharacterDto>()
+                .HasOne(x => x.BloodCastle)
+                .WithOne(y => y.Character);
+
+            /*modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.Items)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();*/
+
+            modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.Gens)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
+
+            modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.BloodCastle)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
+
+            modelBuilder.Entity<ItemDto>()
+                .HasOne(x => x.Account)
+                .WithMany();
 
             modelBuilder.Entity<GuildDto>()
                 .HasMany(x => x.MembersInfo)
@@ -97,53 +109,9 @@ namespace MuEmu.Entity
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
 
-            modelBuilder.Entity<AccountDto>()
-                .HasMany(x => x.Characters)
-                .WithOne(y => y.Account);
-
-            modelBuilder.Entity<AccountDto>()
-                .Navigation(x => x.Characters)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();
-
-            modelBuilder.Entity<ItemDto>()
-                .HasOne(x => x.Account)
-                .WithMany();
-
-            modelBuilder.Entity<ItemDto>()
+            /*modelBuilder.Entity<ItemDto>()
                 .HasOne(x => x.Character)
-                .WithMany(x => x.Items);
-
-            modelBuilder.Entity<CharacterDto>()
-                .HasMany(x => x.Items)
-                .WithOne(y => y.Character);
-
-            modelBuilder.Entity<CharacterDto>()
-                .HasMany(x => x.Friends)
-                .WithOne(y => y.Character);
-
-            modelBuilder.Entity<CharacterDto>()
-                .HasOne(x => x.Gens)
-                .WithOne(y => y.Character);
-
-            modelBuilder.Entity<CharacterDto>()
-                .HasOne(x => x.BloodCastle)
-                .WithOne(y => y.Character);
-
-            modelBuilder.Entity<CharacterDto>()
-                .Navigation(x => x.Items)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();
-
-            modelBuilder.Entity<CharacterDto>()
-                .Navigation(x => x.Gens)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();
-
-            modelBuilder.Entity<CharacterDto>()
-                .Navigation(x => x.BloodCastle)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();
+                .WithMany(x => x.Items);*/
         }
 
         public DbSet<AccountDto> Accounts { get; set; }
@@ -155,6 +123,7 @@ namespace MuEmu.Entity
         public DbSet<MemoDto> Letters { get; set; }
         public DbSet<SpellDto> Spells { get; set; }
         public DbSet<QuestDto> Quests { get; set; }
+        public DbSet<QuestEXDto> QuestsEX { get; set; }
         public DbSet<SkillKeyDto> Config { get; set; }
         public DbSet<MasterInfoDto> MasterLevel { get; set; }
 

@@ -60,6 +60,22 @@ namespace MuEmu
             return 0xff;
         }
 
+        private bool NoIntersects(byte offset, Size freeSpace)
+        {
+            var itemRect = new RectangleF(new Point(offset % 8, offset / 8), freeSpace);
+            itemRect.Width -= 0.1f;
+            itemRect.Height -= 0.1f;
+            if (itemRect.Right >= _bounds.Right || itemRect.Bottom >= _bounds.Bottom)
+                return false;
+
+            if (_map.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public bool TryAdd(Size freeSpace, byte offset = 0)
         {
             for (var i = offset; i < Size; i++)
@@ -124,6 +140,9 @@ namespace MuEmu
                 throw new Exception($"({org})[{IndexTranslate}] Out of range: {pos}/{Size}");
 
             it.SlotId = pos + (byte)IndexTranslate;
+            if (!NoIntersects(pos, it.BasicInfo.Size))
+                return;
+
             _items.Add(pos, it);
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
             NeedSave = true;

@@ -380,7 +380,7 @@ namespace MuEmu
                 } }
             };
 
-            Player.SendV2Message(vp).Wait();
+            Player.SendV2Message(vp);
             Player.Session.SendAsync(vp).Wait();
         }
 

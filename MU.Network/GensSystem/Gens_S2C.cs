@@ -66,4 +66,18 @@ namespace MU.Network.GensSystem
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public VPGensDto[] VPGens { get; set; }
     }
+
+    [WZContract]
+    public class SGensLeaveResult : IGensMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public ushort wIndex { get; set; }
+
+        public SGensLeaveResult() { }
+        public SGensLeaveResult(byte result, ushort Index)
+        {
+            Result = result;
+            wIndex = Index.ShufleEnding();
+        }
+    }
 }

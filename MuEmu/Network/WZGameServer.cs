@@ -58,17 +58,20 @@ namespace MuEmu.Network
                 Session.Player.Status = LoginStatus.NotLogged;
             }
 
-            var db = SubSystem.db;
-            if(Session.Player.Account != null)
+            using (var db = new GameContext())
             {
-                var acc = (from a in db.Accounts
-                            where a.AccountId == Session.Player.Account.ID
-                            select a).First();
+                if (Session.Player.Account != null)
+                {
+                    var acc = (from a in db.Accounts
+                               where a.AccountId == Session.Player.Account.ID
+                               select a).First();
 
-                acc.IsConnected = false;
+                    acc.IsConnected = false;
 
-                db.Accounts.Update(acc);
-                Logger.ForAccount(Session).Information("Disconnecting...");
+                    db.Accounts.Update(acc);
+                    db.SaveChanges();
+                    Logger.ForAccount(Session).Information("Disconnecting...");
+                }
             }
             Session.Player.Account = null;
             //db.SaveChanges();

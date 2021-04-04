@@ -15,11 +15,11 @@ namespace MU.DataBase
 
         public DateTime DateCreation { get; set; } = DateTime.Now;
 
+        [Required]
         public int AccountId { get; set; }
         public AccountDto Account { get; set; }
 
-        public int CharacterId { get; set; }
-        public CharacterDto Character { get; set; }
+        public int CharacterId { get; set; } = 0;
 
         public int VaultId { get; set; }
         public int SlotId { get; set; }

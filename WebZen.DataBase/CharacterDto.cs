@@ -63,8 +63,9 @@ namespace MU.DataBase
 
         [Column(TypeName = "INT(11) UNSIGNED")]
         public uint Money { get; set; }
-        
+
         // Inventory
+        [NotMapped]
         public List<ItemDto> Items { get; set; }
 
         // Spells
@@ -72,14 +73,15 @@ namespace MU.DataBase
 
         // Quest
         public List<QuestDto> Quests { get; set; }
+        public List<QuestEXDto> QuestEX { get; set; }
 
         // Friends
         public List<FriendDto> Friends { get; set; }
         public List<MemoDto> Memos { get; set; }
 
-        public SkillKeyDto SkillKey { get; set; }
+        public SkillKeyDto SkillKey { get; set; } = new SkillKeyDto();
 
-        public MasterInfoDto MasterInfo { get; set; }
+        public MasterInfoDto MasterInfo { get; set; } = new MasterInfoDto { Experience = 0, Level = 1, Points = 0 };
 
         public int AccountId { get; set; }
         public AccountDto Account { get; set; }
@@ -88,7 +90,7 @@ namespace MU.DataBase
         public ushort Resets { get; set; }
 
         // Gens
-        public GensDto Gens { get; set; }
-        public BloodCastleDto BloodCastle { get; set; }
+        public GensDto Gens { get; set; } = new GensDto { Class = 14, Contribution = 0, Influence = 0, Ranking = 9999 };
+        public BloodCastleDto BloodCastle { get; set; } = new BloodCastleDto { Points = 0 };
     }
 }

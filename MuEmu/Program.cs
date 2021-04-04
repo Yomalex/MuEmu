@@ -245,6 +245,7 @@ namespace MuEmu
                     .AddCommand(new Command<GSSession>("delete", Delete, help:"Delete DB")))
                 .AddCommand(new Command<GSSession>("!", (object a, CommandEventArgs b) => GlobalAnoucement(b.Argument).Wait(), MustBeGameMaster).SetPartial())
                 .AddCommand(new Command<GSSession>("/").SetPartial()
+                    .AddCommand(new Command<GSSession>("p", PostCommand))//Post
                     .AddCommand(new Command<GSSession>("add").SetPartial()
                         .AddCommand(new Command<GSSession>("str", Character.AddStr))
                         .AddCommand(new Command<GSSession>("agi", Character.AddAgi))
@@ -257,7 +258,6 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument)))))
                     .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster, "Level up current character, use: '/levelup 100' add 100 levels to current character"))
                     .AddCommand(new Command<GSSession>("reset", Character.Reset, null, "Resets current Character")))
-                .AddCommand(new Command<GSSession>("#", PostCommand).SetPartial())//Post
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
 
@@ -445,7 +445,11 @@ namespace MuEmu
             }else
             {
                 var session = a as GSSession;
-                session.SendAsync(new SNotice(NoticeType.Blue, output)).Wait();
+                var outputs = output.Split("\n\t");
+                foreach(var o in outputs)
+                {
+                    session.SendAsync(new SNotice(NoticeType.Blue, o)).Wait();
+                }
             }
         }
 

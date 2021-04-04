@@ -21,4 +21,18 @@ namespace MU.DataBase
         public int CharacterId { get; set; }
         public CharacterDto Character { get; set; }
     }
+
+    [Table("QuestEX")]
+    public class QuestEXDto
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int QuestId { get; set; }
+
+        public int Quest { get; set; }
+        public int State { get; set; }
+
+        public int CharacterId { get; set; }
+        public CharacterDto Character { get; set; }
+    }
 }

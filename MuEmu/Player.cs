@@ -81,12 +81,12 @@ namespace MuEmu
         /// <param name="message">Any WZContract message</param>
         /// <param name="exclude">Player excluded</param>
         /// <returns></returns>
-        public async Task SendV2Message(object message, Player exclude = null)
+        public void SendV2Message(object message, Player exclude = null)
         {
             if (Status != LoginStatus.Playing)
                 return;
 
-            await Character.SendV2Message(message, exclude);
+            Character.SendV2Message(message, exclude);
         }
 
         public async Task Save(GameContext db)

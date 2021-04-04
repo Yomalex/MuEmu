@@ -91,7 +91,7 @@ namespace MuEmu.Events.ChaosCastle
                         plr.Player.Session.SendAsync(new SAttackResult((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0)).Wait();
                         break;                
                 }
-                plr.Player.SendV2Message(msg).Wait();
+                plr.Player.SendV2Message(msg);
             }
 
             UpdateFloor();
