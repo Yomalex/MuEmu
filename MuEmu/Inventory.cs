@@ -195,8 +195,7 @@ namespace MuEmu
             
             if (Character != null)
             {
-                item.Account = Character.Account;
-                item.Character = Character;
+                //item.Account = Character.Account;
                 item.Character = Character;
             }
 
@@ -249,7 +248,7 @@ namespace MuEmu
         {
             if (Character != null)
             {
-                it.Account = Character.Account;
+                //it.Account = Character.Account;
                 it.Character = Character;
             }
             _needSave = true;
@@ -373,6 +372,7 @@ namespace MuEmu
                 it = sFrom.Get(fromIndex);
                 sFrom.Remove(fromIndex);
             }
+            it.Account = Character.Account;
 
             Log.Debug("Move item {0}:{1} {4} to {2}:{3}", from, fromIndex, to, toIndex, it.ToString());
 
@@ -404,8 +404,14 @@ namespace MuEmu
                     if (to == MoveItemFlags.Warehouse)
                     {
                         it.VaultId = Character.Account.ID * 10 + Character.Account.ActiveVault;
-                        it.Account = Character.Account;
+                        it.Character = null;
                     }
+                    else
+                    {
+                        it.VaultId = 0;
+                        it.Character = Character;
+                    }
+
                 }catch (Exception ex)
                 {
                     Log.Logger.Error(ex, "Can't move, rolling back");

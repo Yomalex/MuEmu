@@ -39,8 +39,12 @@ namespace MuEmu
                     var items = db.Items
                         .Where(x => x.VaultId == ID * 10 + i);
 
-                    foreach(var it in items)
-                        _vaults[i].Add(new Item(it, this));
+                    foreach (var it in items)
+                    {
+                        var item = new Item(it, this);
+                        item.Account = this;
+                        _vaults[i].Add(item);
+                    }
                 }
         }
 
