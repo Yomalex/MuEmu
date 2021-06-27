@@ -1431,7 +1431,10 @@ namespace MuEmu
 
         public object Clone()
         {
-            return new Item(Number, 0, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
+            var it = new Item(Number, 0, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
+            Extensions.AnonymousMap(it, this);
+            it.Serial = 0;
+            return it;
         }
 
         public void NewOptionRand()

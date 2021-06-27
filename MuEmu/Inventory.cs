@@ -248,7 +248,7 @@ namespace MuEmu
         {
             if (Character != null)
             {
-                //it.Account = Character.Account;
+                it.Account = Character.Account;
                 it.Character = Character;
             }
             _needSave = true;

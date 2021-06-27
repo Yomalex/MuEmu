@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemList Number="7179" Plus="9" LevelMin="1" DropItemCount="1" DropItemRate="100" DropZenRate="50" MinZen="100000" MaxZen="100000">
+  <!-- Invitation of Devil Square +3~+5 -->
+  <Item Number="7187" MinLevel="3" MaxLevel="5" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Invisibility Cloak +3~+5 -->
+  <Item Number="6674" MinLevel="3" MaxLevel="5" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Kalima +3~+5 -->
+  <!-- <Item Number="6674" MinLevel="3" MaxLevel="5" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" /> -->
+  <!-- Scroll of Archangel +3~+5 -->
+  <Item Number="6672" MinLevel="3" MaxLevel="5" Luck="0" Skill="0" MaxOption="0" MaxExcellent="0" />
+  <!-- Jewel of Chaos -->
+  <Item Number="6159" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Bless -->
+  <Item Number="7181" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Soul -->
+  <Item Number="6159" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Life -->
+  <Item Number="7184" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Creation -->
+  <Item Number="7190" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Harmony -->
+  <Item Number="7210" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Swords -->
+  <!-- Excellent Sword of Destruction -->
+  <Item Number="16" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Dark Breaker -->
+  <Item Number="17" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Thunder Blade -->
+  <Item Number="18" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Mace -->
+  <!-- Excellent Crystal Morning Star -->
+  <Item Number="1028" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Elemental Mace -->
+  <Item Number="1031" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Spear -->
+  <!-- Excellent Bill of Balrog -->
+  <Item Number="1545" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Stick -->
+  <!-- Excellent Ancient Stick -->
+  <Item Number="2577" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Book of Neil -->
+  <Item Number="2582" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Staff -->
+  <!-- Excellent Dragon soul Staff -->
+  <Item Number="2569" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Bow -->
+  <!-- Excellent Celestial bow -->
+  <Item Number="2065" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Scepter -->
+  <!-- Excellent Shining Scepter -->
+  <Item Number="1039" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Crossbow -->
+  <!-- Excellent Aquagold Crossbow -->
+  <Item Number="2062" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Saint Crossbow -->
+  <Item Number="2064" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Pendant -->
+  <!-- Excellent Pendant of Fire -->
+  <Item Number="6669" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Pendant of Lighting -->
+  <Item Number="6668" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Pendant of Ice -->
+  <Item Number="6681" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Pendant of Wind -->
+  <Item Number="6682" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Pendant of Water -->
+  <Item Number="6683" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Pendant of Ability -->
+  <Item Number="6684" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Ring -->
+  <!-- Excellent Ring of Ice -->
+  <Item Number="6664" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Ring of Poison -->
+  <Item Number="6665" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Ring of Fire -->
+  <Item Number="6677" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Ring of Earth -->
+  <Item Number="6678" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Ring of Wind -->
+  <Item Number="6679" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Ring of Magic -->
+  <Item Number="6680" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Shield -->
+  <!-- Excellent Dragon Shield -->
+  <Item Number="3085" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Elemental Shield -->
+  <Item Number="3088" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Excellent Grand Soul Shield -->
+  <Item Number="3087" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- no excellent-->
+  <!-- Thunder Blade -->
+  <Item Number="18" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Sword of Destruction -->
+  <Item Number="16" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Crystal Sword -->
+  <Item Number="24" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Mace -->
+  <!-- Crystal Morning Star -->
+  <Item Number="1028" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Spear -->
+  <!--  Bill of Balrog -->
+  <Item Number="1545" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Bow -->
+  <!--  Celestial Bow -->
+  <Item Number="2065" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!--  Albatros Bow -->
+  <Item Number="2070" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Crossbow -->
+  <!-- Aquagold Crossbow -->
+  <Item Number="2062" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Stick -->
+  <!-- Violent Wind Stick -->
+  <Item Number="2575" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Excellent Book of Samut -->
+  <Item Number="2581" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Staff -->
+  <!-- Staff of Resurrection -->
+  <Item Number="2566" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Staff of Destruction -->
+  <Item Number="2568" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Scepter -->
+  <!-- Master Scepter -->
+  <Item Number="1033" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Great Scepter -->
+  <Item Number="1034" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Set Excellen -->
+  <!-- Set Ashcrow -->
+  <Item Number="3618" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4130" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4642" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5154" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5666" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Eclipse -->
+  <Item Number="3619" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4131" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4643" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5155" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5667" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Iris -->
+  <Item Number="3620" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4132" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4644" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5156" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5668" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Storm Crow -->
+  <Item Number="4111" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4623" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4135" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5647" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Adamantine -->
+  <Item Number="3610" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4122" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4634" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5146" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5658" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Light Plate -->
+  <Item Number="3609" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4121" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4633" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5145" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5657" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Red Wing -->
+  <Item Number="3624" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4136" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="4648" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5160" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <Item Number="5672" MinLevel="0" MaxLevel="4" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="4" />
+  <!-- Set Normal -->
+  <!-- Set Black Dragon -->
+  <Item Number="3600" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4112" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4624" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5136" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5648" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Set Grand Soul -->
+  <Item Number="3602" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4114" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4626" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5138" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5650" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Set Divine -->
+  <Item Number="3603" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4115" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4627" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5139" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5651" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Set Valiant -->
+  <Item Number="4133" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4645" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5157" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5669" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Set Ancient -->
+  <Item Number="3625" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4137" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4649" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5161" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5673" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <!-- Set Dark Steel -->
+  <Item Number="3611" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4123" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4635" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5147" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5659" MinLevel="6" MaxLevel="9" Luck="1" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+</ItemList>

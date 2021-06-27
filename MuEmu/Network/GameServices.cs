@@ -713,7 +713,7 @@ namespace MuEmu.Network
             var plr = session.Player;
             var inv = plr.Character.Inventory;
             var item = inv.Get(message.Source);
-            DateTimeOffset date;
+            DateTimeOffset date = DateTimeOffset.Now;
 
             var bag = (from b in itemBags
                       where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0xffff)
@@ -722,19 +722,19 @@ namespace MuEmu.Network
             if (bag != null)
             {
                 await inv.Delete(message.Source);
-                if (bag.LevelMin < plr.Character.Level)
+                if (bag.LevelMin <= plr.Character.Level)
                 {
-                    var c = bag.Storage.Count;
-                    item = bag.Storage.ElementAt(Program.RandomProvider(c)).Clone() as Item;
-                    item.NewOptionRand();
-                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
+                    foreach(var reward in bag.GetReward())
+                    {
+                        date = plr.Character.Map.AddItem(message.MapX, message.MapY, reward, plr.Character);
+                    }
                     var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
                     await plr.Session.SendAsync(msg);
                     plr.SendV2Message(msg);
                 }
                 else
                 {
-                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item, plr.Character);
+                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item.Clone() as Item, plr.Character);
                     await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
                     return;
                 }
@@ -742,7 +742,7 @@ namespace MuEmu.Network
             else
             {
                 inv.Remove(message.Source);
-                date = plr.Character.Map.AddItem(message.MapX, message.MapY, item);
+                date = plr.Character.Map.AddItem(message.MapX, message.MapY, item.Clone() as Item, plr.Character);
             }
             await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
 

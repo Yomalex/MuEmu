@@ -890,36 +890,13 @@ namespace MuEmu.Resources
             return cbmix;
         }
 
-        public IEnumerable<ItemThrowInfo> LoadItembags()
+        public IEnumerable<Bag> LoadItembags()
         {
-            var Item0Regex = new Regex(@"\s*([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)");
             var xml = XmlLoader<ItemBagsDto>(Path.Combine(_root, "ItemBags.xml"));
             foreach(var x in xml.ItemBags)
             {
-                var ret = new ItemThrowInfo
-                {
-                    Number = x.Item,
-                    Plus = x.Plus,
-                    LevelMin = x.LevelMin,
-                    Storage = new List<Item>()
-                };
-                var fname = Path.Combine(_root, "ItemBags/" + x.Bag);
-                using (var tr = File.OpenText(fname))
-                {
-                    foreach(Match m in Item0Regex.Matches(tr.ReadToEnd()))
-                    {
-                        try
-                        {
-                            var it = new Item(ItemNumber.FromTypeIndex(byte.Parse(m.Groups[1].Value), ushort.Parse(m.Groups[2].Value)), Options: new { Plus = byte.Parse(m.Groups[3].Value), Luck = (byte.Parse(m.Groups[4].Value) == 1), Skill = (byte.Parse(m.Groups[5].Value) == 1), Option28 = byte.Parse(m.Groups[6].Value), OptionExe = (byte)1 });
-                            ret.Storage.Add(it);
-                        }catch(Exception ex)
-                        {
-                            Logger.Error("LoadItembags: " + fname, ex);
-                        }
-                    }
-                }
-
-                yield return ret;
+                var basea = XmlLoader<BagDto>(Path.Combine(_root, "ItemBags/" + x.Bag));
+                yield return new Bag(basea);
             }
         }
 

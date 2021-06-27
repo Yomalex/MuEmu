@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ItemBags>
+  <!-- Ring of Warrior 
     <ItemBag Item="6676" Plus="1" LevelMin="20" Bag="RingEvent.txt" />
-    <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.txt" />
-    <!-- Box of Luck -->
-    <ItemBag Item="7179" Plus="0" Bag="BoxOfLuck.txt" />
+    <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.txt" />-->
+    <!-- Box of Luck 
+    <ItemBag Item="7179" Plus="0" Bag="BoxOfLuck.txt" />-->
     <!-- Star of Xmas -->
     <!-- <ItemBag Item="7179" Plus="1" Bag="StarOfXMas.txt" />-->
-    <!-- Firecracker -->
-    <ItemBag Item="7179" Plus="2" Bag="FireCracker.txt" />
-    <!-- Heart of Love -->
-    <ItemBag Item="7179" Plus="3" Bag="HeartOfLove.txt" />
-    <!-- Silver Medal -->
-    <ItemBag Item="7179" Plus="5" Bag="SilverMedal.txt" />
-    <!-- Gold Medal -->
-    <ItemBag Item="7179" Plus="6" Bag="GoldMedal.txt" />
-    <!-- Box of Heaven -->
-    <ItemBag Item="7179" Plus="7" Bag="BoxOfLuck.txt" />
+    <!-- Firecracker 
+    <ItemBag Item="7179" Plus="2" Bag="FireCracker.txt" />-->
+    <!-- Heart of Love 
+    <ItemBag Item="7179" Plus="3" Bag="HeartOfLove.txt" />-->
+    <!-- Silver Medal 
+    <ItemBag Item="7179" Plus="5" Bag="SilverMedal.txt" />-->
+    <!-- Gold Medal 
+    <ItemBag Item="7179" Plus="6" Bag="GoldMedal.txt" />-->
+    <!-- Box of Heaven 
+    <ItemBag Item="7179" Plus="7" Bag="BoxOfLuck.txt" />-->
     <!-- Box of Kundum+1 -->
-    <ItemBag Item="7179" Plus="8" Bag="BoxOfKundun_1.txt" />
+    <ItemBag Item="7179" Plus="8" Bag="BoxOfKundun1.xml" />
     <!-- Box of Kundum+2 -->
-    <ItemBag Item="7179" Plus="9" Bag="BoxOfKundun_2.txt" />
+    <ItemBag Item="7179" Plus="9" Bag="BoxOfKundun2.xml" />
     <!-- Box of Kundum+3 -->
-    <ItemBag Item="7179" Plus="10" Bag="BoxOfKundun_3.txt" />
-    <!-- Box of Kundum+4 -->
-    <ItemBag Item="7179" Plus="11" Bag="BoxOfKundun_4.txt" />
-    <!-- Box of Kundum+5 -->
-    <ItemBag Item="7179" Plus="12" Bag="BoxOfKundun_5.txt" />
+    <ItemBag Item="7179" Plus="10" Bag="BoxOfKundun3.xml" />
+    <!-- Box of Kundum+4 
+    <ItemBag Item="7179" Plus="11" Bag="BoxOfKundun_4.txt" />-->
+    <!-- Box of Kundum+5 
+    <ItemBag Item="7179" Plus="12" Bag="BoxOfKundun_5.txt" />-->
 </ItemBags>

@@ -178,9 +178,9 @@ namespace MuEmu.Resources
             return cache;
         }
 
-        public IEnumerable<ItemThrowInfo> GetItemBags()
+        public IEnumerable<Bag> GetItemBags()
         {
-            var cache = _cache.Get<IEnumerable<ItemThrowInfo>>("ItemBags");
+            var cache = _cache.Get<IEnumerable<Bag>>("ItemBags");
             if (cache == null)
             {
                 Logger.Information(ServerMessages.GetMessage(Messages.RCache_Loading_Shops));
