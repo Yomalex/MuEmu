@@ -722,11 +722,161 @@ namespace MU.Network.Game
     public class CNPCJulia : IGameMessage
     { }
 
-    [WZContract]
+    [Flags]
+    public enum HuntingFlags19 : byte
+    {
+        AutoPotion=0x01,
+        DrainLife = 0x04,
+        LongDistanceC = 0x08,
+        OriginalPosition = 0x10,
+        UseSkillClosely = 0x20,
+        Party = 0x40,
+        PreferenceOfParty = 0x80,
+    }
+
+    [Flags]
+    public enum HuntingFlags1A : byte
+    {
+        BuffTimeParty = 0x01,
+        BuffDuration = 0x04,
+        Delay = 0x08,
+        Condition = 0x10,
+        MonsterAttacking = 0x20,
+        Cond1 = 0x40,
+        Cond2 = 0x80,
+        Cond3 = 0xC0,
+    }
+
+    [Flags]
+    public enum HuntingFlags1B : byte
+    {
+        Delay = 0x01,
+        Condition = 0x02,
+        MonsterAttacking = 0x04,
+        Cond1 = 0x08,
+        Cond2 = 0x10,
+        Cond3 = 0x18,
+        Repair = 0x20,
+        PickAllNearItems = 0x40,
+        PickSelectedItems = 0x80,
+    }
+
+    [Flags]
+    public enum HuntingFlags1C : byte
+    {
+        Delay = 0x01,
+        Condition = 0x02,
+        AutoAcceptFriend = 0x04,
+        AutoAcceptGuild = 0x08,
+        UseElitePotion = 0x10,
+        UseSkillClosely = 0x20,
+        UseRegularAttackArea = 0x40,
+        PickSelectedItems = 0x80,
+    }
+
+    [Flags]
+    public enum OptainingFlags:byte
+    {
+        Unk = 0x01,
+        Jewels = 0x08,
+        SetItem = 0x10,
+        ExcellentItem = 0x20,
+        Zen = 0x40,
+        ExtraItem = 0x80,
+    }
+
+    [WZContract(LongMessage = true)]
     public class CMUBotData : IGameMessage
     {
-        [WZMember(0, typeof(BinarySerializer), 257)]
-        public byte[] Data { get; set; }
+        /*[WZMember(0, typeof(BinarySerializer), 257)]
+        public byte[] Data { get; set; }*/
+        [WZMember(0)] public byte Data0 { get; set; }
+        [WZMember(1)] public OptainingFlags OptainingFlags { get; set; }
+        [WZMember(2)] public byte Data2 { get; set; }
+        [WZMember(3)] public byte OPDelayTime { get; set; }
+        [WZMember(4)] public ushort BasicSkill { get; set; }
+        [WZMember(6)] public ushort ActivationSkill { get; set; }
+        [WZMember(8)] public ushort DelayTime { get; set; }
+        [WZMember(0xA)] public ushort ActivationSkill2 { get; set; }
+        [WZMember(0xC)] public ushort DelayTime2 { get; set; }
+        [WZMember(0xE)] public ushort Unk0E { get; set; }
+        [WZMember(0x10)] public ushort Buff1 { get; set; }
+        [WZMember(0x12)] public ushort Buff2 { get; set; }
+        [WZMember(0x14)] public ushort Buff3 { get; set; }
+        [WZMember(0x16)] public byte Unk16 { get; set; }
+        [WZMember(0x17)] public byte AutoPotion_Heal { get; set; }
+        [WZMember(0x18)] public byte AutoDrainLife_Party { get; set; }
+        [WZMember(0x19)] public HuntingFlags19 Flags19 { get; set; }
+        [WZMember(0x1A)] public HuntingFlags1A Flags1A { get; set; }
+        [WZMember(0x1B)] public HuntingFlags1B Flags1B { get; set; }
+        [WZMember(0x1C)] public HuntingFlags1C Flags1C { get; set; }
+        [WZMember(0x1D, typeof(BinarySerializer), 36)] public byte[] Data1D { get; set; }
+        [WZMember(0x41, typeof(BinaryStringSerializer), 16)] public string ExtraItem1 { get; set; }
+        [WZMember(0x51, typeof(BinaryStringSerializer), 16)] public string ExtraItem2 { get; set; }
+        [WZMember(0x61, typeof(BinaryStringSerializer), 16)] public string ExtraItem3 { get; set; }
+        [WZMember(0x71, typeof(BinaryStringSerializer), 16)] public string ExtraItem4 { get; set; }
+        [WZMember(0x81, typeof(BinaryStringSerializer), 16)] public string ExtraItem5 { get; set; }
+        [WZMember(0x91, typeof(BinaryStringSerializer), 16)] public string ExtraItem6 { get; set; }
+        [WZMember(0xA1, typeof(BinaryStringSerializer), 16)] public string ExtraItem7 { get; set; }
+        [WZMember(0xB1, typeof(BinaryStringSerializer), 16)] public string ExtraItem8 { get; set; }
+        [WZMember(0xC1, typeof(BinaryStringSerializer), 16)] public string ExtraItem9 { get; set; }
+        [WZMember(0xD1, typeof(BinaryStringSerializer), 16)] public string ExtraItem10 { get; set; }
+        [WZMember(0xE1, typeof(BinaryStringSerializer), 16)] public string ExtraItem11 { get; set; }
+        [WZMember(0xF1, typeof(BinaryStringSerializer), 16)] public string ExtraItem12 { get; set; }
+        public int AutoDrainLife
+        {
+            get => AutoDrainLife_Party & 0x0F;
+            set
+            {
+                AutoDrainLife_Party &= 0xF0;
+                AutoDrainLife_Party |= (byte)value;
+            }
+        }
+        public int AutoPartyHeal
+        {
+            get => (AutoDrainLife_Party >> 4) & 0x0F;
+            set
+            {
+                AutoDrainLife_Party &= 0x0F;
+                AutoDrainLife_Party |= (byte)(value << 4);
+            }
+        }
+        public int AutoPotion
+        {
+            get => AutoPotion_Heal & 0x0F;
+            set
+            {
+                AutoPotion_Heal &= 0xF0;
+                AutoPotion_Heal |= (byte)value;
+            }
+        }
+        public int AutoHeal
+        {
+            get => (AutoPotion_Heal >> 4) & 0x0F;
+            set
+            {
+                AutoPotion_Heal &= 0x0F;
+                AutoPotion_Heal |= (byte)(value << 4);
+            }
+        }
+        public int HuntingRange
+        {
+            get => Data2 & 0x0F;
+            set
+            {
+                Data2 &= 0xF0;
+                Data2 |= (byte)value;
+            }
+        }
+        public int OptainingRange
+        {
+            get => (Data2>>4) & 0x0F;
+            set
+            {
+                Data2 &= 0x0F;
+                Data2 |= (byte)(value<<4);
+            }
+        }
     }
 
     [WZContract]

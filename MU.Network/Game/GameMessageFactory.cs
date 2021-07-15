@@ -258,6 +258,7 @@ namespace MU.Network.Game
 
             Register<SLifeInfo>(GameOpCode.LifeInfo);
             Register<CMuHelperState>(GameOpCode.MuHelperSwitch);
+            Register<CMUBotData>(GameOpCode.MuHelper);
             Register<SMuHelperState>(GameOpCode.MuHelperSwitch);
             Register<SAttackSpeed>(GameOpCode.AttackSpeed);
             Register<CQuestExp>(GameOpCode.QuestExp);

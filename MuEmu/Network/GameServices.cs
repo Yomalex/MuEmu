@@ -22,6 +22,7 @@ using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -2475,7 +2476,39 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CMUBotData))]
         public void CMUBotData(GSSession session, CMUBotData message)
         {
-
+            Logger.Debug(message.ToString());
+            //message.Data[0x01]: 0x08: Jewel/Gem, 0x40: Zen, 0x10: Set Item, 0x20: Excellent Item, 0x80: Add Extra Item
+            //message.Data[0x02]: 0x01-0x08: hunting Range, 0x10-0x80: Optaining Range
+            //message.Data[0x04-0x05]: Basic Skill
+            //message.Data[0x06-0x07]: Activation Skill
+            //message.Data[0x08-0x09]: Delay Time
+            //message.Data[0x0A-0x0B]: Activation Skill 2
+            //message.Data[0x0C-0x0D]: Delay Time 2
+            //message.Data[0x10-0x11]: Buff 1
+            //message.Data[0x12-0x13]: Buff 2
+            //message.Data[0x14-0x15]: Buff 3
+            //message.Data[0x17]: 0x01-0x0A: 100% AutoPotion
+            //message.Data[0x18]: 0x01-0x0A: 100% DrainLife
+            //message.Data[0x19]: 0x08:Long Distance-C, 0x10:Original Position, 0x01:Enable AutoPotion, 0x04: Enable DrainLife, 0x20: Combo Enabled
+            //message.Data[0x1A]: 0x08: Delay Enable, 0x10: Con, 0x04: Buff Duration
+            //message.Data[0x1B]: 0x01: Delay Enable 2, 0x02: Con 2, 0x20: Repair, 0x80: Pick Selected items, 0x40: Pick all near items
+            //message.Data[0x1C]: 0x40:Use Regular Attack Area, 0x20:Use skill closely, 0x04: Auto accept friend, 0x08: AutoAccept Guild, 0x10: Use elite potion
+            //message.Data[0x1D-0x40]
+            //message.Data[0x41]: Extra Item 1
+            //message.Data[0x51]: Extra Item 2
+            //message.Data[0x61]: Extra Item 3
+            //message.Data[0x71]: Extra Item 4
+            //message.Data[0x81]: Extra Item 5
+            //message.Data[0x91]: Extra Item 6
+            //message.Data[0xA1]: Extra Item 7
+            //message.Data[0xB1]: Extra Item 8
+            //message.Data[0xC1]: Extra Item 9
+            //message.Data[0xD1]: Extra Item 10
+            //message.Data[0xF1]: Extra Item 11
+            /*using (var fp = File.Open($"mubot_{session.Player.Account.Nickname}_{DateTime.Now.Ticks}.txt", FileMode.OpenOrCreate))
+            {
+                fp.Write(message.Data, 0, message.Data.Length);
+            }*/
         }
 
         [MessageHandler(typeof(CMuHelperState))]

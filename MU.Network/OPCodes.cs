@@ -184,6 +184,7 @@ namespace MU.Network
         LifeInfo = 0x10EC,
         NPCJulia = 0x17BF,
         MuHelperSwitch = 0x51BF,
+        MuHelper = 0xFFAE,
         AttackSpeed = 0x30EC,
         KillPlayerEXT = 0xFF9C,
         NPCDialog = 0x01F9,

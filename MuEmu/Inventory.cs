@@ -706,24 +706,159 @@ namespace MuEmu
                 CharSet[5] |= 0xF0;
             }
 
-            if(equip.ContainsKey(Equipament.Wings))
-            {
-                var it = equip[Equipament.Wings];
-                CharSet[5] |= (byte)((it.Number.Number & 0x03) << 2);
-            }
-            else
-            {
-                CharSet[5] |= 0x0C;
-            }
-
             if (equip.ContainsKey(Equipament.Pet))
             {
                 var it = equip[Equipament.Pet];
-                CharSet[5] |= (byte)((it.Number.Number & 0x03)/* << 2*/);
+
+                if(
+                    it.Number.Number == 6723 || //Rudolph
+                    it.Number.Number == 6779 //??
+                    )
+                {
+                    CharSet[5] |= 2;
+                }
+
+                if ((it.Number.Number & 0x03) != 0)
+                {
+                    CharSet[10] |= 0x01;
+                    CharSet[5] |= (byte)(it.Number.Number & 0x03);
+                }
+
+                if(it.Number.Number == ItemNumber.FromTypeIndex(13,4))
+                {
+                    CharSet[12] |= 0x01;
+                }
             }
-            else
+
+            if(
+                (equip.ContainsKey(Equipament.LeftRing) && (equip[Equipament.LeftRing].Number.Number == ItemNumber.FromTypeIndex(13,169) || equip[Equipament.LeftRing].Number.Number == ItemNumber.FromTypeIndex(13, 170))) ||
+               (equip.ContainsKey(Equipament.RightRing) && (equip[Equipament.RightRing].Number.Number == ItemNumber.FromTypeIndex(13, 169) || equip[Equipament.RightRing].Number.Number == ItemNumber.FromTypeIndex(13, 170))))
             {
-                CharSet[5] |= 0x03;
+                CharSet[12] |= 0x08;
+            }
+
+            if(equip.ContainsKey(Equipament.Wings))
+            {
+                Dictionary<int, byte[]> sub;
+                var it = equip[Equipament.Wings];
+                // Pre season X
+                sub = new Dictionary<int, byte[]>
+                {
+                                  //[5], [9], [16]
+                    { 0, new byte[]{ 4, 0x01, 0 } }, //Wings of Fairy
+                    { 1, new byte[]{ 4, 0x02, 0 } }, //Wings of Angel
+                    { 2, new byte[]{ 4, 0x03, 0 } }, //Wings of Satan
+                    { 3, new byte[]{ 8, 0x01, 0 } }, //Wings of Spirit
+                    { 4, new byte[]{ 12, 0x02, 0 } }, //Wings of Soul
+                    { 5, new byte[]{ 12, 0x03, 0 } }, //Wings of Dragon
+                    { 6, new byte[]{ 12, 0x04, 0 } }, //Wings of Darkness
+                    { 30, new byte[]{ 12, 0x05, 0 } },//Cape of lord
+                    { 36, new byte[]{ 12, 0x01, 0 } },//Wing of Storm
+                    { 37, new byte[]{ 12, 0x02, 0 } },//Wing of Space Time
+                    { 38, new byte[]{ 12, 0x03, 0 } },//Wing of Illusion
+                    { 39, new byte[]{ 12, 0x04, 0 } },//Wings of Hurricane
+                    { 40, new byte[]{ 12, 0x05, 0 } },//Mantle of Monarch
+                    { 41, new byte[]{ 4, 0x04, 0 } },//Wing of Mistery
+                    { 42, new byte[]{ 12, 0x07, 0 } },//Wing of Despair
+                    { 43, new byte[]{ 12, 6, 0 } },//Wings of Violent Wind
+                    { 49, new byte[]{ 8, 0x07, 0 } },
+                    { 50, new byte[]{ 12, 7, 0 } },
+                    { 51, new byte[]{ 12, 0, 8 } },
+                    { 52, new byte[]{ 12, 0, 9 } },
+                    { 53, new byte[]{ 12, 0, 10 } },
+                    { 54, new byte[]{ 12, 0, 11 } },
+                    { 55, new byte[]{ 12, 0, 12 } },
+                    { 56, new byte[]{ 12, 0, 13 } },
+                    { 57, new byte[]{ 12, 0, 14 } },
+                    //{ 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
+                    //{ 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
+                    //{ 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
+                    //{ 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
+                    //{ 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
+                    //{ 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
+                    //{ 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
+                    //{ 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
+                    //{ 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
+                    //{ 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
+                    //{ 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
+                    //{ 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                    //{ 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
+                    //{ 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                    //{ 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
+                    //{ 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
+                    //{ 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
+                    //{ 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
+                };
+                // Season X
+                /*sub = new Dictionary<int, byte[]>
+                {
+                    { 0, new byte[]{ 0x00, 0x00, 0x01 << 2 } },
+                    { 1, new byte[]{ 0x00, 0x00, 0x02 << 2 } },
+                    { 2, new byte[]{ 0x00, 0x00, 0x03 << 2 } },
+                    { 3, new byte[]{ 0x00, 0x00, 0x04 << 2 } },
+                    { 4, new byte[]{ 0x00, 0x00, 0x05 << 2 } },
+                    { 5, new byte[]{ 0x00, 0x00, 0x06 << 2 } },
+                    { 6, new byte[]{ 0x00, 0x00, 0x07 << 2 } },
+                    { 36, new byte[]{ 0x00, 0x01, 0x00 << 2 } },
+                    { 37, new byte[]{ 0x00, 0x01, 0x01 << 2 } },
+                    { 38, new byte[]{ 0x00, 0x01, 0x02 << 2 } },
+                    { 39, new byte[]{ 0x00, 0x01, 0x03 << 2 } },
+                    { 40, new byte[]{ 0x00, 0x01, 0x04 << 2 } },
+                    { 41, new byte[]{ 0x00, 0x01, 0x05 << 2 } },
+                    { 42, new byte[]{ 0x00, 0x01, 0x06 << 2 } },
+                    { 43, new byte[]{ 0x00, 0x01, 0x07 << 2 } },
+                    { 49, new byte[]{ 0x00, 0x02, 0x00 << 2 } },
+                    { 50, new byte[]{ 0x00, 0x02, 0x01 << 2 } },
+                    { 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
+                    { 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
+                    { 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
+                    { 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
+                    { 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
+                    { 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
+                    { 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
+                    { 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
+                    { 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
+                    { 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
+                    { 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
+                    { 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                    { 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
+                    { 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                    { 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
+                    { 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
+                    { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
+                    { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
+                };*/
+
+                var info = sub[it.Number.Index];
+                CharSet[5] |= info[0];
+                CharSet[9] |= info[1];
+                CharSet[16] |= info[2];
+            }
+
+            if(equip.ContainsKey(Equipament.Pet))
+            {
+                switch(equip[Equipament.Pet].Number.Number)
+                {
+                    case 6720:
+                        CharSet[16] |= 0x20;
+                        break;
+                    case 6721:
+                        CharSet[16] |= 0x40;
+                        break;
+                    case 6723:
+                        CharSet[10] |= 0x01;
+                        CharSet[16] |= 0x80;
+                        break;
+                    case 6736:
+                        CharSet[16] |= 0xE0;
+                        break;
+                    case 6762:
+                        CharSet[16] |= 0xA0;
+                        break;
+                    case 6779:
+                        CharSet[16] |= 0x60;
+                        break;
+                }
             }
 
             CharSet[6] = (byte)((SmallLevel >> 16) & 0xff);

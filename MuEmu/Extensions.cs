@@ -32,8 +32,12 @@ namespace MuEmu
                     .Where(x => x.Name == ip.Name)
                     .FirstOrDefault();
 
-                if (pInfo != null)
-                    pInfo.SetValue(dest, ip.GetValue(src));
+                try
+                {
+                    if (pInfo != null)
+                        pInfo.SetValue(dest, ip.GetValue(src));
+                }catch(Exception)
+                { }
             }
         }
     }
