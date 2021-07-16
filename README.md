@@ -1,5 +1,5 @@
 ﻿[![Discord](https://img.shields.io/discord/591914197219016707.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/Yfwu8hQ)
-[![Client](https://pbs.twimg.com/profile_images/735309019036848128/jniek5Fm_400x400.jpg)](https://github.com/Yomalex/IGCN-v9.5-MuServer-S9EP2/tree/master/zClient)
+[Client](https://github.com/Yomalex/IGCN-v9.5-MuServer-S9EP2/tree/master/zClient)
 
 # Mu Online Server Emulator C#
 
