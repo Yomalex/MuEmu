@@ -104,7 +104,7 @@ namespace MuEmu
 
         public ItemInfo BasicInfo { get; set; }
         public ItemNumber Number { get;  set; }
-        public int Serial { get; private set; }
+        public long Serial { get; private set; }
         public byte Plus {
             get => _plus;
             set
@@ -231,6 +231,8 @@ namespace MuEmu
 
             BasicInfo = ItemDB[number];
             _durability = BasicInfo.Durability;
+            if (_durability == 0)
+                _durability = 1;
             _slots = Array.Empty<SocketOption>();
 
             if (Options != null)
@@ -1485,6 +1487,12 @@ namespace MuEmu
             {
                 Option28 = (byte)Program.RandomProvider(4);
             }
+        }
+
+        public void Overlap(byte count)
+        {
+            _durability += count;
+            OnDurabilityChange(false);
         }
     }
 }

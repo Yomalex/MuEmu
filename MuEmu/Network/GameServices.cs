@@ -703,6 +703,24 @@ namespace MuEmu.Network
                 case 13 * 512 + 66: //Invitation of the Santa Town's
 
                     break;
+                case 14 * 512 + 29: // Symbol of Kundun
+                    {
+                        var Target = inv.Get(message.Dest);
+                        if (Target.Number.Number != 7197 || Target.Plus != Source.Plus)
+                            return;
+
+                        if(Target.Durability + Source.Durability <= 5)
+                        {
+                            Target.Durability += Source.Durability;
+                        }else
+                        {
+                            Source.Durability -= (byte)(5 - Target.Durability);
+                        }
+                        var LostMap = new Item(new ItemNumber(7196), 0, new { Source.Plus });
+                        inv.Delete(message.Dest);
+                        inv.Add(LostMap);
+                    }
+                    break;
             }
         }
 
@@ -742,9 +760,44 @@ namespace MuEmu.Network
             }
             else
             {
-                inv.Remove(message.Source);
+                await inv.Delete(message.Source);
+                switch(item.Number.Number)
+                {
+                    case 7196://lost map
+                        logger.Information("[Kalima] Try to Create Kalima Gate");
+                        if (plr.Character.Map.IsEvent)
+                        {
+                            logger.Error("[Kalima] Failed to Summon Kalima Gate - Called in {0}", plr.Character.MapID);
+                            break;
+                        }
+                        if (plr.Character.Map.GetAttributes(message.MapX, message.MapY).Contains(MapAttributes.Safe))
+                        {
+                            logger.Error("[Kalima] Failed to Summon Kalima Gate - Called in Saftey Area (Map:{0}, X:{1}, Y:{2})", plr.Character.MapID, message.MapX, message.MapY);
+                            break;
+                        }
+                        if(plr.Character.KalimaGate != null)
+                        {
+                            logger.Error("[Kalima] Failed to Summon Kalima Gate - Already Have Gate (SummonIndex:{0})", plr.Character.KalimaGate.Index);
+                            break;
+                        }
+                        var minLevel = new List<int> { 0, 40, 131, 181, 231, 281, 331, 380 };
+                        if(minLevel[item.Plus] > plr.Character.Level)
+                        {
+                            logger.Error("[Kalima] Failed to Summon Kalima Gate - Min Level: {0}, Player Level: {1}", minLevel[item.Plus], plr.Character.Level);
+                            break;
+                        }
+                        plr.Character.KalimaGate = new Monster((ushort)(151 + item.Plus), ObjectType.NPC, plr.Character.MapID, new Point(message.MapX, message.MapY), 1)
+                        {
+                            Index = MonstersMng.Instance.GetNewIndex(),
+                            Caller = plr,
+                            Params = 5,
+                        };
+                        MonstersMng.Instance.Monsters.Add(plr.Character.KalimaGate);
+                        goto throwItem;
+                }
                 date = plr.Character.Map.AddItem(message.MapX, message.MapY, item.Clone() as Item, plr.Character);
             }
+            throwItem:
             await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
 
             logger.Information("Drop item {0} at {1},{2} in {3} deleted at {4}", item.Number, message.MapX, message.MapY, plr.Character.MapID, date);
@@ -768,7 +821,51 @@ namespace MuEmu.Network
             
             if(item.Item.Number != ItemNumber.Zen)
             {
-                var pos = @char.Inventory.Add(item.Item);
+                if(item.Character != null && item.Character != @char && item.OwnedTime > DateTimeOffset.Now)
+                {
+                    Logger.ForAccount(session)
+                    .Error("Item {0} owned by {1}", item.Item.ToString(), item.Character?.Name);
+                    return;
+                }
+                byte pos=0xff;
+                switch (item.Item.Number.Number)
+                {
+                    case 7197://Symbol of Kundun
+                        {
+                            var result = @char.Inventory.FindAllItems(ItemNumber.FromTypeIndex(14, 29));
+                            var firts = (from r in result
+                                        where r.Plus == item.Item.Plus && r.Durability < 5
+                                        select r).FirstOrDefault();
+
+                            if (firts != null)
+                            {
+                                if (firts.Durability + item.Item.Durability <= 5)
+                                    firts.Overlap(item.Item.Durability);
+                                else
+                                {
+                                    var left = (byte)(5 - firts.Durability);
+                                    item.Item.Overlap((byte)(-left));
+                                    firts.Overlap(left);
+                                }
+                                firts.OnItemChange();
+
+                                if (firts.Durability == 5)
+                                {
+                                    await @char.Inventory.Delete(firts);
+                                    var lostMap = new Item(new ItemNumber(7196), Options: new { Plus = firts.Plus });
+                                    pos=@char.Inventory.Add(lostMap);
+                                    await session.SendAsync(new SItemGet { ItemInfo = lostMap.GetBytes(), Result = pos });
+                                }
+                                else
+                                {
+                                    await session.SendAsync(new SItemGet { ItemInfo = firts.GetBytes(), Result = (byte)firts.SlotId });
+                                }
+                                goto _end;
+                            }
+                        }
+                        break;
+                }
+                pos = @char.Inventory.Add(item.Item);
                 if (pos == 0xff)
                 {
                     await session.SendAsync(new SItemGet { Result = 0xff });
@@ -781,6 +878,7 @@ namespace MuEmu.Network
                 session.Player.Character.Money += item.Item.BuyPrice;
             }
 
+            _end:
             item.State = ItemState.Deleted;
             var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
             await session.SendAsync(msg);

@@ -290,6 +290,12 @@ namespace MuEmu.Resources.Map
             if (item == null)
                 return DateTimeOffset.Now;
 
+            item.Character = null;
+            item.Account = null;
+            item.SlotId = 0;
+            item.VaultId = 0;
+            item.NeedSave = false;
+
             var valid = DateTimeOffset.Now.AddSeconds(120);
             var own = DateTimeOffset.Now.AddSeconds(60);
 

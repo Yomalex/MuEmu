@@ -134,7 +134,14 @@ namespace MuEmu
             pos -= (byte)IndexTranslate;
 
             if (_items.ContainsKey(pos))
+            {
+                /*var target = _items[pos];
+                if(target.Number == it.Number && target.Plus == it.Plus) //try to stack
+                {
+                    target.Durability 
+                }*/
                 throw new Exception($"({org})[{IndexTranslate}] Position {pos} isn't free");
+            }
 
             if (pos >= Size)
                 throw new Exception($"({org})[{IndexTranslate}] Out of range: {pos}/{Size}");

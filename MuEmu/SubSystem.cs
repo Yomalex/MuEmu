@@ -430,6 +430,16 @@ namespace MuEmu
                 it.ViewPort.Remove(plr.Player);
             }
 
+            foreach(var it in newObj)
+            {
+                it.ViewPort.Add(plr.Player);
+            }
+
+            foreach (var it in existObj)
+            {
+                it.ViewPort.Add(plr.Player);
+            }
+
             oldVP.AddRange(newObj.Select(x => x.Index));
             oldVP.AddRange(existObj.Select(x => x.Index));
 
@@ -622,6 +632,7 @@ namespace MuEmu
 
         private static async void WorkerIA()
         {
+            var kalimaGateDisposed = new List<Character>();
             while (true)
             {
                 Marlon.Run();
@@ -641,7 +652,40 @@ namespace MuEmu
                             continue;
 
                         obj.Update();
+                        switch(obj.Info.Monster)
+                            {
+                                case 152://Stone Gate 1
+                                case 153://Stone Gate 2
+                                case 154://Stone Gate 3
+                                case 155://Stone Gate 4
+                                case 156://Stone Gate 5
+                                case 157://Stone Gate 6
+                                case 158://Stone Gate 7
+                                    {
+                                        if (obj.ViewPort.Count == 0)
+                                            break;
+
+                                        var lvl = obj.Info.Monster - 152;
+                                        var kalimaGates = new List<int> { 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x74 };
+                                        var _params = (int)obj.Params;
+                                        var players = obj.ViewPort
+                                            .Where(x => x.Character.Position.Substract(obj.Position).LengthSquared() < 2)
+                                            .Where(x => x.Character.KalimaGate == obj || x.Character.Party?.Master.Character.KalimaGate == obj)
+                                            .Take(_params)
+                                            .ToList();
+                                        players.ForEach(x => x.Character.WarpTo(kalimaGates[lvl]));
+                                        _params -= players.Count;
+                                        obj.Params = _params;
+
+                                        if(_params <= 0)
+                                            kalimaGateDisposed.Add(obj.Caller.Character);
+                                    }
+                                    break;
+                            }
                     }
+
+                    kalimaGateDisposed.ForEach(x => x.DisposeKalimaGate());
+                    kalimaGateDisposed.Clear();
                 }
                 Thread.Sleep(100);
             }

@@ -254,7 +254,7 @@ namespace MuEmu.Events.BloodCastle
             if (WeaponOwner != null)
             {
                 var a = WeaponOwner.Character.Inventory.FindAll(_reward.Number).First();
-                WeaponOwner.Character.Inventory.Remove(a);
+                WeaponOwner.Character.Inventory.Delete(a);
                 WeaponOwner = null;
             }
 

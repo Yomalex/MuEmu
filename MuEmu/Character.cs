@@ -113,6 +113,7 @@ namespace MuEmu
         public PShop Shop { get; private set; }
         public CashShop CashShop { get; private set; }
         public Duel Duel { get; set; }
+        public Monster KalimaGate { get; set; }
         public List<ushort> MonstersVP { get; set; }
         public List<Player> PlayersVP { get; set; }
         public List<ushort> ItemsVP { get; set; }
@@ -794,11 +795,26 @@ namespace MuEmu
         {
             await Player.Session.SendAsync(new SItemGet { Result = 0xFE, Money = Money });
         }
+        internal void DisposeKalimaGate()
+        {
+            if (KalimaGate != null)
+            {
+                KalimaGate.Killer = Player;
+                KalimaGate.Life = 0;
+                KalimaGate.Caller = null;
+                KalimaGate.ViewPort.ForEach(x => x.Character.MonstersVP.Remove(KalimaGate.Index));
+                KalimaGate.ViewPort.Clear();
+                KalimaGate.Map.DelMonster(KalimaGate);
+                MonstersMng.Instance.Monsters.Remove(KalimaGate);
+                KalimaGate = null;
+            }
+        }
         private void OnDead(object obj, EventArgs args)
         {
             State = ObjectState.Dying;
             RegenTime = DateTimeOffset.Now.AddSeconds(4);
             var die = new SDiePlayer((ushort)Player.Session.ID, 1, _killerId);
+            DisposeKalimaGate();
             Player.Session.SendAsync(die);
             SendV2Message(die);
 
@@ -1779,6 +1795,7 @@ namespace MuEmu
             PartyManager.Remove(Player);
             Duel?.Leave(Player);
             Duel = null;
+            DisposeKalimaGate();
 
             var mobVp = MonstersVP.Select(x => MonstersMng.Instance.GetMonster(x)).ToList();
             foreach (var m in mobVp.Where(x => x.Target == Player))

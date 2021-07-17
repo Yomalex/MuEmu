@@ -7,6 +7,7 @@ using MU.DataBase;
 using System.Threading.Tasks;
 using MuEmu.Entity;
 using MU.Resources;
+using MuEmu.Monsters;
 
 namespace MuEmu
 {

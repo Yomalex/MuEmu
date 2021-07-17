@@ -10,8 +10,9 @@ namespace MU.DataBase
     public class ItemDto
     {
         [Key]
+        [Column(TypeName = "BIGINT(5)")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ItemId { get; set; }
+        public long ItemId { get; set; }
 
         public DateTime DateCreation { get; set; } = DateTime.Now;
 

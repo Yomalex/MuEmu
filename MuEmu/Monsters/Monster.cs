@@ -115,6 +115,8 @@ namespace MuEmu.Monsters
         }
         public List<Player> ViewPort { get; set; } = new List<Player>();
         public Player Killer { get; set; }
+        public Player Caller { get; set; }
+        public object Params { get; set; }
         public ushort DeadlyDmg { get; set; }
         public byte Direction { get; set; }
         public List<Item> ItemBag { get; set; }
@@ -480,7 +482,7 @@ namespace MuEmu.Monsters
         {
             gObjGiveItemSearch(Level);
 
-            var die = new SDiePlayer(Index, 1, (ushort)Killer.Session.ID);
+            var die = new SDiePlayer(Index, 1, (ushort)(Killer?.Session?.ID??0xffff));
 
             if(Killer.Character == null)
             {
