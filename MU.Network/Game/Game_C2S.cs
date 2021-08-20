@@ -897,4 +897,11 @@ namespace MU.Network.Game
     [WZContract]
     public class CGremoryCaseOpen : IGameMessage
     { }
+
+    [WZContract]
+    public class CPShopSearchItem : IGameMessage
+    {
+        [WZMember(0)] public int iLastCount { get; set; }
+        [WZMember(1)] public short sSearchItem { get; set; }
+    }
 }

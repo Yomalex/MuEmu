@@ -2635,5 +2635,47 @@ namespace MuEmu.Network
         {
             await session.SendAsync(new SGremoryCaseOpen { Result = 0 });
         }
+
+        [MessageHandler(typeof(CPShopSearchItem))]
+        public async Task CPShopSearchItem(GSSession session, CPShopSearchItem message)
+        {
+            IEnumerable<PShop> shopList;
+            if(message.sSearchItem == -1)
+            {
+                shopList = from cl in Program.server.Clients
+                           where
+                           cl.Player != null &&
+                           cl.Player.Status == LoginStatus.Playing &&
+                           cl.Player.Character.Shop.Open == true &&
+                           (cl.Player.Character.MapID == Maps.Lorencia || cl.Player.Character.MapID == Maps.Davias || cl.Player.Character.MapID == Maps.Noria || cl.Player.Character.MapID == Maps.Elbeland)
+                           select cl.Player.Character.Shop;
+            }
+            else
+            {
+                shopList = from cl in Program.server.Clients
+                           where
+                           cl.Player != null &&
+                           cl.Player.Status == LoginStatus.Playing &&
+                           cl.Player.Character.Shop.Open == true &&
+                           (cl.Player.Character.MapID == Maps.Lorencia || cl.Player.Character.MapID == Maps.Davias || cl.Player.Character.MapID == Maps.Noria || cl.Player.Character.MapID == Maps.Elbeland) &&
+                           cl.Player.Character.Inventory.PersonalShop.Items.Values.Count(x => x.Number.Number == (ushort)message.sSearchItem) != 0
+                           select cl.Player.Character.Shop;
+
+            }
+
+            shopList = shopList.Skip(message.iLastCount).Take(50);
+
+            await session.SendAsync(new GPShopSearchItem
+            {
+                iPShopCnt = shopList.Count(),
+                btContinueFlag = (byte)(shopList.Count() == 50 ? 1 : 0),
+                List = shopList.Select(x => new GPShopSearchItemDto
+                {
+                    Number = x.Chararacter.Player.ID,
+                    szName = x.Chararacter.Name,
+                    szPShopText = x.Name,
+                }).ToArray()
+            });
+        }
     }
 }

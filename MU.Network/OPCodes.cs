@@ -136,6 +136,7 @@ namespace MU.Network
         PShopRequestList = 0x053F,
         PShopRequestBuy = 0x063F,
         PShopRequestSold = 0x083F,
+        PShopSearchItem = 0x31EC,
         PartyRequest = 0xFF40,
         PartyResult = 0xFF41,
         PartyList = 0xFF42,

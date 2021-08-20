@@ -23,17 +23,17 @@ namespace MuEmu
 {
     public class PShop
     {
-        private Character _char;
+        public Character Chararacter { get; set; }
         public bool Open { get; set; }
         public string Name { get; set; }
 
-        public PShopItem[] Items => _char.Inventory.PersonalShop.Items
+        public PShopItem[] Items => Chararacter.Inventory.PersonalShop.Items
             .Select(x => new PShopItem() { Pos = x.Key, Item = x.Value.GetBytes(), wzPrice = x.Value.PShopValue.ShufleEnding() })
             .ToArray();
         
         public PShop(Character @char)
         {
-            _char = @char;
+            Chararacter = @char;
         }
     }
     public class Character : IDisposable

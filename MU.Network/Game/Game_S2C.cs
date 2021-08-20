@@ -2143,5 +2143,23 @@ namespace MU.Network.Game
         [WZMember(4)] public uint AuthCode { get; set; }
         [WZMember(5)] public uint ExpireTime { get; set; }
     }
+
+    [WZContract]
+    public class GPShopSearchItem : IGameMessage
+    {
+        [WZMember(0)] public int iPShopCnt { get; set; }
+        [WZMember(1)] public byte btContinueFlag { get; set; }
+        [WZMember(2, typeof(ArraySerializer))] public GPShopSearchItemDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class GPShopSearchItemDto
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string szName { get; set; } //11
+        [WZMember(2, typeof(BinaryStringSerializer), 37)] public string szPShopText { get; set; } //[37];
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+    }
 }
 

@@ -271,6 +271,9 @@ namespace MU.Network.Game
             Register<SGremoryCaseNotice>(GameOpCode.GremoryCaseNotice);
             Register<SGremoryCaseDelete>(GameOpCode.GremoryCaseDelete);
             Register<SGremoryCaseList>(GameOpCode.GremoryCaseList);
+
+            Register<CPShopSearchItem>(GameOpCode.PShopSearchItem);
+            Register<GPShopSearchItem>(GameOpCode.PShopSearchItem);
         }
     }
 }
