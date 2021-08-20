@@ -79,6 +79,9 @@ namespace MU.DataBase
         public List<FriendDto> Friends { get; set; }
         public List<MemoDto> Memos { get; set; }
 
+        [NotMapped]
+        public List<GremoryCaseDto> GremoryCases { get; set; }
+
         public SkillKeyDto SkillKey { get; set; } = new SkillKeyDto();
 
         public MasterInfoDto MasterInfo { get; set; } = new MasterInfoDto { Experience = 0, Level = 1, Points = 0 };

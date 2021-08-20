@@ -893,4 +893,8 @@ namespace MU.Network.Game
     [WZContract]
     public class CShadowBuff : IGameMessage
     { }
+
+    [WZContract]
+    public class CGremoryCaseOpen : IGameMessage
+    { }
 }

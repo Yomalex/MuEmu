@@ -4,6 +4,31 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum GremoryStorage : byte
+    {
+        Server = 1,
+        Character,
+    }
+    public enum GremorySource : byte
+    {
+        ChaosCastle = 1,
+        BloodCastle = 2,
+        IllusionTemple = 3,
+        DoppleGanger = 4,
+        ChaosCastleSurvival = 5,
+        TormentedSquare = 6,
+        IllusionTempleLeague = 7,
+        ChaosCastleSurvival2 = 8,
+        TormentedSquareLeague = 9,
+        ChaosCastleUBF = 10,
+        GMReward = 100
+    }
+    public enum GremoryNotice : byte
+    {
+        ItemAboutToExpire = 1,
+        InventoryToBeFilled = 5,
+        InventoryFull = 6,
+    }
     public enum Element : byte
     {
         None,

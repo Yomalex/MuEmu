@@ -227,6 +227,10 @@ namespace MuEmu.Network
                 charDto.MasterInfo = (from mi in db.MasterLevel
                                      where mi.MasterInfoId == charDto.CharacterId
                                      select mi).FirstOrDefault();
+
+                charDto.GremoryCases = (from gc in db.GremoryCase
+                                        where gc.CharacterId == charDto.CharacterId && (gc.AccountId == charDto.AccountId && gc.Inventory == 1)
+                                        select gc).ToList();
             }
 
             if (@charDto == null)

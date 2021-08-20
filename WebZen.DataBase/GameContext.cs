@@ -78,6 +78,11 @@ namespace MuEmu.Entity
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
 
+            /*modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.GremoryCases)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();*/
+
             modelBuilder.Entity<ItemDto>()
                 .HasOne(x => x.Account)
                 .WithMany();
@@ -109,6 +114,11 @@ namespace MuEmu.Entity
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
 
+            /*modelBuilder.Entity<GremoryCaseDto>()
+                .Navigation(x => x.Account)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();*/
+
             /*modelBuilder.Entity<ItemDto>()
                 .HasOne(x => x.Character)
                 .WithMany(x => x.Items);*/
@@ -126,6 +136,7 @@ namespace MuEmu.Entity
         public DbSet<QuestEXDto> QuestsEX { get; set; }
         public DbSet<SkillKeyDto> Config { get; set; }
         public DbSet<MasterInfoDto> MasterLevel { get; set; }
+        public DbSet<GremoryCaseDto> GremoryCase { get; set; }
 
         public DbSet<GensDto> Gens { get; set; }
         public DbSet<BloodCastleDto> BloodCastles { get; set; }

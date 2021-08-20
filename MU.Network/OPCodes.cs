@@ -191,6 +191,12 @@ namespace MU.Network
         QuestExp = 0x30F6,
         ShadowBuff = 0x31F6,
         ChainMagic = 0x0ABF,
+
+        GremoryCaseList = 0x004F,
+        GremoryCaseReceive = 0x014F,
+        GremoryCaseDelete = 0x034F,
+        GremoryCaseNotice = 0x044F,
+        GremoryCaseOpen = 0x054F,
     }
 
     public enum GensOpCode

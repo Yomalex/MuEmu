@@ -264,6 +264,13 @@ namespace MU.Network.Game
             Register<CQuestExp>(GameOpCode.QuestExp);
             Register<CShadowBuff>(GameOpCode.ShadowBuff);
             Register<SChainMagic>(GameOpCode.ChainMagic);
+
+            Register<CGremoryCaseOpen>(GameOpCode.GremoryCaseOpen);
+            Register<SGremoryCaseOpen>(GameOpCode.GremoryCaseOpen);
+            Register<SGremoryCaseReceiveItem>(GameOpCode.GremoryCaseReceive);
+            Register<SGremoryCaseNotice>(GameOpCode.GremoryCaseNotice);
+            Register<SGremoryCaseDelete>(GameOpCode.GremoryCaseDelete);
+            Register<SGremoryCaseList>(GameOpCode.GremoryCaseList);
         }
     }
 }

@@ -143,6 +143,7 @@ namespace MuEmu
         }
         public CharacterInfo BaseInfo { get; private set; }
         public ushort Resets { get; set; }
+        public GremoryCase GremoryCase { get; private set; }
         public string Name { get; set; }
         public ushort Level { get => _level; set { _level = value; _needSave = true; } }
         public float Health {
@@ -650,6 +651,7 @@ namespace MuEmu
             State = ObjectState.Regen;
             CtlCode = (ControlCode)characterDto.CtlCode;
             Resets = characterDto.Resets;
+            GremoryCase = new GremoryCase(this, characterDto);
 
             _position = new Point(characterDto.X, characterDto.Y);
             TPosition = _position;

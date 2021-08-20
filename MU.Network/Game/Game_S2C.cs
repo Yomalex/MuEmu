@@ -2096,5 +2096,52 @@ namespace MU.Network.Game
         [WZMember(1)] public ushort Alingment { get; set; }// 6
         [WZMember(2)] public uint Contribution { get; set; } // 8
     }
+
+    [WZContract]
+    public class SGremoryCaseOpen : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SGremoryCaseList : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public GCItemDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class SGremoryCaseReceiveItem : IGameMessage
+    {
+        [WZMember(0)]
+        public GCItemDto Item { get; set; }
+    }
+
+    [WZContract]
+    public class SGremoryCaseNotice : IGameMessage
+    {
+        [WZMember(0)]
+        public GremoryNotice Status { get; set; }
+    }
+
+    [WZContract]
+    public class SGremoryCaseDelete : IGameMessage
+    {
+        [WZMember(0)] public GremoryStorage StorageType { get; set; }
+        [WZMember(1)] public ushort ItemNumber { get; set; }
+        [WZMember(2)] public uint AuthCode { get; set; }
+        [WZMember(3)] public uint ItemGUID { get; set; }
+    }
+
+    [WZContract]
+    public class GCItemDto
+    {
+        [WZMember(0)] public GremoryStorage RewardInventory { get; set; }
+        [WZMember(1)] public GremorySource RewardSource { get; set; }
+        [WZMember(2)] public uint ItemGUID { get; set; }
+        [WZMember(3, 12)] public byte[] ItemInfo { get; set; }
+        [WZMember(4)] public uint AuthCode { get; set; }
+        [WZMember(5)] public uint ExpireTime { get; set; }
+    }
 }
 

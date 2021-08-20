@@ -2629,5 +2629,11 @@ namespace MuEmu.Network
             var @char = session.Player.Character;
             @char.Spells.SetBuff(SkillStates.ShadowPhantom, TimeSpan.FromSeconds(120));
         }
+
+        [MessageHandler(typeof(CGremoryCaseOpen))]
+        public async Task CGremoryCaseOpen(GSSession session)
+        {
+            await session.SendAsync(new SGremoryCaseOpen { Result = 0 });
+        }
     }
 }
