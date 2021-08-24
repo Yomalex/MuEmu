@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<Stages xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Stage Number="0">
+    <Monster Type="364" Map="39" Radio="0" PosX="188" PosY="110" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="176" PosY="66" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="176" PosY="69" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="176" PosY="72" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="179" PosY="67" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="179" PosY="71" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="211" PosY="65" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="211" PosY="68" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="211" PosY="71" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="213" PosY="67" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="213" PosY="70" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="196" PosY="73" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="199" PosY="73" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="202" PosY="73" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="190" PosY="72" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="187" PosY="72" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="203" PosY="68" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="200" PosY="84" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="203" PosY="84" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="181" PosY="81" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="184" PosY="81" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="191" PosY="60" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="179" PosY="79" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="182" PosY="79" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="185" PosY="79" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="199" PosY="81" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="202" PosY="81" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="196" PosY="84" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="196" PosY="60" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="186" PosY="60" Dir="-1" />
+    <Monster Type="354" Map="39" Radio="30" PosX="191" PosY="67" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="177" PosY="60" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="177" PosY="60" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="193" PosY="83" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="191" PosY="83" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="207" PosY="86" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="214" PosY="78" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="209" PosY="59" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="193" PosY="67" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="189" PosY="67" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="189" PosY="83" Dir="-1" />
+    <!--<Monster Type="" Map="" Radio="" PosX="" PosY="" Dir="" />-->
+  </Stage>
+  <Stage Number="1">
+    <Monster Type="364" Map="39" Radio="0" PosX="188" PosY="110" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="178" PosY="60" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="178" PosY="64" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="177" PosY="80" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="179" PosY="83" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="179" PosY="83" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="179" PosY="83" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="214" PosY="78" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="214" PosY="75" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="213" PosY="65" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="210" PosY="62" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="187" PosY="72" Dir="-1" />
+    <Monster Type="359" Map="39" Radio="30" PosX="195" PosY="72" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="176" PosY="72" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="189" PosY="84" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="197" PosY="84" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="192" PosY="81" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="213" PosY="70" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="203" PosY="72" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="192" PosY="58" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="200" PosY="58" Dir="-1" />
+  </Stage>
+  <Stage Number ="2">
+    <Monster Type="360" Map="39" Radio="30" PosX="78" PosY="115" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="80" PosY="100" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="79" PosY="127" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="81" PosY="127" Dir="-1" />
+    <Monster Type="358" Map="39" Radio="30" PosX="76" PosY="136" Dir="-1" />
+    <Monster Type="358" Map="39" Radio="30" PosX="80" PosY="136" Dir="-1" />
+    <Monster Type="358" Map="39" Radio="30" PosX="86" PosY="127" Dir="-1" />
+    <Monster Type="358" Map="39" Radio="30" PosX="87" PosY="114" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="78" PosY="98" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="84" PosY="99" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="75" PosY="111" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="78" PosY="111" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="81" PosY="111" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="84" PosY="111" Dir="-1" />
+    <Monster Type="357" Map="39" Radio="30" PosX="79" PosY="122" Dir="-1" />
+  </Stage>
+  <Stage Number="3">
+    <Monster Type="364" Map="39" Radio="30" PosX="188" PosY="110" Dir="-1" />
+  </Stage>
+  <Stage Number="4">
+    <Monster Type="364" Map="39" Radio="30" PosX="188" PosY="110" Dir="-1" />
+  </Stage>
+  <Stage Number="5">
+    <Monster Type="364" Map="39" Radio="30" PosX="188" PosY="110" Dir="-1" />
+  </Stage>
+  <Stage Number="6">
+    <Monster Type="360" Map="39" Radio="30" PosX="75" PosY="111" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="82" PosY="111" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="79" PosY="115" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="77" PosY="133" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="81" PosY="133" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="79" PosY="128" Dir="-1" />
+    <Monster Type="360" Map="39" Radio="30" PosX="77" PosY="121" Dir="-1" />
+  </Stage>
+</Stages>

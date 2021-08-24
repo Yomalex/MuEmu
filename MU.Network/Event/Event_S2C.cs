@@ -305,6 +305,33 @@ namespace MU.Network.Event
         [WZMember(4)] public int iRemainTime { get; set; }	// 8
     }
 
+    [WZContract]
+    public class SKanturuStateChange : IEventMessage
+    {
+        [WZMember(0)] public KanturuState State { get; set; }
+        [WZMember(1)] public byte btDetailState { get; set; }
+    }
+
+    [WZContract]
+    public class SKanturuMonsterUserCount : IEventMessage
+    {
+        [WZMember(0)] public byte MonsterCount { get; set; }
+        [WZMember(1)] public byte UserCount { get; set; }
+    }
+
+    [WZContract]
+    public class SKanturuBattleTime : IEventMessage
+    {
+        //[WZMember(0)] public byte Padding02 { get; set; }
+        [WZMember(1)] public int BattleTime { get; set; }
+    }
+
+    [WZContract]
+    public class SKanturuBattleResult : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
+
     // Imperial
     [WZContract]
     public class SImperialEnterResult : IEventMessage

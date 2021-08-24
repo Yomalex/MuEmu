@@ -76,6 +76,10 @@ namespace MU.Network.Event
     { }
 
     [WZContract]
+    public class CKanturuEnterBossMap : IEventMessage
+    { }
+
+    [WZContract]
     public class CImperialGuardianEnter : IEventMessage
     { }
 }

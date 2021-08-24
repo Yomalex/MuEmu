@@ -159,6 +159,13 @@ namespace MuEmu.Network
             kanturu.NPCTalk(session.Player);
         }
 
+        [MessageHandler(typeof(CKanturuEnterBossMap))]
+        public void CKanturuEnterBossMap(GSSession session)
+        {
+            var kanturu = Program.EventManager.GetEvent<Kanturu>();
+            kanturu.TryAdd(session.Player);
+        }
+
         [MessageHandler(typeof(CImperialGuardianEnter))]
         public void CImperialGuardianEnter(GSSession session)
         {

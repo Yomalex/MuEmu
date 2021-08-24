@@ -28,40 +28,40 @@ namespace MU.DataBase
         public short Y { get; set; }
 
         // Stats Info
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Level { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Life { get; set; }
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort MaxLife { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Mana { get; set; }
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort MaxMana { get; set; }
 
         public long Experience { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort LevelUpPoints { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Str { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Agility { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Vitality { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Energy { get; set; }
 
-        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Command { get; set; }
 
-        [Column(TypeName = "INT(11) UNSIGNED")]
+        [Column(TypeName = "INT(11)")]
         public uint Money { get; set; }
 
         // Inventory

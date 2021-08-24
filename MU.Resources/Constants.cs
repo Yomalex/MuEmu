@@ -94,6 +94,12 @@ namespace MU.Resources
         BC_Winner,
         BC_Time,
         BC_WeaponError,
+        Kanturu_NextBattle,
+        Kanturu_CoreGateOpens,
+        Kanturu_NightmareNotify,
+        Kanturu_Successfull,
+        Kanturu_Fail,
+        Server_EventStateChange,
     }
     public enum Spell : ushort
     {

@@ -90,7 +90,6 @@ namespace MuEmu.Events.DevilSquare
 
         public override void OnTransition(EventState NextState)
         {
-            _logger.Information("State:{0} -> {1}", CurrentState, NextState);
             switch (NextState)
             {
                 case EventState.Closed:

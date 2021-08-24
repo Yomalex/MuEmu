@@ -214,7 +214,6 @@ namespace MuEmu.Events.ImperialGuardian
 
         public override void OnTransition(EventState NextState)
         {
-            _logger.Information("State {0}->{1}", CurrentState, NextState);
             switch(NextState)
             {
                 case EventState.Open:
@@ -387,45 +386,45 @@ namespace MuEmu.Events.ImperialGuardian
                             case FortressSubState.Phaze1:
                                 _subStateEnd = DateTime.Now.AddMinutes(10);
                                 _fortressGates[0].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.Group(_baseGroup, true, OnMonsterDead);
+                                _activeMobs = MonsterIA.InitGroup(_baseGroup, OnMonsterDead);
                                 break;
                             case FortressSubState.Standby2:
                                 _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.Group(_baseGroup, false, OnMonsterDead);
+                                MonsterIA.DelGroup(_baseGroup);
                                 _eventState.State = 2;
                                 break;
                             case FortressSubState.Phaze2:
                                 _subStateEnd = DateTime.Now.AddMinutes(10);
                                 _fortressGates[3].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.Group(_baseGroup + 1, true, OnMonsterDead);
+                                _activeMobs = MonsterIA.InitGroup(_baseGroup + 1, OnMonsterDead);
                                 break;
                             case FortressSubState.StandBy3:
                                 _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.Group(_baseGroup + 1, false, OnMonsterDead);
+                                MonsterIA.DelGroup(_baseGroup + 1);
                                 _eventState.State = 3;
                                 break;
                             case FortressSubState.Phaze3:
                                 _subStateEnd = DateTime.Now.AddMinutes(10);
                                 _fortressGates[6].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.Group(_baseGroup + 2, true, OnMonsterDead);
+                                _activeMobs = MonsterIA.InitGroup(_baseGroup + 2, OnMonsterDead);
                                 break;
                             case FortressSubState.StandBy4:
                                 if (_eventDay != (DayOfWeek)7)
                                     _subState = FortressSubState.End;
 
                                 _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.Group(_baseGroup + 2, false, OnMonsterDead);
+                                MonsterIA.DelGroup(_baseGroup + 2);
                                 _eventState.State = 4;
                                 break;
                             case FortressSubState.Phaze4:
                                 _subStateEnd = DateTime.Now.AddMinutes(10);
                                 _fortressGates[9].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.Group(_baseGroup + 3, true, OnMonsterDead);
+                                _activeMobs = MonsterIA.InitGroup(_baseGroup + 3, OnMonsterDead);
                                 break;
                             case FortressSubState.End:
                                 _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.Group(_baseGroup + 2, false, OnMonsterDead);
-                                MonsterIA.Group(_baseGroup + 3, false, OnMonsterDead);
+                                MonsterIA.DelGroup(_baseGroup + 2);
+                                MonsterIA.DelGroup(_baseGroup + 3);
                                 break;
 
                         }

@@ -28,7 +28,7 @@ namespace MuEmu.Events
     }
     public abstract class Event : StateMachine<EventState>
     {
-        protected ILogger _logger;
+        //protected ILogger _logger;
         protected TimeSpan _closedTime = TimeSpan.FromMinutes(2 * 60);
         protected TimeSpan _openTime = TimeSpan.FromMinutes(5);
         protected TimeSpan _playingTime = TimeSpan.FromMinutes(15);

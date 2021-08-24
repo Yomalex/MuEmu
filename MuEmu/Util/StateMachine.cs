@@ -1,4 +1,8 @@
-﻿using System;
+﻿using MU.Resources;
+using MuEmu.Resources;
+using Serilog;
+using Serilog.Core;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,6 +15,7 @@ namespace MuEmu.Util
         private T _nextState;
         private DateTimeOffset _nextStateIn;
         private DateTimeOffset _currentState;
+        protected ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(StateMachine<T>));
 
         public TimeSpan TimeLeft => _nextStateIn - DateTimeOffset.Now;
         public TimeSpan Time => DateTimeOffset.Now - _currentState;
@@ -22,6 +27,7 @@ namespace MuEmu.Util
             if (!_nextState.Equals(CurrentState) && _nextStateIn < DateTimeOffset.Now)
             {
                 var protectedState = _nextState;
+                _logger.Information(ServerMessages.GetMessage(Messages.Server_EventStateChange), CurrentState, _nextState);
                 OnTransition(_nextState);
                 CurrentState = protectedState;
             }
@@ -41,6 +47,16 @@ namespace MuEmu.Util
             _nextState = nextSate;
             _currentState = DateTimeOffset.Now;
             _nextStateIn = DateTimeOffset.Now.Add(@in);
+        }
+
+        public void ChangeState(T nextSate)
+        {
+            if (!nextSate.Equals(CurrentState))
+            {
+                var protectedState = nextSate;
+                OnTransition(_nextState);
+                CurrentState = protectedState;
+            }
         }
     }
 }

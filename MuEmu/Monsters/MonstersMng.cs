@@ -43,6 +43,7 @@ namespace MuEmu.Monsters
             var clearIndex = _clearIndex.FirstOrDefault();
             if (clearIndex != 0)
             {
+                _clearIndex.Remove(clearIndex);
                 return clearIndex;
             }
 
@@ -50,6 +51,17 @@ namespace MuEmu.Monsters
                 throw new OverflowException();
 
             return ++_lastUsedIndex;
+        }
+
+        public void DeleteMonster(Monster mob)
+        {
+            if (mob == null)
+                return;
+
+            _clearIndex.Add(mob.Index);
+            Monsters.Remove(mob);
+            mob.Map.DelMonster(mob);
+            mob.ViewPort.ForEach(x => x.Character.MonstersVP.Remove(mob.Index));
         }
 
         public void LoadMonster(string file)

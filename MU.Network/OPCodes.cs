@@ -252,6 +252,11 @@ namespace MU.Network
         CrywolfBenefit = 0x09BD,
 
         KanturuState = 0x00D1,
+        KanturuEnter = 0x01D1,
+        KanturuStateChange = 0x03D1,
+        KanturuBattleResult = 0x04D1,
+        KanturuBattleTime = 0x05D1,
+        KanturuMonsterUserCount = 0x07D1,
 
         ImperialGuardianEnter = 0x01F7,
         ImperialGuardianEnterResult = 0x02F7,

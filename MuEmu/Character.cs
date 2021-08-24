@@ -1791,7 +1791,7 @@ namespace MuEmu
 
         public void Dispose()
         {
-            Map.DelPlayer(this);
+            Map?.DelPlayer(this);
             Map = null;
 
             PartyManager.Remove(Player);

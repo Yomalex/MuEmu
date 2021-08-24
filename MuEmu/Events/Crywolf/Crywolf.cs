@@ -315,7 +315,7 @@ namespace MuEmu.Events.Crywolf
                                         AltarState = _altar.Values.Select(x => x.StateByte).ToArray(),
                                         StatueHP = (int)(_statueHPMax > 0 ? _statueHP / _statueHPMax : 0.0),
                                     }).Wait();
-                                    _monsterGroups.ForEach(x => MonsterIA.Group(x, true));
+                                    _monsterGroups.ForEach(x => MonsterIA.InitGroup(x));
                                 }
 
                                 if(State == CrywolfState.Ready)
@@ -354,7 +354,7 @@ namespace MuEmu.Events.Crywolf
 
                             if (_balgass != null && !_balgass.Active && _balgas <= DateTime.Now)
                             {
-                                _bossGroups.ForEach(x => MonsterIA.Group(x, true));
+                                _bossGroups.ForEach(x => MonsterIA.InitGroup(x));
                             }
 
                             _nextNotify = DateTime.Now.AddSeconds(2);
@@ -487,8 +487,6 @@ namespace MuEmu.Events.Crywolf
 
         public override void OnTransition(EventState NextState)
         {
-            _logger.Information("State:{0}->{1}", CurrentState, NextState);
-
             _mapInfo.SendAsync(new SCrywolfState
             {
                 Occupation = (byte)_occupation,
@@ -502,8 +500,8 @@ namespace MuEmu.Events.Crywolf
                     break;
                 case EventState.Closed:
                     {
-                        _monsterGroups.ForEach(x => MonsterIA.Group(x, false));
-                        _bossGroups.ForEach(x => MonsterIA.Group(x, false));
+                        _monsterGroups.ForEach(x => MonsterIA.DelGroup(x));
+                        _bossGroups.ForEach(x => MonsterIA.DelGroup(x));
                         foreach (var a in _altar.Values)
                         {
                             a.Left = 2;

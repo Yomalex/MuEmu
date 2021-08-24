@@ -11,6 +11,7 @@
     <Message ID="Server_MapAnnouncement" Message="Anuncio al mapa {0}:" />
     <Message ID="Server_NoEventMapAnnouncement" Message="Anuncio a mapas sin evento: {0}" />
     <Message ID="Server_Close" Message="Cerrando servidor" />
+    <Message ID="Server_EventStateChange" Message="Estatus:{0}->{1}" />
     <Message ID="RCache_Initialized" Message="Ya se inicializo" />
     <Message ID="RCache_Loading_Items" Message="Precargando Objetos..." />
     <Message ID="RCache_Loading_Spells" Message="Precargando Hechizos..." />
@@ -48,4 +49,9 @@
     <Message ID="Game_Warp2" Message="Necesitas tener {0}zen para ir." />
     <Message ID="Game_ChaosBoxMixError" Message="Necesitas organizar tu inventario." />
     <Message ID="Game_MonsterOutOfRange" Message="Mounstruo fuera de rango." />
+    <Message ID="Kanturu_CoreGateOpens" Message="La maquina portal abrira en 1 minuto." />
+    <Message ID="Kanturu_NextBattle" Message="La siguiente batalla empezara pronto" />
+    <Message ID="Kanturu_NightmareNotify"  Message="Derrota la pesadilla que controla al maya" />
+    <Message ID="Kanturu_Successfull" Message="{0} Ah derrotado a la pesadilla, ahora tienes accesso a la refineria" />
+    <Message ID="Kanturu_Fail" Message="Debido a que se ah agotado el tiempo, debemos regresar al area segura" />
 </ServerMessage>
