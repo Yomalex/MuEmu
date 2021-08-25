@@ -172,5 +172,18 @@ namespace MuEmu.Network
             Program.EventManager.GetEvent<ImperialGuardian>()
                 .TryAdd(session.Player);
         }
+
+        [MessageHandler(typeof(CMuRummyOpen))]
+        public void CMuRummyOpen(GSSession session)
+        {
+            session.SendAsync(new SMuRummyOpen
+            {
+                btResult = 1,
+                btEventTime1 = 0,
+                btEventTime2 = 0,
+                btEventTime3 = 0,
+                btEventTime4 = 0,
+            });
+        }
     }
 }

@@ -356,4 +356,14 @@ namespace MU.Network.Event
     {
         [WZMember(0)] public BannerType Type { get; set; }
     }
+
+    [WZContract]
+    public class SMuRummyOpen :IEventMessage
+    {
+        [WZMember(0)] public byte btResult { get; set; }
+        [WZMember(1)] public byte btEventTime1 { get; set; }
+        [WZMember(2)] public byte btEventTime2 { get; set; }
+        [WZMember(3)] public byte btEventTime3 { get; set; }
+        [WZMember(4)] public byte btEventTime4 { get; set; }
+    }
 }

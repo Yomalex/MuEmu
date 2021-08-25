@@ -82,4 +82,8 @@ namespace MU.Network.Event
     [WZContract]
     public class CImperialGuardianEnter : IEventMessage
     { }
+
+    [WZContract]
+    public class CMuRummyOpen : IEventMessage
+    { }
 }

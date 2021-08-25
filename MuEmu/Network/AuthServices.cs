@@ -295,8 +295,10 @@ namespace MuEmu.Network
                 Result = 0,
             });
 
-            await session.SendAsync(new SUBFInfo());
-            await session.SendAsync(new SSendBanner { Type = BannerType.UnityBattleField });
+            await session.SendAsync(new SUBFInfo { Result = 1 });
+            //await session.SendAsync(new SSendBanner { Type = BannerType.MuRummy });
+            //await session.SendAsync(new SSendBanner { Type = BannerType.EvenInven });
+            //await session.SendAsync(new SSendBanner { Type = BannerType.UnityBattleField });
 
             await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
 

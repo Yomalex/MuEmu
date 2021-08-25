@@ -192,6 +192,9 @@ namespace MU.Resources
         MultiShot = 235,
         LightingStorm = 237,
 
+        //RF Skills
+        SK260,
+
         // Master Level
         SoulBarrier1 = 435,
         SoulBarrier2,
@@ -301,12 +304,14 @@ namespace MU.Resources
         RageFighter = 8,
         GrowLancer = 16,
     }
-    public enum BannerType : byte
+    public enum BannerType : int
     {
         MuRummy,
         EvenInven,
-        Unk,
+        Evomon,
         UnityBattleField,
+        UnityBattleField2,
+        Unk,
     }
 
     public enum TradeResult : byte

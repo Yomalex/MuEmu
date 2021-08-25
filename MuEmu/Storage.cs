@@ -28,6 +28,8 @@ namespace MuEmu
         public uint Money { get; set; }
         public Dictionary<byte, Item> Items => _items;
 
+        public const int Expansion = 4 * 8;
+
         public Storage(int size, StorageID startIndex = StorageID.Equipament)
         {
             Size = size;

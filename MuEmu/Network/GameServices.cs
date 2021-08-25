@@ -2545,7 +2545,8 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CUsePopUpType))]
         public async Task CUsePopUpType(GSSession session)
         {
-            await session.SendAsync(new SUBFPopUpType { Type = 1 });
+            Logger.Information("Req PopUp Type");
+            await session.SendAsync(new SUBFPopUpType { Type = 0 });
         }
 
         [MessageHandler(typeof(CMemberPosInfoStart))]

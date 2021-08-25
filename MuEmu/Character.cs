@@ -705,6 +705,11 @@ namespace MuEmu
                 MaxAddPoints = MaxAddPoints,
                 MinusPoints = MinusPoints,
                 MaxMinusPoints = MaxMinusPoints,
+                ExpandedInv = characterDto.ExpandedInventory,
+                Ruud = 1,
+                ControlCode = (byte)CtlCode,
+                MapX = (byte)Position.X,
+                MapY = (byte)Position.Y,
             };
 
             CashShop = new CashShop(plr.Session, characterDto);

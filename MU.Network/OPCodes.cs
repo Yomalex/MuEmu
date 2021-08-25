@@ -263,6 +263,8 @@ namespace MU.Network
 
         ArcaBattleState = 0x38F8,
         Banner = 0x184D,
+
+        MuRummyOpen = 0x0F4D,
     }
     public enum CashOpCode : ushort
     {

@@ -75,6 +75,9 @@ namespace MU.Network.Event
 
             // Banner
             Register<SSendBanner>(EventOpCode.Banner);
+
+            // MuRummy
+            Register<CMuRummyOpen>(EventOpCode.MuRummyOpen);
         }
     }
 }

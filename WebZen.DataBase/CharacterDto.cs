@@ -64,6 +64,8 @@ namespace MU.DataBase
         [Column(TypeName = "INT(11)")]
         public uint Money { get; set; }
 
+        public byte ExpandedInventory { get; set; }
+
         // Inventory
         [NotMapped]
         public List<ItemDto> Items { get; set; }

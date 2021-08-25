@@ -139,7 +139,7 @@ namespace MuEmu
             Character = @char;
             Storages = new Dictionary<StorageID, object>();
             _equipament = new Dictionary<Equipament, Item>();
-            _inventory = new Storage(Storage.InventorySize, StorageID.Inventory);
+            _inventory = new Storage(Storage.InventorySize + Storage.Expansion*characterDto.ExpandedInventory, StorageID.Inventory);
             _personalShop = new Storage(Storage.TradeSize, StorageID.PersonalShop);
             if (@char != null)
             {
