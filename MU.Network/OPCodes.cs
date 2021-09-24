@@ -198,6 +198,10 @@ namespace MU.Network
         GremoryCaseDelete = 0x034F,
         GremoryCaseNotice = 0x044F,
         GremoryCaseOpen = 0x054F,
+        AcheronEnter = 0x20F8,
+        RefineJewel = 0x02EC,
+        PentagramaJewelIn = 0x00EC,
+        PentagramaJewelInOut = 0x04EC,
     }
 
     public enum GensOpCode

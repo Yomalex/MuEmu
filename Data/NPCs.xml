@@ -80,6 +80,14 @@
   <NPC NPC="546" Type="Window" Icon="Conversation" Data="9" />
   <!-- NPC Market Union Member Julia -->
   <NPC NPC="547" Type="Window" Icon="Conversation" Data="37" />
+  <!-- NPC Captain Slough -->
+  <NPC NPC="580" Type="Window" Icon="Conversation" Data="39" />
+  <!-- NPC  -->
+  <NPC NPC="581" Type="Talk" Icon="Conversation" Data="0" />
+  <!-- NPC Adniel -->
+  <NPC NPC="582" Type="Window" Icon="Conversation" Data="41" />
+  <!-- NPC Jin -->
+  <NPC NPC="583" Type="Shop" Icon="Elixir" Data="24" />
   <!-- NPC Sir Lesnar -->
   <NPC NPC="584" Type="Window" Icon="Conversation" Data="40" />
   <!-- NPC Private Store Bulletin Board -->

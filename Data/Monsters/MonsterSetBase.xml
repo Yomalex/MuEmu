@@ -55,6 +55,7 @@
   <NPC Type="242" Map="Noria" Radio="0" PosX="173" PosY="125" Dir="1">//Elf Lala</NPC>
   <NPC Type="243" Map="Noria" Radio="0" PosX="195" PosY="124" Dir="2">//Eo, Craftsman </NPC>
   <NPC Type="257" Map="Noria" Radio="0" PosX="167" PosY="118" Dir="1">//Elf Soldier</NPC>
+  <NPC Type="580" Map="Noria" Radio="0" PosX="196" PosY="113" Dir="1">//Captain Slough</NPC>
   <NPC Type="200" Map="Stadium" Radio="6" PosX="63" PosY="160" Dir="1">//Soccer Ball</NPC>
   <NPC Type="239" Map="Stadium" Radio="6" PosX="72" PosY="164" Dir="1">//Stadium Guard</NPC>
   <NPC Type="240" Map="Stadium" Radio="0" PosX="63" PosY="49" Dir="1">//Storage Guard</NPC>
@@ -119,6 +120,11 @@
   <NPC Type="473" Map="SantaTown" Radio="0" PosX="223" PosY="29" Dir="1">//Little Santa Black</NPC>
   <NPC Type="474" Map="SantaTown" Radio="0" PosX="213" PosY="27" Dir="1">//Little Santa Orange</NPC>
   <NPC Type="475" Map="SantaTown" Radio="0" PosX="214" PosY="17" Dir="1">//Little Santa Pink</NPC>
+  
+  <NPC Type="582" Map="Acheron" Radio="0" PosX="36" PosY="216" Dir="2">//Adniel</NPC>
+  <NPC Type="581" Map="Acheron" Radio="0" PosX="29" PosY="210" Dir="2">//Deruvish</NPC>
+  <NPC Type="240" Map="Acheron" Radio="0" PosX="50" PosY="184" Dir="3">//Baz, Storage Guard</NPC>
+  <NPC Type="583" Map="Acheron" Radio="0" PosX="52" PosY="195" Dir="2">//Jin</NPC>
 
   <NPC Type="240" Map="LorenMarket" Radio="0" PosX="115" PosY="144" Dir="1">//Little Santa Pink</NPC>
   <NPC Type="240" Map="LorenMarket" Radio="0" PosX="147" PosY="115" Dir="1">//Little Santa Pink</NPC>
@@ -355,6 +361,41 @@
   <Spot Type="48" Map="Atlans" Radio="30" PosX="49" PosY="71" PosX2="49" PosY2="71" Dir="-1" Quant="15">// LizardKing<Element>None</Element></Spot>
   <Spot Type="47" Map="Atlans" Radio="30" PosX="56" PosY="46" PosX2="56" PosY2="46" Dir="-1" Quant="15">// Valkyrie<Element>None</Element></Spot>
   <Spot Type="46" Map="Atlans" Radio="30" PosX="78" PosY="43" PosX2="78" PosY2="43" Dir="-1" Quant="15">// Vepar<Element>None</Element></Spot>
+
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="152" PosY="137" PosX2="158" PosY2="143" Dir="-1" Quant="1">
+    <Element>Fire</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="155" PosY="135" PosX2="159" PosY2="146" Dir="-1" Quant="1">
+    <Element>Fire</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="152" PosY="145" PosX2="157" PosY2="151" Dir="-1" Quant="1">
+    <Element>Fire</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="157" PosY="146" PosX2="162" PosY2="153" Dir="-1" Quant="1">
+    <Element>Fire</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="47" PosY="134" PosX2="52" PosY2="139" Dir="-1" Quant="1">
+    <Element>Water</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="50" PosY="131" PosX2="57" PosY2="137" Dir="-1" Quant="1">
+    <Element>Water</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="52" PosY="138" PosX2="60" PosY2="143" Dir="-1" Quant="1">
+    <Element>Water</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="57" PosY="131" PosX2="65" PosY2="140" Dir="-1" Quant="1">
+    <Element>Water</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="31" PosY="115" PosX2="37" PosY2="121" Dir="-1" Quant="1">
+    <Element>Earth</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="31" PosY="109" PosX2="37" PosY2="115" Dir="-1" Quant="1">
+    <Element>Earth</Element>
+  </Spot>
+  <Spot Type="586" Map="Acheron" Radio="30" PosX="34" PosY="107" PosX2="46" PosY2="113" Dir="-1" Quant="1">
+    <Element>Earth</Element>
+  </Spot>
+
   <Normal Type="5" Map="Dugeon" Radio="30" PosX="170" PosY="126" Dir="-1">//Hell Hound</Normal>
   <Normal Type="5" Map="Dugeon" Radio="30" PosX="163" PosY="114" Dir="-1">//Hell Hound</Normal>
   <Normal Type="5" Map="Dugeon" Radio="30" PosX="163" PosY="125" Dir="-1">//Hell Hound</Normal>

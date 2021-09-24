@@ -400,7 +400,7 @@ namespace MuEmu
                             if (cantDrop)
                                 continue;
 
-                            dropItem = new Item(it.Number, 0, new { it.Plus });
+                            dropItem = new Item(it.Number, new { it.Plus });
                             break;
                         }
 

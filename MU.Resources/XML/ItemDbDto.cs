@@ -36,7 +36,7 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute] public ushort DefenseRate { get; set; }
 
-        [XmlAttribute] public string Dmg { get; set; }
+        [XmlAttribute] public string Dmg { get; set; } = "0-0";
 
         [XmlAttribute] public int Speed { get; set; }
 
@@ -60,7 +60,9 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute] public string ReqClass { get; set; }
         [XmlAttribute] public int Zen { get; set; }
-        
-        [XmlAttribute] public string Attributes { get; set; }        
+
+        [XmlAttribute] public string Attributes { get; set; } = "";
+        [XmlAttribute] public byte MaxStack { get; set; } = 0;
+        [XmlAttribute] public ushort OnMaxStack { get; set; } = 0xffff;
     }
 }

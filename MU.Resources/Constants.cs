@@ -100,6 +100,19 @@ namespace MU.Resources
         Kanturu_Successfull,
         Kanturu_Fail,
         Server_EventStateChange,
+        IV_IndexAlreadyUsed,
+        IVEX_AlreadyEquiped,
+        IVEX_NeedMoreAgility,
+        IVEX_NeedMoreEnergy,
+        IVEX_NeedMoreCommand,
+        IVEX_CharNotLogged,
+        IVEX_NeedMoreVitality,
+        IVEX_UnequipNoEquiped,
+        IV_MoveItem,
+        IVEX_NeedMoreStrength,
+        IV_CantMove,
+        IVEX_PentagramTradeLimit,
+        IV_DBSaveDeletingItem,
     }
     public enum Spell : ushort
     {
@@ -193,7 +206,17 @@ namespace MU.Resources
         LightingStorm = 237,
 
         //RF Skills
-        SK260,
+        KillingBlow = 260,
+        BeastUppercut,
+        ChainDrive,
+        DarkSide,
+        DragonRoar,
+        DragonSlasher,
+        IgnoreDefense,
+        IncreaseHealth,
+        IncreaseBlock,
+        Charge,
+        PhoenixShot,
 
         // Master Level
         SoulBarrier1 = 435,
@@ -321,13 +344,17 @@ namespace MU.Resources
         InventoryFull = 2,
         CantTradeHarmonized = 4,
     }
-    public enum StorageID
+    public enum StorageID : int
     {
         Equipament,
-        Inventory = 12,
-        PersonalShop = 76,
+        Inventory = 12,// Size 64
+        ExpandedInventory1 = 76, // Size 32
+        ExpandedInventory2 = 108, // Size 32
+        PersonalShop = 140, // Size 32
         ChaosBox,
         TradeBox,
+        Pentagram,
+        Warehouse
     }
 
     public enum LoginStatus
@@ -541,7 +568,8 @@ namespace MU.Resources
         Pendant,
         RightRing,
         LeftRing,
-        End
+        End,
+        Pentagrama = 236,
     }
 
 
@@ -700,6 +728,8 @@ namespace MU.Resources
         ChaosBox,
         PersonalShop,
         DarkTrainer = 5,
+        ElpisBox,
+        PentagramBox = 17,
     }
 
     public enum NoticeType : byte
@@ -998,6 +1028,15 @@ namespace MU.Resources
         UserClassLow,
         NoBcCorrectItems,
         BcInsufficientMoney,
+
+        PentagramaUpgradeFail = 0xE1,
+        PentagramaRefineFail,
+        PentagramaFailWithTalisman,
+        PentagramaSuccessNotFound = 0xF8,
+        PentagramaInsufficientMoney,
+        PentagramaLackingItems,
+        PentagramaAttributeMissMatch,
+        PentagramaRefineNotFound,
     }
 
     public enum ChaosMixType
@@ -1116,5 +1155,16 @@ namespace MU.Resources
         ItemBlocked,
         LackOfZen,
         ExceedingZen,
+    }
+}
+
+namespace MU.Resources
+{
+    public enum PIGrade
+    {
+        None,
+        Common,
+        Unique,
+        Rare,
     }
 }

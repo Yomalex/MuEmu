@@ -3,7 +3,6 @@ using MU.Resources;
 using MuEmu.Entity;
 using MuEmu.Network;
 using MU.Network.Game;
-using MU.Resources;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -12,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MuEmu.Util;
+using MuEmu.Resources;
 
 namespace MuEmu
 {
@@ -34,6 +35,7 @@ namespace MuEmu
         private Storage _chaosBox;
         private Storage _personalShop;
         private Storage _tradeBox;
+        private List<Item> _pentagrama;
         private List<Item> _forDelete;
         private bool _needSave;
         private int _defense;
@@ -78,11 +80,80 @@ namespace MuEmu
         private bool _tradeOpen;
         private List<Transaction> _transactions = new List<Transaction>();
 
+        public PentagramJewelDto[] JewelList => GetJewelsInfo().ToArray();
+
         public Item ItemMoved { get; private set; }
 
         public Item Arrows { get; private set; }
 
         public bool Lock { get; set; }
+
+        public Inventory(Character @char, CharacterDto characterDto)
+        {
+            Character = @char;
+            Storages = new Dictionary<StorageID, object>();
+            _equipament = new Dictionary<Equipament, Item>();
+            _inventory = new Storage(Storage.InventorySize + Storage.Expansion*characterDto.ExpandedInventory, StorageID.Inventory);
+            _personalShop = new Storage(Storage.TradeSize, StorageID.PersonalShop);
+            _pentagrama = new List<Item>();
+            if (@char != null)
+            {
+                _chaosBox = new Storage(Storage.ChaosBoxSize);
+                _tradeBox = new Storage(Storage.TradeSize);
+            }
+            _forDelete = new List<Item>();
+            Storages.Add(StorageID.Equipament, _equipament);
+            Storages.Add(StorageID.Inventory, _inventory);
+            Storages.Add(StorageID.PersonalShop, _personalShop);
+            Storages.Add(StorageID.Pentagram, _pentagrama);
+
+            foreach (var item in characterDto.Items)
+            {
+                if (item.VaultId == 10 || item.VaultId == (int)StorageID.Warehouse)
+                    continue;
+
+                if (item.VaultId == 0)
+                {
+                    if (item.SlotId < (int)StorageID.Inventory || item.SlotId == (byte)Equipament.Pentagrama)
+                        item.VaultId = 0;
+                    else if (item.SlotId < (int)StorageID.PersonalShop)
+                        item.VaultId = (int)StorageID.Inventory;
+                    else
+                        item.VaultId = (int)StorageID.PersonalShop;
+                }
+
+                var it = new Item(item, @char?.Account, @char);
+                object st;
+                var pos = (byte)it.SlotId;
+                if(Storages.TryGetValue(it.Storage, out st))
+                {
+                    if(it.Storage == StorageID.Equipament)
+                    {
+                        var sto = st as Dictionary<Equipament, Item>;
+                        if (pos < (byte)StorageID.Inventory || pos == (byte)Equipament.Pentagrama)
+                        {
+                            if (!sto.ContainsKey((Equipament)pos))
+                                sto.Add((Equipament)pos, it);
+                            else
+                                _logger.Error(ServerMessages.GetMessage(Messages.IV_IndexAlreadyUsed, Character, (Equipament)pos));
+
+                            if (it.Number.Type == ItemType.BowOrCrossbow && (it.Number.Index == 7 || it.Number.Index == 15))
+                                Arrows = it;
+                        }
+                    }
+                    else if(it.Storage == StorageID.Pentagram)
+                    {
+                        var sto = st as List<Item>;
+                        sto.Add(it);
+                    }
+                    else
+                    {
+                        var sto = st as Storage;
+                        sto.Add(pos, it);
+                    }
+                }
+            }
+        }
 
         public byte[] FindAll(ItemNumber num)
         {
@@ -98,7 +169,7 @@ namespace MuEmu
             {
                 if (inv.Value.Number == num)
                 {
-                    res.Add((byte)(inv.Key+_inventory.IndexTranslate));
+                    res.Add((byte)(inv.Key + _inventory.IndexTranslate));
                 }
             }
             return res.ToArray();
@@ -123,48 +194,15 @@ namespace MuEmu
             }
             return res;
         }
-        
+
         public bool TryAdd()
         {
-            return _inventory.TryAdd(new System.Drawing.Size(5,3));
+            return _inventory.TryAdd(new System.Drawing.Size(5, 3));
         }
 
         public bool TryAdd(IEnumerable<Item> items)
         {
             return _inventory.TryAdd(items.Select(x => x.BasicInfo.Size).ToArray());
-        }
-
-        public Inventory(Character @char, CharacterDto characterDto)
-        {
-            Character = @char;
-            Storages = new Dictionary<StorageID, object>();
-            _equipament = new Dictionary<Equipament, Item>();
-            _inventory = new Storage(Storage.InventorySize + Storage.Expansion*characterDto.ExpandedInventory, StorageID.Inventory);
-            _personalShop = new Storage(Storage.TradeSize, StorageID.PersonalShop);
-            if (@char != null)
-            {
-                _chaosBox = new Storage(Storage.ChaosBoxSize);
-                _tradeBox = new Storage(Storage.TradeSize);
-            }
-            _forDelete = new List<Item>();
-            Storages.Add(StorageID.Equipament, _equipament);
-            Storages.Add(StorageID.Inventory, _inventory);
-            Storages.Add(StorageID.PersonalShop, _personalShop);
-
-            foreach (var item in characterDto.Items.Where(x => x.VaultId == 0))
-            {
-                var it = new Item(item, @char?.Account, @char);
-                try
-                {
-                    Add((byte)item.SlotId, it, false);
-                }catch(Exception)
-                {
-                    if(Add(it) == 0xff)
-                    {
-                        _forDelete.Add(it);
-                    }
-                }
-            }
         }
 
         private void Add(byte pos, Item item, bool save = true)
@@ -183,7 +221,7 @@ namespace MuEmu
                 else
                 {
                     var sto = st.Value as Dictionary<Equipament, Item>;
-                    if (pos < (byte)StorageID.Inventory)
+                    if (pos < (byte)StorageID.Inventory || pos == (byte)Equipament.Pentagrama)
                     {
                         sto.Add((Equipament)pos, item);
                         if (item.Number.Type == ItemType.BowOrCrossbow && (item.Number.Index == 7 || item.Number.Index == 15))
@@ -259,33 +297,32 @@ namespace MuEmu
         {
             var bslot = (byte)slot;
             if (_equipament.ContainsKey(slot))
-            //if(_inventory.Items.ContainsKey(bslot))
-                throw new InvalidOperationException("Trying to equip already equiped slot:"+slot);
+                throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_AlreadyEquiped,slot));
 
             if (Character != null)
             {
                 if (item.ReqStrength > Character.StrengthTotal)
-                    throw new InvalidOperationException("Need more Strength: req "+ item.ReqStrength);
+                    throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_NeedMoreStrength, item.ReqStrength));
 
                 if (item.ReqAgility > Character.AgilityTotal)
-                    throw new InvalidOperationException("Need more Agility: req " + item.ReqAgility);
+                    throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_NeedMoreAgility, item.ReqAgility));
 
                 if (item.ReqVitality > Character.VitalityTotal)
-                    throw new InvalidOperationException("Need more Vitality: req " + item.ReqVitality);
+                    throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_NeedMoreVitality, item.ReqVitality));
 
                 if (item.ReqEnergy > Character.EnergyTotal)
-                    throw new InvalidOperationException("Need more Energy: req " + item.ReqEnergy);
+                    throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_NeedMoreEnergy, item.ReqEnergy));
 
                 if (item.ReqCommand > Character.CommandTotal)
-                    throw new InvalidOperationException("Need more Command: req " + item.ReqCommand);
+                    throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_NeedMoreCommand, item.ReqCommand));
             }
             else
             {
-                throw new InvalidOperationException("No character logged");
+                throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_CharNotLogged, item.ReqCommand));
             }
 
             item.SlotId = (int)slot;
-            item.VaultId = 0;
+            item.Storage = StorageID.Equipament;
             _equipament.Add(slot, item);
             item.ApplyEffects(Character);
             item.Character = Character;
@@ -296,12 +333,13 @@ namespace MuEmu
 
             CalcStats();
             Character.ObjCalc();
+            Character.Change = true;
         }
 
         public Item Unequip(Equipament slot)
         {
             if(!_equipament.ContainsKey(slot))
-                throw new InvalidOperationException("Trying to unequip no equiped slot:"+slot);
+                throw new InvalidOperationException(ServerMessages.GetMessage(Messages.IVEX_UnequipNoEquiped, slot));
 
             var item = _equipament[slot];
             _equipament.Remove(slot);
@@ -312,6 +350,8 @@ namespace MuEmu
             Character.ObjCalc();
             if (Arrows == item)
                 Arrows = null;
+
+            Character.Change = true;
 
             return item;
         }
@@ -337,6 +377,9 @@ namespace MuEmu
                 case MoveItemFlags.Trade:
                     sFrom = _tradeBox;
                     break;
+                default:
+                    sFrom = _chaosBox;
+                    break;
             }
             switch (to)
             {
@@ -356,6 +399,9 @@ namespace MuEmu
                 case MoveItemFlags.Trade:
                     sTo = _tradeBox;
                     break;
+                default:
+                    sTo = _chaosBox;
+                    break;
             }
 
             if (sFrom == null || sTo == null)
@@ -363,7 +409,7 @@ namespace MuEmu
 
             Item it = null;
 
-            if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
+            if (from == MoveItemFlags.Inventory && (fromIndex < (byte)Equipament.End || fromIndex == (byte)Equipament.Pentagrama))
             {
                 it = Unequip((Equipament)fromIndex);
             }
@@ -374,16 +420,16 @@ namespace MuEmu
             }
             it.Account = Character.Account;
 
-            Log.Debug("Move item {0}:{1} {4} to {2}:{3}", from, fromIndex, to, toIndex, it.ToString());
+            Log.Debug(ServerMessages.GetMessage(Messages.IV_MoveItem, from, fromIndex, to, toIndex, it.ToString()));
 
-            if (to == MoveItemFlags.Inventory && toIndex < (byte)Equipament.End)
+            if (to == MoveItemFlags.Inventory && (toIndex < (byte)Equipament.End || toIndex == (byte)Equipament.Pentagrama))
             {
                 try
                 {
                     Equip((Equipament)toIndex, it);
                 }catch(Exception ex)
                 {
-                    Log.Logger.Error(ex, "Can't move, rolling back");
+                    Log.Logger.Error(ex, ServerMessages.GetMessage(Messages.IV_CantMove));
                     if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
                     {
                         Equip((Equipament)fromIndex, it);
@@ -403,18 +449,36 @@ namespace MuEmu
 
                     if (to == MoveItemFlags.Warehouse)
                     {
-                        it.VaultId = Character.Account.ID * 10 + Character.Account.ActiveVault;
+                        it.Storage = StorageID.Warehouse;
                         it.Character = null;
                     }
                     else
                     {
-                        it.VaultId = 0;
                         it.Character = Character;
+                        switch(to)
+                        {
+                            case MoveItemFlags.ChaosBox:
+                            case MoveItemFlags.DarkTrainer:
+                            case MoveItemFlags.ElpisBox:
+                                it.Storage = StorageID.ChaosBox;
+                                break;
+                            case MoveItemFlags.PersonalShop:
+                                it.Storage = StorageID.PersonalShop;
+                                break;
+                            case MoveItemFlags.Trade:
+                                it.Storage = StorageID.TradeBox;
+                                if ((it.IsPentagramItem || it.IsPentagramJewel) && it.Durability < 1)
+                                    throw new Exception(ServerMessages.GetMessage(Messages.IVEX_PentagramTradeLimit));
+                                break;
+                            default:
+                                it.Storage = StorageID.Inventory;
+                                break;
+                        }
                     }
 
                 }catch (Exception ex)
                 {
-                    Log.Logger.Error(ex, "Can't move, rolling back");
+                    Log.Logger.Error(ex, ServerMessages.GetMessage(Messages.IV_CantMove));
                     if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
                     {
                         Equip((Equipament)fromIndex, it);
@@ -450,7 +514,7 @@ namespace MuEmu
             foreach (var t in clone)
             {
                 if (Move(t.To, t.toIndex, t.From, t.fromIndex) == false)
-                    throw new Exception("Can't rollback transactions");
+                    throw new Exception(ServerMessages.GetMessage(Messages.IV_CantMove));
             }
         }
 
@@ -459,15 +523,12 @@ namespace MuEmu
             if (_inventory.CanContain(from))
                 return _inventory.Get(from);
 
-            if (from < 12)
-                return _equipament[(Equipament)from];
-
-            return null;
+            return Get((Equipament)from);
         }
 
         public Item Get(Equipament from)
         {
-            if (from < Equipament.End && _equipament.ContainsKey(from))
+            if (_equipament.ContainsKey(from))
                 return _equipament[from];
 
             return null;
@@ -555,6 +616,12 @@ namespace MuEmu
             {
                 await Delete((byte)(_tradeBox.Items.First(x => x.Value == item).Key + _tradeBox.IndexTranslate), send);
             }
+        }
+
+        public async void SendJewelsInfo()
+        {
+            await Character.Player.Session.SendAsync(new SPentagramJewelInfo(0, JewelList));
+            await Character.Player.Session.SendAsync(new SPentagramJewelInfo(1, JewelList));
         }
         
         public async void SendInventory()
@@ -884,7 +951,7 @@ namespace MuEmu
                 if (_forDelete.Any())
                 {
                     _forDelete.ForEach(x => x.Delete(db));
-                    _log.Information("Deleting {0} items", _forDelete.Count());
+                    _log.Information(ServerMessages.GetMessage(Messages.IV_DBSaveDeletingItem, _forDelete.Count()));
 
                     _forDelete.Clear();
                 }
@@ -920,5 +987,80 @@ namespace MuEmu
         }
 
         public void DeleteChaosBox() => DeleteAll(ChaosBox);
+
+        private IEnumerable<PentagramJewelDto> GetJewelsInfo()
+        {
+            byte index = 0;
+            foreach(var x in _pentagrama)
+            {
+                var tmp = new PentagramJewelDto
+                {
+                    MainAttribute = (byte)x.PentagramaMainAttribute,
+                    ItemIndex = x.Number.Index,
+                    ItemType = (byte)x.Number.Type,
+                    JewelIndex = index,
+                    JewelPos = 0,
+                    Level = x.Plus,
+                    Rank1Level = 0xf,
+                    Rank1OptionNum = 0xf,
+                    Rank2Level = 0xf,
+                    Rank2OptionNum = 0xf,
+                    Rank3Level = 0xf,
+                    Rank3OptionNum = 0xf,
+                    Rank4Level = 0xf,
+                    Rank4OptionNum = 0xf,
+                    Rank5Level = 0xf,
+                    Rank5OptionNum = 0xf,
+                };
+                index++;
+                var n = 1;
+                foreach (var a in x.Slots)
+                {
+                    tmp.Set($"Rank{n}OptionNum", (byte)((byte)a & 0x0F));
+                    tmp.Set($"Rank{n}Level", (byte)(((byte)a & 0xF0) >> 4));
+                }
+                yield return tmp;
+            }
+        }
+
+        internal int AddPentagramJewel(Item pItem, Item pJewel, int pos)
+        {
+            pItem.PentagramJewels[pos] = pJewel.Serial;
+            var index = _pentagrama.Count;
+            pJewel.Storage = StorageID.Pentagram;
+            pJewel.SlotId = index;
+            _pentagrama.Add(pJewel);
+            return index;
+        }
+
+        internal IEnumerable<Item> GetPenagramJewels(Item pItem)
+        {
+            foreach ( var j in _pentagrama.ToList())
+            {
+                if (pItem.PentagramJewels.Any(x => x == j.Serial))
+                    yield return j;
+            }
+        }
+
+        internal int DelPentagramJewel(Item pItem, Item pJewel)
+        {
+            //pItem.PentagramJewels[pos] = pJewel.Serial;
+            var index = _pentagrama.Count;
+            pJewel.Storage = StorageID.Pentagram;
+            pJewel.SlotId = index;
+            _pentagrama.Add(pJewel);
+            return index;
+        }
+
+        internal void TransferPentagram(Item pItem, Inventory inv)
+        {
+            pItem.Durability--;
+            foreach (var j in GetPenagramJewels(pItem))
+            {
+                _pentagrama.Remove(j);
+                j.SlotId = inv._pentagrama.Count;
+                inv._pentagrama.Add(j);
+            }
+        }
     }
 }

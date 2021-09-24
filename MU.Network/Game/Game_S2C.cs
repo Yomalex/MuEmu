@@ -2145,21 +2145,80 @@ namespace MU.Network.Game
     }
 
     [WZContract]
-    public class GPShopSearchItem : IGameMessage
+    public class SPShopSearchItem : IGameMessage
     {
         [WZMember(0)] public int iPShopCnt { get; set; }
         [WZMember(1)] public byte btContinueFlag { get; set; }
-        [WZMember(2, typeof(ArraySerializer))] public GPShopSearchItemDto[] List { get; set; }
+        [WZMember(2, typeof(ArraySerializer))] public SPShopSearchItemDto[] List { get; set; }
     }
 
     [WZContract]
-    public class GPShopSearchItemDto
+    public class SPShopSearchItemDto
     {
         [WZMember(0)] public ushort wzNumber { get; set; }
         [WZMember(1, typeof(BinaryStringSerializer), 11)] public string szName { get; set; } //11
         [WZMember(2, typeof(BinaryStringSerializer), 37)] public string szPShopText { get; set; } //[37];
 
         public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+    }
+
+    [WZContract]
+    public class GRefineJewel : IGameMessage
+    {
+
+    }
+
+    [WZContract]
+    public class PentagramJewelDto
+    {
+        [WZMember(1)] public byte JewelPos { get; set; }
+        [WZMember(2)] public byte JewelIndex { get; set; }
+        [WZMember(3)] public byte MainAttribute { get; set; }
+        [WZMember(4)] public byte ItemType { get; set; }
+        [WZMember(5)] public ushort ItemIndex { get; set; }
+        [WZMember(6)] public byte Level { get; set; }
+        [WZMember(7)] public byte Rank1OptionNum { get; set; }
+        [WZMember(8)] public byte Rank1Level { get; set; }
+        [WZMember(9)] public byte Rank2OptionNum { get; set; }
+        [WZMember(10)] public byte Rank2Level { get; set; }
+        [WZMember(11)] public byte Rank3OptionNum { get; set; }
+        [WZMember(12)] public byte Rank3Level { get; set; }
+        [WZMember(13)] public byte Rank4OptionNum { get; set; }
+        [WZMember(14)] public byte Rank4Level { get; set; }
+        [WZMember(15)] public byte Rank5OptionNum { get; set; }
+        [WZMember(16)] public byte Rank5Level { get; set; }
+    }
+
+    [WZContract]
+    public class SPentagramJewelIn : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public PentagramJewelDto Info { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPentagramJewelInfo : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte JewelCnt { get; set; }
+        [WZMember(2)] public byte JewelPos { get; set; }
+        [WZMember(3, typeof(ArraySerializer))] public PentagramJewelDto[] JewelsDto { get; set; }
+
+        public SPentagramJewelInfo() { }
+        public SPentagramJewelInfo(byte jPos, PentagramJewelDto[] array)
+        {
+            var subArray = array.Where(x => x.JewelPos == jPos).ToArray();
+            JewelsDto = subArray;
+            Result = (byte)(subArray.Length > 0 ? 1 : 0);
+            JewelCnt = (byte)subArray.Length;
+            JewelPos = jPos;
+        }
+    }
+
+    [WZContract]
+    public class SPentagramJewelInOut : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
     }
 }
 

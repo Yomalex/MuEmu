@@ -113,6 +113,8 @@ namespace MuEmu.Network.ConnectServer
             {
                 _client.Client.Disconnect(false);
             }
+            catch(Exception)
+            { }
         }
     }
 }

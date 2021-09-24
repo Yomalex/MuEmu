@@ -185,6 +185,7 @@ namespace MuEmu
                 SubSystem.Initialize();
                 Marlon.Initialize();
                 CashShop.Initialize(512, 2014, 124);
+                Pentagrama.Initialize();
             }
             catch(MySql.Data.MySqlClient.MySqlException ex)
             {
@@ -275,6 +276,9 @@ namespace MuEmu
         {
             GlobalEventsManager = new GlobalEvents();
             GoldenInvasionManager = new GoldenInvasion();
+
+            if (xml.Events == null)
+                return;
 
             foreach(var e in xml.Events)
             {

@@ -49,5 +49,10 @@ namespace MU.DataBase
         public byte HarmonyOption { get; set; }
 
         public string SocketOptions { get; set; }
+
+        [Column(TypeName = "TINYINT(1) UNSIGNED")]
+        public byte SocketBonus { get; set; }
+
+        public string PJewels { get; set; }
     }
 }

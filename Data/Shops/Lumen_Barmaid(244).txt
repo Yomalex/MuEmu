@@ -23,4 +23,5 @@
 13 	42 	0 	255 0	0 	0 	0 		//Gm Ring
 13 	68 	0 	255 0	0 	0 	0 		//Snowman Ring
 13 53 0 0 0 0 0 0 //Feather of Condor
+12 200 0 255 0 0 0 0
 end

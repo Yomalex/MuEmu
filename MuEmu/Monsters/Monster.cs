@@ -588,19 +588,22 @@ namespace MuEmu.Monsters
                 default:
                     if (_rand.Next(100) < Program.DropRate && CanDrop)
                     {
-                        if (_rand.Next(2) == 0 && ItemBag.Count > 0)
+                        if (_rand.Next(2) == 0)
                         {
                             reward = Program.GlobalEventsManager.GetItem(Level, MapID);
+
                             if (reward == null)
+                                reward = Pentagrama.Drop(this);
+
+                            if (reward == null && ItemBag.Count > 0)
                             {
                                 reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
                                 reward.NewOptionRand();
                             }
                         }
-                        else
-                        {
+
+                        if(reward == null)
                             reward = Item.Zen((uint)Zen);
-                        }
                     }
                     break;
             }
@@ -738,7 +741,7 @@ namespace MuEmu.Monsters
                             else
                                 Plus = 6;
 
-                            ItemBag.Add(new Item(itNum, 0, new { Plus }));
+                            ItemBag.Add(new Item(itNum, new { Plus }));
                         }
                         else
                         {

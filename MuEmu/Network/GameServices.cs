@@ -716,7 +716,7 @@ namespace MuEmu.Network
                         {
                             Source.Durability -= (byte)(5 - Target.Durability);
                         }
-                        var LostMap = new Item(new ItemNumber(7196), 0, new { Source.Plus });
+                        var LostMap = new Item(new ItemNumber(7196), new { Source.Plus });
                         inv.Delete(message.Dest);
                         inv.Add(LostMap);
                     }
@@ -832,34 +832,42 @@ namespace MuEmu.Network
                 {
                     case 7197://Symbol of Kundun
                         {
-                            var result = @char.Inventory.FindAllItems(ItemNumber.FromTypeIndex(14, 29));
+                            var result = @char.Inventory.FindAllItems(item.Item.Number);
                             var firts = (from r in result
                                         where r.Plus == item.Item.Plus && r.Durability < 5
                                         select r).FirstOrDefault();
 
                             if (firts != null)
                             {
-                                if (firts.Durability + item.Item.Durability <= 5)
-                                    firts.Overlap(item.Item.Durability);
-                                else
+                                try
                                 {
-                                    var left = (byte)(5 - firts.Durability);
-                                    item.Item.Overlap((byte)(-left));
-                                    firts.Overlap(left);
+                                    firts.Overlap(item.Item);
+                                    if (firts.Durability == 5)
+                                    {
+                                        await @char.Inventory.Delete(firts);
+                                        var lostMap = new Item(new ItemNumber(7196), Options: new { Plus = firts.Plus });
+                                        pos = @char.Inventory.Add(lostMap);
+                                        await session.SendAsync(new SItemGet { ItemInfo = lostMap.GetBytes(), Result = pos });
+                                    }
+                                    else
+                                    {
+                                        await session.SendAsync(new SItemGet { ItemInfo = firts.GetBytes(), Result = (byte)firts.SlotId });
+                                    }
+                                    if(item.Item.Durability != 0)
+                                    { 
+                                        pos = @char.Inventory.Add(item.Item);
+                                        if (pos == 0xff)
+                                        {
+                                            await session.SendAsync(new SItemGet { Result = 0xff });
+                                            goto _end;
+                                        }
+                                        await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
+                                        item.State = ItemState.Deleted;
+                                    }
                                 }
-                                firts.OnItemChange();
-
-                                if (firts.Durability == 5)
-                                {
-                                    await @char.Inventory.Delete(firts);
-                                    var lostMap = new Item(new ItemNumber(7196), Options: new { Plus = firts.Plus });
-                                    pos=@char.Inventory.Add(lostMap);
-                                    await session.SendAsync(new SItemGet { ItemInfo = lostMap.GetBytes(), Result = pos });
-                                }
-                                else
-                                {
-                                    await session.SendAsync(new SItemGet { ItemInfo = firts.GetBytes(), Result = (byte)firts.SlotId });
-                                }
+                                catch (Exception)
+                                { }
+                                
                                 goto _end;
                             }
                         }
@@ -872,6 +880,7 @@ namespace MuEmu.Network
                     return;
                 }
                 await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
+                item.State = ItemState.Deleted;
             }
             else
             {
@@ -879,7 +888,6 @@ namespace MuEmu.Network
             }
 
             _end:
-            item.State = ItemState.Deleted;
             var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
             await session.SendAsync(msg);
             session.Player.SendV2Message(msg);
@@ -1776,7 +1784,7 @@ namespace MuEmu.Network
                 @char.Inventory.Delete(i).Wait();
             }
 
-            @char.Inventory.Add(new Item(new ItemNumber(12, (ushort)(30 + message.JewelType)), 0, new { Plus = message.JewelMix }));
+            @char.Inventory.Add(new Item(new ItemNumber(12, (ushort)(30 + message.JewelType)), new { Plus = message.JewelMix }));
             @char.Inventory.SendInventory();
             session.SendAsync(new SJewelMix(1)).Wait();
         }
@@ -1910,7 +1918,7 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CTeleportS9))]
         public async Task CTeleportS9(GSSession session, CTeleportS9 message)
         {
-            await CTeleport(session, new CTeleport { MoveNumber = message.MoveNumber.ShufleEnding(), X = message.X, Y = message.Y });
+            await CTeleport(session, new CTeleport { MoveNumber = message.MoveNumber, X = message.X, Y = message.Y });
         }
 
         [MessageHandler(typeof(CTeleport))]
@@ -2476,11 +2484,15 @@ namespace MuEmu.Network
             foreach (var it in char2.Inventory.TradeBox.Items.Values)
             {
                 char1.Inventory.Add(it);
+                if (it.IsPentagramItem || it.IsPentagramJewel)
+                    char2.Inventory.TransferPentagram(it, char1.Inventory);
             }
 
             foreach (var it in char1.Inventory.TradeBox.Items.Values)
             {
                 char2.Inventory.Add(it);
+                if (it.IsPentagramItem || it.IsPentagramJewel)
+                    char1.Inventory.TransferPentagram(it, char2.Inventory);
             }
 
             char1.Money += char2.Inventory.TradeBox.Money;
@@ -2666,16 +2678,163 @@ namespace MuEmu.Network
 
             shopList = shopList.Skip(message.iLastCount).Take(50);
 
-            await session.SendAsync(new GPShopSearchItem
+            await session.SendAsync(new SPShopSearchItem
             {
                 iPShopCnt = shopList.Count(),
                 btContinueFlag = (byte)(shopList.Count() == 50 ? 1 : 0),
-                List = shopList.Select(x => new GPShopSearchItemDto
+                List = shopList.Select(x => new SPShopSearchItemDto
                 {
                     Number = x.Chararacter.Player.ID,
                     szName = x.Chararacter.Name,
                     szPShopText = x.Name,
                 }).ToArray()
+            });
+        }
+
+        [MessageHandler(typeof(CAcheronEnterReq))]
+        public async Task CAcheronEnterReq(GSSession session)
+        {
+            var it = session
+                .Player
+                .Character
+                .Inventory
+                .FindAllItems(ItemNumber.FromTypeIndex(13, 146))
+                .FirstOrDefault();
+
+            /*if(it== null)
+            {
+                return;
+            }    */
+
+            await session
+                .Player
+                .Character
+                .WarpTo(417);
+        }
+
+        [MessageHandler(typeof(CRefineJewelReq))]
+        public async Task CRefineJewelReq(GSSession session, CRefineJewelReq message)
+        {
+            var plr = session.Player;
+            var @char = plr.Character;
+            var cbMix = @char.Inventory.ChaosBox;
+            var mixInfos = ResourceCache.Instance.GetChaosMixInfo();
+            var mixMatched = mixInfos.FindMix(@char);
+
+            Logger.ForAccount(session)
+                .Information("Mix Type {0}", message.Type);
+
+            if(mixMatched == null)
+            {
+                Logger.ForAccount(session)
+                    .Error("Invalid MIX");
+                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail, ItemInfo = Array.Empty<byte>() });
+                return;
+            }
+
+            var element = cbMix.Items.Values.First(x => (x.IsPentagramItem || x.IsPentagramJewel) && x.PentagramaMainAttribute != Element.None).PentagramaMainAttribute;
+            Logger.ForAccount(session)
+                .Information("Mix found, match: {0} {1}", mixMatched.Name, element);
+
+            var result = mixMatched.Execute(@char);
+
+            if (result == ChaosBoxMixResult.Fail)
+            {
+                await session.SendAsync(new SShopItemList(cbMix.GetInventory()) { ListType = 3 });
+            }
+            else
+            {
+                var it = cbMix.Items.Values.First();
+                it.PentagramaMainAttribute = element;
+                it.BonusSocket |= 0x10;
+
+                switch (message.Type)
+                {
+                    case 3:
+                        it.Slots = new SocketOption[1] { SocketOption.SocketWater };
+                        break;
+                }
+            }
+
+            switch(result)
+            {
+                case ChaosBoxMixResult.Fail:
+                    result = ChaosBoxMixResult.PentagramaRefineFail;
+                    break;
+                case ChaosBoxMixResult.InsufficientMoney:
+                    result = ChaosBoxMixResult.PentagramaInsufficientMoney;
+                    break;
+                case ChaosBoxMixResult.LackingItems:
+                    result = ChaosBoxMixResult.PentagramaLackingItems;
+                    break;
+            }
+
+            Logger.ForAccount(session)
+                .Information("Mix Result: {0} : {1}", mixMatched.Name, result);
+            await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = result, ItemInfo = cbMix.Items.Values.FirstOrDefault()?.GetBytes() ?? Array.Empty<byte>() });
+        }
+    
+        [MessageHandler(typeof(CPentagramaJewelIn))]
+        public async Task CPentagramaJewelIn(GSSession session, CPentagramaJewelIn message)
+        {
+            var plr = session.Player;
+            var @char = plr.Character;
+            var inv = @char.Inventory;
+
+            var pItem = inv.Get((byte)message.PentagramPos);
+            var pJewel = inv.Get((byte)message.JewelPos);
+            var jAtt = pJewel.PentagramaMainAttribute;
+            var iAtt = pItem.PentagramaMainAttribute;
+
+            if (!pItem.IsPentagramItem || !pJewel.IsPentagramJewel || jAtt != iAtt)
+            {
+                await session.SendAsync(new SPentagramJewelIn { Result = 0 });
+                return;
+            }
+
+            var slot = (pJewel.Number.Index - 221) / 10;
+
+            if (pItem.Slots.Length <= slot || pItem.Slots[slot] != SocketOption.EmptySocket)
+                return;
+
+            pItem.Slots[slot] = (SocketOption)session.Player.Character.Inventory.AddPentagramJewel(pItem, pJewel, slot);
+
+            var msg = new SPentagramJewelIn
+            {
+                Result = 1,
+                Info = new PentagramJewelDto
+                {
+                    MainAttribute = pJewel.BonusSocket,
+                    ItemIndex = pJewel.Number.Index,
+                    ItemType = (byte)pJewel.Number.Type,
+                    JewelIndex = 0,
+                    JewelPos = 0,
+                    Level = pJewel.Plus,
+                    Rank1Level = 0xf,
+                    Rank1OptionNum = 0xf,
+                    Rank2Level = 0xf,
+                    Rank2OptionNum = 0xf,
+                    Rank3Level = 0xf,
+                    Rank3OptionNum = 0xf,
+                    Rank4Level = 0xf,
+                    Rank4OptionNum = 0xf,
+                    Rank5Level = 0xf,
+                    Rank5OptionNum = 0xf,
+                }
+            };
+
+            var n = 1;
+            foreach(var a in pJewel.Slots)
+            {
+                msg.Info.Set($"Rank{n}OptionNum", (byte)((byte)a & 0x0F));
+                msg.Info.Set($"Rank{n}Level", (byte)(((byte)a & 0xF0)>>4));
+            }
+            await session.SendAsync(msg);
+            pItem.OnItemChange();
+
+            await session.SendAsync(new SPentagramJewelInOut
+            {
+                Result = 1,
             });
         }
     }

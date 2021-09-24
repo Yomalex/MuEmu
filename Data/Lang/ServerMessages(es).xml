@@ -54,4 +54,17 @@
     <Message ID="Kanturu_NightmareNotify"  Message="Derrota la pesadilla que controla al maya" />
     <Message ID="Kanturu_Successfull" Message="{0} Ah derrotado a la pesadilla, ahora tienes accesso a la refineria" />
     <Message ID="Kanturu_Fail" Message="Debido a que se ah agotado el tiempo, debemos regresar al area segura" />
+    <Message ID="IV_IndexAlreadyUsed" Message="Personaje:{0} Index repedita:{1}" />
+  <Message ID="IVEX_AlreadyEquiped" Message="Ya hay un item equipado en el Slot {0}" />
+  <Message ID="IVEX_NeedMoreStrength" Message="Se requiere {0} de Fuerza" />
+  <Message ID="IVEX_NeedMoreAgility" Message="Se requiere {0} de Agilidad" />
+  <Message ID="IVEX_NeedMoreVitality" Message="Se requiere {0} de Vitalidad" />
+  <Message ID="IVEX_NeedMoreEnergy" Message="Se requiere {0} de Fuerza" />
+  <Message ID="IVEX_NeedMoreCommand" Message="Se requiere {0} de Fuerza" />
+  <Message ID="IVEX_CharNotLogged" Message="El personaje no esta loggeado" />
+  <Message ID="IVEX_UnequipNoEquiped" Message="Tratando de retirar un item no equipado {0}" />
+  <Message ID="IV_MoveItem" Message="Moviendo item {0}:{1} {4} a {2}:{3}" />
+  <Message ID="IV_CantMove" Message="No se puede mover" />
+  <Message ID="IVEX_PentagramTradeLimit" Message="[Pentagrama] No se puede tradear mas" />
+  <Message ID="IV_DBSaveDeletingItem" Message="Borrando {0} Items" />
 </ServerMessage>

@@ -1,4 +1,5 @@
 ﻿using MU.Resources;
+using MuEmu.Entity;
 using MuEmu.Network.Data;
 using System;
 using System.Collections.Generic;
@@ -137,12 +138,15 @@ namespace MuEmu
 
             if (_items.ContainsKey(pos))
             {
-                /*var target = _items[pos];
-                if(target.Number == it.Number && target.Plus == it.Plus) //try to stack
+                _items[pos].Overlap(it);
+                if(it.Durability == 0)
                 {
-                    target.Durability 
-                }*/
-                throw new Exception($"({org})[{IndexTranslate}] Position {pos} isn't free");
+                    using(var db = new GameContext())
+                    {
+                        it.Delete(db);
+                        db.SaveChanges();
+                    }
+                }
             }
 
             if (pos >= Size)
@@ -152,6 +156,7 @@ namespace MuEmu
             if (!NoIntersects(pos, it.BasicInfo.Size))
                 return;
 
+            it.Storage = IndexTranslate;
             _items.Add(pos, it);
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
             NeedSave = true;

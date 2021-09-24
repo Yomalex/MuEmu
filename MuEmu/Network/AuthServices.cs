@@ -151,7 +151,7 @@ namespace MuEmu.Network
                         break;
                 }
 
-                var b = Activator.CreateInstance(a, (byte)5, (byte)0, (byte)5, (byte)3) as CharList;
+                var charList = Activator.CreateInstance(a, (byte)5, (byte)0, (byte)5, (byte)3) as CharList;
 
                 foreach (var @char in acc.Characters)
                 {
@@ -159,15 +159,17 @@ namespace MuEmu.Network
                                          where item.CharacterId == @char.Value.CharacterId
                                          select item).ToList();
 
-                    b.AddChar(
+                    charList.AddChar(
                         @char.Key,
                         @char.Value,
                         Inventory.GetCharset((HeroClass)@char.Value.Class, new Inventory(null, @char.Value), 0),
                         GuildManager.Instance.FindCharacter(@char.Value.Name)?.Rank ?? GuildStatus.NoMember);
                 }
 
-                await session.SendAsync(resetList);
-                await session.SendAsync(b);
+                if(Program.Season == 9)
+                    await session.SendAsync(resetList);
+
+                await session.SendAsync(charList);
 
                 await session.SendAsync(new SEnableCreation { 
                     EnableCreation = EnableClassCreation.Summoner | EnableClassCreation.RageFighter | EnableClassCreation.MagicGladiator | EnableClassCreation.GrowLancer | EnableClassCreation.DarkLord 
@@ -278,22 +280,7 @@ namespace MuEmu.Network
             GuildManager.Instance.AddPlayer(session.Player);
 
             await session.SendAsync(new SNewQuestInfo());
-
-            await session.SendAsync(new SPentagramaJewelInfo
-            {
-                JewelCnt = 0,
-                JewelPos = 0,
-                List = Array.Empty<PentagramaJewelDto>(),
-                Result = 0,
-            });
-
-            await session.SendAsync(new SPentagramaJewelInfo
-            {
-                JewelCnt = 0,
-                JewelPos = 1,
-                List = Array.Empty<PentagramaJewelDto>(),
-                Result = 0,
-            });
+            session.Player.Character.Inventory.SendJewelsInfo();
 
             await session.SendAsync(new SUBFInfo { Result = 1 });
             //await session.SendAsync(new SSendBanner { Type = BannerType.MuRummy });
@@ -319,7 +306,7 @@ namespace MuEmu.Network
             using (var db = new GameContext())
             {
                 var exists = (from @char in db.Characters
-                              where string.Equals(@char.Name, message.Name, StringComparison.InvariantCultureIgnoreCase)
+                              where @char.Name.ToLower() == message.Name.ToLower()
                               select @char).Any();
 
                 if(exists)

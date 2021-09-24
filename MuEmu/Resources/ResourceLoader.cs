@@ -80,6 +80,8 @@ namespace MuEmu.Resources
                         MagicPower = i.MagicPower,
                         Name = i.Name,
                         ReqLevel = i.NeededLevel,
+                        MaxStack = i.MaxStack,
+                        OnMaxStack = i.OnMaxStack,
                     };
 
                     result.Add(tmp);
@@ -558,7 +560,7 @@ namespace MuEmu.Resources
                 var eq = new Dictionary<ushort, Item>();
                 foreach(var e in @char.Equipament)
                 {
-                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), 0, new { Plus = (byte)e.Level }));
+                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), new { Plus = (byte)e.Level }));
                 }
 
                 yield return new CharacterInfo
@@ -698,7 +700,7 @@ namespace MuEmu.Resources
                         {
                             Number = int.Parse(m.Groups[1].Value),
                             GateType = m.Groups[2].Value,
-                            Map = m.Groups[3].Value,
+                            Map = ((Maps)byte.Parse(m.Groups[3].Value)).ToString(),
                             X1 = byte.Parse(m.Groups[4].Value),
                             Y1 = byte.Parse(m.Groups[5].Value),
                             X2 = byte.Parse(m.Groups[6].Value),
@@ -777,7 +779,7 @@ namespace MuEmu.Resources
                     {
                         foreach (var it in sq.NeededItem)
                         {
-                            stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), 0, new { Plus = (byte)it.Level, Durability = (byte)it.Count }));
+                            stmp.Requeriment.Add(new Item(ItemNumber.FromTypeIndex((byte)it.Type, (ushort)it.Index), new { Plus = (byte)it.Level, Durability = (byte)it.Count }));
                             var mon = it.Monster.Split("-").Where(x => !string.IsNullOrEmpty(x)).Select(x => ushort.Parse(x));
                             stmp.MonsterMin = mon.FirstOrDefault();
                             stmp.MonsterMax = mon.LastOrDefault();

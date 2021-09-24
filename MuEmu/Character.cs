@@ -725,7 +725,11 @@ namespace MuEmu
             Spells.SendList();
             MasterLevel.SendInfo();
             Gens.SendMemberInfo();
-            plr.Session.SendAsync(new SResets { Resets = Resets }).Wait();
+            try
+            {
+                plr.Session.SendAsync(new SResets { Resets = Resets }).Wait();
+            }
+            catch (Exception) { }
         }
 
         public void SendV2Message(object message, Player exclude = null)

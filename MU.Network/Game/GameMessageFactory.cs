@@ -273,7 +273,15 @@ namespace MU.Network.Game
             Register<SGremoryCaseList>(GameOpCode.GremoryCaseList);
 
             Register<CPShopSearchItem>(GameOpCode.PShopSearchItem);
-            Register<GPShopSearchItem>(GameOpCode.PShopSearchItem);
+            Register<SPShopSearchItem>(GameOpCode.PShopSearchItem);
+
+            Register<CAcheronEnterReq>(GameOpCode.AcheronEnter);
+
+            Register<CRefineJewelReq>(GameOpCode.RefineJewel);
+            Register<CPentagramaJewelIn>(GameOpCode.PentagramaJewelIn);
+            Register<SPentagramJewelIn>(GameOpCode.PentagramaJewelIn);
+            Register<SPentagramJewelInOut>(GameOpCode.PentagramaJewelInOut);
+            Register<SPentagramJewelInfo>(GameOpCode.PentagramaJInfo);
         }
     }
 }

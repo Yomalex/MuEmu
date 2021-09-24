@@ -41,6 +41,7 @@ namespace MU.Network.Game
     [WZContract]
     public class CTeleportS9 : IGameMessage
     {
+        [WZMember(0)] public byte fix { get; set; }
         [WZMember(1)] public ushort MoveNumber { get; set; }
         [WZMember(2)] public byte X { get; set; }
         [WZMember(3)] public byte Y { get; set; }
@@ -897,6 +898,23 @@ namespace MU.Network.Game
     [WZContract]
     public class CGremoryCaseOpen : IGameMessage
     { }
+
+    [WZContract]
+    public class CAcheronEnterReq : IGameMessage
+    { }
+
+    [WZContract]
+    public class CRefineJewelReq : IGameMessage
+    {
+        [WZMember(0)] public byte Type { get; set; }
+    }
+
+    [WZContract]
+    public class CPentagramaJewelIn : IGameMessage
+    {
+        [WZMember(0)] public int PentagramPos { get; set; }
+        [WZMember(1)] public int JewelPos { get; set; }
+    }
 
     [WZContract]
     public class CPShopSearchItem : IGameMessage

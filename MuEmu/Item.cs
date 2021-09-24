@@ -68,7 +68,7 @@ namespace MuEmu
         private byte _plus;
         private byte _durability;
         private byte _option;
-        private int _vid;
+        private StorageID _vid;
         private int _slot;
         private float _durabilityDown;
         private SocketOption[] _slots;
@@ -77,16 +77,12 @@ namespace MuEmu
         public static Dictionary<int, Item> s_ItemDB = new Dictionary<int, Item>();
         public Account Account { get; set; }
         public Character Character { get; set; }
-        public int VaultId {
+        public StorageID Storage {
             get => _vid;
             set {
                 if (_vid == value)
                     return;
                 _vid = value;
-                if (_vid != 0)
-                    Character = null;
-
-                Logger.Debug("VaultId={0}", value);
                 NeedSave = true;
             }
         }
@@ -96,8 +92,6 @@ namespace MuEmu
                 if (_slot == value)
                     return;
                 _slot = value;
-
-                Logger.Debug("SlotId={0}", value);
                 NeedSave = true;
             }
         }
@@ -173,6 +167,12 @@ namespace MuEmu
                 NeedSave = true;
             }
         }
+        public byte BonusSocket { get; set; }
+
+        public bool IsPentagramItem => (Number.Type == ItemType.Wing_Orb_Seed && (Number.Index >= 200 && Number.Index <= 220));
+        public bool IsPentagramJewel => (Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index >= 144 && Number.Index <= 145) || Number.Index == 148 || (Number.Index >= 221 && Number.Index <= 270)));
+        public Element PentagramaMainAttribute { get => (Element)(BonusSocket&0x0f); set => BonusSocket = (byte)(((byte)value) | (BonusSocket&0xF0)); }
+        public long[] PentagramJewels { get; set; } = new long[5];
 
         public uint PShopValue { get; set; }
 
@@ -219,10 +219,10 @@ namespace MuEmu
 
         public static Item Zen(uint BuyPrice)
         {
-            return new Item(ItemNumber.Zen, 0, new { BuyPrice });
+            return new Item(ItemNumber.Zen, new { BuyPrice });
         }
 
-        public Item(ItemNumber number, int Serial = 0, object Options = null)
+        public Item(ItemNumber number, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();
 
@@ -264,7 +264,8 @@ namespace MuEmu
             _option = dto.Option;
             OptionExe = dto.OptionExe;
             _durability = dto.Durability;
-            _vid = dto.VaultId;
+            _vid = (StorageID)dto.VaultId;
+            BonusSocket = dto.SocketBonus;
 
             if(string.IsNullOrEmpty(dto.SocketOptions))
             {
@@ -274,12 +275,24 @@ namespace MuEmu
                 var tmp = dto.SocketOptions.Split(",");
                 _slots = tmp.Select(x => Enum.Parse<SocketOption>(x)).ToArray();
             }
+
+            if (!string.IsNullOrEmpty(dto.PJewels))
+            {
+                var tmp = dto.PJewels.Split(",");
+                PentagramJewels = tmp.Select(x => long.Parse(x)).ToArray();
+            }
+
             Harmony = dto.HarmonyOption;
             Harmony.Item = this;
 
             GetValue();
             CalcItemAttributes();
             NeedSave = false;
+            if(_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
+            {
+                Number = BasicInfo.OnMaxStack;
+                OnItemChange();
+            }
         }
 
         public byte[] GetBytes()
@@ -324,7 +337,14 @@ namespace MuEmu
                     }
 
                     ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | (((byte)OptionExe & 0x80) >> 4) | itemPeriod));
-                    ms.WriteByte(Harmony); // Harmony
+                    if (IsPentagramItem || IsPentagramJewel)
+                    {
+                        ms.WriteByte(BonusSocket);
+                    }
+                    else
+                    {
+                        ms.WriteByte(Harmony); // Harmony
+                    }
                     foreach (var slot in Slots)
                     {
                         ms.WriteByte((byte)slot);
@@ -837,7 +857,7 @@ namespace MuEmu
             else
             {
                 _db.CharacterId = 0;
-                _db.VaultId = _vid;
+                _db.VaultId = (int)_vid;
             }
             
             _db.SlotId = _slot;
@@ -850,6 +870,7 @@ namespace MuEmu
             _db.HarmonyOption = Harmony;
             _db.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
             _db.Durability = Durability;
+            _db.PJewels = string.Join(",", PentagramJewels.Select(x => x.ToString()));
 
             log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", _db.Number, ToString(), _db.AccountId, _db.VaultId == 0 ? "C" : "V", _db.VaultId == 0 ? _db.CharacterId : _db.VaultId, SlotId);
             if (_db.ItemId == 0)
@@ -1141,6 +1162,8 @@ namespace MuEmu
                 Pos = (byte)SlotId,
                 ItemInfo = GetBytes()
             });
+
+            NeedSave = true;
         }
 
         private void OnDurabilityChange(bool flag)
@@ -1152,11 +1175,13 @@ namespace MuEmu
                 Flag = (byte)(flag ? 1 : 0)
             };
             Character?.Player.Session.SendAsync(p);
+
+            NeedSave = true;
         }
 
         public override string ToString()
         {
-            return $"[{Serial}][{Number}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "");
+            return $"[{Serial}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "") + (PentagramaMainAttribute != Element.None ? " ("+PentagramaMainAttribute.ToString()+")" : "");
         }
 
         private int RepairItemPrice()
@@ -1433,7 +1458,7 @@ namespace MuEmu
 
         public object Clone()
         {
-            var it = new Item(Number, 0, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
+            var it = new Item(Number, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
             Extensions.AnonymousMap(it, this);
             it.Serial = 0;
             return it;
@@ -1489,10 +1514,32 @@ namespace MuEmu
             }
         }
 
-        public void Overlap(byte count)
+        public byte Overlap(byte count)
         {
-            _durability += count;
+            byte left = 0;
+            if(_durability+count<= BasicInfo.MaxStack)
+            {
+                _durability += count;
+            }else
+            {
+                _durability = BasicInfo.MaxStack;
+                left = (byte)(count + _durability - BasicInfo.MaxStack);
+            }
             OnDurabilityChange(false);
+            if (_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
+            {
+                Number = BasicInfo.OnMaxStack;
+                _durability = 1;
+                OnItemChange();
+            }
+            return left;
+        }
+        public void Overlap(Item item)
+        {
+            if(item.Number != Number || item.Plus != Plus || _durability >= BasicInfo.MaxStack)
+                throw new Exception($"Item Can't be stacked");
+
+            item.Durability = Overlap(item.Durability);
         }
     }
 }

@@ -10,6 +10,37 @@
   <Jewel type="14" index="16" success="10" />
   <!-- Aditional JOCreation Add Success -->
   <Jewel type="14" index="22" success="10" />
+
+  <Mix name="Mithril" success="80" value="100000">
+    <Ingredient iid="0" type="12" index="148" level="0-15" luck="-1" skill="-1" option="0" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <RewardSuccess iid="0" type="12" index="145" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Elixir" success="60" value="100000">
+    <Ingredient iid="0" type="12" index="149" level="0-15" luck="-1" skill="-1" option="0" count="1" />
+    <Ingredient iid="1" type="12" index="15" count="1" />
+    <RewardSuccess iid="0" type="12" index="147" />
+    <RewardFail iid="-1" />
+  </Mix>
+
+  <Mix name="Errtel" success="50" value="100000">
+    <Ingredient iid="0" type="12" index="145" level="0-15" luck="-1" skill="-1" option="0" count="1" />
+    <Ingredient iid="0" type="12" index="147" level="0-15" luck="-1" skill="-1" option="0" count="1" />
+    <Ingredient iid="1" type="14" index="13" count="1" />
+    <!-- Errtel of Gale -->
+    <RewardSuccess iid="0" type="12" index="261" success="5" />
+    <!-- Errtel of Divinity -->
+    <RewardSuccess iid="0" type="12" index="251" success="10" />
+    <!-- Errtel of Anger -->
+    <RewardSuccess iid="0" type="12" index="221" success="40" />
+    <!-- Errtel of Blessing -->
+    <RewardSuccess iid="0" type="12" index="231" success="30" />
+    <!-- Errtel of Integrity -->
+    <RewardSuccess iid="0" type="12" index="241" success="15" />
+    <RewardFail iid="-1" />
+  </Mix>
   
   <Mix name="Item +10" success="100" value="2000000">
     <Ingredient iid="0" type="-1" index="-1" level="9" luck="-1" skill="-1" option="0" count="1" />

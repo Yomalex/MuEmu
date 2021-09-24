@@ -293,7 +293,7 @@ namespace MuEmu.Resources.Map
             item.Character = null;
             item.Account = null;
             item.SlotId = 0;
-            item.VaultId = 0;
+            item.Storage = 0;
             item.NeedSave = false;
 
             var valid = DateTimeOffset.Now.AddSeconds(120);
