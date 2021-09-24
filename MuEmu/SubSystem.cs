@@ -273,9 +273,9 @@ namespace MuEmu
                     .Select(x => new VPGensDto
                     {
                         Influence = x.Gens.Influence,
-                        iGensClass = 0,
-                        iGensRanking = 0,
-                        iContributePoint = 100,
+                        iGensClass = x.Gens.Class,
+                        iGensRanking = x.Gens.Ranking,
+                        iContributePoint = x.Gens.Contribution,
                         wzNumber = x.Index.ShufleEnding()
                     }).ToList();
 
@@ -283,9 +283,9 @@ namespace MuEmu
                     .Select(x => new VPGensDto
                     {
                         Influence = x.Gens.Influence,
-                        iGensClass = 1,
-                        iGensRanking = 1,
-                        iContributePoint = 100,
+                        iGensClass = x.Gens.Class,
+                        iGensRanking = x.Gens.Ranking,
+                        iContributePoint = x.Gens.Contribution,
                         wzNumber = x.Index.ShufleEnding()
                     }));
 
