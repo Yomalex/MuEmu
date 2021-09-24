@@ -42,21 +42,16 @@ la configuracion viene en XML, en el archivo server.xml generado de forma autom√
 	  <DBPassword></DBPassword>
 	  <Rijndael>0</Rijndael>
       
-      <!-- Events -->
   <Event name="Sphere" active="1" rate="15">
     <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
   </Event>
   <Event name="Kanturu" active="1" rate="5">
-    <!--Gemstone-->
     <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru1" />
     <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
   </Event>
   <Event name="Special Item drop" active="1" rate="10">
-    <!--DarkHorse Spirit-->
     <Condition item="6687" itemLevel="0" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
-    <!--DarkRaven Spirit-->
     <Condition item="6687" itemLevel="1" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
-    <!--Sing of lord-->
     <Condition item="7189" itemLevel="3" mobMinLevel="95" mobMaxLevel="150" map="InvalidMap" />
   </Event>
   <Event name="Kalima" active="1" rate="10">
