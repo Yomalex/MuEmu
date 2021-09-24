@@ -17,8 +17,9 @@ namespace MU.DataBase
         public string Account { get; set; }
 
         [Required]
-        [MaxLength(11)]
         public string Password { get; set; }
+
+        public string Salt { get; set; }
 
         public int VaultCount { get; set; }
         public int VaultMoney { get; set; }

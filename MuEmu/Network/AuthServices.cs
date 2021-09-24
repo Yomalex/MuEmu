@@ -21,6 +21,7 @@ using WebZen.Handlers;
 using WebZen.Util;
 using MU.Network.Auth;
 using MuEmu.Network.ConnectServer;
+using System.Security.Cryptography;
 
 namespace MuEmu.Network
 {
@@ -83,7 +84,8 @@ namespace MuEmu.Network
                         acc = new MU.DataBase.AccountDto
                         {
                             Account = message.Account,
-                            Password = message.Password,
+                            //Password = Convert.ToBase64String(hash),
+                            //Salt = Convert.ToBase64String(newSalt),
                             Characters = new List<MU.DataBase.CharacterDto>(),
                             VaultCount = 1,
                             VaultMoney = 0,
@@ -91,19 +93,31 @@ namespace MuEmu.Network
                             IsConnected = false,
                             ServerCode = 0,
                         };
+
+                        string Salt = "";
+                        acc.Password = GetHashPassword(message.Password, ref Salt);
+                        acc.Salt = Salt;
                         db.Accounts.Add(acc);
                         db.SaveChanges();
                         Logger.Information("Account Created");
                     }
                 }
 
-                if(acc.Password != message.Password)
+
+                var salt = acc.Salt;
+                if (string.IsNullOrEmpty(salt))
+                {
+                    acc.Password = GetHashPassword(acc.Password, ref salt);
+                    acc.Salt = salt;
+                }
+
+                if (acc.Password != GetHashPassword(message.Password, ref salt))
                 {
                     await session.SendAsync(new SLoginResult(LoginResult.ConnectionError));
                     return;
                 }
 
-                if(acc.IsConnected == true)
+                if (acc.IsConnected == true)
                 {
                     await session.SendAsync(new SLoginResult(LoginResult.IsConnected));
                     return;
@@ -120,6 +134,23 @@ namespace MuEmu.Network
             }
             
             await session.SendAsync(new SLoginResult(LoginResult.Ok));
+        }
+
+        internal string GetHashPassword(string pwd, ref string salt)
+        {
+            if (string.IsNullOrEmpty(salt))
+            {
+                var newSalt = new byte[24];
+                using (var csprng = new RNGCryptoServiceProvider())
+                {
+                    csprng.GetBytes(newSalt);
+                }
+
+                salt = Convert.ToBase64String(newSalt);
+            }
+
+            var hash = new Rfc2898DeriveBytes(pwd, Convert.FromBase64String(salt), 24000).GetBytes(24);
+            return Convert.ToBase64String(hash);
         }
 
         [MessageHandler(typeof(CCharacterList))]
