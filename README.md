@@ -42,59 +42,59 @@ la configuracion viene en XML, en el archivo server.xml generado de forma autom√
 	  <DBPassword></DBPassword>
 	  <Rijndael>0</Rijndael>
       
-  <Event name="Sphere" active="1" rate="15">
-    <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
-  </Event>
-  <Event name="Kanturu" active="1" rate="5">
-    <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru1" />
-    <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
-  </Event>
-  <Event name="Special Item drop" active="1" rate="10">
-    <Condition item="6687" itemLevel="0" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
-    <Condition item="6687" itemLevel="1" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
-    <Condition item="7189" itemLevel="3" mobMinLevel="95" mobMaxLevel="150" map="InvalidMap" />
-  </Event>
-  <Event name="Kalima" active="1" rate="10">
-    <Condition item="7197" itemLevel="1" mobMinLevel="25" mobMaxLevel="46" map="InvalidMap" />
-    <Condition item="7197" itemLevel="2" mobMinLevel="47" mobMaxLevel="65" map="InvalidMap" />
-    <Condition item="7197" itemLevel="3" mobMinLevel="66" mobMaxLevel="77" map="InvalidMap" />
-    <Condition item="7197" itemLevel="4" mobMinLevel="78" mobMaxLevel="83" map="InvalidMap" />
-    <Condition item="7197" itemLevel="5" mobMinLevel="84" mobMaxLevel="91" map="InvalidMap" />
-    <Condition item="7197" itemLevel="6" mobMinLevel="92" mobMaxLevel="113" map="InvalidMap" />
-    <Condition item="7197" itemLevel="7" mobMinLevel="114" mobMaxLevel="150" map="InvalidMap" />
-  </Event>
-  <Event name="BoxOfRibbon" active="1" rate="10">
-    <Condition item="6176" itemLevel="0" mobMinLevel="12" mobMaxLevel="49" map="InvalidMap" />
-    <Condition item="6177" itemLevel="0" mobMinLevel="50" mobMaxLevel="69" map="InvalidMap" />
-    <Condition item="6178" itemLevel="0" mobMinLevel="70" mobMaxLevel="1000" map="InvalidMap" />
-  </Event>
-  <Event name="Medals" active="1" rate="10">
-    <Condition item="7179" itemLevel="5" mobMinLevel="0" mobMaxLevel="1000" map="Dugeon" />
-    <Condition item="7179" itemLevel="5" mobMinLevel="0" mobMaxLevel="1000" map="Davias" />
-    <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="LostTower" />
-    <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="Atlans" />
-    <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="Tarkan" />
-  </Event>
-  <Event name="HeartOfLove" active="1" rate="10">
-    <Condition item="7179" itemLevel="3" mobMinLevel="15" mobMaxLevel="1000" map="InvalidMap" />
-  </Event>
-  <Event name="EventChip" active="1" rate="10">
-    <Condition item="7179" itemLevel="7" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
-  </Event>
-  <Event name="FireCracker" active="1" rate="10">
-    <Condition item="7179" itemLevel="2" mobMinLevel="17" mobMaxLevel="1000" map="InvalidMap" />
-  </Event>
-  <Event name="Heart" active="1" rate="10">
-    <Condition item="7180" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
-  </Event>
-  <Event name="StarOfXMas" active="1" rate="10">
-    <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Davias" />
-    <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Raklion" />
-    <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Selupan" />
-  </Event>
-  <Event name="Halloween" active="1" rate="10">
-    <Condition item="7213" itemLevel="0" mobMinLevel="50" mobMaxLevel="1000" map="InvalidMap" />
-  </Event>
+      <Event name="Sphere" active="1" rate="15">
+        <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
+      </Event>
+      <Event name="Kanturu" active="1" rate="5">
+        <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru1" />
+        <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
+      </Event>
+      <Event name="Special Item drop" active="1" rate="10">
+        <Condition item="6687" itemLevel="0" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
+        <Condition item="6687" itemLevel="1" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
+        <Condition item="7189" itemLevel="3" mobMinLevel="95" mobMaxLevel="150" map="InvalidMap" />
+      </Event>
+      <Event name="Kalima" active="1" rate="10">
+        <Condition item="7197" itemLevel="1" mobMinLevel="25" mobMaxLevel="46" map="InvalidMap" />
+        <Condition item="7197" itemLevel="2" mobMinLevel="47" mobMaxLevel="65" map="InvalidMap" />
+        <Condition item="7197" itemLevel="3" mobMinLevel="66" mobMaxLevel="77" map="InvalidMap" />
+        <Condition item="7197" itemLevel="4" mobMinLevel="78" mobMaxLevel="83" map="InvalidMap" />
+        <Condition item="7197" itemLevel="5" mobMinLevel="84" mobMaxLevel="91" map="InvalidMap" />
+        <Condition item="7197" itemLevel="6" mobMinLevel="92" mobMaxLevel="113" map="InvalidMap" />
+        <Condition item="7197" itemLevel="7" mobMinLevel="114" mobMaxLevel="150" map="InvalidMap" />
+      </Event>
+      <Event name="BoxOfRibbon" active="1" rate="10">
+        <Condition item="6176" itemLevel="0" mobMinLevel="12" mobMaxLevel="49" map="InvalidMap" />
+        <Condition item="6177" itemLevel="0" mobMinLevel="50" mobMaxLevel="69" map="InvalidMap" />
+        <Condition item="6178" itemLevel="0" mobMinLevel="70" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
+      <Event name="Medals" active="1" rate="10">
+        <Condition item="7179" itemLevel="5" mobMinLevel="0" mobMaxLevel="1000" map="Dugeon" />
+        <Condition item="7179" itemLevel="5" mobMinLevel="0" mobMaxLevel="1000" map="Davias" />
+        <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="LostTower" />
+        <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="Atlans" />
+        <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="Tarkan" />
+      </Event>
+      <Event name="HeartOfLove" active="1" rate="10">
+        <Condition item="7179" itemLevel="3" mobMinLevel="15" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
+      <Event name="EventChip" active="1" rate="10">
+        <Condition item="7179" itemLevel="7" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
+      <Event name="FireCracker" active="1" rate="10">
+        <Condition item="7179" itemLevel="2" mobMinLevel="17" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
+      <Event name="Heart" active="1" rate="10">
+        <Condition item="7180" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
+      <Event name="StarOfXMas" active="1" rate="10">
+        <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Davias" />
+        <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Raklion" />
+        <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Selupan" />
+      </Event>
+      <Event name="Halloween" active="1" rate="10">
+        <Condition item="7213" itemLevel="0" mobMinLevel="50" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
 	</Server>
 
 ### Comandos
