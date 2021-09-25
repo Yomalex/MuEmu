@@ -2232,5 +2232,9 @@ namespace MU.Network.Game
         public ushort Number { set => wzNumber = value.ShufleEnding(); get => wzNumber.ShufleEnding(); }
         public ushort Target { set => wzTarget = value.ShufleEnding(); get => wzTarget.ShufleEnding(); }
     }
+
+    [WZContract]
+    public class SNeedSpiritMap : IGameMessage
+    { }
 }
 

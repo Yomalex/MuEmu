@@ -94,6 +94,9 @@ namespace MuEmu
         public int Id { get; }
         public Player Player { get; private set; }
         public Account Account => Player.Account;
+        /// <summary>
+        /// Network Index for client
+        /// </summary>
         public ushort Index => (ushort)Player.Session.ID;
 
         public ControlCode CtlCode;
@@ -1608,7 +1611,7 @@ namespace MuEmu
             var tpItem = target.Info.MainAttribute;
 
             var def = target.Info.PentagramDefense;
-            var tElement = (Element)target.Info.MainAttribute;
+            var tElement = target.Element;
 
             var max = Math.Max(pItem.AttackMax, pItem.AttackMin);
             var min = Math.Min(pItem.AttackMax, pItem.AttackMin);

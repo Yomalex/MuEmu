@@ -1537,7 +1537,7 @@ namespace MuEmu
         public void Overlap(Item item)
         {
             if(item.Number != Number || item.Plus != Plus || _durability >= BasicInfo.MaxStack)
-                throw new Exception($"Item Can't be stacked");
+                throw new Exception($"Item {item} to {this} Can't be stacked {item.Number != Number} {item.Plus != Plus} {_durability >= BasicInfo.MaxStack}");
 
             item.Durability = Overlap(item.Durability);
         }

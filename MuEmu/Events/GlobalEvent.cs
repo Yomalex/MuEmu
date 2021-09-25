@@ -40,7 +40,7 @@ namespace MuEmu.Events
 
             var prev = ranges.Where(x => x.Map == (Maps)255 || x.Map == map);
 
-            return prev.FirstOrDefault(x => x.MinLevel <= mobLevel && x.MaxLevel >= mobLevel)?.Item??null;
+            return prev.FirstOrDefault(x => x.MinLevel <= mobLevel && x.MaxLevel >= mobLevel)?.Item.Clone() as Item??null;
         }
     }
 }

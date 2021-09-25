@@ -283,6 +283,7 @@ namespace MU.Network.Game
             Register<SPentagramJewelInOut>(GameOpCode.PentagramaJewelInOut);
             Register<SPentagramJewelInfo>(GameOpCode.PentagramaJInfo);
             Register<SElementalDamage>(GameOpCode.ElementDamage);
+            Register<SNeedSpiritMap>(GameOpCode.NeedSpiritMap);
         }
     }
 }

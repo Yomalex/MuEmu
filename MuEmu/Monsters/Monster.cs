@@ -534,7 +534,7 @@ namespace MuEmu.Monsters
                 if (EXP / 2.0f > 1.0f)
                     EXP += _rand.Next((int)(EXP / 2.0f));
 
-                EXP *= pair.Value / MaxLife;
+                EXP *= Math.Min(pair.Value / MaxLife, 1.0f);
 
                 if (pair.Key == Killer)
                     Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen + Killer.Character.Spells.IncreaseZen);

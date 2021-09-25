@@ -828,50 +828,21 @@ namespace MuEmu.Network
                     return;
                 }
                 byte pos=0xff;
-                switch (item.Item.Number.Number)
+                if (item.Item.BasicInfo.OnMaxStack != ItemNumber.Invalid)
                 {
-                    case 7197://Symbol of Kundun
+                    var result = @char.Inventory.FindAllItems(item.Item.Number);
+                    var firts = (from r in result
+                                 where r.Plus == item.Item.Plus && r.Durability < item.Item.BasicInfo.MaxStack
+                                 select r).FirstOrDefault();
+                    if (firts != null)
+                    {
+                        try
                         {
-                            var result = @char.Inventory.FindAllItems(item.Item.Number);
-                            var firts = (from r in result
-                                        where r.Plus == item.Item.Plus && r.Durability < 5
-                                        select r).FirstOrDefault();
-
-                            if (firts != null)
-                            {
-                                try
-                                {
-                                    firts.Overlap(item.Item);
-                                    if (firts.Durability == 5)
-                                    {
-                                        await @char.Inventory.Delete(firts);
-                                        var lostMap = new Item(new ItemNumber(7196), Options: new { Plus = firts.Plus });
-                                        pos = @char.Inventory.Add(lostMap);
-                                        await session.SendAsync(new SItemGet { ItemInfo = lostMap.GetBytes(), Result = pos });
-                                    }
-                                    else
-                                    {
-                                        await session.SendAsync(new SItemGet { ItemInfo = firts.GetBytes(), Result = (byte)firts.SlotId });
-                                    }
-                                    if(item.Item.Durability != 0)
-                                    { 
-                                        pos = @char.Inventory.Add(item.Item);
-                                        if (pos == 0xff)
-                                        {
-                                            await session.SendAsync(new SItemGet { Result = 0xff });
-                                            goto _end;
-                                        }
-                                        await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
-                                        item.State = ItemState.Deleted;
-                                    }
-                                }
-                                catch (Exception)
-                                { }
-                                
-                                goto _end;
-                            }
+                            firts.Overlap(item.Item);
+                            goto _end;
                         }
-                        break;
+                        catch (Exception) { }
+                    }
                 }
                 pos = @char.Inventory.Add(item.Item);
                 if (pos == 0xff)
@@ -880,7 +851,6 @@ namespace MuEmu.Network
                     return;
                 }
                 await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
-                item.State = ItemState.Deleted;
             }
             else
             {
@@ -888,6 +858,7 @@ namespace MuEmu.Network
             }
 
             _end:
+            item.State = ItemState.Deleted;
             var msg = new SViewPortItemDestroy { ViewPort = new Data.VPDestroyDto[] { new Data.VPDestroyDto(item.Index) } };
             await session.SendAsync(msg);
             session.Player.SendV2Message(msg);
@@ -2716,10 +2687,17 @@ namespace MuEmu.Network
                 .FindAllItems(ItemNumber.FromTypeIndex(13, 146))
                 .FirstOrDefault();
 
-            /*if(it== null)
+            if(it== null)
             {
+                await session.SendAsync(new SNeedSpiritMap());
                 return;
-            }    */
+            }
+
+            await session
+                .Player
+                .Character
+                .Inventory
+                .Delete(it);
 
             await session
                 .Player

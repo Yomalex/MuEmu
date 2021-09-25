@@ -203,6 +203,7 @@ namespace MU.Network
         PentagramaJewelIn = 0x00EC,
         PentagramaJewelInOut = 0x04EC,
         ElementDamage = 0xFFD8,
+        NeedSpiritMap = 0x21F8,
     }
 
     public enum GensOpCode
