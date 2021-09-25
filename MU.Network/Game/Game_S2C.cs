@@ -2220,5 +2220,17 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte Result { get; set; }
     }
+
+    [WZContract]
+    public class SElementalDamage : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1)] public Element Element { get; set; }
+        [WZMember(2)] public ushort wzTarget { get; set; }
+        [WZMember(3)] public uint Damage { get; set; }
+
+        public ushort Number { set => wzNumber = value.ShufleEnding(); get => wzNumber.ShufleEnding(); }
+        public ushort Target { set => wzTarget = value.ShufleEnding(); get => wzTarget.ShufleEnding(); }
+    }
 }
 

@@ -326,8 +326,8 @@ namespace MuEmu
             var poison = _buffs.FirstOrDefault(x => x.State == SkillStates.Poison);
             if(poison != null)
             {
-               Player?.Character.GetAttacked(poison.Source?.Player.ID??0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison).Wait();
-               Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage + (int)(Monster.Life * 0.03f), DamageType.Poison).Wait();
+               Player?.Character.GetAttacked(poison.Source?.Player.ID??0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison, 0).Wait();
+               Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage + (int)(Monster.Life * 0.03f), DamageType.Poison, 0).Wait();
             }
         }
 

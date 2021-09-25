@@ -526,6 +526,11 @@ namespace MuEmu
             return Get((Equipament)from);
         }
 
+        /// <summary>
+        /// Returns the item equiped in the slot passed, if isn't equiped return null
+        /// </summary>
+        /// <param name="from">The slot needed</param>
+        /// <returns>Item</returns>
         public Item Get(Equipament from)
         {
             if (_equipament.ContainsKey(from))

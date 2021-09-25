@@ -282,6 +282,7 @@ namespace MU.Network.Game
             Register<SPentagramJewelIn>(GameOpCode.PentagramaJewelIn);
             Register<SPentagramJewelInOut>(GameOpCode.PentagramaJewelInOut);
             Register<SPentagramJewelInfo>(GameOpCode.PentagramaJInfo);
+            Register<SElementalDamage>(GameOpCode.ElementDamage);
         }
     }
 }

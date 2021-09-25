@@ -22,6 +22,36 @@ namespace MuEmu
             { Element.Wind, 8000 },
             { Element.Dark, 10000 },
         };
+        // Element vs Element
+        private Dictionary<Element, Dictionary<Element, float>> _elementDmgTable =
+            new Dictionary<Element, Dictionary<Element, float>>
+        {
+            { Element.Fire, new Dictionary<Element, float>
+                {
+                    { Element.None, 1.2f }, { Element.Fire, 1.0f }, {Element.Water, 0.8f}, {Element.Earth, 0.9f }, {Element.Wind, 1.1f }, {Element.Dark, 1.2f }
+                }
+            },
+            { Element.Water, new Dictionary<Element, float>
+                {
+                    { Element.None, 1.2f }, { Element.Fire, 1.2f }, {Element.Water, 1.0f}, {Element.Earth, 0.8f }, {Element.Wind, 0.9f }, {Element.Dark, 1.1f }
+                }
+            },
+            { Element.Earth, new Dictionary<Element, float>
+                {
+                    { Element.None, 1.2f }, { Element.Fire, 1.1f }, {Element.Water, 1.2f}, {Element.Earth, 1.0f }, {Element.Wind, 0.8f }, {Element.Dark, 0.9f }
+                }
+            },
+            { Element.Wind, new Dictionary<Element, float>
+                {
+                    { Element.None, 1.2f }, { Element.Fire, 0.9f }, {Element.Water, 1.1f}, {Element.Earth, 1.2f }, {Element.Wind, 1.0f }, {Element.Dark, 0.8f }
+                }
+            },
+            { Element.Dark, new Dictionary<Element, float>
+                {
+                    { Element.None, 1.2f }, { Element.Fire, 0.8f }, {Element.Water, 0.9f}, {Element.Earth, 1.1f }, {Element.Wind, 1.2f }, {Element.Dark, 1.0f }
+                }
+            }
+        };
         private PentagramaDto _Info;
 
         private Pentagrama()
@@ -154,6 +184,14 @@ namespace MuEmu
             }
             _logger.Information("Item drop {0}", itResult);
             return itResult;
+        }
+
+        public static float GetElementalFactor(Element source, Element target)
+        {
+            if (source == Element.None)
+                return 0f;
+
+            return _instance._elementDmgTable[source][target];
         }
     }
 }

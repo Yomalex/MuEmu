@@ -1354,7 +1354,7 @@ namespace MuEmu
             return true;
         }
 
-        public async Task GetAttacked(ushort source, byte dirdis, byte aa, int dmg, DamageType type, Spell isMagic)
+        public async Task GetAttacked(ushort source, byte dirdis, byte aa, int dmg, DamageType type, Spell isMagic, int eDmg)
         {
             if (State != ObjectState.Live)
                 return;
@@ -1392,8 +1392,8 @@ namespace MuEmu
 
             if (sourceSession != null)
             {
-                sdDamage = (dmg * 0.8f);
-                healthDamage = (dmg * 0.2f);
+                sdDamage = ((dmg+eDmg) * 0.8f);
+                healthDamage = ((dmg+eDmg) * 0.2f);
                 if(sdDamage > Shield)
                 {
                     healthDamage += (sdDamage - Shield);
@@ -1403,15 +1403,14 @@ namespace MuEmu
                 {
                     healthDamage = Health;
                 }
-
-                Shield -= sdDamage;
-                Health -= healthDamage;
             }
             else
             {
-                healthDamage = dmg;
-                Health -= healthDamage;
+                healthDamage = dmg+eDmg;
             }
+
+            Shield -= sdDamage;
+            Health -= healthDamage;
             _deadlyDmg = (int)healthDamage;
 
             switch (Program.Season)
@@ -1430,11 +1429,11 @@ namespace MuEmu
             {
                 if (sourceSession != null)
                 {
-                    await sourceSession.Player.Character.GetAttacked(Player.ID, 0, 0, (int)dmgReflect, DamageType.Reflect, Spell.None);
+                    await sourceSession.Player.Character.GetAttacked(Player.ID, 0, 0, (int)dmgReflect, DamageType.Reflect, Spell.None, 0);
                 } else
                 {
                     Monster mob = MonstersMng.Instance.GetMonster(source);
-                    await mob.GetAttacked(Player, (int)dmgReflect, DamageType.Reflect);
+                    await mob.GetAttacked(Player, (int)dmgReflect, DamageType.Reflect, 0);
                 }
             }
 
@@ -1567,6 +1566,67 @@ namespace MuEmu
                 attack += critical ? _leftAttackMax : _rand.Next((int)_leftAttackMin, (int)_leftAttackMax);
 
             return attack;
+        }
+
+        public async Task<int> PentagramAttack(Character target)
+        {
+            var pItem = Inventory.Get(Equipament.Pentagrama);
+            if (pItem == null)
+                return 0;
+
+            var tpItem = target.Inventory.Get(Equipament.Pentagrama);
+
+            var def = tpItem?.Defense ?? 0;
+            var tElement = tpItem?.PentagramaMainAttribute ?? Element.None;
+
+            var max = Math.Max(pItem.AttackMax, pItem.AttackMin);
+            var min = Math.Min(pItem.AttackMax, pItem.AttackMin);
+
+            var dmg = Program.RandomProvider(max, min) * Pentagrama.GetElementalFactor(pItem.PentagramaMainAttribute, tElement);
+            dmg -= def;
+
+            var eMessage = new SElementalDamage
+            {
+                Damage = (uint)dmg,
+                Element = pItem.PentagramaMainAttribute,
+                Number = Player.ID,
+                Target = target.Player.ID,
+            };
+
+            await Player.Session.SendAsync(eMessage);
+            await target.Player.Session.SendAsync(eMessage);
+
+            return (int)dmg;
+        }
+
+        public async Task<int> PentagramAttack(Monster target)
+        {
+            var pItem = Inventory.Get(Equipament.Pentagrama);
+            if (pItem == null)
+                return 0;
+
+            var tpItem = target.Info.MainAttribute;
+
+            var def = target.Info.PentagramDefense;
+            var tElement = (Element)target.Info.MainAttribute;
+
+            var max = Math.Max(pItem.AttackMax, pItem.AttackMin);
+            var min = Math.Min(pItem.AttackMax, pItem.AttackMin);
+
+            var dmg = Program.RandomProvider(max, min) * Pentagrama.GetElementalFactor(pItem.PentagramaMainAttribute, tElement);
+            dmg -= def;
+
+            var eMessage = new SElementalDamage
+            {
+                Damage = (uint)dmg,
+                Element = pItem.PentagramaMainAttribute,
+                Number = target.Index,
+                Target = Player.ID,
+            };
+
+            await Player.Session.SendAsync(eMessage);
+
+            return (int)dmg;
         }
         #endregion
 

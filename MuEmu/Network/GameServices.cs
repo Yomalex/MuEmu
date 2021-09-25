@@ -1130,7 +1130,8 @@ namespace MuEmu.Network
 
                     DamageType type;
                     var attack = session.Player.Character.Attack(monster, out type);
-                    await monster.GetAttacked(session.Player, attack, type);
+                    var eAttack = await session.Player.Character.PentagramAttack(monster);
+                    await monster.GetAttacked(session.Player, attack, type, eAttack);
                 }
                 catch(Exception ex)
                 {
@@ -1152,9 +1153,11 @@ namespace MuEmu.Network
                     var attack = session.Player.Character
                         .Attack(target.Player.Character, out DamageType type);
 
-                    target.Player.Character
-                        .GetAttacked((ushort)session.ID, message.DirDis, message.AttackAction, attack, type, Spell.None)
-                        .Wait();
+                    var eattack = await session.Player.Character
+                        .PentagramAttack(target.Player.Character);
+
+                    await target.Player.Character
+                        .GetAttacked((ushort)session.ID, message.DirDis, message.AttackAction, attack, type, Spell.None, eattack);
                 }
                 catch(Exception ex)
                 {
@@ -1183,6 +1186,7 @@ namespace MuEmu.Network
             }
 
             spell = @char.Spells.SpellDictionary[message.MagicNumber];
+            int eDmg = 0;
 
             try
             {
@@ -1192,6 +1196,7 @@ namespace MuEmu.Network
                     spells = monster.Spells;
                     defense = monster.Defense;
                     pos = monster.Position;
+                    eDmg = @char.PentagramAttack(monster).Result;
                 }
                 else
                 {
@@ -1199,6 +1204,7 @@ namespace MuEmu.Network
                     spells = player.Character.Spells;
                     defense = player.Character.Defense;
                     pos = player.Character.Position;
+                    eDmg = @char.PentagramAttack(player.Character).Result;
                 }
             }catch(Exception)
             {
@@ -1398,7 +1404,7 @@ namespace MuEmu.Network
                         break;
                 }
 
-                player?.Character.GetAttacked((ushort)@char.Player.Session.ID, @char.Direction, 0, (int)attack, type, spell.Number);
+                player?.Character.GetAttacked((ushort)@char.Player.Session.ID, @char.Direction, 0, (int)attack, type, spell.Number, eDmg);
                 monster?.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
             }
         }
@@ -1501,13 +1507,15 @@ namespace MuEmu.Network
                     plr = Program.server.Clients.First(x => x.ID == message.Target).Player;
                     attack = @char.SkillAttack(magic, plr.Character.Defense, out type);
                     pos = plr.Character.Position;
-                    await plr.Character.GetAttacked(@char.Player.ID, message.Dir, 0, attack, type, message.MagicNumber);
+                    var eDmg = await @char.PentagramAttack(plr.Character);
+                    await plr.Character.GetAttacked(@char.Player.ID, message.Dir, 0, attack, type, message.MagicNumber, eDmg);
                 }else
                 {
                     mom = MonstersMng.Instance.GetMonster(message.Target);
                     attack = @char.SkillAttack(magic, mom.Defense, out type);
                     pos = mom.Position;
-                    await mom.GetAttacked(@char.Player, attack, type);
+                    var eDmg = await @char.PentagramAttack(mom);
+                    await mom.GetAttacked(@char.Player, attack, type, eDmg);
                 }
             }
 
@@ -1555,15 +1563,17 @@ namespace MuEmu.Network
                         if (t1 != 0)
                         {
                             l.Add(t1);
-                            await MonstersMng.Instance.GetMonster(t1)
-                                .GetAttacked(@char.Player, attack, type);
+                            var mob = MonstersMng.Instance.GetMonster(t1);
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
                         }
 
                         if (t2 != 0)
                         {
                             l.Add(t2);
-                            await MonstersMng.Instance.GetMonster(t1)
-                                .GetAttacked(@char.Player, attack, type);
+                            var mob = MonstersMng.Instance.GetMonster(t2);
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
                         }
 
                         var obj = new SChainMagic
@@ -1595,7 +1605,8 @@ namespace MuEmu.Network
                         foreach (var mob in vp)
                         {
                             attack = @char.SkillAttack(magic, mob.Defense, out type);
-                            await mob.GetAttacked(@char.Player, attack, type);
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
                         }
                     }
                     break;
@@ -1614,7 +1625,8 @@ namespace MuEmu.Network
                         foreach (var mob in vp)
                         {
                             attack = @char.SkillAttack(magic, mob.Defense, out type);
-                            await mob.GetAttacked(@char.Player, attack, type);
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
                         }
                     }
                     break;
@@ -1628,7 +1640,8 @@ namespace MuEmu.Network
                         foreach (var mob in vp)
                         {
                             attack = @char.SkillAttack(magic, mob.Defense, out type);
-                            await mob.GetAttacked(@char.Player, attack, type);
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
                             mob.Spells.SetBuff(SkillStates.Poison, TimeSpan.FromSeconds(60), @char);
                         }
                     }
@@ -1648,7 +1661,8 @@ namespace MuEmu.Network
                         foreach (var mob in vp)
                         {
                             attack = @char.SkillAttack(magic, mob.Defense, out type);
-                            await mob.GetAttacked(@char.Player, attack, type);
+                            var eDmg = await @char.PentagramAttack(mob);
+                            await mob.GetAttacked(@char.Player, attack, type, eDmg);
                             mob.Spells.SetBuff(SkillStates.Ice, TimeSpan.FromSeconds(60), @char);
                         }
                     }
@@ -1688,7 +1702,8 @@ namespace MuEmu.Network
             {
                 DamageType dmgType;
                 var dmg = session.Player.Character.MagicAttack(spell, mob.Defense, out dmgType);
-                await mob.GetAttacked(session.Player, dmg, dmgType);
+                var eDmg = await session.Player.Character.PentagramAttack(mob);
+                await mob.GetAttacked(session.Player, dmg, dmgType, eDmg);
             }
         }
 

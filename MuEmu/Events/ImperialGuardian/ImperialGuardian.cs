@@ -354,7 +354,7 @@ namespace MuEmu.Events.ImperialGuardian
                                         Spell spell;
 
                                         var att = t.MonsterAttack(out dmg, out spell);
-                                        _ = p.Player.Character.GetAttacked(t.Index, t.Direction, 120, att, dmg, spell);
+                                        _ = p.Player.Character.GetAttacked(t.Index, t.Direction, 120, att, dmg, spell, 0);
                                     }
                                 }
 

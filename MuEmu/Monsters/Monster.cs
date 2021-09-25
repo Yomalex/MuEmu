@@ -179,7 +179,7 @@ namespace MuEmu.Monsters
             }
         }
 
-        public async Task GetAttacked(Player plr, int dmg, DamageType type)
+        public async Task GetAttacked(Player plr, int dmg, DamageType type, int eDmg)
         {
             if (State != ObjectState.Live)
                 return;
@@ -195,7 +195,7 @@ namespace MuEmu.Monsters
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
             DeadlyDmg = dmgSend;
             Killer = plr;
-            Life -= dmg;
+            Life -= dmg+ eDmg;
 
             if(State != ObjectState.Dying)
             {
@@ -331,7 +331,7 @@ namespace MuEmu.Monsters
 
                     var attack = MonsterAttack(out type, out Spell isMagic);
                     Target.Character
-                        .GetAttacked(Index, Direction, 120, attack, type, isMagic)
+                        .GetAttacked(Index, Direction, 120, attack, type, isMagic, 0)
                         .Wait();
                     TPosition = Position;
                     return;
