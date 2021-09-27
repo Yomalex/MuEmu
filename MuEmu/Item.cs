@@ -216,6 +216,8 @@ namespace MuEmu
         public int Defense { get; private set; }
         public int DefenseRate { get; private set; }
         public int MagicDefense { get; private set; }
+        public int PetEXP { get; internal set; }
+        public byte PetLevel { get; internal set; }
 
         public static Item Zen(uint BuyPrice)
         {
@@ -266,8 +268,10 @@ namespace MuEmu
             _durability = dto.Durability;
             _vid = (StorageID)dto.VaultId;
             BonusSocket = dto.SocketBonus;
+            PetEXP = dto.PetEXP;
+            PetLevel = dto.PetLevel;
 
-            if(string.IsNullOrEmpty(dto.SocketOptions))
+            if (string.IsNullOrEmpty(dto.SocketOptions))
             {
                 _slots = Array.Empty<SocketOption>();
             }else
@@ -871,6 +875,8 @@ namespace MuEmu
             _db.SocketOptions = string.Join(",", _slots.Select(x => x.ToString()));
             _db.Durability = Durability;
             _db.PJewels = string.Join(",", PentagramJewels.Select(x => x.ToString()));
+            _db.PetLevel = PetLevel;
+            _db.PetEXP = PetEXP;
 
             log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", _db.Number, ToString(), _db.AccountId, _db.VaultId == 0 ? "C" : "V", _db.VaultId == 0 ? _db.CharacterId : _db.VaultId, SlotId);
             if (_db.ItemId == 0)

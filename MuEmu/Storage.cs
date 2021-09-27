@@ -165,7 +165,10 @@ namespace MuEmu
         public Item Get(byte pos)
         {
             pos -= (byte)IndexTranslate;
-            return _items[pos];
+            if(_items.ContainsKey(pos))
+                return _items[pos];
+
+            return null;
         }
 
         public void Remove(byte pos)

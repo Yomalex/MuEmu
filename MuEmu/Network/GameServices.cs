@@ -2749,7 +2749,7 @@ namespace MuEmu.Network
                 }
             }
 
-            switch(result)
+            switch (result)
             {
                 case ChaosBoxMixResult.Fail:
                     result = ChaosBoxMixResult.PentagramaRefineFail;
@@ -2829,6 +2829,51 @@ namespace MuEmu.Network
             {
                 Result = 1,
             });
+        }
+
+        [MessageHandler(typeof(CPetInfo))]
+        public async Task CPetInfo(GSSession session, CPetInfo message)
+        {
+            Item item;
+
+            switch(message.InvenType)
+            {
+                case 0:// Inventory
+                    item = session.Player.Character.Inventory.Get(message.nPos);
+                    break;
+                case 1:// Warehouse
+                    item = session.Player.Account.Vault.Get(message.nPos);
+                    break;
+                case 2:// Trade
+                    item = session.Player.Character.Inventory.TradeBox.Get(message.nPos);
+                    break;
+                case 3:// Target Trade
+                    item = (session.Player.Window as GSSession).Player.Character.Inventory.TradeBox.Get(message.nPos);
+                    break;
+                case 4:// Chaos
+                    item = session.Player.Character.Inventory.ChaosBox.Get(message.nPos);
+                    break;
+                case 5:// Personal Shop
+                    item = session.Player.Character.Inventory.PersonalShop.Get(message.nPos);
+                    break;
+                default:
+                    return;
+            }
+
+            if (item.PetLevel == 0)
+                item.PetLevel = 1;
+
+            var responce = new SPetInfo
+            {
+                InvenType = message.InvenType,
+                nPos = message.nPos,
+                PetType = message.PetType,
+                Dur = item.Durability,
+                Exp = item.PetEXP,
+                Level = item.PetLevel,
+            };
+
+            await session.SendAsync(responce);
         }
     }
 }

@@ -922,4 +922,12 @@ namespace MU.Network.Game
         [WZMember(0)] public int iLastCount { get; set; }
         [WZMember(1)] public short sSearchItem { get; set; }
     }
+
+    [WZContract]
+    public class CPetInfo : IGameMessage
+    {
+        [WZMember(0)] public byte PetType { get; set; }   // 3
+        [WZMember(1)] public byte InvenType { get; set; } // 4
+        [WZMember(2)] public byte nPos { get; set; }	// 5
+    }
 }

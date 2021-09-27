@@ -54,5 +54,11 @@ namespace MU.DataBase
         public byte SocketBonus { get; set; }
 
         public string PJewels { get; set; }
+
+        [Column(TypeName = "SMALLINT(5) UNSIGNED")]
+        public byte PetLevel { get; set; }
+
+        [Column(TypeName = "BIGINT(5)")]
+        public int PetEXP { get; set; }
     }
 }

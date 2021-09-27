@@ -2236,5 +2236,17 @@ namespace MU.Network.Game
     [WZContract]
     public class SNeedSpiritMap : IGameMessage
     { }
+
+    [WZContract]
+    public class SPetInfo : IGameMessage
+    {
+        [WZMember(0)] public byte PetType { get; set; }   // 3
+        [WZMember(1)] public byte InvenType { get; set; } // 4
+        [WZMember(2)] public byte nPos { get; set; }  // 5
+        [WZMember(3)] public byte Level { get; set; } // 6
+        [WZMember(4)] public byte padding { get; set; } // 6
+        [WZMember(5)] public int Exp { get; set; }    // 8
+        [WZMember(6)] public byte Dur { get; set; }
+    }
 }
 
