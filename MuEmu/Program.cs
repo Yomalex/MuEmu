@@ -46,6 +46,8 @@ using MU.Resources.Game;
 using MU.Resources.BMD;
 using MuEmu.Network.ConnectServer;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace MuEmu
 {
@@ -68,6 +70,7 @@ namespace MuEmu
         public static GlobalEvents GlobalEventsManager;
         public static GoldenInvasion GoldenInvasionManager;
 
+       
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
@@ -170,6 +173,7 @@ namespace MuEmu
             try
             {
                 ResourceCache.Initialize(".\\Data");
+                MasterLevel.Initialize();
                 // Event Config
                 EventConfig(xml);
                 MonstersMng.Initialize();

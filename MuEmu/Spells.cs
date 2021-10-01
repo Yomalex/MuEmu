@@ -13,13 +13,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MuEmu.Resources.XML;
 
 namespace MuEmu
 {
+    public class SpellMagicInfo : SpellInfo
+    {
+        public bool Changed { get; set; }
+        public short Level { get; set; }
+        public SkillTreeDto MLInfo { get; set; }
+        public bool IsMLSkill => MLInfo != null;
+        public static SpellMagicInfo FromSpellInfo(HeroClass Class, SpellInfo si, short level = 1)
+        {
+            var res = new SpellMagicInfo();
+            res.Level = level;
+            Extensions.AnonymousMap(res, si);
+            res.MLInfo = MasterLevel.MasterSkillTree.Trees.Where(x => x.ID == Class)
+                .SelectMany(x => x.Skill)
+                .Where(x => (Spell)x.MagicNumber == si.Number)
+                .Select(x => x)
+                .FirstOrDefault();
+
+            return res;
+        }
+    }
     public class Spells
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Spells));
-        private Dictionary<Spell, SpellInfo> _spellList;
+        private Dictionary<Spell, SpellMagicInfo> _spellList;
         private List<Buff> _buffs;
         private List<Spell> _newSpell = new List<Spell>();
         private List<Spell> _delSpell = new List<Spell>();
@@ -49,13 +70,13 @@ namespace MuEmu
         public Spells(Monster monster)
         {
             Monster = monster;
-            _spellList = new Dictionary<Spell, SpellInfo>();
+            _spellList = new Dictionary<Spell, SpellMagicInfo>();
             _buffs = new List<Buff>();
         }
 
         public Spells(Character @char, CharacterDto character)
         {
-            _spellList = new Dictionary<Spell, SpellInfo>();
+            _spellList = new Dictionary<Spell, SpellMagicInfo>();
             Player = @char.Player;
             Character = @char;
             _buffs = new List<Buff>();
@@ -65,18 +86,18 @@ namespace MuEmu
             
             foreach (var skill in Character.BaseInfo.Spells)
             {
-                var spell = spells[skill];
+                var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[skill]);
                 _spellList.Add(skill, spell);
                 Logger
                     .ForAccount(Player.Session)
                     .Information("Class Skill Added: {0}", spell.Name);
             }
 
-            foreach (var skill in character.Spells.Select(x => (Spell)x.Magic))
+            foreach (var skill in character.Spells)
             {
-                var spell = spells[skill];
-                _spellList.Add(skill, spell);
-                SetEffect((int)skill);
+                var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[(Spell)skill.Magic],skill.Level);
+                _spellList.Add((Spell)skill.Magic, spell);
+                SetEffect(skill.Magic);
                 Logger
                     .ForAccount(Player.Session)
                     .Information("Learned {0} Skill Added", spell.Name);
@@ -89,7 +110,7 @@ namespace MuEmu
 
             if (!_spellList.ContainsKey(skill))
             {
-                _spellList.Add(skill, spells[skill]);
+                _spellList.Add(skill, SpellMagicInfo.FromSpellInfo(Character.Class, spells[skill]));
                 _newSpell.Add(skill);
                 SetEffect((int)skill);
             }
@@ -177,8 +198,8 @@ namespace MuEmu
             Remove(skill.Number);
         }
 
-        public List<SpellInfo> SpellList => _spellList.Select(x => x.Value).ToList();
-        public IDictionary<Spell, SpellInfo> SpellDictionary => _spellList;
+        public List<SpellMagicInfo> SpellList => _spellList.Select(x => x.Value).ToList();
+        public IDictionary<Spell, SpellMagicInfo> SpellDictionary => _spellList;
 
         public IEnumerable<Buff> BuffList => _buffs;
 
@@ -189,18 +210,26 @@ namespace MuEmu
 
         public async void SendList()
         {
-            var i = 0;
-            var list = new List<MuEmu.Network.Data.SpellDto>();
-            foreach(var magic in _spellList)
-            {
-                list.Add(new MuEmu.Network.Data.SpellDto
+            var list = _spellList
+                .Where(x => !x.Value.IsMLSkill)
+                .Select((x,i) => new MuEmu.Network.Data.SpellDto { 
+                    Index = (byte)i, 
+                    Spell = (ushort)x.Key 
+                })
+                .ToArray();
+            var list2 = _spellList
+                .Where(x => x.Value.IsMLSkill)
+                .Select((x, i) => new MasterSkillInfoDto
                 {
-                    Index = (byte)i,
-                    Spell = (ushort)magic.Key,
-                });
-                i++;
-            }
-            await Player.Session.SendAsync(new SSpells(0, list.ToArray()));
+                    MasterSkillLevel = (byte)x.Value.Level,
+                    MasterSkillUIIndex = (byte)x.Value.MLInfo.Index,
+                    MasterSkillCurValue = x.Value.MLInfo.GetValue(x.Value.Level),
+                    MasterSkillNextValue = x.Value.MLInfo.GetValue((short)(x.Value.Level + 1)),
+                })
+                .ToArray();
+            
+            await Player.Session.SendAsync(new SMasterLevelSkillListS9ENG { Skills = list2 });
+            await Player.Session.SendAsync(new SSpells(0, list));
         }
 
         internal void ItemSkillAdd(Spell skill)
@@ -210,7 +239,7 @@ namespace MuEmu
 
             var pos = _spellList.Count;
             var spells = ResourceCache.Instance.GetSkills();
-            _spellList.Add(skill, spells[skill]);
+            _spellList.Add(skill, SpellMagicInfo.FromSpellInfo(Character.Class, spells[skill]));
 
             if (Player.Status == LoginStatus.Playing)
             {
@@ -470,7 +499,8 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            if (!_newSpell.Any())
+            var changed = _spellList.Where(x => x.Value.Changed).Select(x => x.Value);
+            if (!_newSpell.Any() && !_delSpell.Any() && !changed.Any())
                 return;
 
             _delSpell.ForEach(x => _newSpell.Remove(x));
@@ -482,7 +512,18 @@ namespace MuEmu
                 Magic = (short)x,
             }));
 
-            db.Spells.RemoveRange(db.Spells.Where(x => x.CharacterId == Character.Id && _delSpell.Contains((Spell)x.Magic)));
+            var del = _delSpell.Select(x => (short)x);
+            var toDel = db.Spells.Where(x => x.CharacterId == Character.Id && del.Contains(x.Magic));
+            db.Spells.RemoveRange(toDel);
+
+            var array = changed.Select(x => (short)x.Number);
+            var toUpdate = db.Spells.Where(x => x.CharacterId == Character.Id && array.Contains(x.Magic)).ToList();
+            foreach(var dto in toUpdate)
+            {
+                var newDto = changed.First(x => x.Number == (Spell)dto.Magic);
+                dto.Level = newDto.Level;
+            }
+            db.Spells.UpdateRange(toUpdate);
 
             _newSpell.Clear();
             _delSpell.Clear();

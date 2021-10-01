@@ -1886,10 +1886,10 @@ namespace MU.Network.Game
     public class SMasterLevelUp : IGameMessage
     {
         public SMasterLevelUp() { }
-        public SMasterLevelUp(ushort level, ushort levelAdd, ushort points, ushort maxPoints, ushort maxHealth, ushort maxShield, ushort maxMana, ushort maxStamina)
+        public SMasterLevelUp(ushort level, ushort pointLevelAdd, ushort points, ushort maxPoints, ushort maxHealth, ushort maxShield, ushort maxMana, ushort maxStamina)
         {
             Level = level;
-            LevelAdd = levelAdd;
+            PointLevelAdd = pointLevelAdd;
             Points = points;
             MaxPoints = maxPoints;
             MaxHealth = maxHealth;
@@ -1900,7 +1900,7 @@ namespace MU.Network.Game
 
         //PBMSG_HEAD2 h;
         [WZMember(0)] public ushort Level { get; set; }
-        [WZMember(1)] public ushort LevelAdd { get; set; }
+        [WZMember(1)] public ushort PointLevelAdd { get; set; }
         [WZMember(2)] public ushort Points { get; set; }
         [WZMember(3)] public ushort MaxPoints { get; set; }
         [WZMember(4)] public ushort MaxHealth { get; set; }
@@ -1910,20 +1910,37 @@ namespace MU.Network.Game
     }
 
     [WZContract]
-    public class SMasterLevelSkill : IGameMessage
+    public class SMasterLevelSkillS9ENG : IGameMessage
     {
-        [WZMember(0)]
-        public byte type { get; set; }
-        [WZMember(1)]
-        public byte flag { get; set; }
-        [WZMember(2)]
-        public ushort MasterPoint { get; set; }
-        [WZMember(3)]
-        public Spell MasterSkill { get; set; }
-        [WZMember(4)]
-        public ushort MasterEmpty { get; set; }
-        [WZMember(5)]
-        public uint ChkSum { get; set; }
+        [WZMember(0)] public byte Result { get; set; }//4
+        [WZMember(1)] public byte padding { get; set; }//5
+        [WZMember(2)] public ushort MasterLevelPoint { get; set; }//6,7
+        [WZMember(3)] public byte MasterSkillUIIndex { get; set; }//8
+        [WZMember(4)] public byte padding2 { get; set; }//9
+        [WZMember(5)] public ushort padding3 { get; set; }//A,B
+        [WZMember(6)] public int dwMasterSkillIndex { get; set; }     // C
+        [WZMember(7)] public int dwMasterSkillLevel { get; set; }         // 10
+        [WZMember(8)] public float fMasterSkillCurValue { get; set; }         // 14
+        [WZMember(9)] public float fMasterSkillNextValue { get; set; }		// 18
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SMasterLevelSkillListS9ENG : IGameMessage
+    {
+        [WZMember(0)] public byte Padding1 { get; set; }//5
+        [WZMember(1)] public ushort Padding2 { get; set; }//6,7
+        [WZMember(2, typeof(ArrayWithScalarSerializer<int>))] public MasterSkillInfoDto[] Skills { get; set; }//8
+    }
+
+    [WZContract]
+    public class MasterSkillInfoDto
+    {
+        [WZMember(0)] public byte MasterSkillUIIndex { get; set; }//0
+        [WZMember(1)] public byte MasterSkillLevel { get; set; }//1
+        [WZMember(2)] public ushort fill { get; set; }//2,3
+        [WZMember(3)] public float MasterSkillCurValue { get; set; }//4
+        [WZMember(4)] public float MasterSkillNextValue { get; set; }//8
+        [WZMember(5)] public byte btUnk { get; set; }//12
     }
 
     [WZContract(Serialized = true)]

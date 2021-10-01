@@ -79,7 +79,7 @@ namespace MU.Network
         Command = 0x40F3,
 
         MasterLevelInfo = 0x50F3,
-        MasterLevelUp = 0x51E0,
+        MasterLevelUp = 0x51F3,
         MasterLevelSkill = 0x52F3,
 
         NewQuestInfo = 0x1AF6,
@@ -205,6 +205,7 @@ namespace MU.Network
         ElementDamage = 0xFFD8,
         NeedSpiritMap = 0x21F8,
         PetInfo = 0xFFA9,
+        MasterLevelSkills = 0x53F3,
     }
 
     public enum GensOpCode

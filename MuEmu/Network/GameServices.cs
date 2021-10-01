@@ -2306,54 +2306,66 @@ namespace MuEmu.Network
             var si = ResourceCache.Instance.GetSkills()[message.MasterSkill];
             var @char = session.Player.Character;
 
-            /*var a = $"[MasterSystem] Skill [{message.MasterSkill}]{si.Name} add point";
-            await session.SendAsync(new SNotice(NoticeType.Blue, a));*/
-
             var canUse = si.Classes.Where(x => (x&(HeroClass)(0xF0)) == @char.BaseClass && x <= @char.Class).Any();
             if(!canUse)
             {
                 return;
             }
 
-            if(si.MasterP >= @char.MasterLevel.Points)
+            var skill = MasterLevel.MasterSkillTree
+                .Trees
+                .Where(x => x.ID == session.Player.Character.Class)
+                .SelectMany(y => y.Skill)
+                .Where(x => (Spell)x.MagicNumber == message.MasterSkill)
+                .FirstOrDefault();
+
+            if(skill.ReqMinPoint >= @char.MasterLevel.Points)
             {
                 return;
             }
 
-            var result = @char
+            @char.MasterLevel.Points = (ushort)(@char.MasterLevel.Points-skill.ReqMinPoint);
+
+            var baseSpell = @char
                 .Spells
                 .SpellList
-                .Where(x => x.Rank == si.Rank || x.Number == (Spell)si.Brand)
+                .Where(x => x.Number == (Spell)skill.ParentSkill1)
                 .FirstOrDefault();
 
-            if (si.UseType == 3)
+            var spell = @char.Spells.SpellList.Where(x => x.Number == message.MasterSkill).FirstOrDefault();
+
+            if(skill.ParentSkill1 != 0)
             {
-                if(result != null)
-                {
-                    @char.Spells.Remove(result);
-                    @char.Spells.SendList();
-                }
-                await @char.Spells.TryAdd(si.Number);
-            }else if(si.UseType == 4)
-            {
-                if (result == null)
-                {
+                if (baseSpell == null) {
                     Logger.Error("Don't have previus condition to use skill");
                     return;
                 }
-                @char.Spells.Remove(result);
+
+                @char.Spells.Remove(baseSpell);
                 @char.Spells.SendList();
-                await @char.Spells.TryAdd(si.Number);
             }
 
-            await session.SendAsync(new SMasterLevelSkill
+            if (spell == null)
             {
-                flag = 0,
-                type = 1,
-                MasterEmpty = message.MasterEmpty,
-                MasterPoint = @char.MasterLevel.Points,
-                MasterSkill = message.MasterSkill,
-                ChkSum = 1
+                await @char.Spells.TryAdd(message.MasterSkill);
+            }
+            else
+            {
+                spell.Level++;
+                spell.Changed = true;
+            }
+
+            var curLevel = spell?.Level ?? 1;
+
+            await session.SendAsync(new SMasterLevelSkillS9ENG
+            {
+                Result = 1,
+                MasterLevelPoint = @char.MasterLevel.Points,
+                MasterSkillUIIndex = (byte)skill.Index,
+                dwMasterSkillIndex = (int)message.MasterSkill,
+                dwMasterSkillLevel = curLevel,
+                fMasterSkillCurValue = skill.GetValue(curLevel),
+                fMasterSkillNextValue = skill.GetValue((short)(curLevel + 1)),
             });
         }
 
@@ -2639,27 +2651,21 @@ namespace MuEmu.Network
         public async Task CPShopSearchItem(GSSession session, CPShopSearchItem message)
         {
             IEnumerable<PShop> shopList;
-            if(message.sSearchItem == -1)
-            {
-                shopList = from cl in Program.server.Clients
-                           where
-                           cl.Player != null &&
-                           cl.Player.Status == LoginStatus.Playing &&
-                           cl.Player.Character.Shop.Open == true &&
-                           (cl.Player.Character.MapID == Maps.Lorencia || cl.Player.Character.MapID == Maps.Davias || cl.Player.Character.MapID == Maps.Noria || cl.Player.Character.MapID == Maps.Elbeland)
-                           select cl.Player.Character.Shop;
-            }
-            else
-            {
-                shopList = from cl in Program.server.Clients
-                           where
-                           cl.Player != null &&
-                           cl.Player.Status == LoginStatus.Playing &&
-                           cl.Player.Character.Shop.Open == true &&
-                           (cl.Player.Character.MapID == Maps.Lorencia || cl.Player.Character.MapID == Maps.Davias || cl.Player.Character.MapID == Maps.Noria || cl.Player.Character.MapID == Maps.Elbeland) &&
-                           cl.Player.Character.Inventory.PersonalShop.Items.Values.Count(x => x.Number.Number == (ushort)message.sSearchItem) != 0
-                           select cl.Player.Character.Shop;
 
+            shopList = from cl in Program.server.Clients
+                        where
+                        cl.Player != null &&
+                        cl.Player.Status == LoginStatus.Playing &&
+                        cl.Player.Character.Shop.Open == true &&
+                        (cl.Player.Character.MapID == Maps.Lorencia || cl.Player.Character.MapID == Maps.Davias || cl.Player.Character.MapID == Maps.Noria || cl.Player.Character.MapID == Maps.Elbeland || cl.Player.Character.MapID == Maps.LorenMarket)
+                        select cl.Player.Character.Shop;
+
+            if (message.sSearchItem != -1)
+            {
+                shopList = from cl in shopList
+                           where
+                           cl.Chararacter.Inventory.PersonalShop.Items.Values.Count(x => x.Number.Number == (ushort)message.sSearchItem) != 0
+                           select cl;
             }
 
             shopList = shopList.Skip(message.iLastCount).Take(50);

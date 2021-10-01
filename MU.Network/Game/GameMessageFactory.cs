@@ -221,7 +221,8 @@ namespace MU.Network.Game
             #region Server MasterLevelMessages
             Register<SMasterInfo>(GameOpCode.MasterLevelInfo);
             Register<SMasterLevelUp>(GameOpCode.MasterLevelUp);
-            Register<SMasterLevelSkill>(GameOpCode.MasterLevelSkill);
+            Register<SMasterLevelSkillS9ENG>(GameOpCode.MasterLevelSkill);
+            Register<SMasterLevelSkillListS9ENG>(GameOpCode.MasterLevelSkills);
             #endregion
 
             Register<CTradeRequest>(GameOpCode.TradeRequest);

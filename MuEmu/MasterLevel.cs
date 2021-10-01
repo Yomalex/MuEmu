@@ -8,9 +8,16 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using MU.Resources;
+using System.Linq;
+using MuEmu.Resources.XML;
+using System.IO;
 
 namespace MuEmu
 {
+    public class LambdaExp
+    {
+        public Func<short, float> Del;
+    }
     public class MasterLevel
     {
         private bool _needSave;
@@ -18,6 +25,8 @@ namespace MuEmu
         private ulong _experience;
         private ushort _points;
         private bool _new;
+
+        public static MasterSkillTreeDto MasterSkillTree { get; set; }
 
         public ushort Level
         {
@@ -46,13 +55,18 @@ namespace MuEmu
             }
         }
         public Character Character { get; private set; }
+        public static void Initialize()
+        {
+            if (MasterSkillTree == null)
+                MasterSkillTree = Resources.ResourceLoader.XmlLoader<MasterSkillTreeDto>("./Data/MasterSkillTree.xml");
+        }
         public MasterLevel(Character @char, CharacterDto @charDto)
         {
             Character = @char;
             _new = @charDto.MasterInfo == null;
             Level = @charDto.MasterInfo?.Level ?? 1;
             Experience = @charDto.MasterInfo?.Experience ?? 0;
-            Points = @charDto.MasterInfo?.Points ?? 0;
+            Points = @charDto.MasterInfo?.Points ?? 0;            
         }
 
         public void GetExperience(ulong exp)
@@ -80,7 +94,7 @@ namespace MuEmu
 
                 Character.CalcStats();
                 Character.Player.Session
-                    .SendAsync(new SMasterLevelUp(Level, (ushort)LevelAdd, Points, maxPoints:(ushort)200, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
+                    .SendAsync(new SMasterLevelUp(Level, (ushort)levelPoint, Points, maxPoints:(ushort)200, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
 
                 Character.Player.Session.SendAsync(new SEffect(Character.Index, ClientEffect.LevelUp)).Wait();
             }
@@ -102,15 +116,28 @@ namespace MuEmu
             return exp;
         }
 
-        public void SendInfo()
+        public async void SendInfo()
         {
             if (Character.MasterClass)
             {
-                Character.Player.Session.SendAsync(new SMasterInfo((ushort)(Level + Character.Level - 1), Character.Level >= 400 ? Experience : Character.Experience, NextExperience, Points, (ushort)Character.MaxHealth, (ushort)Character.MaxShield, (ushort)Character.MaxMana, (ushort)Character.MaxStamina)).Wait();
+                var XPSend = Character.Level >= 400 ? Experience : Character.Experience;
+                await Character
+                    .Player
+                    .Session
+                    .SendAsync(new SMasterInfo(
+                        Level, 
+                        XPSend, 
+                        NextExperience, 
+                        Points, 
+                        (ushort)Character.MaxHealth, 
+                        (ushort)Character.MaxShield, 
+                        (ushort)Character.MaxMana, 
+                        (ushort)Character.MaxStamina
+                        ));
             }
         }
 
-        public void Save(GameContext db)
+        public async Task Save(GameContext db)
         {
             if (!_needSave || !Character.MasterClass)
                 return;
@@ -128,13 +155,11 @@ namespace MuEmu
                 return;
             }
 
-            db.MasterLevel.Update(new MasterInfoDto
-            {
-                MasterInfoId = Character.Id,
-                Experience = Experience,
-                Level = Level,
-                Points = Points,
-            });
+            var info = db.MasterLevel.First(x => x.MasterInfoId == Character.Id);
+            info.Experience = Experience;
+            info.Level = Level;
+            info.Points = Points;
+            db.MasterLevel.Update(info);
         }
     }
 }

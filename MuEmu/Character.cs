@@ -1202,7 +1202,7 @@ namespace MuEmu
             await Inventory.Save(db);
             await Spells.Save(db);
             await Quests.Save(db);
-            MasterLevel.Save(db);
+            await MasterLevel.Save(db);
             await db.SaveChangesAsync();
         }
 
