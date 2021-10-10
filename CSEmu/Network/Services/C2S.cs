@@ -36,8 +36,12 @@ namespace CSEmu.Network.Services
         [WZMember(4, 16)]
         public byte[] btToken { get; set; }
 
+        [WZMember(5, 16)]
+        public byte[] btName { get; set; }
+
         public string Address { get => btAddress.MakeString(); set => btAddress = value.GetBytes(); }
         public string Token { get => btToken.MakeString(); set => btToken = value.GetBytes(); }
+        public string Name { get => btName.MakeString(); set => btName = value.GetBytes(); }
     }
 
     [WZContract]

@@ -85,7 +85,7 @@ namespace MuEmu
             {
                 try
                 {
-                    Program.client = new CSClient(Instance._csIp, Instance._handlers, Instance._factories, Program.ServerCode, Program.server, Instance._show, Instance._token);
+                    Program.client = new CSClient(Instance._csIp, Instance._handlers, Instance._factories, Program.ServerCode, Program.server, Instance._show, Instance._token, Program.Name);
 
                     while (!Program.client.Closed)
                     {

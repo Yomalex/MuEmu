@@ -109,10 +109,10 @@ namespace MuEmu
         private static Dictionary<int, IBSCategory> cat;
         private static Dictionary<int, IBSPackage> pack;
 
-        public static void Initialize(ushort ver1, ushort ver2, ushort ver3)
+        public static void Initialize(ushort[] ver)
         {
-            version = new ushort[] { ver1, ver2, ver3 };
-            var root = $"./Data/CashShop/{ver1}.{ver2}.{ver3}/";
+            version = new ushort[] { ver[0], ver[1], ver[2] };
+            var root = $"./Data/CashShop/{ver[0]}.{ver[1]}.{ver[2]}/";
 
             cat = new Dictionary<int, IBSCategory>();
             pack = new Dictionary<int, IBSPackage>();

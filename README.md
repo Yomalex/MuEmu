@@ -23,35 +23,60 @@ Incluye una lista de comandos que irá creciendo con el tiempo.
 la configuracion viene en XML, en el archivo server.xml generado de forma automática al abrir el Servidor.
 
     <?xml version="1.0"?>
-	<Server xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	  <Version>10635</Version>                              
-	  <Serial>fughy683dfu7teqg</Serial>
-	  <Name>GameServer</Name>
-	  <Code>0</Code>
-	  <Show>1</Show>
-	  <IP>127.0.0.1</IP>
-	  <Port>55901</Port>
-	  <ConnectServerIP>127.0.0.1</ConnectServerIP>
-	  <Experience>10</Experience>
-	  <AutoRegistre>true</AutoRegistre>
-	  <Zen>10</Zen>
-	  <DropRate>60</DropRate>
-	  <DBIp>127.0.0.1</DBIp>
-	  <DataBase>MuOnline</DataBase>
-	  <BDUser>root</BDUser>
-	  <DBPassword></DBPassword>
-	  <Rijndael>0</Rijndael>
-      
+    <Server xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <Name>GameServer</Name>
+      <Code>0</Code>
+      <Show>1</Show>
+      <Lang>es</Lang>
+      <AutoRegister>true</AutoRegister>
+      <Season>Season9Eng</Season>
+      <Connection>
+        <IP>127.0.0.1</IP>
+        <Port>55901</Port>
+        <ConnectServerIP>127.0.0.1</ConnectServerIP>
+        <APIKey>2020110116</APIKey>
+      </Connection>
+      <Database>
+        <DBIp>127.0.0.1</DBIp>
+        <DataBase>MuOnline</DataBase>
+        <BDUser>root</BDUser>
+        <DBPassword>1234</DBPassword>
+      </Database>
+      <Client>
+        <Version>10525</Version>
+        <Serial>fughy683dfu7teqg</Serial>
+        <CashShopVersion>512.2014.124</CashShopVersion>
+      </Client>
+      <GamePlay>
+        <Experience>10</Experience>
+        <Zen>10</Zen>
+        <DropRate>60</DropRate>
+        <MaxPartyLevelDifference>400</MaxPartyLevelDifference>
+      </GamePlay>
+      <Files>
+        <Monsters>./Data/Monsters/Monster</Monsters>
+        <MonsterSetBase>./Data/Monsters/MonsterSetBase</MonsterSetBase>
+        <MapServer>./Data/MapServer.xml</MapServer>
+      </Files>
+
+      <!-- Events -->
       <Event name="Sphere" active="1" rate="15">
         <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
       </Event>
+      <Event name="Acheron Spirit Map Fragment" active="1" rate="15">
+        <Condition item="6801" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
       <Event name="Kanturu" active="1" rate="5">
+        <!--Gemstone-->
         <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru1" />
         <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
       </Event>
       <Event name="Special Item drop" active="1" rate="10">
+        <!--DarkHorse Spirit-->
         <Condition item="6687" itemLevel="0" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
+        <!--DarkRaven Spirit-->
         <Condition item="6687" itemLevel="1" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
+        <!--Sing of lord-->
         <Condition item="7189" itemLevel="3" mobMinLevel="95" mobMaxLevel="150" map="InvalidMap" />
       </Event>
       <Event name="Kalima" active="1" rate="10">
@@ -95,7 +120,7 @@ la configuracion viene en XML, en el archivo server.xml generado de forma autom�
       <Event name="Halloween" active="1" rate="10">
         <Condition item="7213" itemLevel="0" mobMinLevel="50" mobMaxLevel="1000" map="InvalidMap" />
       </Event>
-	</Server>
+    </Server>
 
 ### Comandos
  - **db:** Maneja la base de datos, permite crear, borrar o actualizar la estructura de la misma. Subcomandos:

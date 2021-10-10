@@ -66,6 +66,7 @@ namespace MuEmu
         public static float Zen { get; set; }
         public static int DropRate { get; set; }
         public static ServerSeason Season { get; set; }
+        public static string Name { get; set; }
 
         public static EventManagement EventManager;
         public static GlobalEvents GlobalEventsManager;
@@ -110,9 +111,10 @@ namespace MuEmu
             var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
             ServerMessages.LoadMessages($"./Data/Lang/ServerMessages({xml.Lang}).xml");
 
-            Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Version, xml.Serial, xml.DataBase);
+            Name = xml.Name;
+            Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Client.Version, xml.Client.Serial, xml.Database.DataBase);
 
-            ConnectionString = $"Server={xml.DBIp};port=3306;Database={xml.DataBase};user={xml.BDUser};password={xml.DBPassword};Convert Zero Datetime=True;";
+            ConnectionString = $"Server={xml.Database.DBIp};port=3306;Database={xml.Database.DataBase};user={xml.Database.BDUser};password={xml.Database.DBPassword};Convert Zero Datetime=True;";
 
             GameContext.ConnectionString = ConnectionString;
             SimpleModulus.LoadDecryptionKey("./Data/Dec1.dat");
@@ -120,13 +122,13 @@ namespace MuEmu
             byte[] key = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
             PacketEncrypt.Initialize(key);
 
-            var ip = new IPEndPoint(IPAddress.Parse(xml.IP), xml.Port);
-            var csIP = new IPEndPoint(IPAddress.Parse(xml.ConnectServerIP), 44405);
+            var ip = new IPEndPoint(IPAddress.Parse(xml.Connection.IP), xml.Connection.Port);
+            var csIP = new IPEndPoint(IPAddress.Parse(xml.Connection.ConnectServerIP), 44405);
             AutoRegistre = xml.AutoRegister;
             ServerCode = (ushort)xml.Code;
-            Experience = xml.Experience;
-            Zen = xml.Zen;
-            DropRate = xml.DropRate;
+            Experience = xml.GamePlay.Experience;
+            Zen = xml.GamePlay.Zen;
+            DropRate = xml.GamePlay.DropRate;
             Season = xml.Season;
 
             VersionSelector.Initialize(xml.Season);
@@ -165,8 +167,8 @@ namespace MuEmu
                 new GensMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf, NewEncode(Season));
-            server.ClientVersion = xml.Version;
-            server.ClientSerial = xml.Serial;
+            server.ClientVersion = xml.Client.Version;
+            server.ClientSerial = xml.Client.Serial;
 
             var cmh = new MessageHandler[]
             {
@@ -186,18 +188,18 @@ namespace MuEmu
                 // Event Config
                 EventConfig(xml);
                 MonstersMng.Initialize();
-                MonstersMng.Instance.LoadMonster("./Data/Monsters/Monster");
+                MonstersMng.Instance.LoadMonster(xml.Files.Monsters);
                 MonsterIA.Initialize("./Data/Monsters/");
                 EventInitialize();
 
-                MapServerManager.Initialize("./Data/MapServer.xml");
-                MonstersMng.Instance.LoadSetBase("./Data/"+xml.MonsterSetBase);
+                MapServerManager.Initialize(xml.Files.MapServer);
+                MonstersMng.Instance.LoadSetBase(xml.Files.MonsterSetBase);
                 GuildManager.Initialize();
-                PartyManager.Initialzie(400);
+                PartyManager.Initialzie(xml.GamePlay.MaxPartyLevelDifference);
                 DuelSystem.Initialize();
                 SubSystem.Initialize();
                 Marlon.Initialize();
-                CashShop.Initialize(512, 2014, 124);
+                CashShop.Initialize(xml.Client.CashShopVersion.Split(".").Select(x => ushort.Parse(x)).ToArray());
                 Pentagrama.Initialize();
             }
             catch(MySql.Data.MySqlClient.MySqlException ex)
@@ -212,7 +214,7 @@ namespace MuEmu
                 Log.Error(ex, ServerMessages.GetMessage(Messages.Server_Error));
             }
 
-            SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.APIKey);
+            SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.Connection.APIKey);
 
             Log.Information(ServerMessages.GetMessage(Messages.Server_Disconnecting_Accounts));
             try

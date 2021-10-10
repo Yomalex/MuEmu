@@ -24,7 +24,7 @@ namespace MuEmu.Network.ConnectServer
         private byte[] _buffer;
         private string _token;
 
-        public CSClient(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, ushort index, WZServer server, byte show, string token) : base(null, null, null)
+        public CSClient(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, ushort index, WZServer server, byte show, string token, string name) : base(null, null, null)
         {
             _client = new TcpClient();
             _client.Connect(ip);
@@ -45,7 +45,7 @@ namespace MuEmu.Network.ConnectServer
             thread.Start(this);
 
             _token = token;
-            SendAsync(new CRegistryReq { Index = index, Address = server.IPAddress.ToString(), Port = server.Port, Show = show, Token = token });
+            SendAsync(new CRegistryReq { Index = index, Address = server.IPAddress.ToString(), Port = server.Port, Show = show, Token = token, Name = name });
         }
 
         private static void Worker(object param)

@@ -12,6 +12,7 @@ namespace CSEmu
     {
         public ushort Index { get; set; }
         public string Address { get; set; }
+        public string Name { get; set; }
         public ushort Port { get; set; }
         public byte Load { get; set; }
         public DateTime LastPush { get; set; }
@@ -42,7 +43,7 @@ namespace CSEmu
             Instance._token = token;
         }
 
-        public void Register(CSSession session, byte index, string address, ushort port, bool display, string token)
+        public void Register(CSSession session, byte index, string address, ushort port, bool display, string token, string name)
         {
             if(_token != token)
             {
@@ -52,13 +53,13 @@ namespace CSEmu
 
             lock (_servers)
             {
-                _servers.Add(index, new ServerInfo { Index = index, Address = address, Port = port, LastPush = DateTime.Now, Visible = display });
+                _servers.Add(index, new ServerInfo { Index = index, Address = address, Port = port, LastPush = DateTime.Now, Visible = display, Name = name });
                 _GSsessions.Add(session, index);
             }
 
             Program.Clients.AddServer(index);
 
-            Logger.Information("New server found [{0}] {1}:{2} {3}", index, address, port, display ? "SHOW":"HIDE");
+            Logger.Information("New server found [{0}]{4} {1}:{2} {3}", index, address, port, display ? "SHOW":"HIDE", name);
         }
 
         public void Unregister(byte index)

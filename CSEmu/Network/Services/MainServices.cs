@@ -26,7 +26,7 @@ namespace CSEmu.Network.Services
         public void ServerInfoHandler(CSSession session, CServerInfo message)
         {
             var server = ServerManager.Instance.GetServer(message.Index);
-            Logger.Information("Forwarding to {0}:{1}", server.Address, server.Port);
+            Logger.Information("Forwarding to {0}", server.Name);
             session.SendAsync(new SServerInfo
             {
                 Address = server.Address,
@@ -37,7 +37,7 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CRegistryReq))]
         public void RegistryHandler(CSSession session, CRegistryReq message)
         {
-            ServerManager.Instance.Register(session, (byte)message.Index, message.Address, message.Port, message.Show != 0, message.Token);
+            ServerManager.Instance.Register(session, (byte)message.Index, message.Address, message.Port, message.Show != 0, message.Token, message.Name);
         }
 
         [MessageHandler(typeof(CKeepAlive))]
