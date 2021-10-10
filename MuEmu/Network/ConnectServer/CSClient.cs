@@ -22,13 +22,13 @@ namespace MuEmu.Network.ConnectServer
         private MessageHandler[] _handler;
         private TcpClient _client;
         private byte[] _buffer;
-        private WZServer _GameServer;
         private string _token;
 
         public CSClient(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, ushort index, WZServer server, byte show, string token) : base(null, null, null)
         {
             _client = new TcpClient();
             _client.Connect(ip);
+            _sock = _client.Client;
 
             _buffer = new byte[1024];
             _handler = handlers;
@@ -39,7 +39,7 @@ namespace MuEmu.Network.ConnectServer
             _client.Client.BeginReceive(_buffer, 0, 1024, SocketFlags.None, ReceiveCallback, this);
 
             Index = index;
-            _GameServer = server;
+            _server = server;
 
             var thread = new Thread(Worker);
             thread.Start(this);
@@ -56,7 +56,7 @@ namespace MuEmu.Network.ConnectServer
             {
                 Thread.Sleep(10000);
 
-                instance.SendAsync(new CKeepAlive { Index = instance.Index, Load = (byte)instance._GameServer.Load, Token = instance._token });
+                instance.SendAsync(new CKeepAlive { Index = instance.Index, Load = (byte)instance._server.Load, Token = instance._token });
             }
         }
 

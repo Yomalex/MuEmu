@@ -176,7 +176,9 @@ namespace WebZen.Network
         protected AsyncCallback _onRecv;
         protected short _inSerial;
         public short _outSerial;
-        public bool Closed { get; private set; }
+
+        private bool _closed;
+        public bool Closed { get => _closed | !(_sock?.Connected??false); private set => _closed = value; }
 
         public byte[] Data => _recvBuffer;
         public byte[] Received(IAsyncResult ar)

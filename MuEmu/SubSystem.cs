@@ -18,6 +18,10 @@ using MuEmu.Util;
 using MU.Resources;
 using MU.Network.Guild;
 using MU.Network.GensSystem;
+using System.Net;
+using MuEmu.Network.ConnectServer;
+using WebZen.Handlers;
+using WebZen.Network;
 
 namespace MuEmu
 {
@@ -37,7 +41,13 @@ namespace MuEmu
         private Thread _workerEvents;
         private Thread _workerSavePlayers;
         private Thread _workerIA;
+        private Thread _workerCS;
         private List<DelayedMessage> _delayedMessages;
+        private IPEndPoint _csIp;
+        private MessageHandler[] _handlers;
+        private MessageFactory[] _factories;
+        private byte _show;
+        private string _token;
         public static SubSystem Instance { get; set; }
 
         public SubSystem()
@@ -50,12 +60,47 @@ namespace MuEmu
             _workerIA = new Thread(WorkerIA);
         }
 
+        public static void CSSystem(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, byte show, string token)
+        {
+            Instance._csIp = ip;
+            Instance._workerCS = new Thread(WorkerCS);
+            Instance._handlers = handlers;
+            Instance._factories = factories;
+            Instance._show = show;
+            Instance._token = token;
+            Instance._workerCS.Start();
+        }
+
         public void AddDelayedMessage(Player plr, TimeSpan time, object message)
         {
             if (plr == null)
                 return;
 
             _delayedMessages.Add(new DelayedMessage { Player = plr, Message = message, Time = DateTimeOffset.Now.Add(time) });
+        }
+
+        private static async void WorkerCS()
+        {
+            do
+            {
+                try
+                {
+                    Program.client = new CSClient(Instance._csIp, Instance._handlers, Instance._factories, Program.ServerCode, Program.server, Instance._show, Instance._token);
+
+                    while (!Program.client.Closed)
+                    {
+                        await Task.Delay(1000);
+                    }
+
+                    Log.Error("Connection with CS lost");
+                }
+                catch (Exception)
+                {
+                    Log.Error(ServerMessages.GetMessage(Messages.Server_CSServer_Error));
+                }
+
+                await Task.Delay(30000);
+            } while (true);
         }
 
         private static async void WorkerDelayed()

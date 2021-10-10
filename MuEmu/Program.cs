@@ -48,6 +48,7 @@ using MuEmu.Network.ConnectServer;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace MuEmu
 {
@@ -211,13 +212,7 @@ namespace MuEmu
                 Log.Error(ex, ServerMessages.GetMessage(Messages.Server_Error));
             }
 
-            try
-            {
-                client = new CSClient(csIP, cmh, cmf, (ushort)xml.Code, server, (byte)xml.Show, xml.APIKey);
-            }catch(Exception)
-            {
-                Log.Error(ServerMessages.GetMessage(Messages.Server_CSServer_Error));
-            }
+            SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.APIKey);
 
             Log.Information(ServerMessages.GetMessage(Messages.Server_Disconnecting_Accounts));
             try
