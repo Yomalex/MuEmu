@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using MU.Resources;
+using MU.Network;
 
 namespace MuEmu
 {
@@ -146,15 +148,7 @@ namespace MuEmu
             session.SendAsync(new SCashVersion { Ver1 = version[0], Ver2 = version[1], Ver3 = version[2] }).Wait();
             session.SendAsync(new SCashBanner { Ver1 = 583, Ver2 = 2014, Ver3 = 001 }).Wait();
 
-            switch(Program.Season)
-            {
-                case 9:
-                    session.SendAsync(new SCashPointsS9()).Wait();
-                    break;
-                default:
-                    session.SendAsync(new SCashPoints()).Wait();
-                    break;
-            }
+            session.SendAsync(VersionSelector.CreateMessage<SCashPoints>()).Wait();
 
             _player = session.Player;
             log = Logger.ForAccount(session);
@@ -170,7 +164,7 @@ namespace MuEmu
                 GoblinPoint = _goblinPoints,
                 TotalCash = _wCoinC,
                 TotalPoint = _wCoinP + _goblinPoints,
-            });
+            }).Wait();
         }
 
         public async void SendInventory(CCashInventoryItem message)

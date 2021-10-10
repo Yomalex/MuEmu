@@ -174,6 +174,56 @@ namespace MuEmu
         public Element PentagramaMainAttribute { get => (Element)(BonusSocket&0x0f); set => BonusSocket = (byte)(((byte)value) | (BonusSocket&0xF0)); }
         public long[] PentagramJewels { get; set; } = new long[5];
 
+        public int WingType => ((ushort)Number) switch
+        {
+            6144 => 1,
+            6145 => 1,
+            6146 => 1,
+            6147 => 2,
+            6148 => 2,
+            6149 => 2,
+            6150 => 2,
+            6180 => 3,
+            6181 => 3,
+            6182 => 3,
+            6183 => 3,
+            6184 => 3,
+            6185 => 1,
+            6186 => 2,
+            6187 => 3,
+            6406 => 4,
+            6407 => 4,
+            6408 => 4,
+            6409 => 4,
+            6410 => 4,
+            6411 => 4,
+            _ => 0,
+        };
+
+        /// <summary>
+        ///  Wing Damage Absorb in percent
+        /// </summary>
+        public float WingDmgAbsorb => WingType switch
+        {
+            1 => 0.12f + Plus * 0.02f,
+            2 => 0.25f + Plus * 0.02f,
+            3 => 0.39f + Plus * 0.02f,
+            4 => 0.43f + Plus * 0.02f,
+            _ => 0.0f,
+        };
+
+        /// <summary>
+        /// Wing Damage increment in percent
+        /// </summary>
+        public float WingDmgAdd => WingType switch
+        {
+            1 => 0.12f + Plus * 0.02f,
+            2 => 0.32f + Plus * 0.01f,
+            3 => 0.39f + Plus * 0.02f,
+            4 => 0.55f + Plus * 0.01f,
+            _ => 0.0f,
+        };
+
         public uint PShopValue { get; set; }
 
         public bool NeedSave { get; set; }

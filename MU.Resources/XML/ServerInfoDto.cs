@@ -29,9 +29,9 @@ namespace MuEmu.Resources.XML
         [XmlElement] public string DataBase { get; set; } = "MuOnline";
         [XmlElement] public string BDUser { get; set; } = "root";
         [XmlElement] public string DBPassword { get; set; } = "1234";
-        [XmlElement] public bool Rijndael { get; set; } = false;
+        //[XmlElement] public bool Rijndael { get; set; } = false;
         [XmlElement] public string APIKey { get; set; } = "2020110116";
-        [XmlElement] public int Season { get; set; } = 6;
+        [XmlElement] public ServerSeason Season { get; set; } = ServerSeason.Season6Kor;
         [XmlElement("Event")] public EventDto[] Events { get; set; } = Array.Empty<EventDto>();
     }
 

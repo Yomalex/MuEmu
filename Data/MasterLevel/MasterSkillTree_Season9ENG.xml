@@ -21,7 +21,7 @@
 
 <MasterSkillTree>
 	<Class ID="BladeMaster"><!-- Protection - Passive (Blade Master) -->
-			<Skill Index="1"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="300" Name="Durability Reduction (1)" />
+			<Skill Index="1"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="300" Name="Durability Reduction (1)" Property="RepairLevel1" />
 			<Skill Index="4"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="301" Name="PvP Defence Rate Increase" />
 			<Skill Index="6"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="302" Name="Maximum SD increase" />
 			<Skill Index="7"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="303" Name="Automatic Mana Recovery Increase" />
@@ -249,28 +249,28 @@
 	</Class>
 	<Class ID="DimensionMaster">
     <!-- Guardian - Passive (Dimension Master) -->
-			<Skill Index="1"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="300" Name="Durability Reduction (1)" Ecuation="(1 + ((((((({0} - 30)*({0} - 30)*({0} - 30)) + 25000) / 499) / 6)))) * 10" />
-			<Skill Index="4"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="301" Name="PvP Defence Rate Increase)" Ecuation="614" />
-			<Skill Index="6"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="302" Name="Maximum SD increase)" />
-			<Skill Index="7"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="303" Name="Automatic Mana Recovery Increase)" />
-			<Skill Index="8"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="304" Name="Poison Resistance Increase)" />
-			<Skill Index="9"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="300" ParentSkill2="0" MagicNumber="305" Name="Durability Reduction (2))" />
-			<Skill Index="10" ReqMinPoint="1" MaxPoint="20" ParentSkill1="302" ParentSkill2="0" MagicNumber="306" Name="SD Recovery Speed Increase)" />
-			<Skill Index="11" ReqMinPoint="1" MaxPoint="20" ParentSkill1="303" ParentSkill2="0" MagicNumber="307" Name="Automatic HP Recovery Increase)" />
-			<Skill Index="12" ReqMinPoint="1" MaxPoint="20" ParentSkill1="304" ParentSkill2="0" MagicNumber="308" Name="Lightning Resistance Increase)" />
-			<Skill Index="14" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="309" Name="Defense Increase)" />
-			<Skill Index="15" ReqMinPoint="1" MaxPoint="20" ParentSkill1="307" ParentSkill2="0" MagicNumber="310" Name="Automatic AG Recovery Increase)" />
-			<Skill Index="16" ReqMinPoint="1" MaxPoint="20" ParentSkill1="308" ParentSkill2="0" MagicNumber="311" Name="Ice Resistance Increase)" />
-			<Skill Index="17" ReqMinPoint="1" MaxPoint="20" ParentSkill1="305" ParentSkill2="0" MagicNumber="312" Name="Durability Reduction (3))" />
-			<Skill Index="18" ReqMinPoint="1" MaxPoint="20" ParentSkill1="309" ParentSkill2="0" MagicNumber="313" Name="Defense Success Rate Increase)" />
-			<Skill Index="23" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="315" Name="Armor Set Bonus Increase)" />
-			<Skill Index="24" ReqMinPoint="1" MaxPoint="20" ParentSkill1="315" ParentSkill2="0" MagicNumber="316" Name="Vengeance)" />
-			<Skill Index="25" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="317" Name="Energy Increase)" />
-			<Skill Index="26" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="318" Name="Stamina Increase)" />
-			<Skill Index="27" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="319" Name="Agility Increase)" />
-			<Skill Index="28" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="320" Name="Strength Increase)" />
-			<Skill Index="30" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="446" Name="DimensionWings Defense PowUp)" />
-			<Skill Index="34" ReqMinPoint="1" MaxPoint="20" ParentSkill1="446" ParentSkill2="0" MagicNumber="447" Name="DimensionWings Attack PowUp)" />
+			<Skill Index="1"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="300" Name="Durability Reduction (1)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="RepairLevel1" />
+			<Skill Index="4"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="301" Name="PvP Defence Rate Increase)" Ecuation="85*({0} - 30)*({0} - 30)*({0} - 30)/499 + 2379490/499" Property="PvPDefenceSuccessRate" />
+			<Skill Index="6"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="302" Name="Maximum SD increase)" Ecuation="425*({0} - 30)*({0} - 30)*({0} - 30)/2994 + 5948725/1497" Property="IncreaseMaxSD" />
+			<Skill Index="7"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="303" Name="Automatic Mana Recovery Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/1996 + 13997/998" Property="IncreaseAutoMPRegeneration" />
+			<Skill Index="8"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="304" Name="Poison Resistance Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="PoisonResistance" />
+			<Skill Index="9"  ReqMinPoint="1" MaxPoint="20" ParentSkill1="300" ParentSkill2="0" MagicNumber="305" Name="Durability Reduction (2))" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="RepairLevel2" />
+			<Skill Index="10" ReqMinPoint="1" MaxPoint="20" ParentSkill1="302" ParentSkill2="0" MagicNumber="306" Name="SD Recovery Speed Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="IncreaseAutoSDRegeneration" />
+			<Skill Index="11" ReqMinPoint="1" MaxPoint="20" ParentSkill1="303" ParentSkill2="0" MagicNumber="307" Name="Automatic HP Recovery Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="IncreaseAutoHPRegeneration" />
+			<Skill Index="12" ReqMinPoint="1" MaxPoint="20" ParentSkill1="304" ParentSkill2="0" MagicNumber="308" Name="Lightning Resistance Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="LightningResistance" />
+			<Skill Index="14" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="309" Name="Defense Increase)" Ecuation="25*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 699850/1497" Property="IncreaseDefense" />
+			<Skill Index="15" ReqMinPoint="1" MaxPoint="20" ParentSkill1="307" ParentSkill2="0" MagicNumber="310" Name="Automatic AG Recovery Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="IncreaseAutoBPRegeneration" />
+			<Skill Index="16" ReqMinPoint="1" MaxPoint="20" ParentSkill1="308" ParentSkill2="0" MagicNumber="311" Name="Ice Resistance Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="IceResistance" />
+			<Skill Index="17" ReqMinPoint="1" MaxPoint="20" ParentSkill1="305" ParentSkill2="0" MagicNumber="312" Name="Durability Reduction (3))" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="RepairLevel3" />
+			<Skill Index="18" ReqMinPoint="1" MaxPoint="20" ParentSkill1="309" ParentSkill2="0" MagicNumber="313" Name="Defense Success Rate Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/2994 + 13997/1497" Property="IncreaseDefenseSuccessRate" />
+			<Skill Index="23" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="315" Name="Armor Set Bonus Increase)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/499 + 275449/4990" Property="" />
+			<Skill Index="24" ReqMinPoint="1" MaxPoint="20" ParentSkill1="315" ParentSkill2="0" MagicNumber="316" Name="Vengeance)" Ecuation="({0} - 30)*({0} - 30)*({0} - 30)/9980 + 85953/24950" />
+			<Skill Index="25" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="317" Name="Energy Increase)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="IncreaseMaxMP" />
+			<Skill Index="26" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="318" Name="Stamina Increase)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="IncreaseMaxAG" />
+			<Skill Index="27" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="319" Name="Agility Increase)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="IncreaseAgility" />
+			<Skill Index="28" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="320" Name="Strength Increase)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="IncreaseStrength" />
+			<Skill Index="30" ReqMinPoint="1" MaxPoint="20" ParentSkill1="0"   ParentSkill2="0" MagicNumber="446" Name="DimensionWings Defense PowUp)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="WingsDefensePowUp" />
+			<Skill Index="34" ReqMinPoint="1" MaxPoint="20" ParentSkill1="446" ParentSkill2="0" MagicNumber="447" Name="DimensionWings Attack PowUp)" Ecuation="5*({0} - 30)*({0} - 30)*({0} - 30)/1497 + 139970/1497" Property="WingsAttackPowUp" />
 		 <!-- Chaos - Skill Enhancement (Dimension Master) -->
 			<Skill Index="37" ReqMinPoint="1"  MaxPoint="20" ParentSkill1="0"   ParentSkill2="0"   MagicNumber="325" Name="Attack Success Rate Increase" />
 			<Skill Index="41" ReqMinPoint="1"  MaxPoint="20" ParentSkill1="0"   ParentSkill2="0"   MagicNumber="448" Name="Fire Tome Strengthener" />

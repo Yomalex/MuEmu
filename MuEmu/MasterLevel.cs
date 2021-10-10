@@ -14,10 +14,6 @@ using System.IO;
 
 namespace MuEmu
 {
-    public class LambdaExp
-    {
-        public Func<short, float> Del;
-    }
     public class MasterLevel
     {
         private bool _needSave;
@@ -58,7 +54,16 @@ namespace MuEmu
         public static void Initialize()
         {
             if (MasterSkillTree == null)
-                MasterSkillTree = Resources.ResourceLoader.XmlLoader<MasterSkillTreeDto>("./Data/MasterSkillTree.xml");
+                MasterSkillTree = Resources.ResourceLoader.XmlLoader<MasterSkillTreeDto>($"./Data/MasterLevel/MasterSkillTree_{Program.Season}.xml");
+
+            var skillClear = MasterSkillTree.Trees.SelectMany(x => x.Skill).Where(x => string.IsNullOrEmpty(x.Ecuation));
+            var skillSets = MasterSkillTree.Trees.SelectMany(x => x.Skill).Where(x => !string.IsNullOrEmpty(x.Ecuation));
+            foreach(var skill in skillClear)
+            {
+                var result = skillSets.FirstOrDefault(x => x.MagicNumber == skill.MagicNumber);
+                skill.Ecuation = result?.Ecuation ?? "";
+                skill.Property = result?.Property ?? "";
+            }
         }
         public MasterLevel(Character @char, CharacterDto @charDto)
         {
@@ -66,7 +71,7 @@ namespace MuEmu
             _new = @charDto.MasterInfo == null;
             Level = @charDto.MasterInfo?.Level ?? 1;
             Experience = @charDto.MasterInfo?.Experience ?? 0;
-            Points = @charDto.MasterInfo?.Points ?? 0;            
+            Points = @charDto.MasterInfo?.Points ?? 0;
         }
 
         public void GetExperience(ulong exp)

@@ -1138,7 +1138,7 @@ namespace MU.Network.Game
     }
 
     [WZContract]
-    public class SAttackResultS9 : IGameMessage
+    public class SAttackResultS9Eng : IGameMessage
     {
         [WZMember(0)]
         public ushort wzNumber { get; set; }
@@ -1156,9 +1156,9 @@ namespace MU.Network.Game
         public ushort Damage { get => wzDamage.ShufleEnding(); set => wzDamage = value.ShufleEnding(); }
         public ushort DamageShield { get => wzDamageShield.ShufleEnding(); set => wzDamageShield = value.ShufleEnding(); }
 
-        public SAttackResultS9() { }
+        public SAttackResultS9Eng() { }
 
-        public SAttackResultS9(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
+        public SAttackResultS9Eng(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
         {
             Number = number;
             Damage = dmg;
@@ -1190,7 +1190,7 @@ namespace MU.Network.Game
     }
 
     [WZContract(Serialized = true)]
-    public class SMagicAttackS9 : IGameMessage
+    public class SMagicAttackS9Eng : IGameMessage
     {
         [WZMember(0)]
         public ushort wzSource { get; set; }
@@ -1201,9 +1201,9 @@ namespace MU.Network.Game
         [WZMember(2)]
         public ushort wzTarget { get; set; }
 
-        public SMagicAttackS9() { }
+        public SMagicAttackS9Eng() { }
 
-        public SMagicAttackS9(Spell magic, ushort source, ushort target)
+        public SMagicAttackS9Eng(Spell magic, ushort source, ushort target)
         {
             wzMagicNumber = ((ushort)magic).ShufleEnding();
             wzSource = source.ShufleEnding();
@@ -1242,7 +1242,7 @@ namespace MU.Network.Game
     }
 
     [WZContract(Serialized = true)]
-    public class SMagicDurationS9 : IGameMessage
+    public class SMagicDurationS9Eng : IGameMessage
     {
         [WZMember(0)]
         public byte X { get; set; }
@@ -1265,14 +1265,14 @@ namespace MU.Network.Game
         [WZMember(6)]
         public byte NumberL { get; set; }
 
-        public SMagicDurationS9() { }
+        public SMagicDurationS9Eng() { }
 
-        public SMagicDurationS9(Spell magic, ushort Number, byte x, byte y, byte dis)
+        public SMagicDurationS9Eng(Spell magic, ushort Number, byte x, byte y, byte dis)
         {
             var mag = BitConverter.GetBytes((ushort)magic);
             MagicNumberH = mag[1];
             MagicNumberL = mag[0];
-            mag = BitConverter.GetBytes((ushort)Number);
+            mag = BitConverter.GetBytes(Number);
             NumberH = mag[1];
             NumberL = mag[0];
             X = x;
@@ -1940,7 +1940,7 @@ namespace MU.Network.Game
         [WZMember(2)] public ushort fill { get; set; }//2,3
         [WZMember(3)] public float MasterSkillCurValue { get; set; }//4
         [WZMember(4)] public float MasterSkillNextValue { get; set; }//8
-        [WZMember(5)] public byte btUnk { get; set; }//12
+        [WZMember(5)] public int btUnk { get; set; }//12
     }
 
     [WZContract(Serialized = true)]

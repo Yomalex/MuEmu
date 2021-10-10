@@ -39,6 +39,7 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public int MagicNumber { get; set; }
         [XmlAttribute] public string Name { get; set; }
         [XmlAttribute] public string Ecuation { get; set; } = "";
+        [XmlAttribute] public string Property { get; set; }
 
         public float GetValue(short Level)
         {

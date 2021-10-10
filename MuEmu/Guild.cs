@@ -129,7 +129,7 @@ namespace MuEmu
             {
                 switch (Program.Season)
                 {
-                    case 9:
+                    case ServerSeason.Season9Eng:
                         pMsg = new SGuildListS9
                         {
                             Result = 0,
@@ -160,7 +160,7 @@ namespace MuEmu
 
             switch (Program.Season)
             {
-                case 9:
+                case ServerSeason.Season9Eng:
                     pMsg = new SGuildListS9
                     {
                         Result = 1,

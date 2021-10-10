@@ -1,4 +1,5 @@
-﻿using MU.Network.Game;
+﻿using MU.Network;
+using MU.Network.Game;
 using MU.Network.MuunSystem;
 using MU.Network.QuestSystem;
 using MU.Resources;
@@ -839,6 +840,7 @@ namespace MuEmu.Network
                         try
                         {
                             firts.Overlap(item.Item);
+                            await session.SendAsync(new SItemGet { ItemInfo = firts.GetBytes(), Result = (byte)firts.SlotId });
                             goto _end;
                         }
                         catch (Exception) { }
@@ -1437,15 +1439,7 @@ namespace MuEmu.Network
             @char.Stamina -= magic.BP;
 
             object msgdef = null;
-            switch (Program.Season)
-            {
-                case 9:
-                    msgdef = new SMagicDurationS9(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
-                    break;
-                default:
-                    msgdef = new SMagicDuration(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
-                    break;
-            } 
+            msgdef = VersionSelector.CreateMessage<SMagicDuration>(magic.Number, (ushort)session.ID, message.X, message.Y, message.Dir);
             await session.SendAsync(msgdef);
             session.Player.SendV2Message(msgdef);
 
@@ -1502,7 +1496,7 @@ namespace MuEmu.Network
                         {
                             @char.Health += (@char.EnergyTotal / 23.0f) + (attack * 0.1f);
                         }
-                        var mg = new SMagicAttackS9(message.MagicNumber, @char.Player.ID, message.Target);
+                        var mg = VersionSelector.CreateMessage<SMagicAttack>(message.MagicNumber, @char.Player.ID, message.Target);
                         @char.SendV2Message(mg);
                         session.SendAsync(mg).Wait();
                     }
@@ -1553,7 +1547,7 @@ namespace MuEmu.Network
                             UserIndex = (ushort)session.ID,
                             Targets = l.ToArray(),
                         };
-                        var mg = new SMagicAttackS9(message.MagicNumber, @char.Player.ID, message.Target);
+                        var mg = VersionSelector.CreateMessage<SMagicAttack>(message.MagicNumber, @char.Player.ID, message.Target);
                         @char.SendV2Message(mg);
                         session.SendAsync(mg).Wait();
                         session.SendAsync(obj).Wait();
@@ -1956,17 +1950,8 @@ namespace MuEmu.Network
 
                 if (spell.Mana < @char.Mana && spell.BP < @char.Stamina)
                 {
-                    //@char.Position = new Point(message.X, message.Y);
-                    object msg = null;
-                    switch (Program.Season)
-                    {
-                        case 9:
-                            msg = new SMagicAttackS9(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
-                            break;
-                        default:
-                            msg = new SMagicAttack(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
-                            break;
-                    }
+                    var msg = VersionSelector.CreateMessage<SMagicAttack>(Spell.Teleport, (ushort)session.ID, (ushort)session.ID);
+                    
                     await session.SendAsync(msg);
                     @char.SendV2Message(msg);
 
@@ -2039,7 +2024,7 @@ namespace MuEmu.Network
 
             switch(Program.Season)
             {
-                case 9:
+                case ServerSeason.Season9Eng:
                     await session.SendAsync(new SPartyListS9 
                     { 
                         Result = party==null? PartyResults.Fail : PartyResults.Success,
@@ -2319,7 +2304,7 @@ namespace MuEmu.Network
                 .Where(x => (Spell)x.MagicNumber == message.MasterSkill)
                 .FirstOrDefault();
 
-            if(skill.ReqMinPoint >= @char.MasterLevel.Points)
+            if(skill.ReqMinPoint > @char.MasterLevel.Points)
             {
                 return;
             }
@@ -2341,18 +2326,23 @@ namespace MuEmu.Network
                     return;
                 }
 
-                @char.Spells.Remove(baseSpell);
+                //@char.Spells.Remove(baseSpell);
                 @char.Spells.SendList();
             }
 
             if (spell == null)
             {
-                await @char.Spells.TryAdd(message.MasterSkill);
+                if(!await @char.Spells.TryAdd(message.MasterSkill))
+                {
+                    throw new Exception("Invalid master skill");
+                }
+
+                spell = @char.Spells.SpellList.Where(x => x.Number == message.MasterSkill).First();
             }
             else
             {
                 spell.Level++;
-                spell.Changed = true;
+                @char.Spells.SetEffect(spell);
             }
 
             var curLevel = spell?.Level ?? 1;
@@ -2364,9 +2354,11 @@ namespace MuEmu.Network
                 MasterSkillUIIndex = (byte)skill.Index,
                 dwMasterSkillIndex = (int)message.MasterSkill,
                 dwMasterSkillLevel = curLevel,
-                fMasterSkillCurValue = skill.GetValue(curLevel),
+                fMasterSkillCurValue = spell.MLSValue,
                 fMasterSkillNextValue = skill.GetValue((short)(curLevel + 1)),
             });
+
+            session.Player.Character.CalcStats();
         }
 
         #endregion

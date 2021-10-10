@@ -1,5 +1,6 @@
 ﻿using MU.Network.MuunSystem;
 using MU.Network.Pentagrama;
+using MU.Resources;
 using MuEmu.Network.UBFSystem;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace MU.Network.Game
 
     public class GameMessageFactory : MessageFactory<GameOpCode, IGameMessage>
     {
-        public GameMessageFactory(int Season)
+        public GameMessageFactory(ServerSeason Season)
         {
             // C2S
             Register<CCheckSum>(GameOpCode.GameSecurity);
@@ -64,18 +65,26 @@ namespace MU.Network.Game
             Register<SNPCDialog>(GameOpCode.NPCDialog);
             #region Client AttackMessages
             //Register<CAttackS5E2>(GameOpCode.Attack);
+
+            VersionSelector.Register<SAttackResult>(ServerSeason.Season6Kor, GameOpCode.AttackEng);
+            VersionSelector.Register<SAttackResultS9Eng>(ServerSeason.Season9Eng, GameOpCode.AttackEng);
+            VersionSelector.Register<SMagicDuration>(ServerSeason.Season6Kor, GameOpCode.MagicDuration);
+            VersionSelector.Register<SMagicDurationS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicDuration);
+            VersionSelector.Register<SMagicAttack>(ServerSeason.Season6Kor, GameOpCode.MagicAttack);
+            VersionSelector.Register<SMagicAttackS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicAttack);
+
             switch (Season)
             {
-                case 9:// ENG
+                case ServerSeason.Season9Eng:// ENG
                     Register<CAttack>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<CTeleportS9>(GameOpCode.Teleport);
                     Register<CMagicDurationS9>(GameOpCode.MagicDuration);
                     //Register<CPositionSet>(GameOpCode.Position);
                     Register<CBeattackS9>(GameOpCode.Position);
-                    Register<SMagicAttackS9>(GameOpCode.MagicAttack);
-                    Register<SMagicDurationS9>(GameOpCode.MagicDuration);
-                    Register<SAttackResultS9>(GameOpCode.AttackEng);
+                    Register<SMagicAttackS9Eng>(GameOpCode.MagicAttack);
+                    Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
+                    Register<SAttackResultS9Eng>(GameOpCode.AttackEng);
                     Register<SMove>(GameOpCode.MoveEng);
                     break;
                 default:

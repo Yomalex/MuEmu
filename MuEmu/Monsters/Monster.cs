@@ -11,6 +11,7 @@ using MuEmu.Data;
 using System.Threading;
 using MuEmu.Util;
 using MU.Resources;
+using MU.Network;
 
 namespace MuEmu.Monsters
 {
@@ -199,15 +200,8 @@ namespace MuEmu.Monsters
 
             if(State != ObjectState.Dying)
             {
-                switch(Program.Season)
-                {
-                    case 9:
-                        await plr.Session.SendAsync(new SAttackResultS9(Index, dmgSend, type, 0));
-                        break;
-                    default:
-                        await plr.Session.SendAsync(new SAttackResult(Index, dmgSend, type, 0));
-                        break;
-                }
+                var attack = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, 0);
+                await plr.Session.SendAsync(attack);
             }
         }
 
@@ -231,8 +225,8 @@ namespace MuEmu.Monsters
                 object message = null;
                 switch(Program.Season)
                 {
-                    case 9:
-                        message = new SAttackResultS9(Index, dmgSend, type, 0);
+                    case ServerSeason.Season9Eng:
+                        message = new SAttackResultS9Eng(Index, dmgSend, type, 0);
                         break;
                     default:
                         message = new SAttackResult(Index, dmgSend, type, 0);
@@ -539,13 +533,13 @@ namespace MuEmu.Monsters
                 if (pair.Key == Killer)
                     Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen + Killer.Character.Spells.IncreaseZen);
 
-                EXP *= Program.Experience;
+                EXP *= Program.Experience + Killer.Character.Spells.IncreaseExperience;
                 Zen *= Program.Zen;
 
                 pair.Key.Character.Experience += (ulong)EXP;
                 switch (Program.Season)
                 {
-                    case 9:
+                    case ServerSeason.Season9Eng:
                         pair.Key.Session
                             .SendAsync(new SKillPlayerEXT(Index, (int)EXP, pair.Key == Killer ? DeadlyDmg : (ushort)0))
                             .Wait();

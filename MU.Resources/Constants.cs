@@ -4,6 +4,13 @@ using System.Text;
 
 namespace MU.Resources
 {
+    // Only Supported versions added
+    public enum ServerSeason
+    {
+        Season6Kor,
+        Season9Eng,
+        Season12Eng,
+    }
     public enum GremoryStorage : byte
     {
         Server = 1,

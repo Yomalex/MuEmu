@@ -22,6 +22,7 @@ using WebZen.Util;
 using MU.Network.Auth;
 using MuEmu.Network.ConnectServer;
 using System.Security.Cryptography;
+using MU.Network;
 
 namespace MuEmu.Network
 {
@@ -167,22 +168,7 @@ namespace MuEmu.Network
 
                 var resetList = new SResetCharList();
 
-                Type a;
-
-                switch(Program.Season)
-                {
-                    case 9:
-                        a = typeof(SCharacterListS9);
-                        break;
-                    case 12:
-                        a = typeof(SCharacterListS12);
-                        break;
-                    default:
-                        a = typeof(SCharacterList);
-                        break;
-                }
-
-                var charList = Activator.CreateInstance(a, (byte)5, (byte)0, (byte)5, (byte)3) as CharList;
+                var charList = VersionSelector.CreateMessage<SCharacterList>((byte)5, (byte)0, (byte)5, (byte)3) as CharList;
 
                 foreach (var @char in acc.Characters)
                 {
@@ -197,7 +183,7 @@ namespace MuEmu.Network
                         GuildManager.Instance.FindCharacter(@char.Value.Name)?.Rank ?? GuildStatus.NoMember);
                 }
 
-                if(Program.Season == 9)
+                if(Program.Season == ServerSeason.Season9Eng)
                     await session.SendAsync(resetList);
 
                 await session.SendAsync(charList);

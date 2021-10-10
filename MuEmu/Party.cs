@@ -64,7 +64,7 @@ namespace MuEmu
 
             switch (Program.Season)
             {
-                case 9:
+                case ServerSeason.Season9Eng:
                     members.SendAsync(new SPartyListS9
                     {
                         Result = party == null ? PartyResults.Fail : PartyResults.Success,

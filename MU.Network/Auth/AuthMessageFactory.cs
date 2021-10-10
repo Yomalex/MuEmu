@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Network;
@@ -10,18 +11,18 @@ namespace MU.Network.Auth
 
     public class AuthMessageFactory : MessageFactory<CSOpCode, IAuthMessage>
     {
-        public AuthMessageFactory(int Season)
+        public AuthMessageFactory(ServerSeason Season)
         {
             switch(Season)
             {
                 default:
                     Register<CIDAndPass>(CSOpCode.Login);
                     break;
-                case 12:
+                case ServerSeason.Season12Eng:
                     Register<CIDAndPassS12>(CSOpCode.Login);
                     Register<SResets>(CSOpCode.Resets);
                     break;
-                case 9:
+                case ServerSeason.Season9Eng:
                     Register<CIDAndPassS12>(CSOpCode.Login);
                     Register<SResets>(CSOpCode.Resets);
                     Register<SResetCharList>(CSOpCode.ResetList);
@@ -39,6 +40,11 @@ namespace MU.Network.Auth
             // S2C
             Register<SJoinResult>(CSOpCode.JoinResult);
             Register<SLoginResult>(CSOpCode.Login);
+
+            VersionSelector.Register<SCharacterList>(ServerSeason.Season6Kor, CSOpCode.CharacterList);
+            VersionSelector.Register<SCharacterListS9>(ServerSeason.Season9Eng, CSOpCode.CharacterList);
+            VersionSelector.Register<SCharacterListS12>(ServerSeason.Season12Eng, CSOpCode.CharacterList);
+
             Register<SCharacterList>(CSOpCode.CharacterList);
             Register<SCharacterListS9>(CSOpCode.CharacterList);
             Register<SCharacterListS12>(CSOpCode.CharacterList);

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using WebZen.Util;
 using MU.Resources;
+using MU.Network;
 
 namespace MuEmu.Events.ChaosCastle
 {
@@ -82,15 +83,9 @@ namespace MuEmu.Events.ChaosCastle
                 var dmg = 15 / ls;
                 plr.Health -= (float)dmg;
                 plr.Player.Session.SendAsync(msg).Wait();
-                switch (Program.Season)
-                {
-                    case 9:
-                        plr.Player.Session.SendAsync(new SAttackResultS9((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0)).Wait();
-                        break;
-                    default:
-                        plr.Player.Session.SendAsync(new SAttackResult((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0)).Wait();
-                        break;                
-                }
+
+                var attack = VersionSelector.CreateMessage<SAttackResult>((ushort)plr.Player.Session.ID, (ushort)dmg, DamageType.Regular, 0);
+                plr.Player.Session.SendAsync(attack).Wait();
                 plr.Player.SendV2Message(msg);
             }
 

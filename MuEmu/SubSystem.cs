@@ -298,7 +298,7 @@ namespace MuEmu
             var addPlr = new List<VPCreateAbs>();
             switch(Program.Season)
             {
-                case 9:
+                case ServerSeason.Season9Eng:
                     addPlr.AddRange(newPlr.Select(x => new VPCreateS9Dto
                     {
                         CharSet = x.Inventory.GetCharset(),
@@ -367,7 +367,7 @@ namespace MuEmu
             
             switch (Program.Season)
             {
-                case 9:
+                case ServerSeason.Season9Eng:
                     if (addPlr.Any())
                         await plr.Player.Session.SendAsync(new SViewPortCreateS9 { ViewPort = addPlr.Select(x => (VPCreateS9Dto)x).ToArray() });
                     break;
@@ -462,7 +462,7 @@ namespace MuEmu
             {
                 switch (Program.Season)
                 {
-                    case 9:
+                    case ServerSeason.Season9Eng:
                         addObj.AddRange(newObj.Select(x => new VPMCreateS9Dto
                         {
                             Number = (ushort)(x.Index | 0x8000),
@@ -496,7 +496,7 @@ namespace MuEmu
             {
                 switch (Program.Season)
                 {
-                    case 9:
+                    case ServerSeason.Season9Eng:
                         addObj.AddRange(existObj.Select(x => new VPMCreateS9Dto
                         {
                             Number = x.Index,
@@ -549,7 +549,7 @@ namespace MuEmu
                     c += 0xff;
                     switch (Program.Season)
                     {
-                        case 9:
+                        case ServerSeason.Season9Eng:
                             await plr.Player.Session.SendAsync(new SViewPortMonCreateS9 { ViewPort = send.Select(x => (VPMCreateS9Dto)x).ToArray() });
                             break;
                         default:

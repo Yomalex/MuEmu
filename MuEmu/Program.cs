@@ -64,13 +64,19 @@ namespace MuEmu
         public static float Experience { get; set; }
         public static float Zen { get; set; }
         public static int DropRate { get; set; }
-        public static int Season { get; set; }
+        public static ServerSeason Season { get; set; }
 
         public static EventManagement EventManager;
         public static GlobalEvents GlobalEventsManager;
         public static GoldenInvasion GoldenInvasionManager;
 
-       
+        private static bool NewEncode(ServerSeason season) => season switch
+        {
+            ServerSeason.Season6Kor => false,
+            ServerSeason.Season9Eng => true,
+            _ => throw new NotImplementedException()
+        };
+
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
@@ -122,6 +128,8 @@ namespace MuEmu
             DropRate = xml.DropRate;
             Season = xml.Season;
 
+            VersionSelector.Initialize(xml.Season);
+
             var mh = new MessageHandler[] {
                 new FilteredMessageHandler<GSSession>()
                     .AddHandler(new AuthServices())
@@ -155,7 +163,7 @@ namespace MuEmu
                 new PCPShopMessageFactory(),
                 new GensMessageFactory(),
             };
-            server = new WZGameServer(ip, mh, mf, xml.Rijndael);
+            server = new WZGameServer(ip, mh, mf, NewEncode(Season));
             server.ClientVersion = xml.Version;
             server.ClientSerial = xml.Serial;
 

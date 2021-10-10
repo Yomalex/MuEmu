@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
 using MU.Resources;
+using MU.Network;
 
 namespace MuEmu
 {
@@ -152,9 +153,9 @@ namespace MuEmu
         public float Health {
             get => _hp;
             set {
-                if (value > _hpMax)
+                if (value > MaxHealth)
                 {
-                    value = _hpMax;
+                    value = MaxHealth;
                 }
 
                 if (_hp == value)
@@ -175,7 +176,7 @@ namespace MuEmu
         }
         public float MaxHealth
         {
-            get => _hpMax + _hpAdd;
+            get => _hpMax + _hpAdd + Spells.IncreaseMaxHP;
             set
             {
                 if (value == _hpMax + _hpAdd)
@@ -191,9 +192,9 @@ namespace MuEmu
             get => _sd;
             set
             {
-                if (value > _sdMax)
+                if (value > MaxShield)
                 {
-                    value = _sdMax;
+                    value = MaxShield;
                 }
 
                 if (_sd == value)
@@ -214,7 +215,7 @@ namespace MuEmu
         }
         public float MaxShield
         {
-            get => _sdMax + _sdAdd;
+            get => _sdMax + _sdAdd + Spells.IncreaseMaxSD;
             set
             {
                 if (value == _sdMax + _sdAdd)
@@ -230,9 +231,9 @@ namespace MuEmu
             get => _mp;
             set
             {
-                if (value > _mpMax)
+                if (value > MaxMana)
                 {
-                    value = _mpMax;
+                    value = MaxMana;
                 }
 
                 if (_mp == value)
@@ -254,7 +255,7 @@ namespace MuEmu
         }
         public float MaxMana
         {
-            get => _mpMax + _mpAdd;
+            get => _mpMax + _mpAdd + Spells.IncreaseMaxMP;
             set
             {
                 if (value == _mpMax + _mpAdd)
@@ -270,9 +271,9 @@ namespace MuEmu
             get => _bp;
             set
             {
-                if (value > _bpMax)
+                if (value > MaxStamina)
                 {
-                    value = _bpMax;
+                    value = MaxStamina;
                 }
 
                 if (_bp == value)
@@ -292,7 +293,7 @@ namespace MuEmu
         }
         public float MaxStamina
         {
-            get => _bpMax + _bpAdd;
+            get => _bpMax + _bpAdd + Spells.IncreaseMaxAG;
             set
             {
                 if (value == _bpMax + _bpAdd)
@@ -442,7 +443,7 @@ namespace MuEmu
                 CalcStats();
             }
         }
-        public ushort StrengthTotal => (ushort)(_str + _strAdd);
+        public ushort StrengthTotal => (ushort)(_str + _strAdd + Spells.IncreaseStrength);
 
         public ushort Agility
         {
@@ -469,7 +470,7 @@ namespace MuEmu
                 CalcStats();
             }
         }
-        public ushort AgilityTotal => (ushort)(_agi + _agiAdd);
+        public ushort AgilityTotal => (ushort)(_agi + _agiAdd + Spells.IncreaseAgility);
 
         public ushort Vitality
         {
@@ -484,41 +485,6 @@ namespace MuEmu
                 CalcStats();
             }
         }
-
-        internal static void Reset(object session, CommandEventArgs e)
-        {
-            var Session = session as GSSession;
-            var @char = Session.Player.Character;
-
-            if(@char.Level < 400)
-            {
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Necesitas nivel 400")).Wait();
-                return;
-            }
-
-            if (@char.Money < 1000000)
-            {
-                Session.SendAsync(new SNotice(NoticeType.Blue, "Necesitas 1000000zen")).Wait();
-                return;
-            }
-
-            
-            var cinfo = @char.BaseInfo.Stats;
-
-            @char.Level = 1;
-            @char.Experience = 0;
-            @char.Money -= 1000000u;
-            //@char.Strength = (ushort)cinfo.Str;
-            //@char.Agility = (ushort)cinfo.Agi;
-            //@char.Vitality = (ushort)cinfo.Vit;
-            //@char.Energy = (ushort)cinfo.Ene;
-            //@char.Command = (ushort)cinfo.Cmd;
-            @char.MapID = @char.BaseInfo.Map;
-            @char.Resets++;
-            //@char.LevelUpPoints = (ushort)Math.Min(@char.Resets*250, 65535);
-            GameServices.CClinetClose(Session, new CClientClose { Type = ClientCloseType.ServerList }).Wait();
-        }
-
         public ushort VitalityAdd
         {
             get => _vitAdd;
@@ -532,7 +498,6 @@ namespace MuEmu
             }
         }
         public ushort VitalityTotal => (ushort)(_vit + _vitAdd);
-
 
         public ushort Energy
         {
@@ -588,6 +553,40 @@ namespace MuEmu
         }
         public ushort CommandTotal => (ushort)(_cmd + _cmdAdd);
 
+        internal static void Reset(object session, CommandEventArgs e)
+        {
+            var Session = session as GSSession;
+            var @char = Session.Player.Character;
+
+            if (@char.Level < 400)
+            {
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Necesitas nivel 400")).Wait();
+                return;
+            }
+
+            if (@char.Money < 1000000)
+            {
+                Session.SendAsync(new SNotice(NoticeType.Blue, "Necesitas 1000000zen")).Wait();
+                return;
+            }
+
+
+            var cinfo = @char.BaseInfo.Stats;
+
+            @char.Level = 1;
+            @char.Experience = 0;
+            @char.Money -= 1000000u;
+            //@char.Strength = (ushort)cinfo.Str;
+            //@char.Agility = (ushort)cinfo.Agi;
+            //@char.Vitality = (ushort)cinfo.Vit;
+            //@char.Energy = (ushort)cinfo.Ene;
+            //@char.Command = (ushort)cinfo.Cmd;
+            @char.MapID = @char.BaseInfo.Map;
+            @char.Resets++;
+            //@char.LevelUpPoints = (ushort)Math.Min(@char.Resets*250, 65535);
+            GameServices.CClinetClose(Session, new CClientClose { Type = ClientCloseType.ServerList }).Wait();
+        }
+
         public int TotalPoints => _str + _agi + _vit + _ene + _cmd + LevelUpPoints;
 
         public short AddPoints => (short)(TotalPoints - (BaseInfo.Stats.Str + BaseInfo.Stats.Agi + BaseInfo.Stats.Vit + BaseInfo.Stats.Ene + BaseInfo.Stats.Cmd + (Level - 1) * 5));
@@ -596,12 +595,12 @@ namespace MuEmu
         public short MaxMinusPoints => 100;
         #endregion
 
-        public ushort AttackRatePvM => (ushort)_attackRatePvM;
+        public ushort AttackRatePvM => (ushort)(_attackRatePvM + Spells.PvMAttackSuccessRate);
         public ushort AttackRatePvP => (ushort)_attackRatePvP;
 
         public ushort Defense => (ushort)(_defense + Spells.BuffList.Sum(x => x.DefenseAdd));
         public ushort DefenseRatePvM => (ushort)(_defenseRatePvM + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
-        public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
+        public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.PvPDefenceSuccessRate + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
 
         public ObjectState State { get; set; }
         public DateTimeOffset RegenTime { get; private set; }
@@ -615,7 +614,7 @@ namespace MuEmu
             var result = @class & 0xF0;
             result |= (changeUp == 1) ? 0x08 : 0x00;
             result |= (changeUp == 2) ? 0x0C : 0x00;
-            result <<= Program.Season == 12 ? 0 : 1;
+            result <<= Program.Season == ServerSeason.Season12Eng ? 0 : 1;
             result &= 0xFF;
             return (byte)result;
 
@@ -914,6 +913,8 @@ namespace MuEmu
 
             Inventory.CalcStats();
             ObjCalc();
+            HPorSDMaxChanged();
+            MPorBPMaxChanged();
         }
         public void ObjCalc()
         {
@@ -1207,6 +1208,20 @@ namespace MuEmu
         }
 
         #region Battle
+        public int GetDefense()
+        {
+            var _base = Inventory.Defense+Spells.IncreaseDefense;
+            var dmgAbsorb = (ushort)(Inventory.Get(Equipament.Wings)?.WingDmgAbsorb??0.0f)+1.0f + Spells.WingsDefensePowUp/100.0f;
+            var guardian = Inventory.Get(Equipament.Pet)?.Number ?? ItemNumber.Invalid;
+
+            // Guardian Angel
+            if(guardian == (ItemNumber)6656)
+            {
+                dmgAbsorb += 0.12f;
+            }
+
+            return (int)(_base * dmgAbsorb);
+        }
         public int Attack(Character target, out DamageType type)
         {
             var leftHand = Inventory.Get(Equipament.LeftHand);
@@ -1243,7 +1258,7 @@ namespace MuEmu
                 Health -= 3;
                 if(Health > 0)
                 {
-                    attack *= 1.12f + wing.Plus * 0.02f;
+                    attack *= wing.WingDmgAdd + Spells.WingsAttackPowUp/100.0f + 1.0f;
                 }
             }
 
@@ -1259,7 +1274,7 @@ namespace MuEmu
             if (twing != null) // Wings decrease Dmg 12%+(Level*2)%
                 attack *= 0.88f - twing.Plus * 0.02f;
 
-            attack -= target.Inventory.Defense;
+            attack -= target.GetDefense();
             WeaponDurDown(target.Inventory.Defense);
             return (int)attack;
         }
@@ -1298,7 +1313,7 @@ namespace MuEmu
                 Health -= 3;
                 if (Health > 0)
                 {
-                    attack *= 1.12f + wing.Plus * 0.02f;
+                    attack *= wing.WingDmgAdd + Spells.WingsAttackPowUp + 1.0f;
                 }
             }
 
@@ -1416,15 +1431,7 @@ namespace MuEmu
             Health -= healthDamage;
             _deadlyDmg = (int)healthDamage;
 
-            switch (Program.Season)
-            {
-                case 9:
-                    message = new SAttackResultS9((ushort)Player.Session.ID, (ushort)healthDamage, type, (ushort)sdDamage);
-                    break;
-                default:
-                    message = new SAttackResult((ushort)Player.Session.ID, (ushort)healthDamage, type, (ushort)sdDamage);
-                    break;
-            }
+            message = VersionSelector.CreateMessage<SAttackResult>((ushort)Player.Session.ID, (ushort)healthDamage, type, (ushort)sdDamage);
 
             var reflex = Inventory.Reflect + Spells.BuffList.Sum(x => x.DamageDeflection);
             var dmgReflect = reflex * dmg;
@@ -1456,16 +1463,7 @@ namespace MuEmu
                     SubSystem.Instance.AddDelayedMessage(Player, TimeSpan.FromMilliseconds(100), message);
                     SubSystem.Instance.AddDelayedMessage(sourceSession?.Player, TimeSpan.FromMilliseconds(100), message);
 
-
-                    switch (Program.Season)
-                    {
-                        case 9:
-                            message = new SMagicAttackS9(isMagic, source, (ushort)Player.Session.ID);
-                            break;
-                        default:
-                            message = new SMagicAttack(isMagic, source, (ushort)Player.Session.ID);
-                            break;
-                    }
+                    message = VersionSelector.CreateMessage<SMagicAttack>(isMagic, source, (ushort)Player.Session.ID);
 
                     await Player.Session.SendAsync(message);
                     Player.SendV2Message(message);
@@ -1642,8 +1640,8 @@ namespace MuEmu
             var update1 = add > 0 && (_hp < MaxHealth || _sd < MaxShield);
             var update2 = _mp < MaxMana || _bp < MaxStamina;
 
-            if (_hp < MaxHealth) _hp += Math.Min(add, MaxHealth - _hp);
-            if (_sd < MaxShield) _sd += Math.Min(add, MaxShield - _sd);
+            if (_hp < MaxHealth) _hp += Math.Min(add+Spells.IncreaseAutoHPRegeneration, MaxHealth - _hp);
+            if (_sd < MaxShield) _sd += Math.Min(add+Spells.IncreaseAutoSDRegeneration, MaxShield - _sd);
 
             float addMp = 0;
             float addBp = 0;
@@ -1668,8 +1666,8 @@ namespace MuEmu
 
             }
 
-            if (_mp < MaxMana) _mp += Math.Min(addMp, MaxMana - _mp);
-            if (_bp < MaxStamina) _bp += Math.Min(addBp, MaxStamina - _bp);
+            if (_mp < MaxMana) _mp += Math.Min(addMp+Spells.IncreaseAutoMPRegeneration, MaxMana - _mp);
+            if (_bp < MaxStamina) _bp += Math.Min(addBp+Spells.IncreaseAutoBPRegeneration, MaxStamina - _bp);
 
             if (update1)
                 HPorSDChanged(RefillInfo.Drink);

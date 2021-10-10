@@ -14,25 +14,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MuEmu.Resources.XML;
+using MU.Network;
 
 namespace MuEmu
 {
     public class SpellMagicInfo : SpellInfo
     {
+        private short _level;
+
         public bool Changed { get; set; }
-        public short Level { get; set; }
+        public short Level { get => _level; set
+            {
+                _level = value;
+                MLSValue = MLInfo?.GetValue(_level) ?? 0;
+                Changed = true;
+            }
+        }
         public SkillTreeDto MLInfo { get; set; }
         public bool IsMLSkill => MLInfo != null;
+        public float MLSValue { get; set; }
         public static SpellMagicInfo FromSpellInfo(HeroClass Class, SpellInfo si, short level = 1)
         {
             var res = new SpellMagicInfo();
-            res.Level = level;
             Extensions.AnonymousMap(res, si);
             res.MLInfo = MasterLevel.MasterSkillTree.Trees.Where(x => x.ID == Class)
                 .SelectMany(x => x.Skill)
                 .Where(x => (Spell)x.MagicNumber == si.Number)
                 .Select(x => x)
                 .FirstOrDefault();
+            res.Level = level;
+            res.Changed = false;
 
             return res;
         }
@@ -45,23 +56,37 @@ namespace MuEmu
         private List<Spell> _newSpell = new List<Spell>();
         private List<Spell> _delSpell = new List<Spell>();
 
+
+        // MasterLevel and other skills effect
         public float PvMAttackSuccessRate { get; private set; }
+        public float PvPDefenceSuccessRate { get; private set; }
         public float AdvancedAttackSuccessRate { get; private set; }
         public float AdvancedDefenseSuccessRate { get; private set; }
         public float RepairLevel1 { get; private set; }
         public float RepairLevel2 { get; private set; }
+        public float RepairLevel3 { get; private set; }
         public float PoisonResistance { get; private set; }
         public float LightningResistance { get; private set; }
         public float IceResistance { get; private set; }
-        public float IncreaseAutoRegeneration { get; private set; }
+        public float IncreaseAutoHPRegeneration { get; private set; }
+        public float IncreaseAutoMPRegeneration { get; private set; }
+        public float IncreaseAutoSDRegeneration { get; private set; }
+        public float IncreaseAutoBPRegeneration { get; private set; }
         public float IncreaseZen { get; private set; }
         public float IncreaseDefense { get; private set; }
+        public float IncreaseDefenseSuccessRate { get; private set; }
         public float IncreaseMaxHP { get; private set; }
+        public float IncreaseMaxMP { get; private set; }
         public float IncreaseMaxAG { get; private set; }
+        public float IncreaseMaxSD { get; private set; }
+        public float IncreaseAgility { get; private set; }
+        public float IncreaseStrength { get; private set; }
         public float IncreaseManaReduction { get; private set; }
         public float MonsterAttackLifeIncrease { get; private set; }
         public float MonsterAttackSDIncrease { get; private set; }
         public float IncreaseExperience { get; private set; }
+        public float WingsDefensePowUp { get; private set; }
+        public float WingsAttackPowUp { get; private set; }
 
         public Monster Monster { get; }
         public Player Player { get; }
@@ -97,7 +122,7 @@ namespace MuEmu
             {
                 var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[(Spell)skill.Magic],skill.Level);
                 _spellList.Add((Spell)skill.Magic, spell);
-                SetEffect(skill.Magic);
+                SetEffect(spell);
                 Logger
                     .ForAccount(Player.Session)
                     .Information("Learned {0} Skill Added", spell.Name);
@@ -110,9 +135,10 @@ namespace MuEmu
 
             if (!_spellList.ContainsKey(skill))
             {
-                _spellList.Add(skill, SpellMagicInfo.FromSpellInfo(Character.Class, spells[skill]));
+                var info = SpellMagicInfo.FromSpellInfo(Character.Class, spells[skill]);
+                _spellList.Add(skill, info);
                 _newSpell.Add(skill);
-                SetEffect((int)skill);
+                SetEffect(info);
             }
         }
 
@@ -223,7 +249,7 @@ namespace MuEmu
                 {
                     MasterSkillLevel = (byte)x.Value.Level,
                     MasterSkillUIIndex = (byte)x.Value.MLInfo.Index,
-                    MasterSkillCurValue = x.Value.MLInfo.GetValue(x.Value.Level),
+                    MasterSkillCurValue = x.Value.MLSValue,
                     MasterSkillNextValue = x.Value.MLInfo.GetValue((short)(x.Value.Level + 1)),
                 })
                 .ToArray();
@@ -400,17 +426,7 @@ namespace MuEmu
             Target &= 0x7FFF;
             Target = Success ? (ushort)(Target | 0x8000) : Target;
 
-            object message = null;
-
-            switch (Program.Season)
-            {
-                case 9:
-                    message = new SMagicAttackS9(spell, (ushort)Player.Session.ID, Target);
-                    break;
-                default:
-                    message = new SMagicAttack(spell, (ushort)Player.Session.ID, Target);
-                    break;
-            }
+            var message = VersionSelector.CreateMessage<SMagicAttack>(spell, (ushort)Player.Session.ID, Target);
 
             if (Monster == null)
             {
@@ -424,77 +440,15 @@ namespace MuEmu
 
         public SkillStates[] ViewSkillStates => _buffs.Select(x => x.State).ToArray();
 
-        internal void SetEffect(int skill)
+        internal void SetEffect(SpellMagicInfo skill)
         {
-            var spell = _spellList[(Spell)skill];
-            if (skill >= 300 && skill < 305)
-            {
-                PvMAttackSuccessRate = spell.Damage.X/100.0f;
-            }
-            else if (skill >= 305 && skill < 310)
-            {
-                AdvancedAttackSuccessRate = spell.Damage.X/100.0f;
-            }
-            else if (skill >= 310 && skill < 315)
-            {
-                AdvancedDefenseSuccessRate = spell.Damage.X/100.0f;
-            }
-            else if (skill >= 315 && skill < 320)
-            {
-                RepairLevel1 = spell.Damage.X;
-            }
-            else if (skill >= 320 && skill < 325)
-            {
-                RepairLevel2 = spell.Damage.X;
-            }
-            else if (skill >= 325 && skill < 330)
-            {
-                PoisonResistance = spell.Damage.X; //%
-            }
-            else if (skill >= 330 && skill < 335)
-            {
-                LightningResistance = spell.Damage.X; //%
-            }
-            else if (skill >= 335 && skill < 340)
-            {
-                IceResistance = spell.Damage.X; //%
-            }
-            else if (skill >= 340 && skill < 345)
-            {
-                IncreaseAutoRegeneration = spell.Damage.X ;
-            }
-            else if (skill >= 345 && skill < 350)
-            {
-                IncreaseZen = spell.Damage.X/100.0f;
-            }
-            else if (skill >= 350 && skill < 355)
-            {
-                IncreaseDefense = spell.Damage.X;
-            }
-            else if (skill >= 355 && skill < 360)
-            {
-                IncreaseMaxHP = spell.Damage.X/100.0f;
-            }
-            else if (skill >= 360 && skill < 365)
-            {
-                IncreaseMaxAG = spell.Damage.X/100.0f;
-            }
-            else if (skill >= 365 && skill < 370)
-            {
-                IncreaseManaReduction = spell.Damage.X + spell.Damage.Y;
-            }
-            else if (skill >= 370 && skill < 375)
-            {
-                MonsterAttackLifeIncrease = spell.Damage.X; // HP/MonsterAttackLifeIncrease
-            }
-            else if (skill >= 375 && skill < 380)
-            {
-                MonsterAttackSDIncrease = spell.Damage.X; // SP/MonsterAttackSDIncrease
-            }
-            else if (skill >= 380 && skill < 385)
-            {
-                IncreaseExperience = spell.Damage.X;
-            }
+            if (!skill.IsMLSkill)
+                return;
+
+            if (string.IsNullOrWhiteSpace(skill.MLInfo.Property))
+                return;
+
+            this.Set(skill.MLInfo.Property, skill.MLSValue);
         }
 
         public async Task Save(GameContext db)
