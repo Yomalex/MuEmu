@@ -4,6 +4,32 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum CoinType : int
+    {
+        GPoints = 0,
+        WCoin = 508,
+    }
+
+    public enum CSResult : byte
+    {
+        Ok,
+        InsuficientWCoint = 1,
+        InsuficientSpace = 2,
+        ItemSouldOut,
+        ItemIsNotCurrentAvailable,
+        ItemIsNotLongerAvailable,
+        ItemCannotBeBought,
+        EventItemsCannotBeBought,
+        MaxBoughtExceeded,
+        IncorrectWCoinType,
+    }
+
+    public enum CSInventory : byte
+    {
+        Gift,
+        Storage,
+    }
+
     // Only Supported versions added
     public enum ServerSeason
     {
@@ -769,6 +795,7 @@ namespace MU.Resources
         Dying2,
         Die,
         WaitRegen,
+        Invulnerable,
     }
 
     public enum NPCAttributeType

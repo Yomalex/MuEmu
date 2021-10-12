@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleModulus\WebZen.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BlubLib">
+      <HintPath>..\BlubLib\0.1.4\BlubLib.dll</HintPath>
+    </Reference>
+    <Reference Include="BlubLib.Serialization">
+      <HintPath>..\BlubLib\0.1.4\BlubLib.Serialization.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

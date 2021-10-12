@@ -176,7 +176,7 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CMuRummyOpen))]
         public void CMuRummyOpen(GSSession session)
         {
-            session.SendAsync(new SMuRummyOpen
+            _ = session.SendAsync(new SMuRummyOpen
             {
                 btResult = 1,
                 btEventTime1 = 0,

@@ -182,7 +182,7 @@ namespace MuEmu.Monsters
 
         public async Task GetAttacked(Player plr, int dmg, DamageType type, int eDmg)
         {
-            if (State != ObjectState.Live)
+            if (State != ObjectState.Live || Type == ObjectType.NPC)
                 return;
 
             if (dmg < 0)
@@ -200,14 +200,14 @@ namespace MuEmu.Monsters
 
             if(State != ObjectState.Dying)
             {
-                var attack = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, 0);
+                var attack = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, (ushort)0);
                 await plr.Session.SendAsync(attack);
             }
         }
 
         public void GetAttackedDelayed(Player plr, int dmg, DamageType type, TimeSpan delay)
         {
-            if (State != ObjectState.Live)
+            if (State != ObjectState.Live || Type == ObjectType.NPC)
                 return;
 
             if (DamageSum.ContainsKey(plr))
@@ -222,17 +222,7 @@ namespace MuEmu.Monsters
 
             if (State != ObjectState.Dying)
             {
-                object message = null;
-                switch(Program.Season)
-                {
-                    case ServerSeason.Season9Eng:
-                        message = new SAttackResultS9Eng(Index, dmgSend, type, 0);
-                        break;
-                    default:
-                        message = new SAttackResult(Index, dmgSend, type, 0);
-                        break;
-                }
-
+                object message = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, (ushort)0);
                 SubSystem.Instance.AddDelayedMessage(plr, TimeSpan.FromMilliseconds(100), message);
             }
         }

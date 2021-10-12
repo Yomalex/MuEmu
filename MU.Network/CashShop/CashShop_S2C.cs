@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
@@ -75,8 +76,31 @@ namespace MU.Network.CashShop
     public class SCashItemBuy : ICashMessage
     {
         [WZMember(1)]
-        public byte Result { get; set; }
+        public CSResult Result { get; set; }
         [WZMember(2)]
         public int Unknown { get; set; }
+    }
+    [WZContract]
+    public class SCashItemList : ICashMessage
+    {
+        [WZMember(0)] public ushort aIndex { get; set; }
+        [WZMember(0)] public CSInventory InvType { get; set; }
+        [WZMember(0)] public byte InvNum { get; set; }
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string AccountID{ get; set; }
+        [WZMember(0)] public int Result { get; set; }
+        [WZMember(0, typeof(ArrayWithScalarSerializer<int>))] public SCashItemDto[] Items { get; set; }
+    }
+
+    [WZContract]
+    public class SCashItemDto
+    {
+        [WZMember(0)] public int UniqueCode { get; set; }
+        [WZMember(1)] public int AuthCode { get; set; }
+        [WZMember(2)] public int UniqueID1 { get; set; }
+        [WZMember(3)] public int UniqueID2 { get; set; }
+        [WZMember(4)] public int UniqueID3 { get; set; }
+        [WZMember(5)] public CSInventory InventoryType { get; set; }
+        [WZMember(6, typeof(BinaryStringSerializer), 10)] public string GiftName{ get; set; }
+        [WZMember(7, typeof(BinaryStringSerializer), 200)] public string Message{ get; set; }
     }
 }

@@ -11,9 +11,10 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CCashOpen))]
         public void CashOpen(GSSession session)
         {
-            var result = session.Player.Window == null;
+            var result = !session.Player.Character.CashShop.IsOpen && session.Player.Window == null;
             session.SendAsync(new SCashOpen { Result = (byte)(result?1:0) }).Wait();
-            session.Player.Window = typeof(MuEmu.CashShop);
+
+            session.Player.Character.CashShop.IsOpen = result;
         }
         [MessageHandler(typeof(CCashPoints))]
         public void CashPoints(GSSession session)

@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using MuEmu.Util;
 using MU.Resources;
+using MU.Network.Game;
 
 namespace MuEmu.Events.ImperialGuardian
 {
@@ -24,6 +25,181 @@ namespace MuEmu.Events.ImperialGuardian
         public byte Dir;
         public Monster monster;
         public Maps map;
+    }
+
+    enum FortressZoneState
+    {
+        Ready,
+        BeginTimeAttack,
+        BeginWaitPlayer,
+        BeginLootTime,
+        AllWarpNextZone,
+        MissionFail,
+        AllKick,
+        MissionClear,
+        None,
+    }
+
+    internal class ImperialZone : StateMachine<FortressZoneState>
+    {
+        public ushort Zone { get; }
+        public bool IsLastZone => (Zone == 3 && _manager._eventDay == DayOfWeek.Sunday) || (Zone == 2 && _manager._eventDay != DayOfWeek.Sunday);
+        public bool AbleUsePortal { get; private set; }
+        private ImperialGuardian _manager;
+        private List<Player> _players;
+        private int _lastNotify;
+
+        public override void Initialize()
+        {
+            Trigger(FortressZoneState.Ready);
+        }
+
+        public ImperialZone(ImperialGuardian manager, ushort zone)
+        {
+            _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ImperialZone)+ zone.ToString());
+            _manager = manager;
+            Zone = zone;
+            _players = new List<Player>();
+        }
+
+        void NotifyZoneClear(uint type)
+        {
+            var msg = new SImperialNotifyZoneClear
+            {
+                Type = type,
+                RewardExp = 100,
+            };
+
+            switch(type)
+            {
+                case 0:
+                    msg.RewardExp = 0;
+                    break;
+                case 2:
+                    break;
+            }
+
+            _players.Select(x => x.Session).SendAsync(msg);
+        }
+
+        public override void OnTransition(FortressZoneState NextState)
+        {
+            switch(NextState)
+            {
+                case FortressZoneState.Ready:
+                    AbleUsePortal = false;
+                    if (_manager.CurrentState != EventState.Open)
+                    {
+                        Trigger(FortressZoneState.AllKick);
+                    }
+                    break;
+                case FortressZoneState.BeginTimeAttack:
+                    Trigger(FortressZoneState.MissionFail, TimeSpan.FromMinutes(10));
+                    _manager.LoadMonsters(Zone);
+                    _manager.Zone = Zone;
+                    break;
+                case FortressZoneState.BeginWaitPlayer:
+                    Trigger(FortressZoneState.BeginTimeAttack, TimeSpan.FromMinutes(1));
+                    _manager.UnloadMonsters((ushort)(Zone - 1));
+                    break;
+                case FortressZoneState.BeginLootTime:
+                    AbleUsePortal = true;
+                    _manager.NextZone?.Trigger(FortressZoneState.BeginWaitPlayer);
+                    Trigger(IsLastZone?FortressZoneState.AllKick:FortressZoneState.MissionFail, TimeSpan.FromMinutes(1));
+
+                    _ = _manager._map.SendAsync(new SNotice(NoticeType.Gold, "[IG] BeginLootTime1"));
+                    _ = _manager._map.SendAsync(new SNotice(NoticeType.Gold, "[IG] BeginLootTime2"));
+                    break;
+                case FortressZoneState.AllWarpNextZone:
+                    _players.ForEach(x => x.Character.WarpTo(22));
+                    //Trigger(FortressZoneState.Ready);
+                    break;
+                case FortressZoneState.MissionFail:
+                    NotifyZoneClear(0);
+                    Trigger(FortressZoneState.AllKick);
+                    break;
+                case FortressZoneState.AllKick:
+                    _manager.KickAll();
+                    Trigger(FortressZoneState.Ready);
+                    break;
+                case FortressZoneState.MissionClear:
+                    AbleUsePortal = true;
+                    NotifyZoneClear(2);
+                    Trigger(FortressZoneState.BeginLootTime);
+                    break;
+            }
+        }
+
+        public override void Update()
+        {
+            var notify = new SImperialNotifyZoneTime
+            {
+                ZoneIndex = Zone,
+                DayOfWeek = (byte)_manager._eventDay,
+            };
+            notify.RemainTime = (uint)TimeLeft.TotalMilliseconds;
+            switch (CurrentState)
+            {
+                case FortressZoneState.BeginTimeAttack:
+                    if((int)TimeLeft.TotalSeconds == 60)
+                    {
+                        _ = _manager._map.SendAsync(new SNotice(NoticeType.Gold, "Portal will be closed"));
+                    }else if(_lastNotify != (int)TimeLeft.TotalMinutes)
+                    {
+                        _lastNotify = (int)TimeLeft.TotalMinutes;
+                        _ = _manager._map.SendAsync(new SNotice(NoticeType.Gold, $"Portal will be closed after {_lastNotify} minutes"));
+                    }
+                    if(_manager._activeMobs <= 0)
+                    {
+                        Trigger(IsLastZone? FortressZoneState.MissionClear:FortressZoneState.BeginLootTime);
+                    }
+                    notify.MsgType = 2;
+                    notify.RemainMonster = (uint)_manager._activeMobs;
+                    _manager.RunTraps();
+                    break;
+                case FortressZoneState.BeginLootTime:
+                    notify.MsgType = 0;
+                    if (Zone == 3)
+                        break;
+                    break;
+                case FortressZoneState.BeginWaitPlayer:
+                    notify.MsgType = 1;
+                    if (_lastNotify != (int)TimeLeft.TotalMinutes)
+                    {
+                        _lastNotify = (int)TimeLeft.TotalMinutes;
+                        _ = _manager._map.SendAsync(new SNotice(NoticeType.Gold, $"Waiting for players {_lastNotify} minutes"));
+                    }                        
+                    break;
+                default:
+                    notify.MsgType = 3;
+                    break;
+            }
+            if(notify.MsgType != 3)
+                _ = _players.Select(x => x.Session).SendAsync(notify);
+
+            base.Update();
+        }
+
+        internal void AddPlayer(Player plr)
+        {
+            _players.Add(plr);
+        }
+        internal Player RemPlayer(Player plr)
+        {
+            _players.Remove(plr);
+            if(_players.Count()==0)
+            {
+                Trigger(FortressZoneState.AllWarpNextZone);
+            }
+            return plr;
+        }
+
+        internal void Clear()
+        {
+            AbleUsePortal = false;
+            _players.Clear();
+            Trigger(FortressZoneState.Ready);
+        }
     }
 
     public class ImperialGuardian : Event
@@ -54,13 +230,13 @@ namespace MuEmu.Events.ImperialGuardian
         };
         private List<int> _imperialExpReward = new List<int>
         {
+            5000000,
             500000,
             600000,
             700000,
             800000,
             900000,
             1000000,
-            5000000,
         };
         private List<FortressGate> _DestlerGaliaGates = new List<FortressGate>
         {
@@ -124,13 +300,17 @@ namespace MuEmu.Events.ImperialGuardian
 
         private List<Monster> _traps;
 
-        private FortressSubState _subState;
-        private DayOfWeek _eventDay;
+        private List<ImperialZone> _zones;
+
+        internal int Zone { get; set; }
+        internal ImperialZone CurrentZone => _zones[Zone];
+        internal ImperialZone NextZone => CurrentZone.IsLastZone == false ? _zones[Zone + 1] : null;
+
+        internal DayOfWeek _eventDay;
         private int _baseGroup;
         private DateTime _subStateEnd;
-        private MapInfo _map;
-        private int _lastNotify;
-        private int _activeMobs;
+        internal MapInfo _map;
+        internal int _activeMobs;
 
         private SImperialEnterResult _eventState = new SImperialEnterResult();
 
@@ -140,6 +320,12 @@ namespace MuEmu.Events.ImperialGuardian
             : base(TimeSpan.Zero, TimeSpan.FromDays(100), TimeSpan.FromMinutes(10))
         {
             _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(ImperialGuardian));
+            _zones = new List<ImperialZone>();
+
+            for(var i = 0; i < 4; i++)
+            {
+                _zones.Add(new ImperialZone(this, (ushort)i));
+            }
         }
         public override void Initialize()
         {
@@ -158,6 +344,8 @@ namespace MuEmu.Events.ImperialGuardian
                 g.monster.Die += OnMonsterDead;
                 g.monster.Regen += Monster_Regen;
             }
+
+            _zones.ForEach(x => x.Initialize());
         }
 
         private void Monster_Regen(object sender, EventArgs e)
@@ -171,27 +359,54 @@ namespace MuEmu.Events.ImperialGuardian
             throw new NotImplementedException();
         }
 
+        private async void SetGateState(Monster mob, bool enable)
+        {
+            if (_map == null)
+                return;
+
+            Rectangle rect = new Rectangle(mob.Position.X - 3, mob.Position.Y - 2, 3, 4);
+            switch(mob.Direction)
+            {
+                case 1:
+                    rect = new Rectangle(mob.Position.X - 2, mob.Position.Y, 4, 3);
+                    break;
+                case 5:
+                    rect = new Rectangle(mob.Position.X - 2, mob.Position.Y - 3, 4, 3);
+                    break;
+                case 3:
+                    rect = new Rectangle(mob.Position.X - 3, mob.Position.Y - 2, 3, 4);
+                    break;
+                case 7:
+                    rect = new Rectangle(mob.Position.X, mob.Position.Y - 2, 3, 4);
+                    break;
+            }
+            if(enable)
+                await _map.AddAttribute(MapAttributes.Unknow, rect);
+            else
+                await _map.RemoveAttribute(MapAttributes.Unknow, rect);
+        }
+
         public override void OnMonsterDead(object sender, EventArgs eventArgs)
         {
             var mob = sender as Monster;
 
-            for (var i = 0; i < _fortressGates.Count; i++)
+            _logger.Information("Monster {0} dead, left {1} mobs", mob.Info.Name, _activeMobs);
+            mob.Active = false;
+
+            var result = _fortressGates.FindIndex(x => x.monster == mob)+1;
+            if(result > 0)
             {
-                if (_fortressGates[i].monster == mob)
-                {
-                    _ = _map.AddAttribute(MapAttributes.Unknow, _fortressAtt[i]);
+                SetGateState(mob, false);
 
-                    if (i != 0)
-                        _fortressGates[i + 1].monster.Type = ObjectType.Gate;
+                _ = _map.RemoveAttribute(MapAttributes.Unknow, _fortressAtt[result-1]);
 
-                    return;
-                }
+                if(result < _fortressGates.Count() && result < (Zone+1)*3)
+                    _fortressGates[result].monster.Type = ObjectType.Gate;
+
+                return;
             }
 
-
-            mob.Active = false;
             _activeMobs--;
-            _logger.Information("Monster {0} dead, left {1} mobs", mob.Info.Name, _activeMobs);
             if(_activeMobs == 0)
             {
                 _fortressGates[1].monster.Type = ObjectType.Gate;
@@ -201,15 +416,16 @@ namespace MuEmu.Events.ImperialGuardian
         public override void OnPlayerDead(object sender, EventArgs eventArgs)
         {
             var info = _players.First(x => x.Player == (sender as Character).Player);
-            info.Eventer = false;
-            info.Player.Character.CharacterDie -= OnPlayerDead;
-            info.Player.Character.MapChanged -= OnPlayerLeave;
+            OnPlayerLeave(sender, eventArgs);
             _ = info.Player.Character.WarpTo(267);
         }
 
         public override void OnPlayerLeave(object sender, EventArgs eventArgs)
         {
-            OnPlayerDead(sender, eventArgs);
+            var info = _players.First(x => x.Player == (sender as Character).Player);
+            info.Eventer = false;
+            info.Player.Character.CharacterDie -= OnPlayerDead;
+            info.Player.Character.MapChanged -= OnPlayerLeave;
         }
 
         public override void OnTransition(EventState NextState)
@@ -217,19 +433,22 @@ namespace MuEmu.Events.ImperialGuardian
             switch(NextState)
             {
                 case EventState.Open:
-                    _subState = FortressSubState.None;
                     foreach (var g in _fortressGates)
+                    {
                         g.monster.Active = false;
+                        g.monster.Type = ObjectType.NPC;
+                    }
 
                     _map?.Players.ForEach(x => _ = x.WarpTo(267));
-
+                    _zones.ForEach(x => x.Clear());
+                    Zone = 0;
                     break;
                 case EventState.Playing:
                     _subStateEnd = DateTime.Now;
                     _eventDay = DateTime.Now.DayOfWeek;
                     _eventDay = _eventDay == DayOfWeek.Sunday ? (DayOfWeek)7 : _eventDay;
                     _baseGroup = (int)_eventDay * 3 + 21;
-                    _eventState.Day = _eventDay;
+                    _eventState.Day = (byte)_eventDay;
                     _eventState.Unk = 3;
                     _eventState.State = 1;
 
@@ -238,21 +457,21 @@ namespace MuEmu.Events.ImperialGuardian
                         case DayOfWeek.Monday://Destler
                         case DayOfWeek.Thursday://Galia
                             _fortressGates = _DestlerGaliaGates;
-                            //_fortressAtt = __JerintGaionAtt;
+                            _fortressAtt = __JerintGaionAtt;
                             Map = Maps.ImperialGuardian1;
                             _baseGroup = 24;
                             break;
                         case DayOfWeek.Tuesday://Vermont
                         case DayOfWeek.Friday://Erkanne
                             _fortressGates = _VermontErkanneGates;
-                            //_fortressAtt = __JerintGaionAtt;
+                            _fortressAtt = __JerintGaionAtt;
                             Map = Maps.ImperialGuardian2;
                             _baseGroup = 27;
                             break;
                         case DayOfWeek.Wednesday://Kato
                         case DayOfWeek.Saturday://Raymond
                             _fortressGates = _KatoRaymondGates;
-                            //_fortressAtt = __JerintGaionAtt;
+                            _fortressAtt = __JerintGaionAtt;
                             Map = Maps.ImperialGuardian3;
                             _baseGroup = 30;
                             break;
@@ -273,7 +492,7 @@ namespace MuEmu.Events.ImperialGuardian
         {
             var result = new SImperialEnterResult
             {
-                Day = DateTime.Now.DayOfWeek,
+                Day = (byte)DateTime.Now.DayOfWeek,
                 Index = plr.ID,
                 Result = 0,
                 State = 1,
@@ -281,14 +500,14 @@ namespace MuEmu.Events.ImperialGuardian
                 EntryTime = 0,
             };
 
-            if(plr.Character.Party == null)
+            /*if(plr.Character.Party == null)
             {
                 result.Result = 6;
                 _ = plr.Session.SendAsync(result);
                 return false;
-            }
+            }*/
 
-            var itNum = ItemNumber.FromTypeIndex(14, (ushort)(result.Day == DayOfWeek.Sunday ? 109 : 102));
+            var itNum = ItemNumber.FromTypeIndex(14, (ushort)(result.Day == (byte)DayOfWeek.Sunday ? 109 : 102));
             var invitation = plr.Character.Inventory.FindAll(itNum);
             if(invitation.Length <= 0)
             {
@@ -297,7 +516,11 @@ namespace MuEmu.Events.ImperialGuardian
                 return false;
             }
 
-            if (CurrentState != EventState.Open && _players.First().Player.Character.Party != plr.Character.Party)
+            if (
+                CurrentState != EventState.Open && 
+                (_players.First().Player.Character.Party != plr.Character.Party ||
+                CurrentZone.CurrentState != FortressZoneState.BeginWaitPlayer)
+                )
             {
                 result.Result = 1;
                 _ = plr.Session.SendAsync(result);
@@ -312,13 +535,79 @@ namespace MuEmu.Events.ImperialGuardian
             plr.Character.MapChanged += OnPlayerLeave;
             plr.Character.CharacterDie += OnPlayerDead;
 
+            if(CurrentState == EventState.Open)
+            {
+                _zones[0].Trigger(FortressZoneState.BeginWaitPlayer);
+                _zones[0].AddPlayer(plr);
+            }
+            else
+            {
+                CurrentZone.AddPlayer(plr);
+            }
+
             return true;
+        }
+
+        public void RunTraps()
+        {
+            foreach (var t in _traps)
+                foreach (var p in _players.Where(x => x.Eventer))
+                {
+                    if (t.Position.Substract(p.Player.Character.Position).LengthSquared() <= 5)
+                    {
+                        DamageType dmg;
+                        Spell spell;
+
+                        var att = t.MonsterAttack(out dmg, out spell);
+                        _ = p.Player.Character.GetAttacked(t.Index, t.Direction, 120, att, dmg, spell, 0);
+                    }
+                }
+        }
+
+        internal void StandBy(ushort Zone, bool enable)
+        {
+            var newType = enable ? ObjectType.NPC : ObjectType.Gate;
+            _fortressGates[Zone * 3].monster.Type = newType;
+            /*if (!_zones[Zone].IsLastZone)
+            {
+                _fortressGates[Zone * 3 + 1].monster.Type = newType;
+                _fortressGates[Zone * 3 + 2].monster.Type = newType;
+            }*/
+        }
+
+        internal void LoadMonsters(ushort Zone)
+        {
+            _activeMobs = MonsterIA.InitGroup(_baseGroup+ Zone, OnMonsterDead);
+            StandBy(Zone, false);
+        }
+
+        internal void UnloadMonsters(ushort Zone)
+        {
+            if (Zone == 0xffff)
+            {
+                foreach (var g in _fortressGates)
+                {
+                    g.monster.Active = true;
+                    SetGateState(g.monster, true);
+                }
+            }
+            else
+            {
+                MonsterIA.DelGroup(_baseGroup + Zone);
+            }
+        }
+
+        internal void UpdateState(Player plr)
+        {
+            _eventState.State = (byte)(CurrentZone.Zone + 1);
+            _eventState.EntryTime = (ushort)CurrentZone.TimeLeft.TotalSeconds;
+            _eventState.Index = plr.ID;
+            _ = _map.SendAsync(_eventState);
         }
 
         public override void Update()
         {
-            base.Update();
-            switch(CurrentState)
+            switch (CurrentState)
             {
                 case EventState.Open:
                     if (_players.Where(x => x.Eventer).Count() <= 0)
@@ -329,119 +618,32 @@ namespace MuEmu.Events.ImperialGuardian
                     if (_players.Where(x => x.Eventer).Count() == 0)
                     {
                         Trigger(EventState.Open);
-                        return;
-                    }
-                    switch(_subState)
-                    {
-                        case FortressSubState.Phaze1:
-                        case FortressSubState.Phaze2:
-                        case FortressSubState.Phaze3:
-                        case FortressSubState.Phaze4:
-                            var ts = _subStateEnd - DateTime.Now;
-                            if (_lastNotify != (int)ts.TotalMinutes)
-                            {
-                                _lastNotify = (int)ts.TotalMinutes;
-                                _ = Program.MapAnoucement((Maps)_map.Map, $"Portal will be closed after {_lastNotify} minutes");
-                                _ = _map.SendAsync(_eventState);
-                            }
-
-                            foreach(var t in _traps)
-                                foreach(var p in _players.Where(x => x.Eventer))
-                                {
-                                    if(t.Position.Substract(p.Player.Character.Position).LengthSquared() <= 5)
-                                    {
-                                        DamageType dmg;
-                                        Spell spell;
-
-                                        var att = t.MonsterAttack(out dmg, out spell);
-                                        _ = p.Player.Character.GetAttacked(t.Index, t.Direction, 120, att, dmg, spell, 0);
-                                    }
-                                }
-
-                            break;
-                    }
-
-                    if (_subStateEnd <= DateTime.Now)
-                    {
-                        if(_subState == FortressSubState.End)
-                        {
-                            _subState = FortressSubState.None;
-                            Trigger(EventState.Open);
-                            return;
-                        }
-                        _logger.Information("Fortress state {0}->{1}", _subState++, _subState);
-                        switch (_subState)
-                        {
-                            case FortressSubState.None:
-                                _subStateEnd = DateTime.Now;
-                                break;
-                            case FortressSubState.StandBy1:
-                                _subStateEnd = DateTime.Now.AddMinutes(1);
-                                foreach (var g in _fortressGates)
-                                {
-                                    g.monster.Active = true;
-                                }
-                                _eventState.State = 1;
-                                break;
-                            case FortressSubState.Phaze1:
-                                _subStateEnd = DateTime.Now.AddMinutes(10);
-                                _fortressGates[0].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.InitGroup(_baseGroup, OnMonsterDead);
-                                break;
-                            case FortressSubState.Standby2:
-                                _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.DelGroup(_baseGroup);
-                                _eventState.State = 2;
-                                break;
-                            case FortressSubState.Phaze2:
-                                _subStateEnd = DateTime.Now.AddMinutes(10);
-                                _fortressGates[3].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.InitGroup(_baseGroup + 1, OnMonsterDead);
-                                break;
-                            case FortressSubState.StandBy3:
-                                _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.DelGroup(_baseGroup + 1);
-                                _eventState.State = 3;
-                                break;
-                            case FortressSubState.Phaze3:
-                                _subStateEnd = DateTime.Now.AddMinutes(10);
-                                _fortressGates[6].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.InitGroup(_baseGroup + 2, OnMonsterDead);
-                                break;
-                            case FortressSubState.StandBy4:
-                                if (_eventDay != (DayOfWeek)7)
-                                    _subState = FortressSubState.End;
-
-                                _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.DelGroup(_baseGroup + 2);
-                                _eventState.State = 4;
-                                break;
-                            case FortressSubState.Phaze4:
-                                _subStateEnd = DateTime.Now.AddMinutes(10);
-                                _fortressGates[9].monster.Type = ObjectType.Gate;
-                                _activeMobs = MonsterIA.InitGroup(_baseGroup + 3, OnMonsterDead);
-                                break;
-                            case FortressSubState.End:
-                                _subStateEnd = DateTime.Now.AddMinutes(3);
-                                MonsterIA.DelGroup(_baseGroup + 2);
-                                MonsterIA.DelGroup(_baseGroup + 3);
-                                break;
-
-                        }
-                        _ = _map.SendAsync(_eventState);
+                        break;
                     }
                     break;
             }
+            _zones.ForEach(x => x.Update());
+            base.Update();
         }
 
         internal async Task UsePortal(Character @char, ushort moveNumber)
         {
-            if(_subState != FortressSubState.Phaze4)
+            if(!CurrentZone.AbleUsePortal)
             {
                 return;
             }
 
+            CurrentZone.RemPlayer(@char.Player);
+            NextZone?.AddPlayer(@char.Player);
+            UpdateState(@char.Player);
+
             await @char.WarpTo(moveNumber);
+        }
+
+        internal void KickAll()
+        {
+            _players.ForEach(x => x.Player.Character.WarpTo(22).Wait());
+            _players.Clear();
         }
     }
 }

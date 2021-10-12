@@ -37,6 +37,7 @@ namespace MU.Network.CashShop
             Register<SCashOpen>(CashOpCode.CashOpen);
             Register<SCashInventoryItem>(CashOpCode.CashInventoryCount);
             Register<SCashItemBuy>(CashOpCode.CashItemBuy);
+            Register<SCashItemList>(CashOpCode.CashItemList);
         }
     }
 }

@@ -49,6 +49,7 @@
   <NPC Type="379" Map="Davias" Radio="0" PosX="13" PosY="28" Dir="2">//Fireworks Girl</NPC>
   <NPC Type="385" Map="Davias" Radio="0" PosX="226" PosY="58" Dir="1">//Alchemist [Illusion NPC]</NPC>
   <NPC Type="450" Map="Davias" Radio="0" PosX="231" PosY="59" Dir="1">//Governor Blossom [Sky Event]</NPC>
+  <NPC Type="522" Map="Davias" Radio="0" PosX="229" PosY="221" Dir="1">//Jerry The Adviseru</NPC>
   <NPC Type="237" Map="Noria" Radio="0" PosX="171" PosY="104" Dir="3">//Charon</NPC>
   <NPC Type="238" Map="Noria" Radio="0" PosX="180" PosY="103" Dir="1">//Chaos Goblin</NPC>
   <NPC Type="240" Map="Noria" Radio="0" PosX="172" PosY="96" Dir="3">//Baz, Storage Guard</NPC>

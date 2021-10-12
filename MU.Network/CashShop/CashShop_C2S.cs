@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
@@ -18,7 +19,7 @@ namespace MU.Network.CashShop
         public int Page { get; set; }
 
         [WZMember(1)]
-        public byte InventoryType { get; set; }
+        public CSInventory InventoryType { get; set; }
     }
     [WZContract]
     public class CCashItemBuy : ICashMessage
@@ -32,6 +33,6 @@ namespace MU.Network.CashShop
         [WZMember(3)]
         public short ItemID { get; set; }
         [WZMember(4)]
-        public int Coin { get; set; }
+        public CoinType Coin { get; set; }
     }
 }

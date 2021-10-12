@@ -75,8 +75,36 @@ namespace MuEmu
             Description = vs[6];
             int.TryParse(vs[8], out Const2);
             Unknow = int.Parse(vs[9]);
-            //DataTimeStart = int.Parse(vs[10]);
-            //DataTimeExpir = int.Parse(vs[11]);
+
+            int year, month, day, h, m, s;
+            if (vs[10].Length >= 14)
+            {
+                year = int.Parse(vs[10].Substring(0, 4));
+                month = int.Parse(vs[10].Substring(4, 2));
+                day = int.Parse(vs[10].Substring(6, 2));
+                h = int.Parse(vs[10].Substring(8, 2));
+                m = int.Parse(vs[10].Substring(10, 2));
+                s = int.Parse(vs[10].Substring(12, 2));
+                DataTimeStart = new DateTime(year, month, day, h, m, s);
+            }else
+            {
+                DataTimeStart = DateTime.Now;
+            }
+            if (vs[11].Length >= 14)
+            {
+                year = int.Parse(vs[11].Substring(0, 4));
+                month = int.Parse(vs[11].Substring(4, 2));
+                day = int.Parse(vs[11].Substring(6, 2));
+                h = int.Parse(vs[10].Substring(8, 2));
+                m = int.Parse(vs[10].Substring(10, 2));
+                s = int.Parse(vs[10].Substring(12, 2));
+                DataTimeExpir = new DateTime(year, month, day, h, m, s);
+            }
+            else
+            {
+                DataTimeExpir = DateTime.Now.AddYears(100);
+            }
+
             Const3 = int.Parse(vs[12]);
             Const4 = int.Parse(vs[13]);
             CoinDesc = vs[14];
@@ -94,6 +122,57 @@ namespace MuEmu
             Const8 = int.Parse(vs[26]);
         }
     }
+    enum SellType
+    {
+        Duration,
+        Quantity,
+    }
+    class IBSProduct
+    {
+        //3@Seal of Wealth(3day)@Duration@259200@Sec.@0@3@142@145@1@144@673@518@6700@10@140@386
+        //12@ Devil Square Ticket @Quantity@1@EA@900@21@142@145@1@144@673@518@6702@7@138@680
+        //60@ Pet Panda@Duration@1440@[1 Day(s)]@150@99@142@145@1@144@673@518@6736@10@138@680
+        public int RootId;
+        public string Name;
+        public SellType sellType;
+        public int Amount;
+        public string sellTypeDesc;
+        public int Coins;
+        public int NodeId;
+        public int Const1;
+        public int Const2;
+        public int Const3;
+        public int Const4;
+        public int Const5;
+        public int Const6;
+        public int ItemId;
+        public int Const7;
+        public int Const8;
+        public int Const9;
+
+        public IBSProduct(string[] vs)
+        {
+            RootId = int.Parse(vs[0]);
+            Name = vs[1];
+            sellType = Enum.Parse<SellType>(vs[2]);
+            Amount = int.Parse(vs[3]);
+            sellTypeDesc = vs[4];
+            Coins = int.Parse(vs[5]);
+            NodeId = int.Parse(vs[6]);
+            Const1 = int.Parse(vs[7]);
+            Const2 = int.Parse(vs[8]);
+            Const3 = int.Parse(vs[9]);
+            Const4 = int.Parse(vs[10]);
+            Const5 = int.Parse(vs[11]);
+            Const6 = int.Parse(vs[12]);
+            ItemId = int.Parse(vs[13]);
+            Const7 = int.Parse(vs[14]);
+            Const8 = int.Parse(vs[15]);
+            Const9 = int.Parse(vs[16]);
+        }
+    }
+
+
     public class CashShop
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(CashShop));
@@ -104,10 +183,12 @@ namespace MuEmu
         private int _wCoinP;
         private int _wCoinC;
         private int _goblinPoints;
-        private List<Item> _items = new List<Item>();
+        private List<Item> _gifItems = new List<Item>();
+        private List<Item> _storage = new List<Item>();
 
         private static Dictionary<int, IBSCategory> cat;
         private static Dictionary<int, IBSPackage> pack;
+        private static Dictionary<int, IBSProduct> prod;
 
         public static void Initialize(ushort[] ver)
         {
@@ -116,6 +197,7 @@ namespace MuEmu
 
             cat = new Dictionary<int, IBSCategory>();
             pack = new Dictionary<int, IBSPackage>();
+            prod = new Dictionary<int, IBSProduct>();
 
             using (var fs = File.OpenText(root+ "IBSCategory.txt"))
             {
@@ -135,12 +217,35 @@ namespace MuEmu
                 {
                     var line = fs.ReadLine();
                     var subs = line.Split("@");
-
-                    var a = new IBSPackage(subs);
+                    try
+                    {
+                        var a = new IBSPackage(subs);
                     pack.Add(a.CategoryId*1000 + a.Position, a);
+                    }
+                    catch (Exception ex) {
+                        Logger.Error("",ex);
+                    }
+                }
+            }
+
+            using (var fs = File.OpenText(root + "IBSProduct.txt"))
+            {
+                while (!fs.EndOfStream)
+                {
+                    var line = fs.ReadLine();
+                    var subs = line.Split("@");
+
+                    try
+                    {
+                        var a = new IBSProduct(subs);
+                        prod.Add(a.NodeId, a);
+                    }
+                    catch (Exception) { }
                 }
             }
         }
+
+        public bool IsOpen { get; set; }
 
         public CashShop(GSSession session, CharacterDto db)
         {
@@ -169,6 +274,8 @@ namespace MuEmu
 
         public async void SendInventory(CCashInventoryItem message)
         {
+            var _items = message.InventoryType == CSInventory.Storage ? _storage : _gifItems;
+
             var tPage = (ushort)Math.Ceiling(_items.Count / 8.0);
             var id = (message.Page - 1) * 8;
             var cicount = (ushort)Math.Max(_items.Count - id, 8);
@@ -181,27 +288,85 @@ namespace MuEmu
                 TotalItemCount = (ushort)_items.Count,
             });
 
-            if(message.InventoryType == 0x53)
+            await _player.Session.SendAsync(new SCashItemList
             {
-
-            }
-            else
-            {
-
-            }
+                aIndex = _player.ID,
+                AccountID = _player.Account.Nickname,
+                InvType = message.InventoryType,
+                InvNum = (byte)id,
+                Result = 1,
+                Items = _items.Select(x => new SCashItemDto
+                {
+                    InventoryType = message.InventoryType,
+                    AuthCode = 1,
+                    GiftName = "",
+                    Message = "",
+                    UniqueCode = 2,
+                    UniqueID1 = 3,
+                    UniqueID2 = 4,
+                    UniqueID3 = 5,
+                }).ToArray()
+            });
         }
 
         public async void BuyItem(CCashItemBuy message)
         {
-            var a = (from p in pack
-                     where (p.Value.CategoryId == message.Category) &&
-                     (p.Value.ItemGroupAndIndex == message.ItemID) &&
-                     (p.Value.GameId == message.ItemIndex)
-                     select p.Value).FirstOrDefault();
+            var category = (from c in cat
+                            where c.Value.CategoryId == message.Category
+                            select c.Value).First();
 
-            log.Debug("Buy CashItem Cat:{0} ID:{1}, Index:{2}, SubIndex{3}, Opt:{4}, {5}", message.Category, message.ItemID, message.ItemIndex, message.Coin, message.ItemOpt, a?.Name??"ERR");
+            var package = (from p in pack
+                           where p.Value.GameId == message.ItemIndex
+                           select p.Value).First();
 
-            await _player.Session.SendAsync(new SCashItemBuy { Result = 1 });
+            var products = (from p in prod
+                           where package.ProductNodeId.Contains(p.Value.NodeId) || package.ProductRootId.Contains(p.Value.RootId)
+                           select p.Value);
+
+            var product = (from p in products
+                          where message.ItemOpt == 0 || p.NodeId == message.ItemOpt
+                          select p)
+                          .Skip(Program.RandomProvider(package.ProductRootId.Length))
+                          .First();
+
+            var neededCoins = product.Coins != 0 ? product.Coins : package.Price;
+
+            log.Debug("Buy CashItem Cat:{0}->{1} ID:{2}, {3}{4}", category.Name, product.Name, message.ItemID, neededCoins, message.Coin);
+
+            CSResult result = CSResult.Ok;
+
+            switch(message.Coin)
+            {
+                case CoinType.GPoints:
+                    if(_goblinPoints < neededCoins)
+                    {
+                        result = CSResult.InsuficientWCoint;
+                        break;
+                    }
+                    break;
+                case CoinType.WCoin:
+                    if (_wCoinC < neededCoins)
+                    {
+                        result = CSResult.InsuficientWCoint;
+                        break;
+                    }
+                    break;
+            }
+
+            if(package.DataTimeStart > DateTime.Now)
+            {
+                result = CSResult.ItemIsNotCurrentAvailable;
+            }
+
+            if(package.DataTimeExpir < DateTime.Now)
+            {
+                result = CSResult.ItemIsNotLongerAvailable;
+            }
+
+
+
+            await _player.Session.SendAsync(new SCashItemBuy { Result = result });
+            SendInventory(new CCashInventoryItem { Page = 0, InventoryType = 0 });
         }
     }
 }

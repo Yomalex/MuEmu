@@ -1465,7 +1465,7 @@ namespace MuEmu.Network
             Monster mom = null;
             Player plr;
 
-            if(message.Target != 0)
+            if(message.Target != 0 && message.Target != 0xffff)
             {
                 if(message.Target < MonstersMng.MonsterStartIndex)
                 {
@@ -1936,13 +1936,15 @@ namespace MuEmu.Network
                 }
 
                 var ev = Program.EventManager.GetEvent<ImperialGuardian>();
-                if(gate.Map == ev.Map)
+                if (gate.Map == ev.Map)
                 {
-                    await ev.UsePortal(@char, message.MoveNumber);
+                    await ev.UsePortal(@char, (ushort)target);
                 }
-
-                log.Information("Warp request to {1}:{0}", target, gate.Map);
-                await @char.WarpTo(target);
+                else
+                {
+                    log.Information("Warp request to {1}:{0}", target, gate.Map);
+                    await @char.WarpTo(target);
+                }
             }
             else
             {

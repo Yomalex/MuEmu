@@ -337,11 +337,28 @@ namespace MU.Network.Event
     public class SImperialEnterResult : IEventMessage
     {
         [WZMember(0)] public byte Result { get; set; }
-        [WZMember(1)] public DayOfWeek Day { get; set; } // 5
+        [WZMember(1)] public byte Day { get; set; } // 5
         [WZMember(2)] public byte State { get; set; }   // 6
         [WZMember(3)] public byte Unk { get; set; }   // 7
         [WZMember(4)] public ushort Index { get; set; }	// 8
         [WZMember(5)] public ushort EntryTime { get; set; }	// A
+    }
+
+    [WZContract]
+    public class SImperialNotifyZoneTime : IEventMessage
+    {
+        [WZMember(0)] public byte MsgType { get; set; }
+        [WZMember(1)] public byte DayOfWeek { get; set; }
+        [WZMember(2)] public ushort ZoneIndex { get; set; }
+        [WZMember(3)] public uint RemainTime { get; set; }
+        [WZMember(4)] public uint RemainMonster { get; set; }
+    }
+
+    [WZContract]
+    public class SImperialNotifyZoneClear : IEventMessage
+    {
+        [WZMember(0)] public uint Type { get; set; }
+        [WZMember(1)] public uint RewardExp { get; set; }
     }
 
     // ArcaBattle

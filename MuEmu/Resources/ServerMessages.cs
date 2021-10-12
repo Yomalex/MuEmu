@@ -34,7 +34,7 @@ namespace MuEmu.Resources
 
             for (var i = 0; i < values.Length; i++)
             {
-                res = res.Replace("{"+i+"}", values[i].ToString());
+                res = res.Replace("{"+i+"}", values[i]?.ToString()??"");
             }
 
             return res;

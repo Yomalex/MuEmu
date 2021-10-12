@@ -69,6 +69,8 @@ namespace MU.Network.Event
             // Imperial
             Register<CImperialGuardianEnter>(EventOpCode.ImperialGuardianEnter);
             Register<SImperialEnterResult>(EventOpCode.ImperialGuardianEnterResult);
+            Register<SImperialNotifyZoneTime>(EventOpCode.ImperialGuardianNotifyZoneTime);
+            Register<SImperialNotifyZoneClear>(EventOpCode.ImperialGuardianNotifyZoneAllClear);
 
             // ArcaBattle
             Register<SArcaBattleState>(EventOpCode.ArcaBattleState);

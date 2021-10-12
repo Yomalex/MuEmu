@@ -268,6 +268,8 @@ namespace MU.Network
 
         ImperialGuardianEnter = 0x01F7,
         ImperialGuardianEnterResult = 0x02F7,
+        ImperialGuardianNotifyZoneTime = 0x04F7,
+        ImperialGuardianNotifyZoneAllClear = 0x06F7,
 
         ArcaBattleState = 0x38F8,
         Banner = 0x184D,
@@ -285,6 +287,7 @@ namespace MU.Network
         CashItemBuy = 0x03D2,
         CashItemGif = 0x04D2,
         CashInventoryCount = 0x05D2,
+        CashItemList = 0x06D2,
         CashVersion = 0x0CD2,
         CashBanner = 0x15D2,
     }

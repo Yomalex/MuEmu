@@ -438,6 +438,7 @@ namespace MuEmu
                     {
                         sFrom.Add(fromIndex, it);
                     }
+                    Character.Player.Session.SendAsync(new SNotice(NoticeType.Blue, ex.Message));
                     return false;
                 }
             }
@@ -487,6 +488,7 @@ namespace MuEmu
                     {
                         sFrom.Add(fromIndex, it);
                     }
+                    Character.Player.Session.SendAsync(new SNotice(NoticeType.Blue, ex.Message));
                     return false;
                 }
             }
@@ -817,31 +819,31 @@ namespace MuEmu
                 sub = new Dictionary<int, byte[]>
                 {
                                   //[5], [9], [16]
-                    { 0, new byte[]{ 4, 0x01, 0 } }, //Wings of Fairy
-                    { 1, new byte[]{ 4, 0x02, 0 } }, //Wings of Angel
-                    { 2, new byte[]{ 4, 0x03, 0 } }, //Wings of Satan
-                    { 3, new byte[]{ 8, 0x01, 0 } }, //Wings of Spirit
-                    { 4, new byte[]{ 12, 0x02, 0 } }, //Wings of Soul
-                    { 5, new byte[]{ 12, 0x03, 0 } }, //Wings of Dragon
-                    { 6, new byte[]{ 12, 0x04, 0 } }, //Wings of Darkness
-                    { 30, new byte[]{ 12, 0x05, 0 } },//Cape of lord
-                    { 36, new byte[]{ 12, 0x01, 0 } },//Wing of Storm
-                    { 37, new byte[]{ 12, 0x02, 0 } },//Wing of Space Time
-                    { 38, new byte[]{ 12, 0x03, 0 } },//Wing of Illusion
-                    { 39, new byte[]{ 12, 0x04, 0 } },//Wings of Hurricane
-                    { 40, new byte[]{ 12, 0x05, 0 } },//Mantle of Monarch
-                    { 41, new byte[]{ 4, 0x04, 0 } },//Wing of Mistery
-                    { 42, new byte[]{ 12, 0x07, 0 } },//Wing of Despair
-                    { 43, new byte[]{ 12, 6, 0 } },//Wings of Violent Wind
-                    { 49, new byte[]{ 8, 0x07, 0 } },
-                    { 50, new byte[]{ 12, 7, 0 } },
-                    { 51, new byte[]{ 12, 0, 8 } },
-                    { 52, new byte[]{ 12, 0, 9 } },
-                    { 53, new byte[]{ 12, 0, 10 } },
-                    { 54, new byte[]{ 12, 0, 11 } },
-                    { 55, new byte[]{ 12, 0, 12 } },
-                    { 56, new byte[]{ 12, 0, 13 } },
-                    { 57, new byte[]{ 12, 0, 14 } },
+                    { 00, new byte[]{ 04, 0x01, 00 } }, //Wings of Fairy
+                    { 01, new byte[]{ 04, 0x02, 00 } }, //Wings of Angel
+                    { 02, new byte[]{ 04, 0x03, 00 } }, //Wings of Satan
+                    { 03, new byte[]{ 08, 0x01, 00 } }, //Wings of Spirit
+                    { 04, new byte[]{ 08, 0x02, 00 } }, //Wings of Soul
+                    { 05, new byte[]{ 08, 0x03, 00 } }, //Wings of Dragon
+                    { 06, new byte[]{ 08, 0x04, 00 } }, //Wings of Darkness
+                    { 30, new byte[]{ 08, 0x05, 00 } },//Cape of lord
+                    { 36, new byte[]{ 12, 0x01, 00 } },//Wing of Storm
+                    { 37, new byte[]{ 12, 0x02, 00 } },//Wing of Space Time
+                    { 38, new byte[]{ 12, 0x03, 00 } },//Wing of Illusion
+                    { 39, new byte[]{ 12, 0x04, 00 } },//Wings of Hurricane
+                    { 40, new byte[]{ 12, 0x05, 00 } },//Mantle of Monarch
+                    { 41, new byte[]{ 04, 0x04, 00 } },//Wing of Mistery
+                    { 42, new byte[]{ 12, 0x07, 00 } },//Wing of Despair
+                    { 43, new byte[]{ 12, 0x06, 00 } },//Wings of Violent Wind
+                    { 49, new byte[]{ 08, 0x07, 00 } },
+                    { 50, new byte[]{ 12, 0x07, 00 } },
+                    { 51, new byte[]{ 12, 0x00, 08 } },
+                    { 52, new byte[]{ 12, 0x00, 09 } },
+                    { 53, new byte[]{ 12, 0x00, 10 } },
+                    { 54, new byte[]{ 12, 0x00, 11 } },
+                    { 55, new byte[]{ 12, 0x00, 12 } },
+                    { 56, new byte[]{ 12, 0x00, 13 } },
+                    { 57, new byte[]{ 12, 0x00, 14 } },
                     //{ 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
                     //{ 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
                     //{ 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },

@@ -486,7 +486,12 @@ void ProcLoading()
     Hook<void>::Jump((void*)0x009C77C8, (void*)0x009C79AC);// HelpData_Eng.bmd Corrupt
     Hook<void>::WriteByte((void*)CTRL_FREEZE_FIX, 0x02);
     Hook<void>::Write((void*)MAPSRV_DELACCID_FIX, c, 5); // nop call to memcpy in mapserver, because buff source is empty, due to no account id from webzen http (remove new login system)
-
+    Hook<void>::WriteByte((void*)(0x005CA914 + 2), 0x26);// Box of Kundun 2-5 fix
+    Hook<void>::WriteByte((void*)(0x005CA8C7 + 3), 0x07);// Box of Heaven fix
+    Hook<void>::WriteByte((void*)0x009E5EDC, 0xEB); // S9 -- Cherry Blossom Opening MuRuumy Windows Fix, JNZ -> JMP
+    //MemSet(0x00802160, 0x90, 6); // S9 -- Joh option display on Ancients
+    //Hook<void>::WriteByte((void*)0x00A31BE6, 0x30); // S9 -- Decreased limit of screen refresh frequency, 60 -> 48
+    Hook<void>::WriteByte((void*)0x00A31BE7, 0x7D); // JE -> JGE -- limit check == -> >=
 
     GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", szSerial, 18, cfgFile);
     GetPrivateProfileStringA("MU", "Version", "10525", szVersion, 5, cfgFile);
