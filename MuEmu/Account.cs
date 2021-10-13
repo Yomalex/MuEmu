@@ -37,7 +37,7 @@ namespace MuEmu
                 {
                     _vaults.Add(i, new Storage(Storage.WarehouseSize));
                     var items = db.Items
-                        .Where(x => x.VaultId == ID * 10 + i);
+                        .Where(x => x.VaultId == 144);
 
                     foreach (var it in items)
                     {
