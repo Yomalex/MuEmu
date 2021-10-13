@@ -32,6 +32,8 @@ namespace MuEmu
         private Dictionary<Equipament, Item> _equipament;
         private Dictionary<StorageID, object> Storages;
         private Storage _inventory;
+        private Storage _exInventory1;
+        private Storage _exInventory2;
         private Storage _chaosBox;
         private Storage _personalShop;
         private Storage _tradeBox;
@@ -93,7 +95,22 @@ namespace MuEmu
             Character = @char;
             Storages = new Dictionary<StorageID, object>();
             _equipament = new Dictionary<Equipament, Item>();
-            _inventory = new Storage(Storage.InventorySize + Storage.Expansion*characterDto.ExpandedInventory, StorageID.Inventory);
+            _inventory = new Storage(Storage.InventorySize, StorageID.Inventory);
+            Storages.Add(StorageID.Equipament, _equipament);
+            Storages.Add(StorageID.Inventory, _inventory);
+
+            if (characterDto.ExpandedInventory >= 1)
+            {
+                _exInventory1 = new Storage(Storage.Expansion, StorageID.ExpandedInventory1);
+                Storages.Add(StorageID.ExpandedInventory1, _exInventory1);
+            }
+
+            if (characterDto.ExpandedInventory >= 2)
+            {
+                _exInventory2 = new Storage(Storage.Expansion, StorageID.ExpandedInventory2);
+                Storages.Add(StorageID.ExpandedInventory2, _exInventory2);
+            }
+
             _personalShop = new Storage(Storage.TradeSize, StorageID.PersonalShop);
             _pentagrama = new List<Item>();
             if (@char != null)
@@ -102,8 +119,6 @@ namespace MuEmu
                 _tradeBox = new Storage(Storage.TradeSize);
             }
             _forDelete = new List<Item>();
-            Storages.Add(StorageID.Equipament, _equipament);
-            Storages.Add(StorageID.Inventory, _inventory);
             Storages.Add(StorageID.PersonalShop, _personalShop);
             Storages.Add(StorageID.Pentagram, _pentagrama);
 
@@ -112,15 +127,16 @@ namespace MuEmu
                 if (item.VaultId == 10 || item.VaultId == (int)StorageID.Warehouse)
                     continue;
 
-                if (item.VaultId == 0)
-                {
-                    if (item.SlotId < (int)StorageID.Inventory || item.SlotId == (byte)Equipament.Pentagrama)
-                        item.VaultId = 0;
-                    else if (item.SlotId < (int)StorageID.PersonalShop)
-                        item.VaultId = (int)StorageID.Inventory;
-                    else
-                        item.VaultId = (int)StorageID.PersonalShop;
-                }
+                if (item.SlotId < (int)StorageID.Inventory || item.SlotId == (byte)Equipament.Pentagrama)
+                    item.VaultId = 0;
+                else if (item.SlotId < (int)StorageID.ExpandedInventory1)
+                    item.VaultId = (int)StorageID.Inventory;
+                else if (item.SlotId < (int)StorageID.ExpandedInventory2)
+                    item.VaultId = (int)StorageID.ExpandedInventory1;
+                else if (item.SlotId < (int)StorageID.PersonalShop)
+                    item.VaultId = (int)StorageID.ExpandedInventory2;
+                else
+                    item.VaultId = (int)StorageID.PersonalShop;
 
                 var it = new Item(item, @char?.Account, @char);
                 object st;
@@ -178,20 +194,14 @@ namespace MuEmu
         public List<Item> FindAllItems(ItemNumber num)
         {
             var res = new List<Item>();
-            foreach (var e in _equipament)
-            {
-                if (e.Value.Number == num)
-                {
-                    res.Add(e.Value);
-                }
-            }
-            foreach (var inv in _inventory.Items)
-            {
-                if (inv.Value.Number == num)
-                {
-                    res.Add(inv.Value);
-                }
-            }
+            res.AddRange(_equipament.Values.Where(x => x.Number == num));
+            res.AddRange(_inventory.Items.Values.Where(x => x.Number == num));
+
+            if(_exInventory1 != null)
+                res.AddRange(_exInventory1.Items.Values.Where(x => x.Number == num));
+            if (_exInventory2 != null)
+                res.AddRange(_exInventory2.Items.Values.Where(x => x.Number == num));
+
             return res;
         }
 
@@ -290,7 +300,15 @@ namespace MuEmu
                 it.Character = Character;
             }
             _needSave = true;
-            return _inventory.Add(it);
+            var result = _inventory.Add(it);
+
+            if(result == 0xff && _exInventory1 != null)
+                result = _exInventory1.Add(it);
+
+            if (result == 0xff && _exInventory2 != null)
+                result = _exInventory2.Add(it);
+
+            return result;
         }
 
         public void Equip(Equipament slot, Item item)
@@ -362,7 +380,18 @@ namespace MuEmu
             switch(from)
             {
                 case MoveItemFlags.Inventory:
-                    sFrom = _inventory;
+                    if (fromIndex < (int)StorageID.ExpandedInventory1)
+                    {
+                        sFrom = _inventory;
+                    }
+                    else if (fromIndex < (int)StorageID.ExpandedInventory2)
+                    {
+                        sFrom = _exInventory1;
+                    }
+                    else
+                    {
+                        sFrom = _exInventory2;
+                    }
                     break;
                 case MoveItemFlags.Warehouse:
                     sFrom = Character.Account.Vault;
@@ -384,7 +413,18 @@ namespace MuEmu
             switch (to)
             {
                 case MoveItemFlags.Inventory:
-                    sTo = _inventory;
+                    if (toIndex < (int)StorageID.ExpandedInventory1)
+                    {
+                        sTo = _inventory;
+                    }
+                    else if (toIndex < (int)StorageID.ExpandedInventory2)
+                    {
+                        sTo = _exInventory1;
+                    }
+                    else
+                    {
+                        sTo = _exInventory2;
+                    }
                     break;
                 case MoveItemFlags.Warehouse:
                     sTo = Character.Account.Vault;
@@ -645,6 +685,13 @@ namespace MuEmu
             }
 
             list.AddRange(_inventory.GetInventory());
+
+            if (_exInventory1 != null)
+                list.AddRange(_exInventory1.GetInventory());
+
+            if (_exInventory2 != null)
+                list.AddRange(_exInventory2?.GetInventory());
+
             list.AddRange(_personalShop.GetInventory());
 
             await Character.Player.Session.SendAsync(new SInventory(list.ToArray()));
@@ -964,19 +1011,16 @@ namespace MuEmu
                 }
                 await db.SaveChangesAsync();
 
-                foreach (var e in _equipament.Values)
-                {
-                    await e.Save(db);
-                    await db.SaveChangesAsync();
-                }
+                var changedItems = new List<Item>();
+                changedItems.AddRange(_equipament.Values.Where(x => x.NeedSave));
+                changedItems.AddRange(_inventory.Items.Values.Where(x => x.NeedSave));
+                if (_exInventory1 != null)
+                    changedItems.AddRange(_exInventory1.Items.Values.Where(x => x.NeedSave));
+                if (_exInventory2 != null)
+                    changedItems.AddRange(_exInventory2.Items.Values.Where(x => x.NeedSave));
+                changedItems.AddRange(_personalShop.Items.Values.Where(x => x.NeedSave));
 
-                foreach (var e in _inventory.Items.Values)
-                {
-                    await e.Save(db);
-                    await db.SaveChangesAsync();
-                }
-
-                foreach (var e in _personalShop.Items.Values)
+                foreach(var e in changedItems)
                 {
                     await e.Save(db);
                     await db.SaveChangesAsync();

@@ -63,20 +63,16 @@ namespace MuEmu
             return 0xff;
         }
 
-        private bool NoIntersects(byte offset, Size freeSpace)
+        private RectangleF NoIntersects(byte offset, Size freeSpace)
         {
             var itemRect = new RectangleF(new Point(offset % 8, offset / 8), freeSpace);
             itemRect.Width -= 0.1f;
             itemRect.Height -= 0.1f;
+
             if (itemRect.Right >= _bounds.Right || itemRect.Bottom >= _bounds.Bottom)
-                return false;
+                return _bounds;
 
-            if (_map.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
-            {
-                return true;
-            }
-
-            return false;
+            return _map.FirstOrDefault(x => x.IntersectsWith(itemRect));
         }
 
         public bool TryAdd(Size freeSpace, byte offset = 0)
@@ -147,14 +143,18 @@ namespace MuEmu
                         db.SaveChanges();
                     }
                 }
+                return;
             }
 
             if (pos >= Size)
                 throw new Exception($"({org})[{IndexTranslate}] Out of range: {pos}/{Size}");
 
             it.SlotId = pos + (byte)IndexTranslate;
-            if (!NoIntersects(pos, it.BasicInfo.Size))
-                return;
+
+            var intersects = NoIntersects(pos, it.BasicInfo.Size);
+
+            if (intersects.Width != 0)
+                throw new Exception($"({org})[{IndexTranslate}] Space isn't free: ({Get((byte)(intersects.Y*8 + intersects.X + (float)IndexTranslate))})");
 
             it.Storage = IndexTranslate;
             _items.Add(pos, it);

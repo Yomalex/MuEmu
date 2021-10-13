@@ -783,7 +783,7 @@ namespace MuEmu
                                 {
                                     using (var transaction = db.Database.BeginTransaction())
                                     {
-                                        var fordel = map.Value.Items.Where(x => x.State == ItemState.Deleted).ToList();
+                                        var fordel = map.Value.Items.Where(x => x.State == ItemState.Deleting).ToList();
                                         fordel.ForEach(x =>
                                         {
                                             map.Value.Items.Remove(x);

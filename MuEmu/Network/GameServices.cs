@@ -216,20 +216,25 @@ namespace MuEmu.Network
                 .ForAccount(session)
                 .Information(ServerMessages.GetMessage(Messages.Game_Close), message.Type);
 
-            for(int i = 1; i <= 5; i++)
-            {
-                SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5-i), new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_Close_Message, i)));
-            }
-
-            SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5), new SCloseMsg { Type = message.Type });
-            Program.client.SendAsync(new SCRem { Server = (byte)Program.ServerCode, List = new CliRemDto[] { new CliRemDto { btName = session.Player.Character?.Name.GetBytes()??Array.Empty<byte>() } } });
-            session.Player.Status = message.Type==ClientCloseType.SelectChar?LoginStatus.Logged:LoginStatus.NotLogged;
-
             using (var db = new GameContext())
             {
                 await session.Player.Save(db);
                 await db.SaveChangesAsync();
             }
+
+            for (int i = 1; i <= 5; i++)
+            {
+                SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5-i), new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_Close_Message, i)));
+            }
+
+            SubSystem.Instance.AddDelayedMessage(session.Player, TimeSpan.FromSeconds(5), new SCloseMsg { Type = message.Type });            
+            
+            Program.client.SendAsync(new SCRem { Server = (byte)Program.ServerCode, List = new CliRemDto[] { new CliRemDto { btName = session.Player.Character?.Name.GetBytes() ?? Array.Empty<byte>() } } });
+            session.Player.Status = message.Type switch
+            {
+                ClientCloseType.SelectChar => LoginStatus.Logged,
+                _ => LoginStatus.NotLogged
+            };
         }
 
         [MessageHandler(typeof(CMoveItem))]
@@ -741,10 +746,10 @@ namespace MuEmu.Network
 
             if (bag != null)
             {
-                await inv.Delete(message.Source);
                 if (bag.LevelMin <= plr.Character.Level)
                 {
-                    foreach(var reward in bag.GetReward())
+                    await inv.Delete(message.Source);
+                    foreach (var reward in bag.GetReward())
                     {
                         date = plr.Character.Map.AddItem(message.MapX, message.MapY, reward, plr.Character);
                     }
@@ -754,8 +759,7 @@ namespace MuEmu.Network
                 }
                 else
                 {
-                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, item.Clone() as Item, plr.Character);
-                    await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
+                    date = await item.Drop(message.MapX, message.MapY);
                     return;
                 }
             }
@@ -1064,7 +1068,7 @@ namespace MuEmu.Network
                     plr.Character.Money += item.SellPrice;
                     result.Money = session.Player.Character.Money;
                     await inve.Delete(item, false);
-                    session.SendAsync(new SNotice(NoticeType.Blue, $"Item: {item.BasicInfo.Name} Price: {item.SellPrice}zen")).Wait();
+                    await session.SendAsync(new SNotice(NoticeType.Blue, $"Item: {item.BasicInfo.Name} Price: {item.SellPrice}zen"));
                 }
             }
             await session.SendAsync(result);

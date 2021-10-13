@@ -869,6 +869,17 @@ namespace MuEmu
             }
         }
 
+        internal async Task<DateTimeOffset> Drop(byte mapX, byte mapY)
+        {
+            await Character.Player.Session
+                .SendAsync(new SItemThrow { Source = (byte)SlotId, Result = 1 });
+
+            Character = null;
+            Account = null;
+
+            return Character.Map.AddItem(mapX, mapY, this, Character);
+        }
+
         public void ApplyEffects(Character tTarget)
         {
             if (tTarget == null)
@@ -889,7 +900,7 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            if (!NeedSave || _deleted)
+            if (!NeedSave || _deleted || Account == null)
                 return;
             NeedSave = false;
 
