@@ -3,24 +3,25 @@
 
 # Mu Online Server Emulator C#
 
-Es una versión del Servidor de MU Online escrita en C# NetCore2 para compatibilidad en todas las plataformas
+It is a version of the MU Online Server written in C # NetCore3.1 for compatibility on all platforms
 
 
-# Servidores incluidos
+# Servers included
 
-Este Repositorio incluye varios proyectos donde se distribuye el código, adicionalmente se podría cambiar la distribución para mejorar la eficiencia
+This repository includes several projects where the code is distributed, additionally the distribution could be changed to improve efficiency
 
 ## ConnectServer
 
-Detecta automáticamente los servidores conectados a el y según la configuración del mismo, muestra o no en la lista de servidores a los que están vinculados a el
+Automatically detects the servers connected to it and depending on its configuration, shows or not in the list of servers that are linked to it
 
 ## GameServer
 
-Es la estrella de este proyecto y el encargado de manejar todas las características del juego. Se conecta al ConnectServer y envía información importante como lo son la IP, Estadísticas de uso y si se mostrará en la lista de servidores o no.
-Este servidor crea automáticamente la estructura de su Base de datos, funciona con MySql Server.
-Incluye una lista de comandos que irá creciendo con el tiempo.
+He is the star of this project and in charge of managing all the features of the game. It connects to the ConnectServer and sends important information such as the IP, usage statistics and if it will be shown in the list of servers or not.
+This server automatically creates the structure of your Database, it works with MySql Server.
+It includes a list of commands that will grow over time.
+
 ### Archivo de configuración
-la configuracion viene en XML, en el archivo server.xml generado de forma automática al abrir el Servidor.
+The configuration comes in XML, in the server.xml file, generated automatically when the Server is opened.
 
     <?xml version="1.0"?>
     <Server xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -122,26 +123,26 @@ la configuracion viene en XML, en el archivo server.xml generado de forma autom�
       </Event>
     </Server>
 
-### Comandos
- - **db:** Maneja la base de datos, permite crear, borrar o actualizar la estructura de la misma. Subcomandos:
- -- **create:** Crea una estructura en una db vacia.
- -- **migrate:** Actualiza la estructura de la db.
- -- **delete:** Borra la db a la que esta conectado.
- - **reload:** se encarga de recargar archivos de configuración del servidor. Subcomandos:
- -- **shops:** recarga las tiendas.
- -- **gates:** recarga el archivo de puertas.
- - **set:** comando de desarrollo para modificar variables internas. Subcomandos:
- -- **hp:** cambia el **HP** del player que ingresa el comando. Argumento, hp. (**Ejemplo:** chat: set hp 100).
- -- **zen:** cambia la cantidad de **zen** del player que ingresa el comando. Argumento, zen. (**Ejemplo:** chat: set zen 99999).
- - **exit, quit, stop:** cierran el servidor.
- - **!\<texto>:** Mensaje global.
- - **/\<texto>:** Comandos típicos de MuOnline:
- -- **addstr:** Agrega puntos de fuerza. (**Ejemplo:** chat: /addstr 10)
- -- **addagi:** Agrega puntos de agilidad. (**Ejemplo:** chat: /addagi 10)
- -- **addvit:** Agrega puntos de vitalidad. (**Ejemplo:** chat: /addvit 10)
- -- **addene:** Agrega puntos de energía. (**Ejemplo:** chat: /addene 10)
- -- **addcmd:** Agrega puntos de comando. (**Ejemplo:** chat: /addcmd 10)
+### Commands
+ - **db:** Manages the database, allows to create, delete or update its structure. Subcommands:
+ -- **create:** Create a structure in an empty db.
+ -- **migrate:** Update the structure of the db. (Deleting and creating the db)
+ -- **delete:** Delete the db you are connected to.
+ - **reload:** takes care of reloading server configuration files. Subcommands:
+ -- **shops:** reload the stores.
+ -- **gates:** reload the gate file.
+ - **set:** cdevelopment command to modify internal variables. Subcommands:
+ -- **hp:** change the **HP** of the player entering the command. Argument, hp. (**Example:** chat: set hp 100).
+ -- **zen:** change the amount of **zen** of the player entering the command. Argument, zen. (**Example:** chat: set zen 99999).
+ - **exit, quit, stop:** they close the server.
+ - **!\<texto>:** Global message.
+ - **/\<texto>:** Typical MuOnline Commands:
+ -- **addstr:** Add strength points. (**Ejemplo:** chat: /addstr 10)
+ -- **addagi:** Add agility points. (**Ejemplo:** chat: /addagi 10)
+ -- **addvit:** Add vitality points. (**Ejemplo:** chat: /addvit 10)
+ -- **addene:** Add energy points. (**Ejemplo:** chat: /addene 10)
+ -- **addcmd:** Add command points. (**Ejemplo:** chat: /addcmd 10)
 
-### Archivos de funcionamiento
+### Operation files
 
-Requiere de archivos comunes de servidores MuOnline, esta diseñado para leer archivos de la versión S4 y otros de diseño propio en XML, algunos archivos son traducidos de manera automática de .txt a .xml para mejor manejo en el servidor.
+It requires common files from MuOnline servers, it is designed to read Season 6 version files and others of our own design in XML, some files are automatically translated from .txt to .xml for better handling on the server.
