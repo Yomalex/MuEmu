@@ -894,11 +894,98 @@ namespace MuEmu.Resources
 
         public IEnumerable<Bag> LoadItembags()
         {
-            var xml = XmlLoader<ItemBagsDto>(Path.Combine(_root, "ItemBags.xml"));
-            foreach(var x in xml.ItemBags)
+            var xml = XmlLoader<ItemBagsDto>(Path.Combine(_root, "ItemBags/ItemBags.xml"));
+            var helper = new LoadWZTXT<DSItemBagDto>();
+            var helper2 = new LoadWZTXT<WZItemBagDto>();
+            DSItemBagDto baseb = null;
+            WZItemBagDto basec = null;
+            foreach (var x in xml.ItemBags)
             {
-                var basea = XmlLoader<BagDto>(Path.Combine(_root, "ItemBags/" + x.Bag));
-                yield return new Bag(basea);
+                if(Path.GetExtension(x.Bag) == ".txt")
+                {
+                    var oldFile = Path.Combine(_root, "ItemBags/" + x.Bag);
+                    var newFile = Path.ChangeExtension(oldFile, ".xml");
+                    try
+                    {
+                        baseb = helper.Load(oldFile);
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        if(baseb.Section1 == null)
+                            basec = helper2.Load(oldFile);
+                    }
+                    catch (Exception) { }
+                    BagDto basea = null;
+                    if (baseb.Section1 != null)
+                    {
+                        Logger.Information($"Converting {oldFile} from www.darksideofmu.com file type to XML File Type");
+                        try
+                        {
+                            basea = new BagDto
+                            {
+                                DropItemCount = 1,
+                                DropItemRate = (ushort)Math.Min(baseb.Section1[0].ItemDropRate, (short)100),
+                                DropZenRate = (ushort)(100 - baseb.Section1[0].ItemDropRate),
+                                LevelMin = 1,
+                                MaxZen = baseb.Section1[0].DropZen,
+                                MinZen = baseb.Section1[0].DropZen,
+                                Number = ItemNumber.FromTypeIndex(baseb.Section1[0].BoxType, baseb.Section1[0].BoxIndex),
+                                Plus = baseb.Section1[0].BoxLevel,
+                                Item = baseb.Section2.Select(y => new ItemInBagDto
+                                {
+                                    Luck = y.Luck == 1,
+                                    MaxExcellent = y.maxExOpt,
+                                    MaxLevel = y.maxLvl,
+                                    MaxOption = y.maxZ28,
+                                    MinExcellent = 0,
+                                    MinLevel = 0,
+                                    MinOption = 0,
+                                    Number = ItemNumber.FromTypeIndex(y.Type, y.Index),
+                                    Skill = y.Skill == 1,
+                                }).ToArray(),
+                            };
+                        } catch (Exception ex)
+                        {
+                            Logger.Error("DSFile to XML Error:", ex);
+                            continue;
+                        }
+                    }else
+                    {
+                        Logger.Information($"Converting {oldFile} from GS 1.00.18 file type to XML File Type");
+                        //basec.BagDtos
+                        basea = new BagDto
+                        {
+                            DropItemCount = 1,
+                            DropItemRate = 50,
+                            DropZenRate = 50,
+                            LevelMin = x.LevelMin,
+                            MaxZen = 100000,
+                            MinZen = 10000,
+                            Number = x.Item,
+                            Plus = x.Plus,
+                            Item = basec.BagDtos.Select(y => new ItemInBagDto
+                            {
+                                Luck = y.Luck == 1,
+                                MaxExcellent = 0,
+                                MaxLevel = y.Lvl,
+                                MaxOption = y.Option,
+                                MinExcellent = 0,
+                                MinLevel = 0,
+                                MinOption = 0,
+                                Number = ItemNumber.FromTypeIndex(y.Type, y.Index),
+                                Skill = y.Skill == 1,
+                            }).ToArray(),
+                        };
+                    }
+                    XmlSaver(newFile, basea);
+                    yield return new Bag(basea);
+                }
+                else
+                {
+                    var basea = XmlLoader<BagDto>(Path.Combine(_root, "ItemBags/" + x.Bag));
+                    yield return new Bag(basea);
+                }
             }
         }
 

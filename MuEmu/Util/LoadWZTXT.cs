@@ -86,7 +86,8 @@ namespace MuEmu.Util
 
     public class LoadWZTXT<T>
     {
-        private Regex sectionRegex = new Regex(@"\n+([0-9]+)\s*(.*?)\n+(?s)(.*?)\nend");//@"\n+([0-9]+)\s*\n+(?s)(.*?)\n+end");
+        //private Regex sectionRegex = new Regex(@"\n+([0-9]+)\s*(.*?)\n+(?s)(.*?)\nend");//@"\n+([0-9]+)\s*\n+(?s)(.*?)\n+end");
+        private Regex sectionRegex = new Regex(@"^([0-9]+)\s+(.+?)\s+(^end+)", RegexOptions.Singleline | RegexOptions.Multiline);
         private List<PropertyInfo> props;
         public LoadWZTXT()
         {
@@ -111,7 +112,7 @@ namespace MuEmu.Util
                         var constructed = typeof(LoadWZSectionTXT<>).MakeGenericType(prop.PropertyType.GetElementType());
                         object o = Activator.CreateInstance(constructed, null);
                         var load = constructed.GetMethod("Load");
-                        var ret = load.Invoke(o, new object[] { m.Groups[3].Value });
+                        var ret = load.Invoke(o, new object[] { m.Groups[2].Value });
 
                         if (prop.GetValue(result) == null)
                         {

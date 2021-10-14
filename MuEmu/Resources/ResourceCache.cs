@@ -183,8 +183,9 @@ namespace MuEmu.Resources
             var cache = _cache.Get<IEnumerable<Bag>>("ItemBags");
             if (cache == null)
             {
-                Logger.Information(ServerMessages.GetMessage(Messages.RCache_Loading_Shops));
+                Logger.Information(ServerMessages.GetMessage(Messages.RCache_Loading_ItemBags));
                 cache = _loader.LoadItembags();
+                cache.ToList();
                 _cache.Set("ItemBags", cache);
             }
 

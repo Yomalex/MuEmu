@@ -146,6 +146,7 @@ namespace MU.Resources
         IV_CantMove,
         IVEX_PentagramTradeLimit,
         IV_DBSaveDeletingItem,
+        RCache_Loading_ItemBags,
     }
     public enum Spell : ushort
     {

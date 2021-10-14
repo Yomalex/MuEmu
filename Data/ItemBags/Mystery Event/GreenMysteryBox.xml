@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="7223" Plus="0" LevelMin="1" DropItemCount="1" DropItemRate="1" DropZenRate="99" MinZen="200000" MaxZen="200000">
+  <Item Number="19" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="20" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="23" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="1036" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="1037" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2066" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2067" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2068" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2570" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2571" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+</ItemList>

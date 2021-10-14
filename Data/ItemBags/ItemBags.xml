@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemBags>
+  <!-- Ring of Warrior -->
+    <ItemBag Item="6676" Plus="1" LevelMin="20" Bag="RingEvent.xml" />
+    <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.xml" />
+  <!-- Red Ribbon Box -->
+  <ItemBag Item="6176" Plus="0" Bag="Ribbon Event/RedRibbonBox.xml" />
+  <!-- Green Ribbon Box -->
+  <ItemBag Item="6177" Plus="0" Bag="Ribbon Event/GreenRibbonBox.xml" />
+  <!-- Blue Ribbon Box -->
+  <ItemBag Item="6178" Plus="0" Bag="Ribbon Event/BlueRibbonBox.xml" />
+  <!-- Blue Chocolate Box -->
+  <ItemBag Item="7202" Plus="0" Bag="Chocolate Event/BlueChocolateBox.xml" />
+  <!-- Pink Chocolate Box -->
+  <ItemBag Item="7200" Plus="0" Bag="Chocolate Event/PinkChocolateBox.xml" />
+  <!-- Red Chocolate Box -->
+  <ItemBag Item="7201" Plus="0" Bag="Chocolate Event/RedChocolateBox.xml" />
+  <!-- Star Of XMas -->
+  <ItemBag Item="7179" Plus="1" Bag="StarOfXMas.xml" />
+  <!-- RedMysteryBox -->
+  <ItemBag Item="6176" Plus="0" Bag="Mystery Event/RedMysteryBox.xml" />
+  <!-- PurpleMysteryBox -->
+  <ItemBag Item="6176" Plus="0" Bag="Mystery Event/PurpleMysteryBox.xml" />
+  <!-- PurpleMysteryBox -->
+  <ItemBag Item="6176" Plus="0" Bag="Mystery Event/GreenMysteryBox.xml" />
+  <!-- DeepBlueCandyBox -->
+  <ItemBag Item="7202" Plus="1" Bag="Candy Event/DeepBlueCandyBox.xml" />
+  <!-- LightPurpleCandyBox -->
+  <ItemBag Item="7200" Plus="1" Bag="Candy Event/LightPurpleCandyBox.xml" />
+  <!-- VermilionCandyBox -->
+  <ItemBag Item="7201" Plus="1" Bag="Candy Event/VermilionCandyBox.xml" />
+  <!-- Box of Luck -->
+  <ItemBag Item="7179" Plus="0" Bag="BoxOfLuck.xml" />
+  <!-- Firecracker -->
+  <ItemBag Item="7179" Plus="2" Bag="FireCracker.xml" />
+  <!-- Heart of Love -->
+  <ItemBag Item="7179" Plus="3" Bag="HeartOfLove.xml" />
+  <!-- Silver Medal -->
+  <ItemBag Item="7179" Plus="5" Bag="Medal Event/SilverMedal.xml" />
+  <!-- Gold Medal -->
+  <ItemBag Item="7179" Plus="6" Bag="Medal Event/GoldMedal.xml" />
+  <!-- Box of Heaven -->
+  <ItemBag Item="7179" Plus="7" Bag="BoxOfLuck.xml" />
+  <!-- Box of Kundum+1 -->
+  <ItemBag Item="7179" Plus="8" Bag="Golden Invation/BoxOfKundun1.xml" />
+  <!-- Box of Kundum+2 -->
+  <ItemBag Item="7179" Plus="9" Bag="Golden Invation/BoxOfKundun2.xml" />
+  <!-- Box of Kundum+3 -->
+  <ItemBag Item="7179" Plus="10" Bag="Golden Invation/BoxOfKundun3.xml" />
+  <!-- Box of Kundum+4 -->
+  <ItemBag Item="7179" Plus="11" Bag="Golden Invation/BoxOfKundun4.xml" />
+  <!-- Box of Kundum+5 -->
+  <ItemBag Item="7179" Plus="12" Bag="Golden Invation/BoxOfKundun5.xml" />
+</ItemBags>
