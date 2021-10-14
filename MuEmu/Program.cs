@@ -49,6 +49,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
+using MuEmu.Events.MoonRabbit;
 
 namespace MuEmu
 {
@@ -396,6 +397,7 @@ namespace MuEmu
                 .AddEvent(Events.Events.ChaosCastle, new ChaosCastles())
                 .AddEvent(Events.Events.Crywolf, new Crywolf())
                 .AddEvent(Events.Events.ImperialGuardian, new ImperialGuardian())
+                .AddEvent(Events.Events.MoonRabbit, new MoonRabbit())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
                 ;
             LuckyCoins.Initialize();

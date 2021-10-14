@@ -564,6 +564,10 @@ namespace MuEmu
         {
             if (_inventory.CanContain(from))
                 return _inventory.Get(from);
+            if(_exInventory1.CanContain(from))
+                return _exInventory1.Get(from);
+            if (_exInventory2.CanContain(from))
+                return _exInventory2.Get(from);
 
             return Get((Equipament)from);
         }
@@ -601,6 +605,14 @@ namespace MuEmu
             {
                 _inventory.Remove(from);
             }
+            else if (_exInventory1.CanContain(from))
+            {
+                _exInventory1.Remove(from);
+            }
+            else if (_exInventory2.CanContain(from))
+            {
+                _exInventory2.Remove(from);
+            }
             else if (_personalShop.CanContain(from))
             {
                 _personalShop.Remove(from);
@@ -628,7 +640,15 @@ namespace MuEmu
             if (_inventory.CanContain(target))
             {
                 _forDelete.Add(_inventory.Get(target));
-            }else if(_personalShop.CanContain(target))
+            }
+            else if(_exInventory1.CanContain(target))
+            {
+                _forDelete.Add(_exInventory1.Get(target));
+            }
+            else if(_exInventory2.CanContain(target))
+            {
+                _forDelete.Add(_exInventory2.Get(target));
+            }else if (_personalShop.CanContain(target))
             {
                 _forDelete.Add(_personalShop.Get(target));
             }
@@ -650,6 +670,14 @@ namespace MuEmu
             if (_inventory.Items.Any(x => x.Value == item))
             {
                 await Delete((byte)(_inventory.Items.First(x => x.Value == item).Key + _inventory.IndexTranslate), send);
+            }
+            if (_exInventory1.Items.Any(x => x.Value == item))
+            {
+                await Delete((byte)(_exInventory1.Items.First(x => x.Value == item).Key + _exInventory1.IndexTranslate), send);
+            }
+            if (_exInventory2.Items.Any(x => x.Value == item))
+            {
+                await Delete((byte)(_exInventory2.Items.First(x => x.Value == item).Key + _exInventory2.IndexTranslate), send);
             }
             else if (_chaosBox.Items.Any(x => x.Value == item))
             {

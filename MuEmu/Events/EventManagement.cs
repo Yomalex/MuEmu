@@ -15,6 +15,7 @@ namespace MuEmu.Events
         Crywolf,
         ImperialGuardian,
         DoubleGoer,
+        MoonRabbit,
     }
     internal class EventInfo
     {

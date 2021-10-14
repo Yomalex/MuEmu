@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ItemList Number="7179" Plus="9" LevelMin="1" DropItemCount="1" DropItemRate="100" DropZenRate="50" MinZen="100000" MaxZen="100000">
+<ItemList Number="7179" Plus="10" LevelMin="1" DropItemCount="1" DropItemRate="100" DropZenRate="50" MinZen="100000" MaxZen="100000">
   <!-- Invitation of Devil Square +3~+5 -->
   <Item Number="7187" MinLevel="3" MaxLevel="5" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
   <!-- Invisibility Cloak +3~+5 -->

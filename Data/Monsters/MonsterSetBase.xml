@@ -140,7 +140,13 @@
   <NPC Type="651" Map="LorenMarket" Radio="0" PosX="108" PosY="134" Dir="1">//Little Santa Pink</NPC>
   <NPC Type="651" Map="LorenMarket" Radio="0" PosX="138" PosY="143" Dir="1">//Little Santa Pink</NPC>
   <NPC Type="669" Map="LorenMarket" Radio="0" PosX="113" PosY="132" Dir="1">//Little Santa Pink</NPC>
-  <Spot Type="0" Map="Lorencia" Radio="30" PosX="135" PosY="20" PosX2="240" PosY2="88" Dir="-1" Quant="35">//Bull Fighter<Element>Fire</Element></Spot>
+  <Spot Type="413" Map="Lorencia" Radio="30" PosX="180" PosY="111" PosX2="190" PosY2="121" Dir="-1" Quant="10">//RabbiT<Element>None</Element></Spot>
+  <Spot Type="413" Map="Noria" Radio="30" PosX="158" PosY="75" PosX2="168" PosY2="85" Dir="-1" Quant="10">//RabbiT<Element>None</Element></Spot>
+  <Spot Type="413" Map="Davias" Radio="30" PosX="161" PosY="41" PosX2="171" PosY2="51" Dir="-1" Quant="10">//RabbiT<Element>None</Element></Spot>
+  <Spot Type="413" Map="Elbeland" Radio="30" PosX="107" PosY="216" PosX2="117" PosY2="226" Dir="-1" Quant="10">
+    //RabbiT<Element>None</Element>
+  </Spot>
+  <Spot Type="0" Map="Lorencia" Radio="30" PosX="135" PosY="20" PosX2="240" PosY2="88" Dir="-1" Quant="35">//Bull Fighter<Element>None</Element></Spot>
   <Spot Type="0" Map="Lorencia" Radio="10" PosX="183" PosY="158" PosX2="190" PosY2="165" Dir="-1" Quant="20">//Bull Fighter<Element>None</Element></Spot>
   <Spot Type="0" Map="Lorencia" Radio="10" PosX="217" PosY="187" PosX2="247" PosY2="221" Dir="-1" Quant="30">//Bull Fighter<Element>None</Element></Spot>
   <Spot Type="0" Map="Lorencia" Radio="10" PosX="178" PosY="224" PosX2="198" PosY2="240" Dir="-1" Quant="20">//Bull Fighter<Element>None</Element></Spot>
