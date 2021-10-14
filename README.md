@@ -20,7 +20,7 @@ He is the star of this project and in charge of managing all the features of the
 This server automatically creates the structure of your Database, it works with MySql Server.
 It includes a list of commands that will grow over time.
 
-### Archivo de configuración
+### Configuration file
 The configuration comes in XML, in the server.xml file, generated automatically when the Server is opened.
 
     <?xml version="1.0"?>
@@ -124,24 +124,33 @@ The configuration comes in XML, in the server.xml file, generated automatically 
     </Server>
 
 ### Commands
- - **db:** Manages the database, allows to create, delete or update its structure. Subcommands:
- -- **create:** Create a structure in an empty db.
- -- **migrate:** Update the structure of the db. (Deleting and creating the db)
- -- **delete:** Delete the db you are connected to.
- - **reload:** takes care of reloading server configuration files. Subcommands:
- -- **shops:** reload the stores.
- -- **gates:** reload the gate file.
- - **set:** cdevelopment command to modify internal variables. Subcommands:
- -- **hp:** change the **HP** of the player entering the command. Argument, hp. (**Example:** chat: set hp 100).
- -- **zen:** change the amount of **zen** of the player entering the command. Argument, zen. (**Example:** chat: set zen 99999).
- - **exit, quit, stop:** they close the server.
- - **!\<texto>:** Global message.
- - **/\<texto>:** Typical MuOnline Commands:
- -- **addstr:** Add strength points. (**Ejemplo:** chat: /addstr 10)
- -- **addagi:** Add agility points. (**Ejemplo:** chat: /addagi 10)
- -- **addvit:** Add vitality points. (**Ejemplo:** chat: /addvit 10)
- -- **addene:** Add energy points. (**Ejemplo:** chat: /addene 10)
- -- **addcmd:** Add command points. (**Ejemplo:** chat: /addcmd 10)
+ 1. **db:** Manages the database, allows to create, delete or update its structure. Subcommands:
+  ```
+  - create: Create a structure in an empty db. (Example: db create)
+  - migrate: Update the structure of the db. (Example: db migrate)
+  - delete: Delete the db you are connected to. (Example: db delete)
+  ```
+ 2. **reload:** takes care of reloading server configuration files. Subcommands:
+ ```
+  - shops: reload the stores. (Example: reload shops)
+  - gates: reload the gate file. (Example: reload gates)
+  ```
+ 3. **set:** cdevelopment command to modify internal variables. Subcommands:
+  ```
+  - hp: change the HP of the player entering the command. Argument, hp. (Example: chat: set hp 100).
+  - zen: change the amount of zen of the player entering the command. Argument, zen. (Example: chat: set zen 99999).
+  ```
+ 4. **exit, quit, stop:** they close the server.
+ 5. **!\<texto>:** Global message.
+ 6. **/\<texto>:** Typical MuOnline Commands:
+  ```
+  - addstr: Add strength points. (Example: chat: /addstr 10)
+  - addagi: Add agility points. (Example: chat: /addagi 10)
+  - addvit: Add vitality points. (Example: chat: /addvit 10)
+  - addene: Add energy points. (Example: chat: /addene 10)
+  - addcmd: Add command points. (Example: chat: /addcmd 10)
+  - p: Post command (Example: chat: /p Text)
+  ```
 
 ### Operation files
 
