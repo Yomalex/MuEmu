@@ -22,6 +22,7 @@ using System.Net;
 using MuEmu.Network.ConnectServer;
 using WebZen.Handlers;
 using WebZen.Network;
+using MU.Resources.XML;
 
 namespace MuEmu
 {
@@ -751,6 +752,9 @@ namespace MuEmu
 
         private static async void WorkerSavePlayers()
         {
+            var news = ResourceLoader.XmlLoader<XmlNewsDto>("./Data/news.xml");
+            var Interval = news.Interval;
+            var currentNew = 0;
             using (db = new GameContext())
             {
                 while (true)
@@ -802,6 +806,19 @@ namespace MuEmu
                                     }
                                 }
                             }
+                        if(--Interval==0)
+                        {
+                            Interval = news.Interval;
+                            if(news.New != null && news.New.Length > currentNew)
+                            {
+                                news.New[currentNew++]
+                                    .Split("\n")
+                                    .ToList()
+                                    .ForEach(x => _ = Program.GlobalAnoucement(x));
+
+                                currentNew %= news.New.Length;
+                            }
+                        }
                     }
                     catch (Exception e)
                     {
