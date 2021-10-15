@@ -1,4 +1,5 @@
 ﻿using MU.DataBase;
+using MU.Resources;
 using MuEmu.Entity;
 using System;
 using System.Collections.Generic;
@@ -37,13 +38,13 @@ namespace MuEmu
                 {
                     _vaults.Add(i, new Storage(Storage.WarehouseSize));
                     var items = db.Items
-                        .Where(x => x.VaultId == 144);
+                        .Where(x => x.VaultId == (int)StorageID.Warehouse);
 
                     foreach (var it in items)
                     {
                         var item = new Item(it, this);
                         item.Account = this;
-                        _vaults[i].Add(item);
+                        _vaults[i].Add(item, (byte)it.SlotId);
                     }
                 }
         }

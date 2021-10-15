@@ -51,6 +51,8 @@
   <ItemBag Item="7179" Plus="11" Bag="Golden Invation/BoxOfKundun4.xml" />
   <!-- Box of Kundum+5 -->
   <ItemBag Item="7179" Plus="12" Bag="Golden Invation/BoxOfKundun5.xml" />
+  <!-- Hallowin -->
+  <ItemBag Item="7213" Plus="0" Bag="Hallowin/HallowinDay.xml" />
   <!-- Golden Budge Dragon -->
   <ItemBag Monster="43" Bag="Golden Invation/GoldenBudgeDragon.xml" />
   <ItemBag Monster="79" Bag="Golden Invation/GoldenDerkon.xml" />
@@ -58,4 +60,21 @@
   <ItemBag Monster="80" Bag="Golden Invation/GoldenLizardKing.xml" />
   <ItemBag Monster="82" Bag="Golden Invation/GoldenTantalos.xml" />
   <ItemBag Monster="53" Bag="Golden Invation/GoldenTitan.xml" />
+  <ItemBag Monster="413" Bag="Moon Rabbit\RabbiT.xml" />
+  <!-- Shadow of Kundun -->
+  <ItemBag Monster="161" Bag="Kundun\Kundun.xml" />
+  <ItemBag Monster="181" Bag="Kundun\Kundun.xml" />
+  <ItemBag Monster="189" Bag="Kundun\Kundun.xml" />
+  <ItemBag Monster="197" Bag="Kundun\Kundun.xml" />
+  <ItemBag Monster="267" Bag="Kundun\Kundun.xml" />
+  <!-- Illusion of Kundun -->
+  <ItemBag Monster="275" Bag="Kundun\Kundun.xml" />
+  <ItemBag Monster="338" Bag="Kundun\Kundun.xml" />
+  <!-- Golden Kundun -->
+  <ItemBag Monster="657" Bag="Kundun\Kundun.xml" />
+  <!-- Maya Hand -->
+  <ItemBag Monster="362" Bag="Kanturu Event\KanturuMayaHand.xml" />
+  <ItemBag Monster="363" Bag="Kanturu Event\KanturuMayaHand.xml" />
+  <!-- Nightmare -->
+  <ItemBag Monster="361" Bag="Kanturu Event\KanturuNightmare.xml" />
 </ItemBags>

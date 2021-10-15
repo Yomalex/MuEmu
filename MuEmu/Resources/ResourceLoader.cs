@@ -905,6 +905,12 @@ namespace MuEmu.Resources
                 {
                     var oldFile = Path.Combine(_root, "ItemBags/" + x.Bag);
                     var newFile = Path.ChangeExtension(oldFile, ".xml");
+                    if(File.Exists(newFile))
+                    {
+                        var basex = XmlLoader<BagDto>(newFile);
+                        yield return new Bag(basex);
+                        continue;
+                    }
                     try
                     {
                         baseb = helper.Load(oldFile);

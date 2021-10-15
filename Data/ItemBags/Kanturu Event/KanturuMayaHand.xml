@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="0" Monster="65535" Plus="0" LevelMin="1" DropItemCount="1" DropItemRate="50" DropZenRate="50" MinZen="30000000" MaxZen="30000000">
+  <Item Number="2067" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2569" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="14" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2565" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2579" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2062" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2064" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="1033" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="1028" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="1029" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="3087" MinLevel="0" MaxLevel="0" Luck="false" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="1" />
+  <Item Number="3084" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="3088" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5136" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5648" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5137" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5649" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5138" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5650" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="4110" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="4622" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5139" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5651" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5135" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5647" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5146" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="4634" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5658" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5163" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="5675" MinLevel="0" MaxLevel="0" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
+</ItemList>

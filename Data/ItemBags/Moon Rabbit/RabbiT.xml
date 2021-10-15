@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemList Monster="413" Plus="0" LevelMin="0" DropItemCount="1" DropItemRate="100" DropZenRate="0" MinZen="0" MaxZen="0">
+  <!-- Jewel of Chaos -->
+  <Item Number="6159" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Bless -->
+  <Item Number="7181" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Soul -->
+  <Item Number="7182" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Life -->
+  <Item Number="7184" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+  <!-- Jewel of Creation -->
+  <Item Number="7190" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+</ItemList>
