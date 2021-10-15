@@ -51,4 +51,11 @@
   <ItemBag Item="7179" Plus="11" Bag="Golden Invation/BoxOfKundun4.xml" />
   <!-- Box of Kundum+5 -->
   <ItemBag Item="7179" Plus="12" Bag="Golden Invation/BoxOfKundun5.xml" />
+  <!-- Golden Budge Dragon -->
+  <ItemBag Monster="43" Bag="Golden Invation/GoldenBudgeDragon.xml" />
+  <ItemBag Monster="79" Bag="Golden Invation/GoldenDerkon.xml" />
+  <ItemBag Monster="78" Bag="Golden Invation/GoldenGoblin.xml" />
+  <ItemBag Monster="80" Bag="Golden Invation/GoldenLizardKing.xml" />
+  <ItemBag Monster="82" Bag="Golden Invation/GoldenTantalos.xml" />
+  <ItemBag Monster="53" Bag="Golden Invation/GoldenTitan.xml" />
 </ItemBags>

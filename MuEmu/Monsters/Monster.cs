@@ -549,28 +549,15 @@ namespace MuEmu.Monsters
             }
 
             Item reward = null;
-            switch(Info.Monster)
+            if(Info.Bag != null)
             {
-                case 43:// Golden Budge Dragon
-                    reward = new Item(7179);
-                    break;
-                case 53:// Golden Titan
-                    reward = new Item(7179, Options:new { Plus = (byte)9 });
-                    break;
-                case 78:// Golden Goblin
-                    reward = new Item(7179, Options: new { Plus = (byte)8 });
-                    break;
-                case 79:// Golden Derkon
-                    reward = new Item(7179, Options: new { Plus = (byte)10 });
-                    break;
-                case 80:// Golden Lizard King
-                    reward = new Item(7179, Options: new { Plus = (byte)11 });
-                    break;
-                case 82:// Golden Golden Tantalos
-                    reward = new Item(7179, Options: new { Plus = (byte)12 });
-                    break;
-                default:
-                    if (_rand.Next(100) < Program.DropRate && CanDrop)
+                var bag = Info.Bag as Bag;
+                reward = bag.GetReward().FirstOrDefault();
+            }
+            
+            if(reward == null)
+            {
+                if (_rand.Next(100) < Program.DropRate && CanDrop)
                     {
                         if (_rand.Next(2) == 0)
                         {
@@ -589,7 +576,6 @@ namespace MuEmu.Monsters
                         if(reward == null)
                             reward = Item.Zen((uint)Zen);
                     }
-                    break;
             }
 
             Map.AddItem(Position.X, Position.Y, reward);

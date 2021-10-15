@@ -91,6 +91,11 @@ namespace MuEmu.Monsters
                 ResourceLoader.XmlSaver(file + ".xml", xml);
             }
 
+            var bags = ResourceCache.Instance.GetItemBags();
+            foreach(var mob in _monsterInfo.Values)
+            {
+                mob.Bag = bags.FirstOrDefault(x => x.Monster == mob.Monster);
+            }
             Logger.Information(ServerMessages.GetMessage(Messages.MonsterMng_Types), _monsterInfo.Count);
         }
 

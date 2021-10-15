@@ -19,6 +19,8 @@ namespace MuEmu.Resources.XML
         [XmlAttribute]
         public ushort Item { get; set; }
         [XmlAttribute]
+        public ushort Monster { get; set; } = 0xffff;
+        [XmlAttribute]
         public ushort Plus { get; set; } = 0xffff;
         [XmlAttribute]
         public ushort LevelMin { get; set; } = 0;
@@ -31,6 +33,7 @@ namespace MuEmu.Resources.XML
     public class BagDto
     {
         [XmlAttribute] public ushort Number { get; set; }
+        [XmlAttribute] public ushort Monster { get; set; } = 0xffff;
         [XmlAttribute] public ushort Plus { get; set; } = 0xffff;
         [XmlAttribute] public ushort LevelMin { get; set; } = 0;
         [XmlAttribute] public ushort DropItemCount { get; set; }

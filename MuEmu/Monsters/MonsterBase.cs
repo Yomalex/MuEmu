@@ -51,6 +51,7 @@ namespace MuEmu.Monsters
         public int PentagramAttackRate { get; set; } = 0;
         public int PentagramDefenseRate { get; set; } = 0;
         public int PentagramDefense { get; set; } = 7;
+        [XmlIgnore] public object Bag { get; set; }
     }
 
     [XmlType(AnonymousType = true)]
