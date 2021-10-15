@@ -66,6 +66,12 @@ namespace MuEmu.Network
                 return;
             }
 
+            if(string.IsNullOrWhiteSpace(message.Account) || string.IsNullOrWhiteSpace(message.Password))
+            {
+                await session.SendAsync(new SLoginResult(LoginResult.Fail));
+                return;
+            }    
+
             using (var db = new GameContext())
             {
                 var acc = (from account in db.Accounts

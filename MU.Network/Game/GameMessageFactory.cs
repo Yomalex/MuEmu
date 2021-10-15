@@ -58,6 +58,7 @@ namespace MU.Network.Game
             Register<CPShopRequestClose>(GameOpCode.PShopRequestClose);
             Register<CPShopRequestList>(GameOpCode.PShopRequestList);
             Register<CPShopRequestBuy>(GameOpCode.PShopRequestBuy);
+            Register<CPShopCloseDeal>(GameOpCode.PShopCloseDeal);
             #endregion
 
 
@@ -196,12 +197,16 @@ namespace MU.Network.Game
             Register<SItemModify>(GameOpCode.ItemModify);
             Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);
 
+            VersionSelector.Register<SPShopRequestList>(ServerSeason.Season6Kor, GameOpCode.PShopRequestList);
+            VersionSelector.Register<SPShopRequestListS9Eng>(ServerSeason.Season9Eng, GameOpCode.PShopRequestList);
             Register<SPShopSetItemPrice>(GameOpCode.PShopSetItemPrice);
             Register<SPShopRequestOpen>(GameOpCode.PShopRequestOpen);
             Register<SPShopRequestClose>(GameOpCode.PShopRequestClose);
             Register<SPShopRequestList>(GameOpCode.PShopRequestList);
+            Register<SPShopRequestListS9Eng>(GameOpCode.PShopRequestList);
             Register<SPShopRequestBuy>(GameOpCode.PShopRequestBuy);
             Register<SPShopRequestSold>(GameOpCode.PShopRequestSold);
+            Register<SPShopAlterVault>(GameOpCode.PShopAlterVault);
 
             #region Server PartyMessages
             Register<SPartyResult>(GameOpCode.PartyResult);
@@ -297,6 +302,8 @@ namespace MU.Network.Game
 
             Register<CPetInfo>(GameOpCode.PetInfo);
             Register<SPetInfo>(GameOpCode.PetInfo);
+
+            Register<SExpEventInfo>(GameOpCode.ExpEventInfo);
         }
     }
 }

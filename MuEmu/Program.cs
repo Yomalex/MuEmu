@@ -50,6 +50,7 @@ using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using MuEmu.Events.MoonRabbit;
+using MuEmu.Game;
 
 namespace MuEmu
 {
@@ -63,7 +64,8 @@ namespace MuEmu
         public static string ConnectionString { get; set; }
         public static bool AutoRegistre { get; set; }
         public static ushort ServerCode { get; set; }
-        public static float Experience { get; set; }
+        //public static float Experience { get; set; }
+        public static ExpManagement Experience { get; } = new ExpManagement();
         public static float Zen { get; set; }
         public static int DropRate { get; set; }
         public static ServerSeason Season { get; set; }
@@ -127,7 +129,8 @@ namespace MuEmu
             var csIP = new IPEndPoint(IPAddress.Parse(xml.Connection.ConnectServerIP), 44405);
             AutoRegistre = xml.AutoRegister;
             ServerCode = (ushort)xml.Code;
-            Experience = xml.GamePlay.Experience;
+            Experience.BaseExpRate = xml.GamePlay.Experience / 100.0f;
+            Experience.GoldChannel = xml.GamePlay.GoldExperience / 100.0f;
             Zen = xml.GamePlay.Zen;
             DropRate = xml.GamePlay.DropRate;
             Season = xml.Season;

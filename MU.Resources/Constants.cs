@@ -378,17 +378,19 @@ namespace MU.Resources
         InventoryFull = 2,
         CantTradeHarmonized = 4,
     }
+    //S9Eng
     public enum StorageID : int
     {
         Equipament,
         Inventory = 12,// Size 64
         ExpandedInventory1 = 76, // Size 32
         ExpandedInventory2 = 108, // Size 32
-        PersonalShop = 140, // Size 32
-        ChaosBox,
+        UnkInventory = 140, // Size 64??????
+        PersonalShop = 204, // Size 32
+        ChaosBox=300,
         TradeBox,
         Pentagram,
-        Warehouse
+        Warehouse=400,
     }
 
     public enum LoginStatus
@@ -1190,6 +1192,10 @@ namespace MU.Resources
         ItemBlocked,
         LackOfZen,
         ExceedingZen,
+        LackOfBless = 11,
+        LackOfSoul = 12,
+        LackOfChaos = 13,
+        SellerInventoryFull = 17,
     }
 }
 

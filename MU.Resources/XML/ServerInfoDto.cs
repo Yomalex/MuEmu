@@ -55,6 +55,7 @@ namespace MuEmu.Resources.XML
     public class GamePlayInfoDto
     {
         [XmlElement] public float Experience { get; set; } = 10.0f;
+        [XmlElement] public float GoldExperience { get; set; } = 10.0f;
         [XmlElement] public float Zen { get; set; } = 10.0f;
         [XmlElement] public int DropRate { get; set; } = 60;
         [XmlElement] public ushort MaxPartyLevelDifference { get; set; } = 400;

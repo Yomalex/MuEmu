@@ -502,7 +502,7 @@ namespace MuEmu.Monsters
 
                 EXP *= dmg / MaxLife;
                 Zen = EXP;
-                EXP *= Program.Experience;
+                EXP *= Program.Experience.FullExperate+1.0f;
                 Zen *= Program.Zen;
 
                 p.Key.ExpDivision(Index, EXP, Killer, DeadlyDmg);
@@ -523,7 +523,7 @@ namespace MuEmu.Monsters
                 if (pair.Key == Killer)
                     Zen = EXP * (1.0f + Killer.Character.Inventory.DropZen + Killer.Character.Spells.IncreaseZen);
 
-                EXP *= Program.Experience + Killer.Character.Spells.IncreaseExperience;
+                EXP *= Program.Experience.FullExperate + 1.0f + Killer.Character.Spells.IncreaseExperience;
                 Zen *= Program.Zen;
 
                 pair.Key.Character.Experience += (ulong)EXP;

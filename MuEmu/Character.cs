@@ -28,8 +28,15 @@ namespace MuEmu
         public bool Open { get; set; }
         public string Name { get; set; }
 
-        public PShopItem[] Items => Chararacter.Inventory.PersonalShop.Items
-            .Select(x => new PShopItem() { Pos = x.Key, Item = x.Value.GetBytes(), wzPrice = x.Value.PShopValue.ShufleEnding() })
+        public PShopItemS9Eng[] Items => Chararacter.Inventory.PersonalShop.Items
+            .Select(x => new PShopItemS9Eng() { 
+                Pos = (byte)x.Value.SlotId, 
+                Item = x.Value.GetBytes(), 
+                Price = x.Value.PShopValueZ,
+                BlessValue = x.Value.PShopValueB,
+                SoulValue = x.Value.PShopValueS,
+                ChaosValue = x.Value.PShopValueC,
+            })
             .ToArray();
         
         public PShop(Character @char)
@@ -727,6 +734,7 @@ namespace MuEmu
             Spells.SendList();
             MasterLevel.SendInfo();
             Gens.SendMemberInfo();
+            Program.Experience.SendExpInfo(plr.Session);
             try
             {
                 plr.Session.SendAsync(new SResets { Resets = Resets }).Wait();

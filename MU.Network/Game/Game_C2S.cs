@@ -521,6 +521,9 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte Position { get; set; }
         [WZMember(1)] public uint Price { get; set; }
+        [WZMember(2)] public ushort JewelOfBlessPrice { get; set; }
+        [WZMember(3)] public ushort JewelOfSoulPrice { get; set; }
+        [WZMember(4)] public ushort JewelOfChaosPrice { get; set; }
     }
 
     [WZContract]
@@ -550,6 +553,16 @@ namespace MU.Network.Game
         [WZMember(0)] public ushort wzNumber { get; set; }
         [WZMember(1, 10)] public byte[] btName { get; set; }
         [WZMember(2)] public byte Position { get; set; }
+
+        public ushort Number => wzNumber.ShufleEnding();
+        public string Name => btName.MakeString();
+    }
+
+    [WZContract]
+    public class CPShopCloseDeal : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        [WZMember(1, 10)] public byte[] btName { get; set; }
 
         public ushort Number => wzNumber.ShufleEnding();
         public string Name => btName.MakeString();

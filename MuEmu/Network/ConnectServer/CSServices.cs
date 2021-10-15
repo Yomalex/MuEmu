@@ -2,6 +2,7 @@
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Handlers;
@@ -15,7 +16,7 @@ namespace MuEmu.Network.ConnectServer
         [MessageHandler(typeof(SCAdd))]
         public void SCAdd(CSClient session, SCAdd message)
         {
-            foreach(var c in Program.server.Clients)
+            foreach(var c in Program.server.Clients.Where(x => x.Player != null && x.Player.Status == MU.Resources.LoginStatus.Playing))
             {
                 c.Player.Character.Friends.ConnectFriend(message.btName.MakeString(), message.Server);
             }
@@ -24,7 +25,7 @@ namespace MuEmu.Network.ConnectServer
         [MessageHandler(typeof(SCRem))]
         public void SCRem(CSClient session, SCRem message)
         {
-            foreach (var c in Program.server.Clients)
+            foreach (var c in Program.server.Clients.Where(x => x.Player != null && x.Player.Status == MU.Resources.LoginStatus.Playing))
             {
                 foreach(var p in message.List)
                 {

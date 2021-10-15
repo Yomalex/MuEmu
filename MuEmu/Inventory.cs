@@ -117,16 +117,15 @@ namespace MuEmu
             {
                 _chaosBox = new Storage(Storage.ChaosBoxSize);
                 _tradeBox = new Storage(Storage.TradeSize);
+                Storages.Add(StorageID.ChaosBox, _chaosBox);
+                Storages.Add(StorageID.TradeBox, _tradeBox);
             }
             _forDelete = new List<Item>();
             Storages.Add(StorageID.PersonalShop, _personalShop);
             Storages.Add(StorageID.Pentagram, _pentagrama);
 
-            foreach (var item in characterDto.Items)
+            foreach (var item in characterDto.Items.Where(x => x.VaultId != 10 && x.VaultId != (int)StorageID.Warehouse))
             {
-                if (item.VaultId == 10 || item.VaultId == (int)StorageID.Warehouse)
-                    continue;
-
                 if (item.SlotId < (int)StorageID.Inventory || item.SlotId == (byte)Equipament.Pentagrama)
                     item.VaultId = 0;
                 else if (item.SlotId < (int)StorageID.ExpandedInventory1)
@@ -165,7 +164,20 @@ namespace MuEmu
                     else
                     {
                         var sto = st as Storage;
-                        sto.Add(pos, it);
+                        try
+                        {
+                            sto.Add(pos, it);
+                        }catch(Exception)
+                        {
+                            try
+                            {
+                                sto.Add(it);
+                            }
+                            catch (Exception)
+                            {
+                                _forDelete.Add(it);
+                            }
+                        }
                     }
                 }
             }
@@ -292,6 +304,11 @@ namespace MuEmu
             }
         }
 
+        /// <summary>
+        /// Add item to the firts free space in Inventory including Expanded
+        /// </summary>
+        /// <param name="it">Item</param>
+        /// <returns>void</returns>
         public byte Add(Item it)
         {
             if (Character != null)
@@ -311,6 +328,12 @@ namespace MuEmu
             return result;
         }
 
+
+        /// <summary>
+        /// Mount item in slot if have the stats to equip it and apply item effects to character
+        /// </summary>
+        /// <param name="slot">Target Slot</param>
+        /// <param name="item">Item to be equiped</param>
         public void Equip(Equipament slot, Item item)
         {
             var bslot = (byte)slot;
@@ -354,6 +377,11 @@ namespace MuEmu
             Character.Change = true;
         }
 
+        /// <summary>
+        /// Unmount item from slot and remove item effects from character
+        /// </summary>
+        /// <param name="slot"></param>
+        /// <returns></returns>
         public Item Unequip(Equipament slot)
         {
             if(!_equipament.ContainsKey(slot))
@@ -374,6 +402,15 @@ namespace MuEmu
             return item;
         }
 
+
+        /// <summary>
+        /// Move item from inventory
+        /// </summary>
+        /// <param name="from">Client source flag</param>
+        /// <param name="fromIndex">Source Address</param>
+        /// <param name="to">Client target flag</param>
+        /// <param name="toIndex">Source Address</param>
+        /// <returns>If is moved true if fail false</returns>
         public bool Move(MoveItemFlags from, byte fromIndex, MoveItemFlags to, byte toIndex)
         {
             Storage sFrom = null, sTo = null;
@@ -562,14 +599,8 @@ namespace MuEmu
 
         public Item Get(byte from)
         {
-            if (_inventory.CanContain(from))
-                return _inventory.Get(from);
-            if(_exInventory1.CanContain(from))
-                return _exInventory1.Get(from);
-            if (_exInventory2.CanContain(from))
-                return _exInventory2.Get(from);
-
-            return Get((Equipament)from);
+            var st = GetStorage(from);
+            return st?.Get(from)??Get((Equipament)from);
         }
 
         /// <summary>
@@ -595,30 +626,42 @@ namespace MuEmu
             return returns;
         }
 
+        private Storage GetStorage(byte from)
+        {
+            foreach (Storage st in Storages.Where(x => x.Value.GetType() == typeof(Storage)).Select(x => (Storage)x.Value))
+            {
+                if (st.CanContain(from))
+                    return st;
+            }
+
+            return null;
+        }
+
+        private Storage GetStorage(Item it)
+        {
+            foreach (Storage st in Storages.Where(x => x.Value.GetType() == typeof(Storage)).Select(x => (Storage)x.Value))
+            {
+                if (st.Items.ContainsValue(it))
+                    return st;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Remove item from character inventory without delete it from database
         /// </summary>
         /// <param name="from">Position</param>
-        public void Remove(byte from)
+        public void Remove(byte from, bool send = false)
         {
-            if(_inventory.CanContain(from))
+            var st = GetStorage(from);
+            st?.Remove(from);
+            _equipament.Remove((Equipament)from);
+
+            if (send)
             {
-                _inventory.Remove(from);
-            }
-            else if (_exInventory1.CanContain(from))
-            {
-                _exInventory1.Remove(from);
-            }
-            else if (_exInventory2.CanContain(from))
-            {
-                _exInventory2.Remove(from);
-            }
-            else if (_personalShop.CanContain(from))
-            {
-                _personalShop.Remove(from);
-            }else if(from < 12)
-            {
-                _equipament.Remove((Equipament)from);
+                var session = Character.Player.Session;
+                _ = session.SendAsync(new SInventoryItemDelete(from, 1));
             }
         }
         /// <summary>
@@ -631,27 +674,9 @@ namespace MuEmu
         {
             _needSave = true;
             var session = Character.Player.Session;
-
-            if (_equipament.ContainsKey((Equipament)target))
-            {
-                _forDelete.Add(Unequip((Equipament)target));
-            }
-            else
-            if (_inventory.CanContain(target))
-            {
-                _forDelete.Add(_inventory.Get(target));
-            }
-            else if(_exInventory1.CanContain(target))
-            {
-                _forDelete.Add(_exInventory1.Get(target));
-            }
-            else if(_exInventory2.CanContain(target))
-            {
-                _forDelete.Add(_exInventory2.Get(target));
-            }else if (_personalShop.CanContain(target))
-            {
-                _forDelete.Add(_personalShop.Get(target));
-            }
+            var st = GetStorage(target);
+            var it = st?.Get(target) ?? Unequip((Equipament)target);
+            _forDelete.Add(it);
 
             Remove(target);
 
@@ -661,36 +686,9 @@ namespace MuEmu
 
         public async Task Delete(Item item, bool send = true)
         {
-            if (_equipament.ContainsValue(item))
-            {
-                var slot = _equipament.First(x => x.Value == item).Key;
-                await Delete((byte)slot, send);
-            }
-            else
-            if (_inventory.Items.Any(x => x.Value == item))
-            {
-                await Delete((byte)(_inventory.Items.First(x => x.Value == item).Key + _inventory.IndexTranslate), send);
-            }
-            if (_exInventory1.Items.Any(x => x.Value == item))
-            {
-                await Delete((byte)(_exInventory1.Items.First(x => x.Value == item).Key + _exInventory1.IndexTranslate), send);
-            }
-            if (_exInventory2.Items.Any(x => x.Value == item))
-            {
-                await Delete((byte)(_exInventory2.Items.First(x => x.Value == item).Key + _exInventory2.IndexTranslate), send);
-            }
-            else if (_chaosBox.Items.Any(x => x.Value == item))
-            {
-                await Delete((byte)(_chaosBox.Items.First(x => x.Value == item).Key + _chaosBox.IndexTranslate), send);
-            }
-            else if (_personalShop.Items.Any(x => x.Value == item))
-            {
-                await Delete((byte)(_personalShop.Items.First(x => x.Value == item).Key + _personalShop.IndexTranslate), send);
-            }
-            else if (_tradeBox.Items.Any(x => x.Value == item))
-            {
-                await Delete((byte)(_tradeBox.Items.First(x => x.Value == item).Key + _tradeBox.IndexTranslate), send);
-            }
+            var st = GetStorage(item);
+            var slot = (byte)item.SlotId;
+            await Delete(slot, send);
         }
 
         public async void SendJewelsInfo()
@@ -1140,6 +1138,16 @@ namespace MuEmu
                 j.SlotId = inv._pentagrama.Count;
                 inv._pentagrama.Add(j);
             }
+        }
+
+        internal void Add(List<Item> transfer)
+        {
+            transfer.ForEach(x => Add(x));
+        }
+
+        internal void Remove(List<Item> transfer)
+        {
+            transfer.ForEach(x => Remove((byte)x.SlotId));
         }
     }
 }

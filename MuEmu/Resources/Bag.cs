@@ -29,7 +29,7 @@ namespace MuEmu.Resources
                 result.Add(new Item(tmp.Number, Options: new { Plus, Option28, OptionExe, Luck, Skill }));
             }
 
-            if (DropZenRate <= Program.RandomProvider(100))
+            if (DropZenRate <= Program.RandomProvider(100) || result.Count == 0)
                 result.Add(MuEmu.Item.Zen((uint)Program.RandomProvider(MaxZen, MinZen)));
 
             return result.ToArray();

@@ -135,6 +135,8 @@ namespace MU.Network
         PShopRequestClose = 0x033F,
         PShopRequestList = 0x053F,
         PShopRequestBuy = 0x063F,
+        PShopAlterVault = 0xA8FA,
+        PShopCloseDeal = 0x073F,
         PShopRequestSold = 0x083F,
         PShopSearchItem = 0x31EC,
         PartyRequest = 0xFF40,
@@ -206,6 +208,7 @@ namespace MU.Network
         NeedSpiritMap = 0x21F8,
         PetInfo = 0xFFA9,
         MasterLevelSkills = 0x53F3,
+        ExpEventInfo = 0x52BF,
     }
 
     public enum GensOpCode

@@ -1764,18 +1764,17 @@ namespace MU.Network.Game
     public class PShopItem
     {
         [WZMember(0)] public byte Pos { get; set; }
-        [WZMember(1, 12)] public byte[] Item { get; set; }
-        [WZMember(2)] public uint wzPrice { get; set; }
+        [WZMember(1, 15)] public byte[] Item { get; set; } // Padding Size 3 item byte size 12
+        [WZMember(4)] public uint Price { get; set; }
     }
 
-    [WZContract]
+    [WZContract(LongMessage = true)]
     public class SPShopRequestList : IGameMessage
     {
         [WZMember(0)] public PShopResult Result { get; set; }
-
         [WZMember(1)] public ushort wzNumber { get; set; }
-        [WZMember(2,10)] public byte[] btName { get; set; }
-        [WZMember(3,36)] public byte[] btShopName { get; set; }
+        [WZMember(2, typeof(BinaryStringSerializer), 10)] public string Name { get; set; }
+        [WZMember(3, typeof(BinaryStringSerializer), 36)] public string ShopName { get; set; }
         [WZMember(4, typeof(ArrayWithScalarSerializer<byte>))] public PShopItem[] Items { get; set; }
 
         public SPShopRequestList()
@@ -1793,6 +1792,48 @@ namespace MU.Network.Game
 
         public SPShopRequestList(PShopResult res, ushort numb, string name, string shopName, PShopItem[] it)
         {
+            Name = name;
+            ShopName = shopName;
+            Result = res;
+            wzNumber = numb.ShufleEnding();
+            Items = it;
+        }
+    }
+
+
+    [WZContract]
+    public class PShopItemS9Eng : PShopItem
+    {
+        [WZMember(5)] public ushort BlessValue { get; set; }
+        [WZMember(7)] public ushort SoulValue { get; set; }
+        [WZMember(9)] public ushort ChaosValue { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopRequestListS9Eng : IGameMessage
+    {
+        [WZMember(0)] public PShopResult Result { get; set; }
+
+        [WZMember(1)] public ushort wzNumber { get; set; }
+        [WZMember(2, 10)] public byte[] btName { get; set; }
+        [WZMember(3, 36)] public byte[] btShopName { get; set; }
+        [WZMember(4, typeof(ArrayWithScalarSerializer<byte>))] public PShopItemS9Eng[] Items { get; set; }
+
+        public SPShopRequestListS9Eng()
+        {
+            Result = PShopResult.Disabled;
+            wzNumber = 0xffff;
+            Items = Array.Empty<PShopItemS9Eng>();
+        }
+        public SPShopRequestListS9Eng(PShopResult res)
+        {
+            Result = res;
+            wzNumber = 0xffff;
+            Items = Array.Empty<PShopItemS9Eng>();
+        }
+
+        public SPShopRequestListS9Eng(PShopResult res, ushort numb, string name, string shopName, PShopItemS9Eng[] it)
+        {
             btName = name.GetBytes();
             btShopName = shopName.GetBytes();
             Result = res;
@@ -1808,6 +1849,7 @@ namespace MU.Network.Game
 
         [WZMember(1)] public ushort wzNumber { get; set; }
         [WZMember(2, 12)] public byte[] Item { get; set; }
+        [WZMember(3)] public byte ItemPos { get; set; }
 
         public SPShopRequestBuy()
         {
@@ -1822,34 +1864,41 @@ namespace MU.Network.Game
             Item = Array.Empty<byte>();
         }
 
-        public SPShopRequestBuy(PShopResult res, ushort numb, byte[] it)
+        public SPShopRequestBuy(PShopResult res, ushort numb, byte[] it, byte itemPos)
         {
             Result = res;
             wzNumber = numb.ShufleEnding();
             Item = it;
+            ItemPos = itemPos;
         }
     }
 
     [WZContract]
     public class SPShopRequestSold : IGameMessage
     {
-        [WZMember(0)] public PShopResult Result { get; set; }
+        //[WZMember(0)] public PShopResult Result { get; set; }
 
-        [WZMember(1)] public ushort wzNumber { get; set; }
+        [WZMember(1)] public byte ItemPos { get; set; }
         [WZMember(2, 10)] public byte[] btName { get; set; }
 
         public SPShopRequestSold()
         {
-            Result = PShopResult.Disabled;
-            wzNumber = 0xffff;
+            //Result = PShopResult.Disabled;
+            ItemPos = 0xff;
             btName = Array.Empty<byte>();
         }
-        public SPShopRequestSold(PShopResult res, ushort numb, string name)
+        public SPShopRequestSold(PShopResult res, byte itemPost, string name)
         {
-            Result = res;
-            wzNumber = numb.ShufleEnding();
+            //Result = res;
+            ItemPos = itemPost;
             btName = name.GetBytes();
         }
+    }
+
+    [WZContract]
+    public class SPShopAlterVault : IGameMessage
+    {
+        [WZMember(0)] public byte type { get; set; }
     }
 
     [WZContract]
@@ -2161,7 +2210,7 @@ namespace MU.Network.Game
         [WZMember(5)] public uint ExpireTime { get; set; }
     }
 
-    [WZContract]
+    [WZContract(LongMessage = true)]
     public class SPShopSearchItem : IGameMessage
     {
         [WZMember(0)] public int iPShopCnt { get; set; }
@@ -2264,6 +2313,14 @@ namespace MU.Network.Game
         [WZMember(4)] public byte padding { get; set; } // 6
         [WZMember(5)] public int Exp { get; set; }    // 8
         [WZMember(6)] public byte Dur { get; set; }
+    }
+
+    [WZContract]
+    public class SExpEventInfo : IGameMessage
+    {
+        [WZMember(0)] public ushort PCBangRate { get; set; }
+        [WZMember(1)] public ushort EventExp { get; set; }
+        [WZMember(2)] public ushort GoldChannel { get; set; }
     }
 }
 

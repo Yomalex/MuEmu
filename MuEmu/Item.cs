@@ -224,7 +224,10 @@ namespace MuEmu
             _ => 0.0f,
         };
 
-        public uint PShopValue { get; set; }
+        public uint PShopValueZ { get; set; }
+        public ushort PShopValueB { get; set; }
+        public ushort PShopValueS { get; set; }
+        public ushort PShopValueC { get; set; }
 
         public bool NeedSave { get; set; }
 
