@@ -402,7 +402,13 @@
   <Spot Type="586" Map="Acheron" Radio="30" PosX="34" PosY="107" PosX2="46" PosY2="113" Dir="-1" Quant="1">
     <Element>Earth</Element>
   </Spot>
-
+  <Normal Type="135" Map="Lorencia" Radio="30" PosX="1" PosY="1" Dir="-1">//White Wizard</Normal>
+  <Spot Type="136" Map="Lorencia" Radio="30" PosX="34" PosY="107" PosX2="46" PosY2="113" Dir="-1" Quant="50">
+    <Element>None</Element>
+  </Spot>
+  <Spot Type="137" Map="Lorencia" Radio="30" PosX="34" PosY="107" PosX2="46" PosY2="113" Dir="-1" Quant="50">
+    <Element>None</Element>
+  </Spot>
   <Normal Type="5" Map="Dugeon" Radio="30" PosX="170" PosY="126" Dir="-1">//Hell Hound</Normal>
   <Normal Type="5" Map="Dugeon" Radio="30" PosX="163" PosY="114" Dir="-1">//Hell Hound</Normal>
   <Normal Type="5" Map="Dugeon" Radio="30" PosX="163" PosY="125" Dir="-1">//Hell Hound</Normal>

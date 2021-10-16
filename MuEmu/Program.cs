@@ -51,6 +51,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using MuEmu.Events.MoonRabbit;
 using MuEmu.Game;
+using MuEmu.Events.WhiteWizard;
 
 namespace MuEmu
 {
@@ -401,6 +402,7 @@ namespace MuEmu
                 .AddEvent(Events.Events.Crywolf, new Crywolf())
                 .AddEvent(Events.Events.ImperialGuardian, new ImperialGuardian())
                 .AddEvent(Events.Events.MoonRabbit, new MoonRabbit())
+                .AddEvent(Events.Events.WhiteWizard, new WhiteWizard())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
                 ;
             LuckyCoins.Initialize();

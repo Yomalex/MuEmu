@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemList Monster="137" Plus="0" LevelMin="0" DropItemCount="1" DropItemRate="30" DropZenRate="100" MinZen="10000" MaxZen="10000">
+  <!-- Box of Luck -->
+  <Item Number="6676" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+</ItemList>

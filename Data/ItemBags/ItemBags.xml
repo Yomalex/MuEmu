@@ -77,4 +77,8 @@
   <ItemBag Monster="363" Bag="Kanturu Event\KanturuMayaHand.xml" />
   <!-- Nightmare -->
   <ItemBag Monster="361" Bag="Kanturu Event\KanturuNightmare.xml" />
+  <!-- White Wizard -->
+  <ItemBag Monster="135" Bag="White Wizard\WhiteWizard.xml" />
+  <ItemBag Monster="136" Bag="White Wizard\OrcSoldier.xml" />
+  <ItemBag Monster="137" Bag="White Wizard\OrcArcher.xml" />
 </ItemBags>
