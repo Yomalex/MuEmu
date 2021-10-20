@@ -52,6 +52,9 @@ using System.Threading;
 using MuEmu.Events.MoonRabbit;
 using MuEmu.Game;
 using MuEmu.Events.WhiteWizard;
+using MuEmu.Network.GameServices;
+using MuEmu.Events.Event_Egg;
+using MuEmu.Events.Rummy;
 
 namespace MuEmu
 {
@@ -272,7 +275,8 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument))
                         .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument)))))
                     .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster, "Level up current character, use: '/levelup 100' add 100 levels to current character"))
-                    .AddCommand(new Command<GSSession>("reset", Character.Reset, null, "Resets current Character")))
+                    .AddCommand(new Command<GSSession>("reset", Character.Reset, null, "Resets current Character"))
+                    .AddCommand(new Command<GSSession>("drop", CreateItem, MustBeGameMaster, "Create item <Number>")))
                 //.AddCommand(new Command<GSSession>("~").SetPartial())
                 /*.AddCommand(new Command<GSSession>("]").SetPartial())*/;
 
@@ -283,6 +287,24 @@ namespace MuEmu
                     break;
 
                 Handler.ProcessCommands(null, input);
+            }
+        }
+
+        private static void CreateItem(object sender, CommandEventArgs e)
+        {
+            var session = sender as GSSession;
+            var @char = session.Player.Character;
+            if (session == null)
+                return;
+
+            var map = session.Player.Character.Map;
+            try
+            {
+                var item = new Item(ushort.Parse(e.Argument));
+                map.AddItem(@char.Position.X, @char.Position.Y, item);
+            }catch(Exception ex)
+            {
+                session.Exception(ex);
             }
         }
 
@@ -403,6 +425,8 @@ namespace MuEmu
                 .AddEvent(Events.Events.ImperialGuardian, new ImperialGuardian())
                 .AddEvent(Events.Events.MoonRabbit, new MoonRabbit())
                 .AddEvent(Events.Events.WhiteWizard, new WhiteWizard())
+                .AddEvent(Events.Events.EventEgg, new EventEgg())
+                .AddEvent(Events.Events.MuRummy, new MuRummy())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
                 ;
             LuckyCoins.Initialize();

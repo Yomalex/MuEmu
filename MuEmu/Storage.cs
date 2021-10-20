@@ -24,6 +24,7 @@ namespace MuEmu
 
         public bool NeedSave { get; set; }
         public StorageID IndexTranslate { get; private set; }
+        public StorageID StorageID { get; set; }
         public int EndIndex { get; private set; }
         public int Size { get; private set; }
         public uint Money { get; set; }
@@ -38,9 +39,12 @@ namespace MuEmu
             _bounds = new RectangleF(new Point(0, 0), new SizeF(8, Size / 8));
             _map = new List<RectangleF>();
             IndexTranslate = startIndex;
+            StorageID = startIndex;
             EndIndex = (int)startIndex + size;
         }
-        
+
+        public bool NoMapped { get; internal set; }
+
         public byte Add(Item it, byte offset = 0)
         {
             for (var i = offset; i < Size; i++)
@@ -51,11 +55,12 @@ namespace MuEmu
                 if (itemRect.Right >= _bounds.Right || itemRect.Bottom >= _bounds.Bottom)
                     continue;
 
-                if (_map.Where(x => x.IntersectsWith(itemRect)).Count() == 0)
+                if (NoIntersects(i, it.BasicInfo.Size).Width == 0)
                 {
                     _add(i, it);
                     NeedSave = true;
                     it.SlotId = (int)IndexTranslate + i;
+                    it.Storage = StorageID;
                     return (byte)it.SlotId;
                 }
             }
@@ -65,6 +70,9 @@ namespace MuEmu
 
         private RectangleF NoIntersects(byte offset, Size freeSpace)
         {
+            if (NoMapped)
+                return _items.ContainsKey(offset)? _bounds : default(RectangleF);
+
             var itemRect = new RectangleF(new Point(offset % 8, offset / 8), freeSpace);
             itemRect.Width -= 0.1f;
             itemRect.Height -= 0.1f;
@@ -124,7 +132,8 @@ namespace MuEmu
         private void _add(byte pos, Item it)
         {
             _items.Add(pos, it);
-            _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
+            if(!NoMapped)
+                _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
         }
 
         public void Add(byte pos, Item it)
@@ -156,7 +165,7 @@ namespace MuEmu
             if (intersects.Width != 0)
                 throw new Exception($"({org})[{IndexTranslate}] Space isn't free: ({Get((byte)(intersects.Y*8 + intersects.X + (float)IndexTranslate))})");
 
-            it.Storage = IndexTranslate;
+            it.Storage = StorageID;
             _items.Add(pos, it);
             _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
             NeedSave = true;
@@ -175,9 +184,13 @@ namespace MuEmu
         {
             pos -= (byte)IndexTranslate;
             _items.Remove(pos);
-            var pos2 = new Point(pos % 8, pos / 8);
-            var rect = _map.First(x => x.Location == pos2);
-            _map.Remove(rect);
+
+            if (!NoMapped)
+            {
+                var pos2 = new Point(pos % 8, pos / 8);
+                var rect = _map.First(x => x.Location == pos2);
+                _map.Remove(rect);
+            }
         }
 
         public void Clear()

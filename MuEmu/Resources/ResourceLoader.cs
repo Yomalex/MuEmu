@@ -937,6 +937,7 @@ namespace MuEmu.Resources
                                 MaxZen = baseb.Section1[0].DropZen,
                                 MinZen = baseb.Section1[0].DropZen,
                                 Number = ItemNumber.FromTypeIndex(baseb.Section1[0].BoxType, baseb.Section1[0].BoxIndex),
+                                Monster = x.Monster,
                                 Plus = baseb.Section1[0].BoxLevel,
                                 Item = baseb.Section2.Select(y => new ItemInBagDto
                                 {
@@ -969,6 +970,7 @@ namespace MuEmu.Resources
                             MaxZen = 100000,
                             MinZen = 10000,
                             Number = x.Item,
+                            Monster = x.Monster,
                             Plus = x.Plus,
                             Item = basec.BagDtos.Select(y => new ItemInBagDto
                             {

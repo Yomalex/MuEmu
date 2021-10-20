@@ -1,4 +1,5 @@
 ﻿using MU.Resources;
+using MuEmu.Network.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -382,5 +383,25 @@ namespace MU.Network.Event
         [WZMember(2)] public byte btEventTime2 { get; set; }
         [WZMember(3)] public byte btEventTime3 { get; set; }
         [WZMember(4)] public byte btEventTime4 { get; set; }
+    }
+
+    [WZContract(Serialized = true)]
+    public class SEventItemGet : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, 12)] public byte[] Item { get; set; }
+    }
+
+    [WZContract]
+    public class SEventItemThrow : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte Pos { get; set; }
+    }
+
+    [WZContract(LongMessage = true, Serialized = true)]
+    public class SEventInventory : IEventMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public InventoryDto[] Inventory { get; set; }
     }
 }

@@ -17,11 +17,18 @@ using MuEmu.Network.ConnectServer;
 
 namespace MuEmu.Network
 {
+    internal class WZServerEventArgs : EventArgs
+    {
+        public GSSession session { get; set; }
+    }
     internal class WZGameServer : WZServer
     {
         public string ClientVersion { get; set; }
         public string ClientSerial { get; set; }
         public IEnumerable<GSSession> Clients => _clients.Values.Select(x => x as GSSession);
+
+        public event EventHandler<WZServerEventArgs> Connect;
+        public event EventHandler<WZServerEventArgs> Disconnect;
 
         public WZGameServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories, bool useRijndael)
         {
@@ -35,6 +42,8 @@ namespace MuEmu.Network
             Session.Player = new Player(Session);
 
             Session.SendAsync(new SJoinResult(1, Session.ID, ClientVersion)).Wait();
+
+            Connect?.Invoke(this, new WZServerEventArgs { session = Session });
         }
 
         public override void OnDisconnect(WZClient session)
@@ -78,6 +87,7 @@ namespace MuEmu.Network
 
             Session.Player = null;
             base.OnDisconnect(session);
+            Disconnect?.Invoke(this, new WZServerEventArgs { session = Session });
         }
 
         public async Task SendAll(object message)

@@ -95,6 +95,7 @@ namespace MuEmu
                 NeedSave = true;
             }
         }
+        public bool IsZen => ItemNumber.Zen == Number;
 
         public ItemInfo BasicInfo { get; set; }
         public ItemNumber Number { get;  set; }
@@ -877,10 +878,11 @@ namespace MuEmu
             await Character.Player.Session
                 .SendAsync(new SItemThrow { Source = (byte)SlotId, Result = 1 });
 
+            var map = Character.Map;
             Character = null;
             Account = null;
 
-            return Character.Map.AddItem(mapX, mapY, this, Character);
+            return map.AddItem(mapX, mapY, this, Character);
         }
 
         public void ApplyEffects(Character tTarget)
@@ -918,16 +920,11 @@ namespace MuEmu
             _db.AccountId = Account.ID;
 
             if (Character != null)
-            {
                 _db.CharacterId = Character.Id;
-                _db.VaultId = 0;
-            }
             else
-            {
                 _db.CharacterId = 0;
-                _db.VaultId = (int)_vid;
-            }
             
+            _db.VaultId = (int)_vid;
             _db.SlotId = _slot;
             _db.Number = Number;
             _db.Plus = _plus;

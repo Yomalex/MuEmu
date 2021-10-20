@@ -1,13 +1,19 @@
 ﻿using MU.Network.Event;
+using MU.Network.Game;
 using MU.Resources;
 using MuEmu.Events.BloodCastle;
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Events.Crywolf;
 using MuEmu.Events.DevilSquare;
+using MuEmu.Events.Event_Egg;
 using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
+using MuEmu.Events.Rummy;
 using MuEmu.Monsters;
+using MuEmu.Resources;
+using MuEmu.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -176,14 +182,102 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CMuRummyOpen))]
         public void CMuRummyOpen(GSSession session)
         {
-            _ = session.SendAsync(new SMuRummyOpen
+            var muRummy = Program.EventManager.GetEvent<MuRummy>();
+            var eventEgg = Program.EventManager.GetEvent<EventEgg>();
+            DateTime end;
+            byte result;
+
+            if(muRummy.CurrentState == Events.EventState.Playing)
             {
-                btResult = 1,
-                btEventTime1 = 0,
-                btEventTime2 = 0,
-                btEventTime3 = 0,
-                btEventTime4 = 0,
-            });
+                end = DateTime.UtcNow.Add(muRummy.TimeLeft);
+                result = 1;
+            }
+            else
+            {
+                end = DateTime.UtcNow.Add(eventEgg.TimeLeft);
+                result = 3;
+            }
+            
+            var unixTimestamp = (int)(end.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var bytes = BitConverter.GetBytes(unixTimestamp);
+            var msg = new SMuRummyOpen
+            {
+                btResult = result,
+                btEventTime1 = bytes[3],
+                btEventTime2 = bytes[2],
+                btEventTime3 = bytes[1],
+                btEventTime4 = bytes[0],
+            };
+            _ = session.SendAsync(msg);
+
+            //session.Player.Character.Inventory.SendEventInventory();
+        }
+
+        [MessageHandler(typeof(CEventItemGet))]
+        public void CEventItemGet(GSSession session, CEventItemGet message)
+        {
+            var @char = session.Player.Character;
+            var map = @char.Map;
+            Item item;
+
+            try
+            {
+                item = map.ItemPickUp(@char, message.Number);
+            } catch (Exception ex)
+            {
+                session.Exception(ex);
+                return;
+            }
+
+            var pos = @char.Inventory.AddEvent(item);
+            if (pos != 0xff)
+            {
+                _ = session.SendAsync(new SEventItemGet { Result = pos, Item = item.GetBytes() });
+            }
+            else
+            {
+                session.Player.Character.Inventory.SendEventInventory();
+            }
+        }
+
+        [MessageHandler(typeof(CEventItemThrow))]
+        public void CEventItemThrow(GSSession session, CEventItemThrow message)
+        {
+            var plr = session.Player;
+            var inv = plr.Character.Inventory;
+            var item = inv.GetEvent(message.Ipos);
+            if (item == null)
+                return;
+
+            var bag = (from b in ResourceCache.Instance.GetItemBags()
+                       where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0xffff)
+                       select b).FirstOrDefault();
+
+            _ = session.SendAsync(new SEventItemThrow { Result = 1, Pos = message.Ipos });
+            if (bag != null)
+            {
+                if (bag.LevelMin <= plr.Character.Level)
+                {
+                    inv.DeleteEvent(message.Ipos);
+                    foreach (var reward in bag.GetReward())
+                    {
+                        plr.Character.Map.AddItem(message.px, message.py, reward, plr.Character);
+                    }
+                    var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
+                    _ = plr.Session.SendAsync(msg);
+                    plr.SendV2Message(msg);
+                }
+                else
+                {
+                    _ = item.Drop(message.px, message.py);
+                    return;
+                }
+            }
+            else
+            {
+                _ = item.Drop(message.px, message.py);
+                inv.RemoveEvent(message.Ipos);
+            }
         }
     }
 }

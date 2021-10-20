@@ -252,7 +252,12 @@ namespace MU.Network.Game
             Register<STradeResult>(GameOpCode.TradeButtonCancel);
 
             #region MuunSystem
-            Register<CMuunRideReq>(GameOpCode.MuunRideRequest);
+            Register<CMuunItemExchange>(GameOpCode.MuunItemExchange);
+            Register<CMuunItemGet>(GameOpCode.MuunItemGet);
+            Register<SMuunItemGet>(GameOpCode.MuunItemGet);
+            Register<CMuunItemRideSelect>(GameOpCode.MuunItemRideSelect);
+            Register<CMuunItemSell>(GameOpCode.MuunItemSell);
+            Register<CMuunItemUse>(GameOpCode.MuunItemUse);
             Register<SMuunRideVP>(GameOpCode.MuunRideViewPort);
             #endregion
 

@@ -29,4 +29,11 @@ namespace MU.Network.MuunSystem
             wzMuunRideItem = MuunItem.ShufleEnding();
         }
     }
+
+    [WZContract(Serialized = true)]
+    public class SMuunItemGet : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, 12)] public byte[] Item { get; set; }
+    }
 }

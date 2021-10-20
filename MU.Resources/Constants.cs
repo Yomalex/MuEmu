@@ -390,6 +390,8 @@ namespace MU.Resources
         ChaosBox=300,
         TradeBox,
         Pentagram,
+        MuunInventory,
+        EventInventory,
         Warehouse=400,
     }
 
@@ -766,6 +768,8 @@ namespace MU.Resources
         DarkTrainer = 5,
         ElpisBox,
         PentagramBox = 17,
+        Event = 21,
+        Muun = 22,
     }
 
     public enum NoticeType : byte

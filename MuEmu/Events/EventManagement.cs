@@ -17,6 +17,8 @@ namespace MuEmu.Events
         DoubleGoer,
         MoonRabbit,
         WhiteWizard,
+        EventEgg,
+        MuRummy,
     }
     internal class EventInfo
     {

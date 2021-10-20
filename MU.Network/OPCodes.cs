@@ -171,9 +171,6 @@ namespace MU.Network
         Attack = 0xFFD7,
         AttackEng = 0xFF11,
         Position = 0xFFDF,
-        MuunInventory = 0x024E,
-        MuunRideRequest = 0x114E,
-        MuunRideViewPort = 0x144E,
 
         MiniMapNPC = 0x03E7,
         PeriodItemCount = 0x11D2,
@@ -209,6 +206,14 @@ namespace MU.Network
         PetInfo = 0xFFA9,
         MasterLevelSkills = 0x53F3,
         ExpEventInfo = 0x52BF,
+
+        MuunItemGet = 0x004E,
+        MuunInventory = 0x024E,
+        MuunItemUse = 0x084E,
+        MuunItemSell = 0x094E,
+        MuunItemRideSelect = 0x114E,
+        MuunItemExchange = 0x134E,
+        MuunRideViewPort = 0x144E,
     }
 
     public enum GensOpCode
@@ -278,6 +283,9 @@ namespace MU.Network
         Banner = 0x184D,
 
         MuRummyOpen = 0x0F4D,
+        EventItemGet = 0x004D,
+        EventItemThrow = 0x014D,
+        EventInventory = 0x024D,
     }
     public enum CashOpCode : ushort
     {

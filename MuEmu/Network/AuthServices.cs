@@ -270,7 +270,7 @@ namespace MuEmu.Network
             //#if (ENABLETEST_MUUN == 1)
             //g_CMuunSystem.GDReqLoadMuunInvenItem(*lpObj);
             //#endif
-            await session.SendAsync(new SMuunInventory());
+            //await session.SendAsync(new SMuunInventory());
 
 
 
@@ -306,9 +306,6 @@ namespace MuEmu.Network
             session.Player.Character.Inventory.SendJewelsInfo();
 
             await session.SendAsync(new SUBFInfo { Result = 1 });
-            //await session.SendAsync(new SSendBanner { Type = BannerType.MuRummy });
-            //await session.SendAsync(new SSendBanner { Type = BannerType.EvenInven });
-            //await session.SendAsync(new SSendBanner { Type = BannerType.UnityBattleField });
 
             await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
 

@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebZen.Util;
 using MU.Resources;
+using MuEmu.Network.Data;
 
 namespace MuEmu.Resources.Map
 {
@@ -37,6 +38,36 @@ namespace MuEmu.Resources.Map
     {
         private List<MapAttributes[]> _shadowLayer = new List<MapAttributes[]>();
         private DateTime _nextWeater;
+
+        internal Item ItemPickUp(Character @char, ushort number)
+        {
+            var item = (from obj in @char.Map.Items
+                        where obj.Index == number && obj.State == ItemState.Created
+                        select obj).FirstOrDefault();
+
+            if(item == null)
+            {
+                throw new Exception("Invalid item");
+            }
+
+            if (
+                item.Item.Number != ItemNumber.Zen && 
+                item.Character != null && 
+                item.Character != @char && 
+                item.OwnedTime > DateTimeOffset.Now
+                )
+            {
+                throw new Exception("This item does not belong to you");
+            }
+
+            var msg = new SViewPortItemDestroy { ViewPort = new VPDestroyDto[] { new VPDestroyDto(item.Index) } };
+            var session = @char.Player.Session;
+            _ = session.SendAsync(msg);
+            @char.SendV2Message(msg);
+            item.State = ItemState.Deleting;
+            return item.Item;
+        }
+
         private MapAttributes[] Layer { get; }
         private List<Point> SafePoints { get; set; }
         private IEnumerable<Monster> NPC => Monsters.Where(x => x.Type == ObjectType.NPC);

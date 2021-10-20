@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ItemBags>
   <!-- Ring of Warrior -->
-    <ItemBag Item="6676" Plus="1" LevelMin="20" Bag="RingEvent.xml" />
-    <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.xml" />
+  <ItemBag Item="6676" Plus="1" LevelMin="20" Bag="RingEvent.xml" />
+  <ItemBag Item="6676" Plus="2" LevelMin="30" Bag="RingEvent.xml" />
   <!-- Red Ribbon Box -->
   <ItemBag Item="6176" Plus="0" Bag="Ribbon Event/RedRibbonBox.xml" />
   <!-- Green Ribbon Box -->
@@ -53,6 +53,16 @@
   <ItemBag Item="7179" Plus="12" Bag="Golden Invation/BoxOfKundun5.xml" />
   <!-- Hallowin -->
   <ItemBag Item="7213" Plus="0" Bag="Hallowin/HallowinDay.xml" />
+  <!-- WareRabbit Egg -->
+  <ItemBag Item="6866" Plus="0" Bag="Event Egg/WareRabbit Egg.xml" />
+  <!-- Fire Flame Ghost -->
+  <ItemBag Monster="676" Bag="Event Egg/Fire Flame Ghost.xml" />
+  <!-- Golden Goblin -->
+  <ItemBag Monster="677" Bag="Event Egg/Golden Goblin.xml" />
+  <!-- Lunar Rabbit -->
+  <ItemBag Monster="674" Bag="Event Egg/Lunar Rabbit.xml" />
+  <!-- Pouch of Blessing -->
+  <ItemBag Monster="675" Bag="Event Egg/Pouch of Blessing.xml" />
   <!-- Golden Budge Dragon -->
   <ItemBag Monster="43" Bag="Golden Invation/GoldenBudgeDragon.xml" />
   <ItemBag Monster="79" Bag="Golden Invation/GoldenDerkon.xml" />
@@ -60,7 +70,7 @@
   <ItemBag Monster="80" Bag="Golden Invation/GoldenLizardKing.xml" />
   <ItemBag Monster="82" Bag="Golden Invation/GoldenTantalos.xml" />
   <ItemBag Monster="53" Bag="Golden Invation/GoldenTitan.xml" />
-  <ItemBag Monster="413" Bag="Moon Rabbit\RabbiT.xml" />
+  <ItemBag Monster="413" Bag="Moon Rabbit\BlueEvent.xml" />
   <!-- Shadow of Kundun -->
   <ItemBag Monster="161" Bag="Kundun\Kundun.xml" />
   <ItemBag Monster="181" Bag="Kundun\Kundun.xml" />

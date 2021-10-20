@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MuEmu.Entity;
 using MU.Resources;
 using MuEmu.Monsters;
+using MuEmu.Network.GameServices;
 
 namespace MuEmu
 {

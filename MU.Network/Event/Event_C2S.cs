@@ -86,4 +86,18 @@ namespace MU.Network.Event
     [WZContract]
     public class CMuRummyOpen : IEventMessage
     { }
+
+    [WZContract(Serialized = true)]
+    public class CEventItemGet : IEventMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }
+    }
+    [WZContract]
+    public class CEventItemThrow : IEventMessage
+    {
+        [WZMember(0)] public byte px { get; set; }
+        [WZMember(1)] public byte py { get; set; }
+        [WZMember(2)] public byte Ipos { get; set; }
+    }
 }

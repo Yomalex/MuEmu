@@ -14,6 +14,7 @@ using MU.Resources;
 using MuEmu.Network;
 using MuEmu.Resources.Game;
 using MuEmu.Entity;
+using MuEmu.Network.GameServices;
 
 namespace MuEmu.Events.BloodCastle
 {

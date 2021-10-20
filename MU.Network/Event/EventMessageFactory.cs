@@ -80,6 +80,15 @@ namespace MU.Network.Event
 
             // MuRummy
             Register<CMuRummyOpen>(EventOpCode.MuRummyOpen);
+            Register<SMuRummyOpen>(EventOpCode.MuRummyOpen);
+
+            //
+            Register<CEventItemGet>(EventOpCode.EventItemGet);
+            Register<SEventItemGet>(EventOpCode.EventItemGet);
+            Register<CEventItemThrow>(EventOpCode.EventItemThrow);
+            Register<SEventItemThrow>(EventOpCode.EventItemThrow);
+
+            Register<SEventInventory>(EventOpCode.EventInventory);
         }
     }
 }

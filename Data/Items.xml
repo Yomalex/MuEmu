@@ -776,7 +776,7 @@
   <Item Number="6929" Skill="None" Size="1,1" Option="True" Drop="False" NeededLevel="0" Durability="255"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Hawk (Evolved)" />
   <Item Number="6930" Skill="None" Size="1,1" Option="True" Drop="False" NeededLevel="1" Durability="255"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Muty" />
   <Item Number="6931" Skill="None" Size="1,1" Option="True" Drop="False" NeededLevel="0" Durability="255"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Muty (Evolved)" />
-  <Item Number="6932" Skill="None" Size="3,3" Option="True" Drop="False" NeededLevel="0" Durability="0"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Conqueror’s Badge" />
+  <Item Number="6932" Skill="None" Size="3,3" Option="True" Drop="False" NeededLevel="0" Durability="0"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Conquerorâ€™s Badge" />
   <Item Number="6933" Skill="None" Size="3,3" Option="True" Drop="False" NeededLevel="0" Durability="0"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Badge of Hardships" />
   <Item Number="6934" Skill="None" Size="1,1" Option="True" Drop="False" NeededLevel="1" Durability="255"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Mantis" />
   <Item Number="6935" Skill="None" Size="1,1" Option="True" Drop="False" NeededLevel="0" Durability="255"  ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Mantis (Evolved)" />

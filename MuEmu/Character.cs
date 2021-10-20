@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using WebZen.Util;
 using MU.Resources;
 using MU.Network;
+using MuEmu.Network.GameServices;
 
 namespace MuEmu
 {
@@ -591,7 +592,7 @@ namespace MuEmu
             @char.MapID = @char.BaseInfo.Map;
             @char.Resets++;
             //@char.LevelUpPoints = (ushort)Math.Min(@char.Resets*250, 65535);
-            GameServices.CClinetClose(Session, new CClientClose { Type = ClientCloseType.ServerList }).Wait();
+            GameServices.CClientClose(Session, new CClientClose { Type = ClientCloseType.ServerList }).Wait();
         }
 
         public int TotalPoints => _str + _agi + _vit + _ene + _cmd + LevelUpPoints;
@@ -725,6 +726,8 @@ namespace MuEmu
             plr.Session.SendAsync(StatsInfo).Wait();
 
             Inventory.SendInventory();
+            Inventory.SendMuunInventory();
+            Inventory.SendEventInventory();
 
             Quests.SendList();
 

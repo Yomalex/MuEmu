@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="65535" Monster="675" Plus="0" LevelMin="1" DropItemCount="1" DropItemRate="100" DropZenRate="100" MinZen="100000" MaxZen="100000">
+  <Item Number="6876" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+</ItemList>
