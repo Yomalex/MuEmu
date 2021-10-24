@@ -390,8 +390,8 @@ namespace MU.Network.Auth
         [WZMember(1)] public byte MapY { get; set; }//1
         [WZMember(2)] public Maps Map { get; set; }//2
         [WZMember(3)] public byte Direccion { get; set; }//3
-        [WZMember(4)] public ulong Experience { get; set; }//4
-        [WZMember(5)] public ulong NextExperience { get; set; }//c
+        [WZMember(4)] public long Experience { get; set; }//4
+        [WZMember(5)] public long NextExperience { get; set; }//c
         [WZMember(6)] public ushort LevelUpPoints { get; set; }//14
         [WZMember(7)] public ushort Str { get; set; }//16
         [WZMember(8)] public ushort Agi { get; set; }//18

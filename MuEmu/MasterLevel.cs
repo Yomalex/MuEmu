@@ -18,7 +18,7 @@ namespace MuEmu
     {
         private bool _needSave;
         private ushort _level;
-        private ulong _experience;
+        private long _experience;
         private ushort _points;
         private bool _new;
 
@@ -33,7 +33,7 @@ namespace MuEmu
                 _needSave = true;
             }
         }
-        public ulong Experience
+        public long Experience
         {
             get => _experience; set
             {
@@ -41,7 +41,7 @@ namespace MuEmu
                 _needSave = true;
             }
         }
-        public ulong NextExperience => GetExperienceFromLevel((ushort)(Level + Character.Level-1));
+        public long NextExperience => GetExperienceFromLevel((ushort)(Level + Character.Level-1));
         public ushort Points
         {
             get => _points; set
@@ -74,7 +74,7 @@ namespace MuEmu
             Points = @charDto.MasterInfo?.Points ?? 0;
         }
 
-        public void GetExperience(ulong exp)
+        public void GetExperience(long exp)
         {
             if(!Character.MasterClass || Character.Level != 400)
             {
@@ -105,9 +105,9 @@ namespace MuEmu
             }
         }
 
-        private ulong GetExperienceFromLevel(ushort level)
+        private long GetExperienceFromLevel(ushort level)
         {
-            var exp = (((level + 9ul) * level) * level) * 10ul + ((level>255)?(((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul):0ul);
+            var exp = (((level + 9l) * level) * level) * 10l + ((level>255)?(((((long)(level - 255) + 9l) * (level - 255l)) * (level - 255l)) * 1000l):0l);
             if (level >= 400)
             {
                 exp -= 3892250000;
@@ -116,7 +116,7 @@ namespace MuEmu
             if (level > 600)
             {
                 var Level3 = (double)((level - 600) * (level - 600));
-                exp = (ulong)(exp * (1 + (Level3 * 1.2) / 100000.0));
+                exp = (long)(exp * (1 + (Level3 * 1.2) / 100000.0));
             }
             return exp;
         }

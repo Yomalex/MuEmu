@@ -1905,7 +1905,7 @@ namespace MU.Network.Game
     public class SMasterInfo : IGameMessage
     {
         public SMasterInfo() { }
-        public SMasterInfo(ushort level, ulong experience, ulong nextExperience, ushort points, ushort maxHealth, ushort maxShield, ushort maxMana, ushort maxStamina)
+        public SMasterInfo(ushort level, long experience, long nextExperience, ushort points, ushort maxHealth, ushort maxShield, ushort maxMana, ushort maxStamina)
         {
             Level = level;
             Experience = experience.ShufleEnding();
@@ -1920,8 +1920,8 @@ namespace MU.Network.Game
         //PBMSG_HEAD2 h;
         [WZMember(0)] public ushort Level { get; set; }
 
-        [WZMember(1)] public ulong Experience { get; set; }// [8]
-        [WZMember(2)] public ulong NextExperience { get; set; }// [8];
+        [WZMember(1)] public long Experience { get; set; }// [8]
+        [WZMember(2)] public long NextExperience { get; set; }// [8];
 
         [WZMember(3)] public ushort Points { get; set; }
 
@@ -2316,11 +2316,30 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class SPetAttack:IGameMessage
+    {
+        [WZMember(0)] public byte PetType { get; set; }   //	3
+        [WZMember(1)] public byte SkillType { get; set; } // 4
+        [WZMember(2)] public ushort wzNumber { get; set; } // 5
+        [WZMember(3)] public ushort wzTargetNumber { get; set; } // 7
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }   // 5
+        public ushort TargetNumber { get => wzTargetNumber.ShufleEnding(); set => wzTargetNumber = value.ShufleEnding(); }   // 5
+    }
+
+    [WZContract]
     public class SExpEventInfo : IGameMessage
     {
         [WZMember(0)] public ushort PCBangRate { get; set; }
         [WZMember(1)] public ushort EventExp { get; set; }
         [WZMember(2)] public ushort GoldChannel { get; set; }
     }
+
+    [WZContract]
+    public class SEquipamentChange : IGameMessage
+    {
+        [WZMember(0)] public ushort wzNumber { get; set; }   // 3
+        [WZMember(1, 12)] public byte[] ItemInfo{ get; set; }   // 5
+        [WZMember(2)] public Element Element { get; set; }
+}
 }
 

@@ -2403,11 +2403,60 @@ namespace MuEmu.Network.GameServices
                 nPos = message.nPos,
                 PetType = message.PetType,
                 Dur = item.Durability,
-                Exp = item.PetEXP,
+                Exp = (int)item.PetEXP,
                 Level = item.PetLevel,
             };
 
             await session.SendAsync(responce);
+        }
+
+        [MessageHandler(typeof(CPetCommand))]
+        public async Task CPetCommand(GSSession session, CPetCommand message)
+        {
+            if (session.Player?.Character != null)
+            {
+                session.Player.Character.PetTarget = message.Number;
+                session.Player.Character.PetMode = message.Command;
+            }
+
+            Logger.ForAccount(session).Information("Pet mode changed to {0}", message.Command);
+            await session.SendAsync(message);
+        }
+
+        [MessageHandler(typeof(CInventoryEquipament))]
+        public void CInventoryEquipament(GSSession session, CInventoryEquipament message)
+        {
+            var item = session.Player.Character.Inventory.Get(message.btItemPos);
+            switch(item.Number)
+            {
+                case 6660://13,4 DarkHorse
+                    if(session.Player.Character.Mount != null)
+                    {
+                        session.Player.Character.Mount = null;
+                        item.Harmony.Option = 0;
+                        message.btValue = 0xff;
+                        break;
+                    }
+                    session.Player.Character.Mount = item;
+                    item.Harmony.Option = 1;
+                    message.btValue = 0xfe;
+                    break;
+                default:
+                    message.btValue = 0xff;
+                    break;
+            }
+
+            var itemBytes = item.GetBytes();
+            itemBytes[1] = (byte)(message.btItemPos << 4);
+            itemBytes[1] |= item.SmallPlus;
+
+            _ = session.SendAsync(message);
+            _ = session.SendAsync(new SEquipamentChange
+            {
+                Element = session.Player.Character.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute??Element.None,
+                ItemInfo = itemBytes,
+                wzNumber = ((ushort)session.ID).ShufleEnding()
+            });
         }
     }
 }

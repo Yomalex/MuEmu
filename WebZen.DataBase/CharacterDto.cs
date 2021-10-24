@@ -23,6 +23,7 @@ namespace MU.DataBase
         public int? GuildId { get; set; }
         public GuildDto Guild { get; set; }
 
+        [Column(TypeName = "SMALLINT(5)")]
         public byte Map { get; set; }
         public short X { get; set; }
         public short Y { get; set; }

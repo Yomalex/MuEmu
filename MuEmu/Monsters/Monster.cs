@@ -468,7 +468,7 @@ namespace MuEmu.Monsters
 
             var die = new SDiePlayer(Index, 1, (ushort)(Killer?.Session?.ID??0xffff));
 
-            if(Killer.Character == null)
+            if(Killer?.Character == null)
             {
                 return;
             }
@@ -526,7 +526,7 @@ namespace MuEmu.Monsters
                 EXP *= Program.Experience.FullExperate + 1.0f + Killer.Character.Spells.IncreaseExperience;
                 Zen *= Program.Zen;
 
-                pair.Key.Character.Experience += (ulong)EXP;
+                pair.Key.Character.Experience += (long)EXP;
                 switch (Program.Season)
                 {
                     case ServerSeason.Season9Eng:

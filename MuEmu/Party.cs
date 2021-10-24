@@ -207,7 +207,7 @@ namespace MuEmu
 
             foreach(var plr in _members)
             {
-                var subEXP = (ulong)(EXP * plr.Character.Level / totalLevel);
+                var subEXP = (long)(EXP * plr.Character.Level / totalLevel);
                 plr.Character.Experience += subEXP;
                 await plr.Session.SendAsync(new SKillPlayer(TargetID, (ushort)subEXP, killer == plr ? dmg : (ushort)0));
             }

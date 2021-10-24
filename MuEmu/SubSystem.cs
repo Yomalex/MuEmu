@@ -123,6 +123,11 @@ namespace MuEmu
                                                  where DateTimeOffset.Now < msg.Time
                                                  select msg).ToList();
 
+                    foreach(var @char in Program.server.Clients.Where(x=> x.Player != null && x.Player.Status == LoginStatus.Playing).Select(x => x.Player.Character))
+                    {
+                        @char.UpdatePetIA();
+                    }
+
                     Thread.Sleep(100);
                 }
                 catch (Exception e)

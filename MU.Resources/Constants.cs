@@ -4,6 +4,58 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum ItemType : byte
+    {
+        Sword,
+        Axe,
+        Scepter,
+        Spear,
+        BowOrCrossbow,
+        Staff,
+        Shield,
+        Helm,
+        Armor,
+        Pant,
+        Gloves,
+        Boots,
+        Wing_Orb_Seed,
+        Missellaneo,
+        Potion,
+        Scroll,
+        End,
+
+        Invalid = 0xff
+    };
+    public enum SpecialNumber : ushort
+    {
+        AditionalDamage = 80,
+        AditionalMagic = 81,
+        SuccessFullBlocking = 82,
+        AditionalDefense = 83,
+        CriticalDamage = 84,
+        RecoverLife = 85,
+        ExcellentOption = 86,
+        AddLife = 100,
+        AddMana = 101,
+        AddStamina = 103,
+        AddLeaderShip = 105,
+        CurseDamage = 113,
+        AddMaxMana = 172,
+        AddMaxStamina = 173,
+        SetAttribute = 0xC3,
+        AddStrength = 196,
+        AddAgility = 197,
+        AddEnergy = 198,
+        AddVitality = 199,
+    }
+    public enum PetMode : byte
+    {
+        Normal = 0x0,
+        AttackRandom = 0x1,
+        AttackWithMaster = 0x2,
+        AttackTarget = 0x3,
+
+    };
     public enum CoinType : int
     {
         GPoints = 0,

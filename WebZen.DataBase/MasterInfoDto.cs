@@ -13,7 +13,7 @@ namespace MU.DataBase
         public ushort Level { get; set; }
 
         [Column(TypeName = "BIGINT UNSIGNED")]
-        public ulong Experience { get; set; }
+        public long Experience { get; set; }
         // Stats Info
         [Column(TypeName = "SMALLINT(5) UNSIGNED")]
         public ushort Points { get; set; }

@@ -59,6 +59,6 @@ namespace MU.DataBase
         public byte PetLevel { get; set; }
 
         [Column(TypeName = "BIGINT(5)")]
-        public int PetEXP { get; set; }
+        public long PetEXP { get; set; }
     }
 }

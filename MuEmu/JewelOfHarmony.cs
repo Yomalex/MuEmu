@@ -1,4 +1,5 @@
-﻿using MU.Resources.Game;
+﻿using MU.Resources;
+using MU.Resources.Game;
 using MuEmu.Resources;
 using System;
 using System.Collections.Generic;

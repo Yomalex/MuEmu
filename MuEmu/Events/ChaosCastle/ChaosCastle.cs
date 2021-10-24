@@ -354,7 +354,7 @@ namespace MuEmu.Events.ChaosCastle
                 })
                     .Wait();
 
-                winner.Player.Character.Experience += (ulong)wXP;
+                winner.Player.Character.Experience += (long)wXP;
                 winner.Player.Session.SendAsync(new SKillPlayer(0xffff, (ushort)wXP, 0)).Wait();
                 winner.Player.Character.Money += (uint)(_recaudation * 0.8f);
             }
@@ -387,7 +387,7 @@ namespace MuEmu.Events.ChaosCastle
                 })
                 .Wait();
 
-                l.Player.Character.Experience += (ulong)XP;
+                l.Player.Character.Experience += (long)XP;
             }
 
             foreach (var mob in _ccMonsters)

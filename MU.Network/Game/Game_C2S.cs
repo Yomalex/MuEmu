@@ -943,4 +943,21 @@ namespace MU.Network.Game
         [WZMember(1)] public byte InvenType { get; set; } // 4
         [WZMember(2)] public byte nPos { get; set; }	// 5
     }
+
+    [WZContract]
+    public class CPetCommand : IGameMessage
+    {
+        [WZMember(0)] public byte PetType { get; set; }   // 3
+        [WZMember(1)] public PetMode Command { get; set; }   // 4
+        [WZMember(2)] public ushort wzNumber { get; set; }   // 5
+
+        public ushort Number { get => wzNumber.ShufleEnding(); set => wzNumber = value.ShufleEnding(); }   // 5
+    };
+
+    [WZContract]
+    public class CInventoryEquipament : IGameMessage
+    {
+        [WZMember(0)] public byte btItemPos { get; set; }
+        [WZMember(1)] public byte btValue { get; set; }
+    }
 }

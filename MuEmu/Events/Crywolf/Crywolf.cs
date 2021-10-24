@@ -130,7 +130,7 @@ namespace MuEmu.Events.Crywolf
             { 3, 10000 },
             { 4, int.MaxValue },
         };
-        private List<ulong> _bonusExp = new List<ulong>
+        private List<long> _bonusExp = new List<long>
         {
             0,
             100000,
@@ -571,7 +571,7 @@ namespace MuEmu.Events.Crywolf
                 var exp = _bonusExp[rank];
 
                 if (_occupation == OccupationState.Fail)
-                    exp = (ulong)(exp * 0.1f);
+                    exp = (long)(exp * 0.1f);
 
                 var @char = plr.Player.Character;
                 @char.Experience += exp;

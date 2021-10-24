@@ -15,51 +15,6 @@ using MU.Resources;
 
 namespace MuEmu
 {
-    public enum ItemType : byte
-    {
-        Sword,
-        Axe,
-        Scepter,
-        Spear,
-        BowOrCrossbow,
-        Staff,
-        Shield,
-        Helm,
-        Armor,
-        Pant,
-        Gloves,
-        Boots,
-        Wing_Orb_Seed,
-        Missellaneo,
-        Potion,
-        Scroll,
-        End,
-
-        Invalid = 0xff
-    };
-    public enum SpecialNumber : ushort
-    {
-        AditionalDamage = 80,
-        AditionalMagic = 81,
-        SuccessFullBlocking = 82,
-        AditionalDefense = 83,
-        CriticalDamage = 84,
-        RecoverLife = 85,
-        ExcellentOption = 86,
-        AddLife = 100,
-        AddMana = 101,
-        AddStamina = 103,
-        AddLeaderShip = 105,
-        CurseDamage = 113,
-        AddMaxMana = 172,
-        AddMaxStamina = 173,
-        SetAttribute = 0xC3,
-        AddStrength = 196,
-        AddAgility = 197,
-        AddEnergy = 198,
-        AddVitality = 199,
-    }
-
     public class Item : ICloneable
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
@@ -75,20 +30,26 @@ namespace MuEmu
         private JewelOfHarmony _jewelOfHarmony = new JewelOfHarmony();
 
         public static Dictionary<int, Item> s_ItemDB = new Dictionary<int, Item>();
+        private byte petLevel;
+
         public Account Account { get; set; }
         public Character Character { get; set; }
-        public StorageID Storage {
+        public StorageID Storage
+        {
             get => _vid;
-            set {
+            set
+            {
                 if (_vid == value)
                     return;
                 _vid = value;
                 NeedSave = true;
             }
         }
-        public int SlotId {
+        public int SlotId
+        {
             get => _slot;
-            set {
+            set
+            {
                 if (_slot == value)
                     return;
                 _slot = value;
@@ -98,9 +59,10 @@ namespace MuEmu
         public bool IsZen => ItemNumber.Zen == Number;
 
         public ItemInfo BasicInfo { get; set; }
-        public ItemNumber Number { get;  set; }
+        public ItemNumber Number { get; set; }
         public long Serial { get; private set; }
-        public byte Plus {
+        public byte Plus
+        {
             get => _plus;
             set
             {
@@ -116,10 +78,12 @@ namespace MuEmu
         public bool Luck { get; set; }
         public bool Skill { get; set; }
         public Spell Spell { get; set; }
-        public byte Durability {
+        public byte Durability
+        {
             get =>
                 _durability;
-            set {
+            set
+            {
                 if (_durability == value)
                     return;
 
@@ -151,7 +115,8 @@ namespace MuEmu
         public uint SellPrice { get; set; }
         public int RepairPrice => RepairItemPrice();
         //public HarmonyOption Harmony { get; set; }
-        public SocketOption[] Slots {
+        public SocketOption[] Slots
+        {
             get => _slots;
             set
             {
@@ -161,7 +126,9 @@ namespace MuEmu
             }
         }
         public List<SpecialNumber> Special { get; set; } = new List<SpecialNumber>();
-        public JewelOfHarmony Harmony { get => _jewelOfHarmony;
+        public JewelOfHarmony Harmony
+        {
+            get => _jewelOfHarmony;
             set
             {
                 _jewelOfHarmony = value;
@@ -172,7 +139,7 @@ namespace MuEmu
 
         public bool IsPentagramItem => (Number.Type == ItemType.Wing_Orb_Seed && (Number.Index >= 200 && Number.Index <= 220));
         public bool IsPentagramJewel => (Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index >= 144 && Number.Index <= 145) || Number.Index == 148 || (Number.Index >= 221 && Number.Index <= 270)));
-        public Element PentagramaMainAttribute { get => (Element)(BonusSocket&0x0f); set => BonusSocket = (byte)(((byte)value) | (BonusSocket&0xF0)); }
+        public Element PentagramaMainAttribute { get => (Element)(BonusSocket & 0x0f); set => BonusSocket = (byte)(((byte)value) | (BonusSocket & 0xF0)); }
         public long[] PentagramJewels { get; set; } = new long[5];
 
         public int WingType => ((ushort)Number) switch
@@ -251,11 +218,11 @@ namespace MuEmu
 
         // Weapon Excellent Effects
         public float ExcellentDmgRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.ExcellentDmgRate) != 0 ? 0.1f : 0.0f) : 0.0f;
-        public int IncreaseWizardry => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardry) != 0 ? (Character?.Level??0)/20 : 0) : 0;
+        public int IncreaseWizardry => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardry) != 0 ? (Character?.Level ?? 0) / 20 : 0) : 0;
         public float IncreaseWizardryRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseWizardryRate) != 0 ? 0.2f : 0) : 0;
-        public float IncreaseLifeRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseLifeRate) != 0 ? 1.0f/8.0f : 0) : 0;
-        public float IncreaseManaRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseManaRate) != 0 ? 1.0f/8.0f : 0) : 0;
-        
+        public float IncreaseLifeRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseLifeRate) != 0 ? 1.0f / 8.0f : 0) : 0;
+        public float IncreaseManaRate => Number.Type <= ItemType.Shield ? ((((ExcellentOptionWeapons)OptionExe) & ExcellentOptionWeapons.IncreaseManaRate) != 0 ? 1.0f / 8.0f : 0) : 0;
+
         // Armor Excellent Effects
         public float IncreaseZenRate => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.IncreaseZen) != 0 ? 0.4f : 0.0f) : 0.0f;
         public float DefenseSuccessRate => Number.Type > ItemType.Shield && Number.Type <= ItemType.Boots ? ((((ExcellentOptionArmor)OptionExe) & ExcellentOptionArmor.DefenseSuccessRate) != 0 ? 0.1f : 0.0f) : 0.0f;
@@ -270,8 +237,23 @@ namespace MuEmu
         public int Defense { get; private set; }
         public int DefenseRate { get; private set; }
         public int MagicDefense { get; private set; }
-        public int PetEXP { get; internal set; }
-        public byte PetLevel { get; internal set; }
+        public long PetEXP { get; internal set; }
+        public long PetNextEXP => GetExperienceFromLevel(PetLevel+1);
+        public byte PetLevel { 
+            get => petLevel;
+            internal set
+            {
+                petLevel = value;
+                if (Character == null)
+                    return;
+
+                AttackMin = petLevel * 15 + Character.CommandTotal / 8 + 180;
+                AttackMax = petLevel * 15 + Character.CommandTotal / 4 + 200;
+                AttackSpeed = petLevel * 4 / 5 + Character.CommandTotal / 50 + 20;
+            }
+        }
+
+        public int AttackSpeed { get; internal set; }
 
         public static Item Zen(uint BuyPrice)
         {
@@ -315,7 +297,7 @@ namespace MuEmu
             Serial = dto.ItemId;
             Skill = dto.Skill;
             Number = dto.Number;
-            _plus= dto.Plus;
+            _plus = dto.Plus;
             Luck = dto.Luck;
             _option = dto.Option;
             OptionExe = dto.OptionExe;
@@ -323,12 +305,12 @@ namespace MuEmu
             _vid = (StorageID)dto.VaultId;
             BonusSocket = dto.SocketBonus;
             PetEXP = dto.PetEXP;
-            PetLevel = dto.PetLevel;
 
             if (string.IsNullOrEmpty(dto.SocketOptions))
             {
                 _slots = Array.Empty<SocketOption>();
-            }else
+            }
+            else
             {
                 var tmp = dto.SocketOptions.Split(",");
                 _slots = tmp.Select(x => Enum.Parse<SocketOption>(x)).ToArray();
@@ -346,16 +328,73 @@ namespace MuEmu
             GetValue();
             CalcItemAttributes();
             NeedSave = false;
-            if(_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
+            if (_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
             {
                 Number = BasicInfo.OnMaxStack;
                 OnItemChange();
             }
+            PetLevel = dto.PetLevel;
+        }
+
+        internal void AddExperience(int gain)
+        {
+            byte type = 0;
+            if (PetEXP < GetExperienceFromLevel(71))
+                switch (Number)
+                {
+                    case 6660: //Dark Horse
+                        PetEXP += gain;
+                        type = 1;
+                        break;
+                    case 6661: //Dark Raven
+                        PetEXP += gain;
+                        break;
+                }
+            else
+                PetEXP = GetExperienceFromLevel(71);
+
+            if (PetEXP < 0)
+                PetEXP = 0;
+
+            var levelUp = false;
+            while (PetEXP > PetNextEXP && PetLevel < 70)
+            {
+                PetLevel++;
+                levelUp = true;
+                NeedSave = true;
+            }
+
+            if (levelUp)
+                _ = Character.Player.Session.SendAsync(new SPetInfo
+                {
+                    Dur = Durability,
+                    Exp = (int)PetEXP,
+                    InvenType = 0xFE,
+                    Level = PetLevel,
+                    nPos = (byte)SlotId,
+                    PetType = type,
+                });
+            else {
+                _ = Character.Player.Session.SendAsync(new SPetInfo
+                {
+                    Dur = Durability,
+                    Exp = (int)PetEXP,
+                    InvenType = 0,
+                    Level = PetLevel,
+                    nPos = (byte)SlotId,
+                    PetType = type,
+                });
+            }
+        }
+
+        internal long GetExperienceFromLevel(int level)
+        {
+            return ((long)100) * (level + 10) * level * level * level;
         }
 
         public byte[] GetBytes()
         {
-            using (var ms = new MemoryStream(7+5))
+            using (var ms = new MemoryStream(7 + 5))
             {
                 ms.WriteByte((byte)(Number & 0xff));
 
@@ -387,7 +426,7 @@ namespace MuEmu
                     ms.WriteByte(SetOption); // Acient Option
 
                     byte itemPeriod = 0;
-                    if(ExpireTime != DateTime.MinValue)
+                    if (ExpireTime != DateTime.MinValue)
                     {
                         itemPeriod |= 0x01;
                         itemPeriod |= (byte)((DateTime.Now > ExpireTime) ? 0x02 : 0x00);
@@ -450,7 +489,7 @@ namespace MuEmu
             else
             {
                 var Gold = 0;
-                var level2 = BasicInfo.Level + Plus*3;
+                var level2 = BasicInfo.Level + Plus * 3;
 
                 if (((byte)ExcellentOptionArmor.FullItem & OptionExe) != 0)
                 {
@@ -565,7 +604,7 @@ namespace MuEmu
                         Gold = 900;
                         break;
                     case 14 * 512 + 21: // Rena
-                        switch(Plus)
+                        switch (Plus)
                         {
                             case 0:
                                 Gold = 9000;
@@ -588,7 +627,7 @@ namespace MuEmu
                         Gold = 1000;
                         break;
                     case 13 * 512 + 18: // Invisibility Cloak
-                        Gold = 200000 + (Plus > 1 ? 20000 * (Plus-1) : -150000);
+                        Gold = 200000 + (Plus > 1 ? 20000 * (Plus - 1) : -150000);
                         break;
                     case 13 * 512 + 16: // Blood and Paper of BloodCastle
                     case 13 * 512 + 17:
@@ -717,7 +756,7 @@ namespace MuEmu
                     case 14 * 512 + 86: // Cherry Blossom Dumpling
                     case 14 * 512 + 87: // Cherry Blossom Petal
                     case 14 * 512 + 90: // White Cherry Blossom
-                        Gold = Durability*300;
+                        Gold = Durability * 300;
                         break;
                     case 14 * 512 + 110: // 
                         Gold = Durability * 30000;
@@ -726,7 +765,7 @@ namespace MuEmu
                         Gold = 600000;
                         break;
                     default:
-                        if((Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index > 6 && Number.Index < 36)) 
+                        if ((Number.Type == ItemType.Wing_Orb_Seed && ((Number.Index > 6 && Number.Index < 36))
                             || (Number.Index > 43 && Number.Index < 440))
                             || Number.Type == ItemType.Missellaneo || Number.Type == ItemType.Scroll)
                         {
@@ -747,7 +786,7 @@ namespace MuEmu
                             case 13: level2 += 245; break;
                         }
 
-                        if(Number.Type == ItemType.Wing_Orb_Seed && Number.Index <= 6) // Wings
+                        if (Number.Type == ItemType.Wing_Orb_Seed && Number.Index <= 6) // Wings
                         {
                             Gold = (level2 + 40) * level2 * level2 * 11 + 40000000;
                             break;
@@ -767,17 +806,17 @@ namespace MuEmu
 
                         Gold = ((level2 + 40) * level2 * level2 / 8 + 100);
 
-                        if(Number.Type >= ItemType.Sword && Number.Type <= ItemType.Shield)
+                        if (Number.Type >= ItemType.Sword && Number.Type <= ItemType.Shield)
                         {
-                            if(BasicInfo.Size.Width == 1)
+                            if (BasicInfo.Size.Width == 1)
                             {
                                 Gold = Gold * 80 / 100;
                             }
                         }
 
-                        foreach(var sp in Special)
+                        foreach (var sp in Special)
                         {
-                            switch(sp)
+                            switch (sp)
                             {
                                 case (SpecialNumber)18:
                                 case (SpecialNumber)19:
@@ -787,7 +826,7 @@ namespace MuEmu
                                 case (SpecialNumber)23:
                                 case (SpecialNumber)24:
                                 case (SpecialNumber)56:
-                                    Gold = (int)(Gold*1.5f);
+                                    Gold = (int)(Gold * 1.5f);
                                     break;
                                 case SpecialNumber.AditionalDamage:
                                 case SpecialNumber.AditionalMagic:
@@ -850,18 +889,18 @@ namespace MuEmu
                         break;
                 }
 
-                if(BasicInfo.Zen > 0)
+                if (BasicInfo.Zen > 0)
                 {
                     Gold += (BasicInfo.Zen * BasicInfo.Zen * 10) / 12;
 
-                    if(Number >= 14 * 512 + 0 && Number <= 14 * 512 + 8)
+                    if (Number >= 14 * 512 + 0 && Number <= 14 * 512 + 8)
                     {
-                        if((int)Number == 14 * 512 + 3 || (int)Number == 14 * 512 + 6)
+                        if ((int)Number == 14 * 512 + 3 || (int)Number == 14 * 512 + 6)
                         {
                             Gold *= 2;
                         }
 
-                        if(Plus > 0)
+                        if (Plus > 0)
                         {
                             Gold *= Plus * Plus; ;
                         }
@@ -914,7 +953,7 @@ namespace MuEmu
                 log = Logger.ForAccount(Character.Player.Session);
 
             var _db = db.Items.Find(Serial);
-            if(_db == null)
+            if (_db == null)
                 _db = new ItemDto();
 
             _db.AccountId = Account.ID;
@@ -923,7 +962,7 @@ namespace MuEmu
                 _db.CharacterId = Character.Id;
             else
                 _db.CharacterId = 0;
-            
+
             _db.VaultId = (int)_vid;
             _db.SlotId = _slot;
             _db.Number = Number;
@@ -995,7 +1034,7 @@ namespace MuEmu
             switch (Harmony.Type)
             {
                 case 1:
-                    switch(Harmony.Option)
+                    switch (Harmony.Option)
                     {
                         case 3: //DECREASE_REQUIRE_STR
                             ReqStrength -= Harmony.EffectValue;
@@ -1025,7 +1064,8 @@ namespace MuEmu
                 if (Spell == Spell.ForceWave)
                 {
                     Special.Add(0);
-                }else
+                }
+                else
                 {
                     Special.Add((SpecialNumber)Spell);
                 }
@@ -1248,7 +1288,7 @@ namespace MuEmu
 
         public override string ToString()
         {
-            return $"[{Serial}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "") + (PentagramaMainAttribute != Element.None ? " ("+PentagramaMainAttribute.ToString()+")" : "");
+            return $"[{Serial}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "") + (PentagramaMainAttribute != Element.None ? " (" + PentagramaMainAttribute.ToString() + ")" : "");
         }
 
         private int RepairItemPrice()
@@ -1291,12 +1331,13 @@ namespace MuEmu
         private byte GetDurabilityBase()
         {
             var dur = BasicInfo.Durability + BasicInfo.MagicDur;
-            if(Plus < 5)
+            if (Plus < 5)
             {
                 dur += Plus;
-            }else
+            }
+            else
             {
-                switch(Plus)
+                switch (Plus)
                 {
                     case 10:
                         dur += Plus * 2 - 3;
@@ -1342,7 +1383,7 @@ namespace MuEmu
             if (BasicInfo.Level == 0xffff || BasicInfo.Level == 0)
                 return 0xff;
 
-            if(Number.Type == ItemType.Potion)
+            if (Number.Type == ItemType.Potion)
             {
                 itemlevel = BasicInfo.Level;
 
@@ -1429,14 +1470,14 @@ namespace MuEmu
 
         public int NormalWeaponDurabilityDown(int Defense)
         {
-            if(Durability == 0)
+            if (Durability == 0)
             {
                 return 0;
             }
 
             var div = BasicInfo.Damage.X * 1.5f;
 
-            if(div == 0)
+            if (div == 0)
             {
                 return 0;
             }
@@ -1444,7 +1485,7 @@ namespace MuEmu
             var DurDecrease = Defense * 2 / div;
 
             _durabilityDown += DurDecrease;
-            if(_durabilityDown > 564)
+            if (_durabilityDown > 564)
             {
                 _durabilityDown = 0;
                 if (Durability > 0)
@@ -1584,10 +1625,11 @@ namespace MuEmu
         public byte Overlap(byte count)
         {
             byte left = 0;
-            if(_durability+count<= BasicInfo.MaxStack)
+            if (_durability + count <= BasicInfo.MaxStack)
             {
                 _durability += count;
-            }else
+            }
+            else
             {
                 _durability = BasicInfo.MaxStack;
                 left = (byte)(count + _durability - BasicInfo.MaxStack);
@@ -1603,7 +1645,7 @@ namespace MuEmu
         }
         public void Overlap(Item item)
         {
-            if(item.Number != Number || item.Plus != Plus || _durability >= BasicInfo.MaxStack)
+            if (item.Number != Number || item.Plus != Plus || _durability >= BasicInfo.MaxStack)
                 throw new Exception($"Item {item} to {this} Can't be stacked {item.Number != Number} {item.Plus != Plus} {_durability >= BasicInfo.MaxStack}");
 
             item.Durability = Overlap(item.Durability);

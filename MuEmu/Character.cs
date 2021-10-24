@@ -20,6 +20,7 @@ using WebZen.Util;
 using MU.Resources;
 using MU.Network;
 using MuEmu.Network.GameServices;
+using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -61,7 +62,7 @@ namespace MuEmu
         private float _bpMax;
         private float _bpAdd;
         private Point _position;
-        private ulong _exp;
+        private long _exp;
         private ushort _str;
         private ushort _strAdd;
         private ushort _agi;
@@ -381,13 +382,14 @@ namespace MuEmu
         public event EventHandler CharacterRegen;
 
         // Experience
-        public ulong Experience { get => _exp;
+        public long Experience { get => _exp;
             set
             {
                 if (value == _exp)
                     return;
 
-                MasterLevel.GetExperience(value - _exp);
+                var gain = ((long)value - (long)_exp);
+                MasterLevel.GetExperience(gain);
 
                 _exp = value;
 
@@ -397,11 +399,24 @@ namespace MuEmu
                 if (_exp < BaseExperience)
                     _exp = BaseExperience;
 
+                if (BaseClass == HeroClass.DarkLord)
+                {
+                    var darkRaven = Inventory.Get(Equipament.LeftHand);
+                    var darkHorse = Mount;//Inventory.Get(Equipament.Pet);
+
+                    gain /= 5;
+                    if (darkRaven?.Number == 6661 && darkHorse?.Number == 6660)
+                        gain /= 2;
+
+                    darkRaven?.AddExperience((int)gain);
+                    darkHorse?.AddExperience((int)gain);
+                }
+
                 _needSave = true;
             }
         }
-        public ulong BaseExperience => GetExperienceFromLevel((ushort)(Level - 1));
-        public ulong NextExperience => GetExperienceFromLevel(Level);
+        public long BaseExperience => GetExperienceFromLevel((ushort)(Level - 1));
+        public long NextExperience => GetExperienceFromLevel(Level);
 
         #region Stats
         // Points
@@ -614,6 +629,107 @@ namespace MuEmu
         public DateTimeOffset RegenTime { get; private set; }
         public byte ClientClass => GetClientClass(Class);
 
+        public PetMode PetMode { get; set; }
+        public ushort PetTarget { get; set; }
+        public DateTime PetLastAttack { get; set; }
+        public Item Mount { get; set; }
+
+        internal void AttackPet(ushort targetNumber)
+        {
+            var pet = Inventory.Get(Equipament.LeftHand);
+            //var rh = Inventory.Get(Equipament.RightHand);
+            var attack = Program.RandomProvider(pet.AttackMax, pet.AttackMin);
+
+            if (MonstersMng.MonsterStartIndex < targetNumber)
+            {
+                var mob = MonstersMng.Instance.GetMonster(targetNumber);
+                if (MissCheck(mob))
+                {
+                    return;
+                }
+
+                //attack -= mob.Defense;
+                mob.GetAttackedDelayed(Player, attack, DamageType.Regular, TimeSpan.FromMilliseconds(600));
+                mob.Life -= attack;
+            }
+            else
+            {
+
+            }
+
+            var msg = new SPetAttack
+            {
+                Number = Player.ID,
+                TargetNumber = targetNumber,
+                PetType = 0,
+                SkillType = 1,
+            };
+
+            _=Player.Session.SendAsync(msg);
+            SendV2Message(msg);
+        }
+        public void UpdatePetIA()
+        {
+            if (BaseClass != HeroClass.DarkLord)
+                return;
+
+            if (Map.GetAttributes(Position).Contains(MapAttributes.Safe))
+                return;
+
+            var pet = Inventory.Get(Equipament.LeftHand);
+
+            if (pet == null || PetLastAttack > DateTime.Now)
+                return;
+
+            int sleep = 1500 - pet.AttackSpeed * 10;
+            PetLastAttack = DateTime.Now.AddMilliseconds(sleep);
+
+            switch (PetMode)
+            {
+                case PetMode.AttackRandom:
+                    if(PetTarget == 0xffff)
+                    {
+                        var mob = (from m in Map.Monsters
+                                   where m.Position.Substract(Position).LengthSquared() < 6 && m.State == ObjectState.Live && m.Type == ObjectType.Monster
+                                   orderby m.Position.Substract(Position).LengthSquared()
+                                   select m).FirstOrDefault();
+
+                        if (mob != null)
+                        {
+                            PetTarget = mob.Index;
+                        }
+                    }
+                    if(PetTarget != 0xffff)
+                    {
+                        var mob = MonstersMng.Instance.GetMonster(PetTarget);
+                        if(mob.State != ObjectState.Live)
+                        {
+                            PetTarget = 0xffff;
+                            return;
+                        }
+
+                        AttackPet(PetTarget);
+                    }
+                    break;
+                case PetMode.AttackWithMaster:
+                case PetMode.AttackTarget:
+                    if (PetTarget != 0xffff)
+                    {
+                        var mob = MonstersMng.Instance.GetMonster(PetTarget);
+                        if (mob.State != ObjectState.Live)
+                        {
+                            PetTarget = 0xffff;
+                            return;
+                        }
+                        else
+                        {
+                            AttackPet(PetTarget);
+                        }
+                    }
+                    break;
+            }
+        }
+
         public static byte GetClientClass(HeroClass dbClass)
         {
             var @class = (int)dbClass;
@@ -670,7 +786,7 @@ namespace MuEmu
             Map.AddPlayer(this);
             Map.SetAttribute(_position.X, _position.Y, MapAttributes.Stand);
 
-            _exp = (ulong)characterDto.Experience;
+            _exp = characterDto.Experience;
             _str = characterDto.Str;
             _agi = characterDto.Agility;
             _vit = characterDto.Vitality;
@@ -681,7 +797,7 @@ namespace MuEmu
             CalcStats();
 
             Shield = _sdMax;
-            Health = characterDto.Life;
+            Health = Math.Max(characterDto.Life, MaxHealth * 0.1f);
             Stamina = _bpMax / 2;
             Mana = characterDto.Mana;
             _zen = characterDto.Money;
@@ -908,7 +1024,7 @@ namespace MuEmu
             }
 
             var expReduced = Experience * EXPPenalty;
-            Experience -= (ulong)expReduced;
+            Experience -= (long)expReduced;
         }
         #endregion
         public void CalcStats()
@@ -1095,9 +1211,9 @@ namespace MuEmu
                 MagicSpeed = (uint)_attackSpeed / 2,
             }).Wait();
         }
-        private ulong GetExperienceFromLevel(ushort level)
+        private long GetExperienceFromLevel(ushort level)
         {
-            return (((level + 9ul) * level) * level) * 10ul + ((level > 255) ? ((((ulong)(level - 255) + 9ul) * (level - 255ul)) * (level - 255ul)) * 1000ul : 0ul);
+            return (((level + 9l) * level) * level) * 10l + ((level > 255) ? ((((long)(level - 255) + 9l) * (level - 255l)) * (level - 255l)) * 1000l : 0l);
         }
 
         public void TryRegen()
@@ -1299,10 +1415,14 @@ namespace MuEmu
             var excellentRate = Inventory.ExcellentRate*100;
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
+            if(PetMode == PetMode.AttackWithMaster)
+            {
+                PetTarget = target.Index;
+            }
 
             var attack = 0.0f;
 
-            if(!MissCheck(target))
+            if(MissCheck(target))
             {
                 type = DamageType.Miss;
                 return 0;
@@ -1345,42 +1465,53 @@ namespace MuEmu
             return (int)attack;
         }
 
+        /// <summary>
+        /// Check if can attack a target
+        /// </summary>
+        /// <param name="target">Monster</param>
+        /// <returns>false if can attack</returns>
         private bool MissCheck(Monster target)
         {
             if (AttackRatePvM < target.Info.Success)
             {
                 if (_rand.Next(100) >= 5)
                 {
-                    return false;
+                    return true;
                 }
             }
             else
             {
                 if (_rand.Next(AttackRatePvM) < target.Info.Success)
                 {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
+
+        /// <summary>
+        /// Check if can attack a target
+        /// </summary>
+        /// <param name="target">Character</param>
+        /// <returns>false if can attack</returns>
         private bool MissCheck(Character target)
         {
             if (AttackRatePvP < target.DefenseRatePvP)
             {
                 if (_rand.Next(100) >= 5)
                 {
-                    return false;
+                    return true;
                 }
             }
             else
             {
                 if (_rand.Next(AttackRatePvP) < target.DefenseRatePvP)
                 {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         public async Task GetAttacked(ushort source, byte dirdis, byte aa, int dmg, DamageType type, Spell isMagic, int eDmg)

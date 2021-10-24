@@ -307,6 +307,10 @@ namespace MU.Network.Game
 
             Register<CPetInfo>(GameOpCode.PetInfo);
             Register<SPetInfo>(GameOpCode.PetInfo);
+            Register<CPetCommand>(GameOpCode.PetCommand);
+            Register<SPetAttack>(GameOpCode.PetAttack);
+            Register<CInventoryEquipament>(GameOpCode.InventoryEquipament);
+            Register<SEquipamentChange>(GameOpCode.EquipamentChange);
 
             Register<SExpEventInfo>(GameOpCode.ExpEventInfo);
         }

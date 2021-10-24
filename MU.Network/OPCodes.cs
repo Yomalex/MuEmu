@@ -214,6 +214,10 @@ namespace MU.Network
         MuunItemRideSelect = 0x114E,
         MuunItemExchange = 0x134E,
         MuunRideViewPort = 0x144E,
+        PetCommand = 0xFFA7,
+        PetAttack = 0xFFA8,
+        InventoryEquipament = 0x20BF,
+        EquipamentChange = 0xFF25,
     }
 
     public enum GensOpCode

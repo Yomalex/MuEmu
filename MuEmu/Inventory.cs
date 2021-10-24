@@ -1194,6 +1194,11 @@ namespace MuEmu
                 }
             }
 
+            if(inv.Character != null && inv.Character.Mount != null)
+            {
+                CharSet[12] |= 0x01;
+            }
+
             CharSet[6] = (byte)((SmallLevel >> 16) & 0xff);
             CharSet[7] = (byte)((SmallLevel >>  8) & 0xff);
             CharSet[8] = (byte)(SmallLevel & 0xff);
