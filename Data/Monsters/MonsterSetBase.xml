@@ -140,6 +140,36 @@
   <NPC Type="651" Map="LorenMarket" Radio="0" PosX="108" PosY="134" Dir="1">//Little Santa Pink</NPC>
   <NPC Type="651" Map="LorenMarket" Radio="0" PosX="138" PosY="143" Dir="1">//Little Santa Pink</NPC>
   <NPC Type="669" Map="LorenMarket" Radio="0" PosX="113" PosY="132" Dir="1">//Little Santa Pink</NPC>
+
+  <NPC Type="216" Map="ValleyofLoren" Radio="0" PosX="176" PosY="212" Dir="1">//Crown</NPC>
+  <NPC Type="217" Map="ValleyofLoren" Radio="0" PosX="165" PosY="192" Dir="7">//Crown Switch 1</NPC>
+  <NPC Type="218" Map="ValleyofLoren" Radio="0" PosX="187" PosY="192" Dir="7">//Crown Switch 2</NPC>
+  <NPC Type="220" Map="ValleyofLoren" Radio="0" PosX="139" PosY="101" Dir="3">//Guard</NPC>
+  <NPC Type="223" Map="ValleyofLoren" Radio="0" PosX="179" PosY="214" Dir="1">//Senior</NPC>
+  <NPC Type="224" Map="ValleyofLoren" Radio="0" PosX="86" PosY="61" Dir="1">//Guardsman</NPC>
+  <NPC Type="224" Map="ValleyofLoren" Radio="0" PosX="99" PosY="61" Dir="1">//Guardsman</NPC>
+  <NPC Type="376" Map="ValleyofLoren" Radio="0" PosX="89" PosY="218" Dir="3">//Drink Seller 2</NPC>
+  <NPC Type="377" Map="ValleyofLoren" Radio="0" PosX="90" PosY="44" Dir="1">//Drink Seller 1</NPC>
+  
+  <NPC Type="283" Map="ValleyofLoren" Radio="0" PosX="94" PosY="227" Dir="1">//Guardian Statue</NPC>
+  <NPC Type="283" Map="ValleyofLoren" Radio="0" PosX="94" PosY="182" Dir="1">//Guardian Statue</NPC>
+  <NPC Type="283" Map="ValleyofLoren" Radio="0" PosX="82" PosY="130" Dir="1">//Guardian Statue</NPC>
+  <NPC Type="283" Map="ValleyofLoren" Radio="0" PosX="82" PosY="130" Dir="1">//Guardian Statue</NPC>
+
+  <NPC Type="277" Map="ValleyofLoren" Radio="0" PosX="93" PosY="204" Dir="1">//Castle Gate</NPC>
+  <NPC Type="277" Map="ValleyofLoren" Radio="0" PosX="81" PosY="161" Dir="1">//Castle Gate</NPC>
+  <NPC Type="277" Map="ValleyofLoren" Radio="0" PosX="107" PosY="161" Dir="1">//Castle Gate</NPC>
+  <NPC Type="277" Map="ValleyofLoren" Radio="0" PosX="67" PosY="114" Dir="1">//Castle Gate</NPC>
+  <NPC Type="277" Map="ValleyofLoren" Radio="0" PosX="93" PosY="114" Dir="1">//Castle Gate</NPC>
+  <NPC Type="277" Map="ValleyofLoren" Radio="0" PosX="119" PosY="114" Dir="1">//Castle Gate</NPC>
+
+  <NPC Type="288" Map="ValleyofLoren" Radio="0" PosX="75" PosY="130" Dir="1">//Canon Tower</NPC>
+
+  <NPC Type="215" Map="ValleyofLoren" Radio="0" PosX="94" PosY="242" Dir="1">//Shield</NPC>
+  
+  <NPC Type="222" Map="ValleyofLoren" Radio="0" PosX="80" PosY="188" Dir="1">//Slingshot Defense</NPC>
+  <NPC Type="222" Map="ValleyofLoren" Radio="0" PosX="105" PosY="188" Dir="1">//Slingshot Defense</NPC>
+
   <Spot Type="413" Map="Lorencia" Radio="30" PosX="180" PosY="111" PosX2="190" PosY2="121" Dir="-1" Quant="10">//RabbiT<Element>None</Element></Spot>
   <Spot Type="413" Map="Noria" Radio="30" PosX="158" PosY="75" PosX2="168" PosY2="85" Dir="-1" Quant="10">//RabbiT<Element>None</Element></Spot>
   <Spot Type="413" Map="Davias" Radio="30" PosX="161" PosY="41" PosX2="171" PosY2="51" Dir="-1" Quant="10">//RabbiT<Element>None</Element></Spot>

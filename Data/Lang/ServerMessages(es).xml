@@ -67,4 +67,6 @@
   <Message ID="IV_CantMove" Message="No se puede mover" />
   <Message ID="IVEX_PentagramTradeLimit" Message="[Pentagrama] No se puede tradear mas" />
   <Message ID="IV_DBSaveDeletingItem" Message="Borrando {0} Items" />
+  <Message ID="CS_LastNotify" Message="Siege Warfare will start in {0} minute(s)." />
+  <Message ID="CS_Notify" Message="Siege Warfare is being waged!" />
 </ServerMessage>

@@ -120,6 +120,10 @@ namespace MuEmu.Resources.Map
 
         public event EventHandler PlayerJoins;
         public event EventHandler PlayerLeaves;
+
+        /// <summary>
+        /// On Monster added to map Invoke event with sender as monster
+        /// </summary>
         public event EventHandler MonsterAdd;
         
         public MapInfo(int map, string attFile)

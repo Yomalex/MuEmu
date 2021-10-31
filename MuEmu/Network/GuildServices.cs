@@ -1,5 +1,8 @@
-﻿using MU.Network.Guild;
+﻿using MU.Network.Game;
+using MU.Network.Guild;
 using MU.Resources;
+using MuEmu.Events.CastleSiege;
+using MuEmu.Resources;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -8,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Handlers;
+using WebZen.Util;
 
 namespace MuEmu.Network
 {
@@ -36,14 +40,16 @@ namespace MuEmu.Network
                 return;
             }
 
-            session.SendAsync(new SGuildAnsViewport
+            var msg = new SGuildAnsViewport
             {
                 GuildName = guild.Name,
-                UnionName = "",
+                UnionName = guild.Union.FirstOrDefault()?.Name ?? "",
                 btGuildType = 0,
                 GuildNumber = guild.Index,
                 Mark = guild.Mark,
-            });
+            };
+
+            _=session.SendAsync(msg);
         }
 
         // 0xC1 0x52
@@ -211,6 +217,160 @@ namespace MuEmu.Network
 
             guild.Remove(memb);
             await session.SendAsync(new SGuildRemoveUser(GuildResult.Success));
+        }
+
+
+        // 0xC1 E5
+        [MessageHandler(typeof(CRelationShipJoinBreakOff))]
+        public async Task CRelationShipJoinBreakOff(GSSession session, CRelationShipJoinBreakOff message)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+
+            if (siege.State >= SiegeStates.Notify && siege.State <= SiegeStates.StartSiege)
+            {
+                //MsgOutput(aIndex, Lang.GetText(0, 197));
+                await session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Guild_RelationShipCantChange)));
+                return;
+            }
+
+            Character src, dst;
+
+            src = session.Player.Character;
+            if(message.TargetUserIndex == 0)
+            {
+                dst = GuildManager.Instance.Guilds.FirstOrDefault(x => x.Value.Name == message.Guild).Value.Master?.Player?.Character??null;
+            }
+            else
+            {
+                dst = Program.server.Clients.FirstOrDefault(x => x.ID == message.TargetUserIndex)?.Player?.Character ?? null;
+            }
+
+            if(dst == null)
+            {
+                await session.SendAsync(new SGuildResult(GuildResult.PlayerOffline));
+                return;
+            }
+
+            if (src.Guild == null || dst.Guild == null)
+            {
+                await session.SendAsync(new SGuildResult(GuildResult.HaveGuild));
+                return;
+            }
+
+            if (src.Guild.Master.Player != src.Player || dst.Guild.Master.Player != dst.Player)
+            {
+                await session.SendAsync(new SGuildResult(GuildResult.NotGuildMaster));
+                return;
+            }
+
+            if (src.Player.Window != null || dst.Player.Window != null)
+            {
+                await session.SendAsync(new SGuildResult(GuildResult.InTransaction));
+                return;
+            }
+
+            var errmsg = new SRelationShipJoinBreakOff
+            {
+                RequestType = message.RequestType,
+                Result = 0,
+                RelationShipType = message.RelationShipType,
+                wzTargetUserIndex = message.wzTargetUserIndex,
+            };
+
+            switch (message.RequestType)
+            {
+                case GuildUnionRequestType.Join:
+                    switch(message.RelationShipType)
+                    {
+                        case GuildRelationShipType.Union:
+                            break;
+                        case GuildRelationShipType.Rivals:
+                            break;
+                    }
+                    break;
+                case GuildUnionRequestType.BreakOff:
+                    switch (message.RelationShipType)
+                    {
+                        case GuildRelationShipType.Union:
+                            break;
+                        case GuildRelationShipType.Rivals:
+                            break;
+                    }
+                    break;
+            }
+
+            message.wzTargetUserIndex = ((ushort)session.ID).ShufleEnding();
+            await dst.Player.Session.SendAsync(message);
+        }
+
+        // 0xC1 E6
+        [MessageHandler(typeof(SRelationShipJoinBreakOff))]
+        public async Task SRelationShipJoinBreakOff(GSSession session, SRelationShipJoinBreakOff message)
+        {
+            var src = session.Player.Character;
+            Character dst = null;
+
+            if (message.wzTargetUserIndex.ShufleEnding() != session.Player.ID)
+                dst = Program.server.Clients.First(x => x.ID == message.wzTargetUserIndex.ShufleEnding()).Player.Character;
+            else if (message.RelationShipType == GuildRelationShipType.Union)
+                dst = src.Guild.Union.First().Master.Player?.Character ?? null;
+            else if(message.RelationShipType == GuildRelationShipType.Rivals)
+                dst = src.Guild.Rival.First().Master.Player?.Character ?? null;
+
+            if (message.Result == 1)
+            {
+                if (dst != null)
+                    src.Guild.ChangeRelation(dst.Guild, message.RequestType, message.RelationShipType);
+                else if (message.RelationShipType == GuildRelationShipType.Union)
+                    src.Guild.ChangeRelation(src.Guild.Union.First(), message.RequestType, message.RelationShipType);
+                else if (message.RelationShipType == GuildRelationShipType.Rivals)
+                    src.Guild.ChangeRelation(src.Guild.Rival.First(), message.RequestType, message.RelationShipType);
+
+                message.wzTargetUserIndex = dst.Player.ID.ShufleEnding();
+                _= src.Player.Session.SendAsync(message);
+
+                if (dst != null)
+                {
+                    message.wzTargetUserIndex = src.Player.ID.ShufleEnding();
+                    _ = dst.Player.Session.SendAsync(message);
+                    CGuildReqViewport(dst.Player.Session, new MU.Network.Guild.CGuildReqViewport { Guild = dst.Guild.Index });
+                    CGuildReqViewport(dst.Player.Session, new MU.Network.Guild.CGuildReqViewport { Guild = src.Guild.Index });
+                }
+                CGuildReqViewport(src.Player.Session, new MU.Network.Guild.CGuildReqViewport { Guild = dst.Guild.Index });
+                CGuildReqViewport(src.Player.Session, new MU.Network.Guild.CGuildReqViewport { Guild = src.Guild.Index });
+
+                Logger.Information("Relation Changed, {0} now have {1} to {2} as {3}",
+                    dst.Guild.Name,
+                    message.RequestType,
+                    src.Guild.Name,
+                    message.RelationShipType);
+            }
+            else
+            {
+                message.wzTargetUserIndex = src.Player.ID.ShufleEnding();
+                await dst.Player.Session.SendAsync(message);
+            }
+        }
+
+        // 0xC1 E9
+        [MessageHandler(typeof(CUnionList))]
+        public async Task CUnionList(GSSession session)
+        {
+            var guild = session.Player.Character.Guild;
+            var list = guild.Union.Select((x,i) => new UnionListDto
+            {
+                GuildName = x.Name,
+                Mark = x.Mark,
+                MemberNum = (byte)x.Members.Count
+            }).ToArray();
+            await session.SendAsync(new SUnionList
+            {
+                List = list,
+                Count = (byte)list.Count(),
+                Result = 1,
+                RivalMemberNum = 0,
+                UnionMemberNum = 0,
+            });
         }
     }
 }

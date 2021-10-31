@@ -4,6 +4,16 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum GuildUnionRequestType : byte
+    {
+        Join = 1,
+        BreakOff,
+    }
+    public enum GuildRelationShipType : byte
+    {
+        Union = 1,
+        Rivals,
+    }
     public enum ItemType : byte
     {
         Sword,
@@ -199,6 +209,12 @@ namespace MU.Resources
         IVEX_PentagramTradeLimit,
         IV_DBSaveDeletingItem,
         RCache_Loading_ItemBags,
+        CS_RegisteNotify,
+        CS_RegisteMarkNotify,
+        CS_Idle3,
+        CS_Notify,
+        CS_LastNotify,
+        Guild_RelationShipCantChange,
     }
     public enum Spell : ushort
     {
@@ -873,6 +889,9 @@ namespace MU.Resources
         ServerDivision,
         Talk,
         Gens,
+        CastleSiege,
+        CastleSiegeCrown,
+        CastleSiegeCrownSwitch,
     }
 
     public enum NPCWindow : byte
@@ -976,15 +995,15 @@ namespace MU.Resources
         SwellMana,
         PotionBless,
         PotionSoul,
-        ss12,
-        SS13,
-        SS14,
-        SS15,
-        SS16,
-        SS17,
+        MagicCancel,
+        CastleSiegeDoorState,
+        CastelSiegeDefenseMark,
+        CastleSiegeAttackOne,
+        CastleSiegeAttackTwo,
+        CastleSiegeAttackTree,
         Transparency,
-        SS19,
-        SS20,
+        CastleSiegeDarkLord,
+        CastleSiegeCrownState,
         AltarCanContract,
         AltarCantContract,
         AltarValidContract,
@@ -996,8 +1015,8 @@ namespace MU.Resources
         SealAscencion,
         SealWealth,
         SealSustance,
-        SS32,
-        SS33,
+        IllusionQuickness,
+        IllusionSublimation,
         IllusionProtection,
         HAttackSpeed,
         HAttackPower,
@@ -1030,11 +1049,11 @@ namespace MU.Resources
         SS63,
         SS64,
         IllusionOorderOfBondage,
-        SS66,
-        SS67,
-        SS68,
-        SS69,
-        SS70,
+        CrywolfStatueLevel1,
+        CrywolfStatueLevel2,
+        CrywolfStatueLevel3,
+        CrywolfStatueLevel4,
+        CrywolfStatueLevel5,
         SkillDamageDeflection,
         SkillSleep,
         SkillBlindness,

@@ -19,6 +19,8 @@ namespace MuEmu.Util
 
         public TimeSpan TimeLeft => _nextStateIn - DateTimeOffset.Now;
         public TimeSpan Time => DateTimeOffset.Now - _currentState;
+        public DateTimeOffset Start => _currentState;
+        public DateTimeOffset End => _nextStateIn;
 
         public abstract void Initialize();
 

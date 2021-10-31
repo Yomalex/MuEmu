@@ -12,6 +12,8 @@ using MU.Network.Game;
 using MuEmu.Util;
 using MuEmu.Monsters;
 using MU.Resources;
+using WebZen.Util;
+using MU.Network;
 
 namespace MuEmu
 {
@@ -31,6 +33,24 @@ namespace MuEmu
                 {
                     //guild.MembersInfo = game.GuildMembers.Where(x => x.GuildId == guild.GuildId).ToList();
                     Guilds.Add(guild.GuildId, new Guild(guild));
+                }
+                // Solve references
+                foreach(var guild in game.Guilds.ToList())
+                {
+                    if (guild.AllianceId != null)
+                    {
+                        var masterAlliance = Guilds[(int)guild.AllianceId];
+                        masterAlliance.Union.Add(Guilds[guild.GuildId]);
+                        Guilds[guild.GuildId].Union = masterAlliance.Union;
+                    }
+                    for(var i =0; i < 5; i++)
+                    {
+                        var r = guild.Get("Rival" + (i + 1)) as int?;
+                        if (r != null)
+                        {
+                            Guilds[guild.GuildId].Rival.Add(Guilds[(int)r]);
+                        }
+                    }
                 }
             }
         }
@@ -57,7 +77,7 @@ namespace MuEmu
 
             if (Instance.Guilds.Any( x => x.Value.Name.ToLower() == name.ToLower()))
             {
-                master.Session.SendAsync(new SGuildCreateResult { Result = 0, GuildType = Type });
+                _=master.Session.SendAsync(new SGuildCreateResult { Result = 0, GuildType = Type });
                 Logger.Error("Guild name in use:{0} Master:{1}", name, master.Character.Name);
                 return;
             }
@@ -127,21 +147,8 @@ namespace MuEmu
 
             if (guild == null)
             {
-                switch (Program.Season)
-                {
-                    case ServerSeason.Season9Eng:
-                        pMsg = new SGuildListS9
-                        {
-                            Result = 0,
-                        };
-                        break;
-                    default:
-                        pMsg = new SGuildList
-                        {
-                            Result = 0,
-                        };
-                        break;
-                }
+                pMsg = VersionSelector.CreateMessage<SGuildList>((byte)0);
+                
                 Logger.Error("NO GUILD");
                 plr.Session.SendAsync(pMsg).Wait();
                 return;
@@ -156,30 +163,17 @@ namespace MuEmu
                 ConnectAServer = (byte)(guild.ActiveMembers.Any(y => y.Name == x.Name)?0x80:0x00),
                 Number = (byte)i,
                 btGuildStatus = x.Rank,
-            }).ToArray();
+            });
 
-            switch (Program.Season)
-            {
-                case ServerSeason.Season9Eng:
-                    pMsg = new SGuildListS9
-                    {
-                        Result = 1,
-                        Members = members,
-                        Count = (byte)members.Length,
-                    };
-                    break;
-                default:
-                    pMsg = new SGuildList
-                    {
-                        Result = 1,
-                        Members = members,
-                        Count = (byte)members.Length,
-                    };
-                    break;
-            }
-
+            pMsg = VersionSelector.CreateMessage<SGuildList>((byte)1, guild.Score, guild.TotalScore, members.ToList(), guild.Rival.Select(x => x.Name).ToList());
+            
             plr.Session.SendAsync(pMsg).Wait();
             Logger.Debug("Player List:{0}", string.Join(", ", guild.Members.Select(x => x.Name)));
+        }
+
+        internal static Guild Get(string v)
+        {
+            return Instance.Guilds.First(x => x.Value.Name == v).Value;
         }
     }
 
@@ -193,8 +187,8 @@ namespace MuEmu
         public byte[] Mark { get; private set; }
         public byte Type { get; private set; }
 
-        public Guild Union { get; set; }
-        public Guild Rival { get; set; }
+        public List<Guild> Union { get; set; } = new List<Guild>();
+        public List<Guild> Rival { get; set; } = new List<Guild>();
 
         public GuildMember Master => Members.First(x => x.Rank == GuildStatus.GuildMaster);
         public GuildMember Assistant => Members.FirstOrDefault(x => x.Rank == GuildStatus.Assistant);
@@ -202,6 +196,10 @@ namespace MuEmu
         public List<GuildMember> Members { get; set; }
 
         public List<GuildMember> ActiveMembers => Members.Where(x => x.Player != null).ToList();
+
+        public byte Score { get; internal set; }
+        public int TotalScore { get; internal set; }
+        public bool IsUnionMaster => (Union.Count > 1) && (Union[0] == this);
 
         public Guild(string name, byte[] mark, byte type)
         {
@@ -211,7 +209,7 @@ namespace MuEmu
 
             using (var game = new GameContext())
             {
-                var guild = new MU.DataBase.GuildDto
+                var guild = new GuildDto
                 {
                     Name = name,
                     Mark = mark,
@@ -231,6 +229,7 @@ namespace MuEmu
             Mark = guildDto.Mark;
             Members = guildDto.MembersInfo.Select(x => new GuildMember(this, x.Memb.Name, (GuildStatus)x.Rank)).ToList();
             Type = guildDto.GuildType;
+            
         }
 
         public GuildMember Add(Player plr, GuildStatus rank)
@@ -298,10 +297,10 @@ namespace MuEmu
 
         public GuildRelation GetRelation(Guild guild)
         {
-            if (Union == guild)
+            if (Union.Contains(guild))
                 return GuildRelation.Union;
 
-            if (Rival == guild)
+            if (Rival.Contains(guild))
                 return GuildRelation.Rival;
 
             return GuildRelation.None;
@@ -321,6 +320,77 @@ namespace MuEmu
             }
 
             return max > Members.Count();
+        }
+
+        internal void ChangeRelation(Guild guild, GuildUnionRequestType requestType, GuildRelationShipType relationShipType)
+        {
+            switch(requestType)
+            {
+                case GuildUnionRequestType.Join:
+                    switch(relationShipType)
+                    {
+                        case GuildRelationShipType.Union:
+                            if (Union.Count == 0)
+                                Union.Add(this);
+
+                            Union.Add(guild);
+                            guild.Union = Union;
+                            break;
+                        case GuildRelationShipType.Rivals:
+                            Rival.Add(guild);
+                            guild.Rival.Add(this);
+                            break;
+                    }
+                    break;
+                case GuildUnionRequestType.BreakOff:
+                    switch (relationShipType)
+                    {
+                        case GuildRelationShipType.Union:
+                            if (this == guild)
+                            {
+                                Union[0].ChangeRelation(this, requestType, relationShipType);
+                                return;
+                            }
+                            Union.Remove(guild);
+                            if (Union.Count == 1)
+                            {
+                                Union.Remove(this);
+                            }
+
+                            guild.Union = new List<Guild>();
+                            break;
+                        case GuildRelationShipType.Rivals:
+                            Rival.Remove(guild);
+                            guild.Rival.Remove(this);
+                            break;
+                    }
+                    break;
+            }
+
+            using (var game = new GameContext())
+            {
+                var guildDtoA = (from g in game.Guilds
+                                 where g.GuildId == Index
+                                 select g).Single();
+
+                var guildDtoB = (from g in game.Guilds
+                                 where g.GuildId == guild.Index
+                                 select g).Single();
+
+                guildDtoA.AllianceId = Union.FirstOrDefault()?.Index ?? null;
+                guildDtoB.AllianceId = Union.FirstOrDefault()?.Index ?? null;
+                for(var i = 0; i < 5; i++)
+                {
+                    var rivA = Rival.Count > i ? (int?)Rival[i].Index : null;
+                    var rivB = guild.Rival.Count > i ? (int?)guild.Rival[i].Index : null;
+                    guildDtoA.Set("Rival" + (i + 1), rivA);
+                    guildDtoB.Set("Rival" + (i + 1), rivB);
+                }
+
+                game.Update(guildDtoA);
+                game.Update(guildDtoB);
+                game.SaveChanges();
+            }
         }
     }
 

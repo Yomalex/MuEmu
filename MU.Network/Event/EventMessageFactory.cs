@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Network.CastleSiege;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Network;
@@ -89,6 +90,27 @@ namespace MU.Network.Event
             Register<SEventItemThrow>(EventOpCode.EventItemThrow);
 
             Register<SEventInventory>(EventOpCode.EventInventory);
+
+            //CastleSiege
+            Register<SLeftTimeAlarm>(EventOpCode.CastleSiegeLeftTimeAlarm);
+            Register<CSiegeState>(EventOpCode.CastleSiegeState);
+            Register<SSiegeState>(EventOpCode.CastleSiegeState);
+            Register<CGuildRegisteInfo>(EventOpCode.CastleSiegeGuildInfo);
+            Register<SGuildRegisteInfo>(EventOpCode.CastleSiegeGuildInfo);
+            Register<CGuildMarkOfCastleOwner>(EventOpCode.CastleSiegeGuildMarkOfOwner);
+            Register<SGuildMarkOfCastleOwner>(EventOpCode.CastleSiegeGuildMarkOfOwner);
+            Register<CGuildRegiste>(EventOpCode.CastleSiegeRegiste);
+            Register<SGuildRegiste>(EventOpCode.CastleSiegeRegiste);
+            Register<CSiegeGuildList>(EventOpCode.CastleSiegeGuildList);
+            Register<SSiegeGuildList>(EventOpCode.CastleSiegeGuildList);
+            Register<CSiegeRegisteMark>(EventOpCode.CastleSiegeRegisteMark);
+            Register<SSiegeRegisteMark>(EventOpCode.CastleSiegeRegisteMark);
+            Register<SJoinSideNotify>(EventOpCode.CastleSiegejoinSide);
+            Register<SCastleSiegeNotifyStart>(EventOpCode.CastleSiegeNotifyStart);
+            Register<SCastleSiegeNotifySwitch>(EventOpCode.CastleSiegeSwitchNotify);
+            Register<SCastleSiegeMinimapData>(EventOpCode.CastleSiegeMinimap);
+            Register<SCastleSiegeNotifySwitchInfo>(EventOpCode.CastleSiegeNotifySwitchInfo);
+            Register<SCastleSiegeNotifyCrownState>(EventOpCode.CastleSiegeCrownState);
         }
     }
 }

@@ -241,6 +241,9 @@ namespace MU.Network
         GuildViewPort = 0xFF65,
         GuildReqViewport = 0xFF66,
         GuildSetStatus = 0xFFE1,
+        GuildRelationShip = 0xFFE5,
+        GuildRelationShipAns = 0xFFE6,
+        GuildUnionList = 0xFFE9,
     }
 
     public enum EventOpCode
@@ -290,6 +293,19 @@ namespace MU.Network
         EventItemGet = 0x004D,
         EventItemThrow = 0x014D,
         EventInventory = 0x024D,
+        CastleSiegeLeftTimeAlarm = 0x1EB2,
+        CastleSiegeState = 0x00B2,
+        CastleSiegeRegiste = 0x01B2,
+        CastleSiegeGuildInfo = 0x03B2,
+        CastleSiegeRegisteMark = 0x04B2,
+        CastleSiegeSwitchNotify = 0x14B2,
+        CastleSiegeCrownState = 0x16B2,
+        CastleSiegeNotifyStart = 0x17B2,
+        CastleSiegejoinSide = 0x19B2,
+        CastleSiegeNotifySwitchInfo = 0x20B2,
+        CastleSiegeGuildMarkOfOwner = 0x02B9,
+        CastleSiegeGuildList = 0xFFB4,
+        CastleSiegeMinimap = 0xFFB6,
     }
     public enum CashOpCode : ushort
     {

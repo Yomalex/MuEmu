@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
 using WebZen.Util;
+using System.Linq;
 
 namespace MU.Network.Guild
 {
@@ -59,8 +60,7 @@ namespace MU.Network.Guild
         [WZMember(2)] public ushort Padding { get; set; } // 6, 7
         [WZMember(3)] public int TotalScore { get; set; } // 8, 9, A, B
         [WZMember(4)] public byte Score { get; set; } // C
-        [WZMember(5,9)] public byte[] szRivalGuild { get; set; }	// D
-
+        [WZMember(0, typeof(BinaryStringSerializer), 8)] public string RivalGuild { get; set; }	// D
         [WZMember(6)] public ushort Padding2 { get; set; }
 
         [WZMember(7, SerializerType = typeof(ArraySerializer))]
@@ -69,8 +69,32 @@ namespace MU.Network.Guild
         public SGuildList()
         {
             Members = Array.Empty<GuildListDto>();
-            szRivalGuild = Array.Empty<byte>();
+            RivalGuild = "";
         }
+
+        public SGuildList(byte result)
+        {
+            Result = result;
+            Members = Array.Empty<GuildListDto>();
+            RivalGuild = "";
+        }
+
+        public SGuildList(byte result, byte score, int totalScore, List<GuildListDto> members, List<string> rivals)
+        {
+            Result = result;
+            Score = score;
+            TotalScore = totalScore;
+            Members = members.ToArray();
+            Count = (byte)Members.Length;
+
+            RivalGuild = rivals.FirstOrDefault();
+        }
+    }
+
+    [WZContract]
+    public class GuildRivalDto
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 8)] public string RivalGuild { get; set; }
     }
 
     [WZContract(LongMessage = true)]
@@ -81,11 +105,11 @@ namespace MU.Network.Guild
         [WZMember(2)] public ushort Padding { get; set; } // 6, 7
         [WZMember(3)] public int TotalScore { get; set; } // 8, 9, A, B
         [WZMember(4)] public byte Score { get; set; } // C
-        [WZMember(5, typeof(BinaryStringSerializer), 8)] public string RivalGuild1 { get; set; }	// D
-        [WZMember(6, typeof(BinaryStringSerializer), 8)] public string RivalGuild2 { get; set; }	// D
-        [WZMember(7, typeof(BinaryStringSerializer), 8)] public string RivalGuild3 { get; set; }	// D
-        [WZMember(8, typeof(BinaryStringSerializer), 8)] public string RivalGuild4 { get; set; }	// D
-        [WZMember(9, typeof(BinaryStringSerializer), 8)] public string RivalGuild5 { get; set; }	// D
+        [WZMember(5, typeof(ArraySerializer))] public GuildRivalDto[] Rivals { get; set; }	// D
+        //[WZMember(6, typeof(BinaryStringSerializer), 8)] public string RivalGuild2 { get; set; }	// D
+        //[WZMember(7, typeof(BinaryStringSerializer), 8)] public string RivalGuild3 { get; set; }	// D
+        //[WZMember(8, typeof(BinaryStringSerializer), 8)] public string RivalGuild4 { get; set; }	// D
+        //[WZMember(9, typeof(BinaryStringSerializer), 8)] public string RivalGuild5 { get; set; }	// D
         [WZMember(10)] public ushort Padding2 { get; set; }
         [WZMember(11)] public byte Padding3 { get; set; }
 
@@ -95,6 +119,42 @@ namespace MU.Network.Guild
         public SGuildListS9()
         {
             Members = Array.Empty<GuildListDto>();
+            Rivals = new GuildRivalDto[] {
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+            };
+        }
+
+        public SGuildListS9(byte result)
+        {
+            Result = result;
+            Members = Array.Empty<GuildListDto>();
+            Rivals = new GuildRivalDto[] {
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+                new GuildRivalDto { RivalGuild = "" },
+            };
+        }
+
+        public SGuildListS9(byte result, byte score, int totalScore, List<GuildListDto> members, List<string> rivals)
+        {
+            Result = result;
+            Score = score;
+            TotalScore = totalScore;
+            Members = members.ToArray();
+            Count = (byte)Members.Length;
+
+            var riv = rivals.ToList();
+
+            while (riv.Count < 5)
+                riv.Add("");
+
+            Rivals = riv.Select(x => new GuildRivalDto { RivalGuild = x }).ToArray();
         }
     }
 
@@ -139,4 +199,31 @@ namespace MU.Network.Guild
             Result = res;
         }
     }
+
+    [WZContract]
+    public class SRelationShipJoinBreakOff : IGuildMessage
+    {
+        [WZMember(0)] public GuildRelationShipType RelationShipType { get; set; }    // 3
+        [WZMember(1)] public GuildUnionRequestType RequestType { get; set; } // 4
+        [WZMember(2)] public byte Result { get; set; } // 4
+        [WZMember(3)] public ushort wzTargetUserIndex { get; set; }    // 5-6
+    };
+
+    [WZContract]
+    public class UnionListDto
+    {
+        [WZMember(0)] public byte MemberNum { get; set; }   // 0
+        [WZMember(1, 32)] public byte[] Mark { get; set; }  // 1
+        [WZMember(2, typeof(BinaryStringSerializer), 8)] public string GuildName { get; set; }  // 21
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SUnionList : IGuildMessage
+    {
+        [WZMember(0)] public byte Count { get; set; }   // 4
+        [WZMember(1)] public byte Result { get; set; }  // 5
+        [WZMember(2)] public byte RivalMemberNum { get; set; }  // 6
+        [WZMember(3)] public byte UnionMemberNum { get; set; }	// 7
+        [WZMember(4, typeof(ArraySerializer))] public UnionListDto[] List { get; set; }
+    };
 }

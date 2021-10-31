@@ -30,6 +30,11 @@
   <NPC NPC="253" Type="Shop" Icon="Elixir" Data="1" />
   <NPC NPC="254" Type="Shop" Icon="Elixir" Data="17" />
   <NPC NPC="255" Type="Shop" Icon="Elixir" Data="12" />
+
+  <NPC NPC="224" Type="Window" Icon="Conversation" Data="13" />
+  <NPC NPC="216" Type="CastleSiegeCrown" Icon="Conversation" Data="0" />
+  <NPC NPC="217" Type="CastleSiegeCrownSwitch" Icon="Conversation" Data="0" />
+  <NPC NPC="218" Type="CastleSiegeCrownSwitch" Icon="Conversation" Data="0" />
   <!-- Jewel Mixer -->
   <NPC NPC="256" Type="Window" Icon="Conversation" Data="9" />
   <!-- Shadow Phantom -->

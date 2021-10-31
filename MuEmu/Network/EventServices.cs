@@ -1,7 +1,10 @@
-﻿using MU.Network.Event;
+﻿using MU.Network.CastleSiege;
+using MU.Network.Event;
 using MU.Network.Game;
 using MU.Resources;
+using MuEmu.Events;
 using MuEmu.Events.BloodCastle;
+using MuEmu.Events.CastleSiege;
 using MuEmu.Events.ChaosCastle;
 using MuEmu.Events.Crywolf;
 using MuEmu.Events.DevilSquare;
@@ -18,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebZen.Handlers;
+using WebZen.Util;
 
 namespace MuEmu.Network
 {
@@ -187,7 +191,7 @@ namespace MuEmu.Network
             DateTime end;
             byte result;
 
-            if(muRummy.CurrentState == Events.EventState.Playing)
+            if(muRummy.CurrentState == EventState.Playing)
             {
                 end = DateTime.UtcNow.Add(muRummy.TimeLeft);
                 result = 1;
@@ -278,6 +282,153 @@ namespace MuEmu.Network
                 _ = item.Drop(message.px, message.py);
                 inv.RemoveEvent(message.Ipos);
             }
+        }
+
+        [MessageHandler(typeof(CSiegeState))]
+        public async Task CSiegeState(GSSession session)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+
+            var msg = new SSiegeState
+            {
+                Result = 1,
+                CastleSiegeState = (byte)siege.State,
+                StartYear = ((ushort)siege.StateStart.Year).ShufleEnding(),
+                StartMonth = (byte)siege.StateStart.Month,
+                StartDay = (byte)siege.StateStart.Day,
+                StartHour = (byte)siege.StateStart.Hour,
+                StartMinute = (byte)siege.StateStart.Minute,
+                EndYear = ((ushort)siege.StateEnd.Year).ShufleEnding(),
+                EndMonth = (byte)siege.StateEnd.Month,
+                EndDay = (byte)siege.StateEnd.Day,
+                EndHour = (byte)siege.StateEnd.Hour,
+                EndMinute = (byte)siege.StateEnd.Minute,
+                SiegeStartYear = ((ushort)siege.SiegeExpectedPeriod.Year).ShufleEnding(),
+                SiegeStartMonth = (byte)siege.SiegeExpectedPeriod.Month,
+                SiegeStartDay = (byte)siege.SiegeExpectedPeriod.Day,
+                SiegeStartHour = (byte)siege.SiegeExpectedPeriod.Hour,
+                SiegeStartMinute = (byte)siege.SiegeExpectedPeriod.Minute,
+                StateLeftSec = siege.StageTimeLeft.ShufleEnding(),
+                OwnerGuild = siege.Owner?.Name??"",
+                OwnerGuildMaster = siege.Owner?.Master.Name??"",
+            };
+            await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CGuildRegisteInfo))]
+        public async Task CGuildRegisteInfo(GSSession session)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+
+            var rank = siege.AttackGuild.OrderByDescending(x => x.Marks).ToList();
+            var guildInfo = rank.FirstOrDefault(x => x.Guild == session.Player.Character.Guild);
+
+            var msg = new SGuildRegisteInfo
+            {
+                Result = 0,
+                GuildName = session.Player.Character.Guild?.Name??"",
+            };
+
+            if (guildInfo != null)
+            {
+                msg.Result = 1;
+                msg.RegRank = (byte)(rank.IndexOf(guildInfo)+1);
+                msg.IsGiveUp = (byte)(guildInfo.GiveUp ? 1 : 0);
+                msg.GuildMark = guildInfo.Marks;
+            }
+
+            await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CGuildMarkOfCastleOwner))]
+        public async Task CGuildMarkOfCastleOwner(GSSession session)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+            var msg = new SGuildMarkOfCastleOwner { Mark = new byte[32] };
+            Array.Fill(msg.Mark, (byte)0xcc);
+            if(siege.Owner != null)
+            {
+                msg.Mark = siege.Owner.Mark;
+            }
+            await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CGuildRegiste))]
+        public async Task CGuildRegiste(GSSession session)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+
+            if(siege.State != SiegeStates.RegisteSiege)
+            {
+                await session.SendAsync(new SGuildRegiste { Result = 7 });
+                return;
+            }
+
+            if (session.Player.Character.Guild == null)
+            {
+                await session.SendAsync(new SGuildRegiste { Result = 6 });
+                return;
+            }
+
+            if (!session.Player.Character.Guild.IsUnionMaster)
+            {
+                await session.SendAsync(new SGuildRegiste { Result = 0 });
+                return;
+            }
+
+            if (siege.Owner == session.Player.Character.Guild.Union[0])
+            {
+                await session.SendAsync(new SGuildRegiste { Result = 3 });
+                return;
+            }
+
+            siege.RegisteAttackGuild(session.Player);
+        }
+
+        [MessageHandler(typeof(CSiegeGuildList))]
+        public async Task CSiegeGuildList(GSSession session)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+
+            var list = siege
+                .AttackGuild
+                .OrderByDescending(x => x.Marks)
+                .Select((x, i) => new SiegueGuildDto { GuildName = x.Guild.Name, IsGiveUp = (byte)(x.GiveUp ? 1 : 0), SeqNum = (byte)(i+1), RegMarks = x.Marks})
+                .ToArray();
+
+            await session.SendAsync(new SSiegeGuildList { List = list, Result = 1 });
+        }
+
+        [MessageHandler(typeof(CSiegeRegisteMark))]
+        public async Task CSiegeRegisteMark(GSSession session, CSiegeRegisteMark message)
+        {
+            var siege = Program.EventManager.GetEvent<CastleSiege>();
+            var item = session.Player.Character.Inventory.FindAllItems(7189).Where(x => x.Plus == 3).FirstOrDefault();
+            var guild = session.Player.Character.Guild;
+
+            var msg = new SSiegeRegisteMark
+            {
+                Result = 3,
+                GuildName = guild?.Name??"",
+            };
+
+            if (siege.State != SiegeStates.RegisteMark || guild==null || item == null)
+            {
+                await session.SendAsync(msg);
+                return;
+            }
+
+            msg.Result = 1;
+            msg.GuildMark = siege.RegisteMark(guild, item.Durability);
+            if(msg.GuildMark == 0)
+            {
+                msg.Result = 0;
+            }
+            else
+            {
+                await session.Player.Character.Inventory.Delete((byte)item.SlotId);
+            }
+            await session.SendAsync(msg);
         }
     }
 }

@@ -13,5 +13,15 @@ namespace MuEmu.Util
             foreach(var client in array)
                 await client.SendAsync(message);
         }
+        public static async Task SendAsync(this IEnumerable<Player> array, object message)
+        {
+            foreach (var client in array)
+                await client.Session.SendAsync(message);
+        }
+        public static async Task SendAsync(this IEnumerable<Character> array, object message)
+        {
+            foreach (var client in array)
+                await client.Player.Session.SendAsync(message);
+        }
     }
 }

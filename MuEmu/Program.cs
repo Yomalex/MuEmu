@@ -55,6 +55,7 @@ using MuEmu.Events.WhiteWizard;
 using MuEmu.Network.GameServices;
 using MuEmu.Events.Event_Egg;
 using MuEmu.Events.Rummy;
+using MuEmu.Events.CastleSiege;
 
 namespace MuEmu
 {
@@ -68,6 +69,7 @@ namespace MuEmu
         public static string ConnectionString { get; set; }
         public static bool AutoRegistre { get; set; }
         public static ushort ServerCode { get; set; }
+        public static int ServerGroup => ServerCode / 20;
         //public static float Experience { get; set; }
         public static ExpManagement Experience { get; } = new ExpManagement();
         public static float Zen { get; set; }
@@ -193,6 +195,11 @@ namespace MuEmu
             {
                 ResourceCache.Initialize(".\\Data");
                 MasterLevel.Initialize();
+                GuildManager.Initialize();
+                PartyManager.Initialzie(xml.GamePlay.MaxPartyLevelDifference);
+                DuelSystem.Initialize();
+                CashShop.Initialize(xml.Client.CashShopVersion.Split(".").Select(x => ushort.Parse(x)).ToArray());
+                Pentagrama.Initialize();
                 // Event Config
                 EventConfig(xml);
                 MonstersMng.Initialize();
@@ -202,13 +209,8 @@ namespace MuEmu
 
                 MapServerManager.Initialize(xml.Files.MapServer);
                 MonstersMng.Instance.LoadSetBase(xml.Files.MonsterSetBase);
-                GuildManager.Initialize();
-                PartyManager.Initialzie(xml.GamePlay.MaxPartyLevelDifference);
-                DuelSystem.Initialize();
                 SubSystem.Initialize();
                 Marlon.Initialize();
-                CashShop.Initialize(xml.Client.CashShopVersion.Split(".").Select(x => ushort.Parse(x)).ToArray());
-                Pentagrama.Initialize();
             }
             catch(MySql.Data.MySqlClient.MySqlException ex)
             {
@@ -427,6 +429,7 @@ namespace MuEmu
                 .AddEvent(Events.Events.WhiteWizard, new WhiteWizard())
                 .AddEvent(Events.Events.EventEgg, new EventEgg())
                 .AddEvent(Events.Events.MuRummy, new MuRummy())
+                .AddEvent(Events.Events.CastleSiege, new CastleSiege())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
                 ;
             LuckyCoins.Initialize();

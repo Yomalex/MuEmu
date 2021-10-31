@@ -6,6 +6,7 @@ using MU.Resources;
 using MU.Resources.Game;
 using MuEmu.Entity;
 using MuEmu.Events.BloodCastle;
+using MuEmu.Events.CastleSiege;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events.EventChips;
 using MuEmu.Events.ImperialGuardian;
@@ -975,6 +976,21 @@ namespace MuEmu.Network.GameServices
                         break;
                     case NPCAttributeType.Gens:
                         @char.Gens.NPCTalk(npc.NPC);
+                        break;
+                    case NPCAttributeType.CastleSiege:
+                        Program.EventManager
+                            .GetEvent<CastleSiege>()
+                            .NPCTalk(session.Player);
+                        break;
+                    case NPCAttributeType.CastleSiegeCrown:
+                        Program.EventManager
+                            .GetEvent<CastleSiege>()
+                            .CrownTalk(session.Player);
+                        break;
+                    case NPCAttributeType.CastleSiegeCrownSwitch:
+                        Program.EventManager
+                            .GetEvent<CastleSiege>()
+                            .CrownSwitchTalk(obj, session.Player);
                         break;
                 }
             }

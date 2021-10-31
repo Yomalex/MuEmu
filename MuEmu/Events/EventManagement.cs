@@ -19,6 +19,7 @@ namespace MuEmu.Events
         WhiteWizard,
         EventEgg,
         MuRummy,
+        CastleSiege,
     }
     internal class EventInfo
     {

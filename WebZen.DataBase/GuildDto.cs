@@ -23,6 +23,16 @@ namespace MU.DataBase
 
         public virtual ICollection<GuildMemberDto> MembersInfo { get; set; }
 
+        public int? Rival1 { get; set; }
+
+        public int? Rival2 { get; set; }
+
+        public int? Rival3 { get; set; }
+
+        public int? Rival4 { get; set; }
+
+        public int? Rival5 { get; set; }
+
         //public List<CharacterDto> Characters { get; set; }
     }
 }

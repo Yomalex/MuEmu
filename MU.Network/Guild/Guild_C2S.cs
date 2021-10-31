@@ -59,10 +59,23 @@ namespace MU.Network.Guild
     [WZContract]
     public class CGuildRemoveUser : IGuildMessage
     {
-        [WZMember(0, 10)] public byte[] btName { get; set; }
-        [WZMember(1, 20)] public byte[] btJoominNumber { get; set; }
-
-        public string Name => btName.MakeString();
-        public string JoominNumber => btJoominNumber.MakeString();
+        [WZMember(0, typeof(BinaryStringSerializer), 10)] public string Name { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 20)] public string JoominNumber { get; set; }
     }
+
+    [WZContract]
+    public class CRelationShipJoinBreakOff : IGuildMessage
+    {
+        [WZMember(0)] public GuildRelationShipType RelationShipType { get; set; }    // 3
+        [WZMember(1)] public GuildUnionRequestType RequestType { get; set; } // 4
+        [WZMember(2)] public ushort wzTargetUserIndex { get; set; }    // 5-6
+        [WZMember(3)] public byte Padding { get; set; }
+        [WZMember(4, typeof(BinaryStringSerializer), 8)] public string Guild { get; set; }
+
+        public ushort TargetUserIndex { get => wzTargetUserIndex.ShufleEnding(); set => wzTargetUserIndex = value.ShufleEnding(); }
+    };
+
+    [WZContract]
+    public class CUnionList : IGuildMessage
+    { };
 }
