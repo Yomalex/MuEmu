@@ -685,6 +685,7 @@ namespace MuEmu
                 try
                 {
                     Program.EventManager.Update();
+                    Program.GlobalEventsManager.Update();
                     Thread.Sleep(1000);
                 }
                 catch(Exception e)

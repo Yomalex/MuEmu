@@ -33,8 +33,11 @@ namespace MuEmu.Game
             get => experienceRate;
             set
             {
-                experienceRate = value;
-                SendExpInfo();
+                if (value != experienceRate)
+                {
+                    experienceRate = value;
+                    SendExpInfo();
+                }
             }
         }
         public float GoldChannel

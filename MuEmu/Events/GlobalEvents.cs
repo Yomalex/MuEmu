@@ -1,4 +1,5 @@
 ﻿using MU.Resources;
+using MuEmu.Resources;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -16,8 +17,9 @@ namespace MuEmu.Events
 
         public GlobalEvents AddEvent(string name, GlobalEvent ev)
         {
-            Logger.Information("Added event: {0}, Active: {1} - Item Drop Per: {2}", name, ev.Active, ev.Rate);
+            Logger.Information(ServerMessages.GetMessage(Messages.GE_AddEvent), name, ev.Active, ev.Rate);
             _events.Add(name, ev);
+            ev.Name = name;
             return this;
         }
 
@@ -29,7 +31,7 @@ namespace MuEmu.Events
                 if (ret == null)
                     continue;
 
-                Logger.Information("Event iten drop for event: {0} - Map:{1} - Item:{2}", ev.Key, map, ret);
+                Logger.Information(ServerMessages.GetMessage(Messages.GE_GetItem), ev.Key, map, ret);
 
                 return ret;
             }
@@ -40,12 +42,20 @@ namespace MuEmu.Events
                 if (ret == null)
                     continue;
 
-                Logger.Information("Event iten drop for event: {0} - Map:{1} - Item:{2}", ev.GetType(), map, ret);
+                Logger.Information(ServerMessages.GetMessage(Messages.GE_GetItem), ev.GetType(), map, ret);
 
                 return ret;
             }
 
             return null;
         }
+
+        public void Update()
+        {
+            _events.Values.ToList().ForEach(x => x.Update());
+            Program.Experience.ExperienceRate = (float)ExpAdd;
+        }
+
+        public double ExpAdd => _events.Values.Where(x => x.Active).Sum(x => x.ExpAdd);
     }
 }

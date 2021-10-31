@@ -4,6 +4,14 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum GERepeatType
+    {
+        None,
+        Annually,
+        Monthly,
+        Weekly,
+        Daily,
+    }
     public enum GuildUnionRequestType : byte
     {
         Join = 1,
@@ -215,6 +223,8 @@ namespace MU.Resources
         CS_Notify,
         CS_LastNotify,
         Guild_RelationShipCantChange,
+        GE_AddEvent,
+        GE_GetItem,
     }
     public enum Spell : ushort
     {
