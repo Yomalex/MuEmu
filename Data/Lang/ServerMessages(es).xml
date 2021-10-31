@@ -69,4 +69,6 @@
   <Message ID="IV_DBSaveDeletingItem" Message="Borrando {0} Items" />
   <Message ID="CS_LastNotify" Message="Siege Warfare will start in {0} minute(s)." />
   <Message ID="CS_Notify" Message="Siege Warfare is being waged!" />
+  <Message ID="GE_AddEvent" Message="Added event: {0}, Active: {1} - Item Drop Per: {2}" />
+  <Message ID="GE_GetItem" Message="Event item drop for event: {0} - Map:{1} - Item:{2}" />
 </ServerMessage>

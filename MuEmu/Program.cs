@@ -321,7 +321,14 @@ namespace MuEmu
             foreach(var e in xml.Events)
             {
                 var ev = new GlobalEvent(GlobalEventsManager)
-                { Active = e.active, Rate = e.rate };
+                { 
+                    Active = e.active, 
+                    Rate = e.rate,
+                    Duration = TimeSpan.FromSeconds(e.duration),
+                    Start = DateTime.Parse(e.start),
+                    RepeatType = e.repeat,
+                    ExpAdd = e.experienceAdd
+                };
 
                 foreach (var c in e.Conditions)
                     ev.AddRange(new Item((ItemNumber)c.item, Options: new { Plus = c.itemLevel }), c.mobMinLevel, c.mobMaxLevel, c.map);

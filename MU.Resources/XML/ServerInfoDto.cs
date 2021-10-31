@@ -76,6 +76,10 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public byte rate { get; set; }
         [XmlAttribute] public bool active { get; set; }
         [XmlElement("Condition")] public EConditionDto[] Conditions { get; set; }
+        [XmlAttribute] public double duration { get; set; } = 315360000;
+        [XmlAttribute] public string start { get; set; } = "00:00:00";
+        [XmlAttribute] public GERepeatType repeat { get; set; } = GERepeatType.None;
+        [XmlAttribute] public double experienceAdd { get; set; } = 0;
     }
 
     [XmlType(AnonymousType = true)]
