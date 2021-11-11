@@ -873,24 +873,24 @@ namespace MuEmu
         #region EventHandlers
         public async void HPorSDChanged(RefillInfo info)
         {
-            if (Party != null)
-                Party.LifeUpdate();
+            Party?.LifeUpdate();
 
             await Player.Session.SendAsync(new SHeatlUpdate(info, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
         {
-            if (Party != null)
-                Party.LifeUpdate();
+            Party?.LifeUpdate();
 
             await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
         }
         private async void MPorBPChanged(RefillInfo info)
         {
+            Party?.LifeUpdate();
             await Player.Session.SendAsync(new SManaUpdate(info, (ushort)_mp, (ushort)_bp));
         }
         private async void MPorBPMaxChanged()
         {
+            Party?.LifeUpdate();
             await Player.Session.SendAsync(new SManaUpdate(RefillInfo.MaxChanged, (ushort)MaxMana, (ushort)MaxStamina));
         }
         private async void OnLevelUp()
@@ -1745,10 +1745,10 @@ namespace MuEmu
         public async Task<int> PentagramAttack(Monster target)
         {
             var pItem = Inventory.Get(Equipament.Pentagrama);
-            if (pItem == null)
+            if (pItem == null || target.Type == ObjectType.NPC)
                 return 0;
 
-            var tpItem = target.Info.MainAttribute;
+            //var tpItem = target.Info.MainAttribute;
 
             var def = target.Info.PentagramDefense;
             var tElement = target.Element;

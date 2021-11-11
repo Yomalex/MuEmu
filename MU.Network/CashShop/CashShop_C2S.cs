@@ -20,6 +20,9 @@ namespace MU.Network.CashShop
 
         [WZMember(1)]
         public CSInventory InventoryType { get; set; }
+
+        [WZMember(2)]
+        public byte unk { get; set; }
     }
     [WZContract]
     public class CCashItemBuy : ICashMessage

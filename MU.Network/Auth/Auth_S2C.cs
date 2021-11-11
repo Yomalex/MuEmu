@@ -254,29 +254,17 @@ namespace MU.Network.Auth
     [WZContract]
     public class CharacterPreviewDto
     {
-        [WZMember(0)]
-        public byte ID { get; set; }
+        [WZMember(0)] public byte ID { get; set; }//0
 
-        [WZMember(1, 11)]
-        public byte[] btName { get; set; }
+        [WZMember(1, 11)] public byte[] btName { get; set; }//1
 
-        [WZMember(2)]
-        public ushort Level { get; set; }
+        [WZMember(2)] public ushort Level { get; set; }//C,D
 
-        [WZMember(3)]
-        public ControlCode ControlCode { get; set; }
+        [WZMember(3)] public ControlCode ControlCode { get; set; }//E
 
-        [WZMember(4, 18)]
-        public byte[] CharSet { get; set; }
+        [WZMember(4, 18)] public byte[] CharSet { get; set; }//F-20
 
-        [WZMember(5)]
-        public GuildStatus GuildStatus { get; set; }
-
-        [WZMember(6)]
-        public byte PKlevel { get; set; }
-
-        [WZMember(7)]
-        public byte unk { get; set; }
+        [WZMember(5)] public GuildStatus GuildStatus { get; set; }//21
 
         public CharacterPreviewDto() { }
 

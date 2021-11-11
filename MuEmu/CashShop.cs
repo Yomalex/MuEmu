@@ -154,7 +154,7 @@ namespace MuEmu
         {
             RootId = int.Parse(vs[0]);
             Name = vs[1];
-            sellType = Enum.Parse<SellType>(vs[2]);
+            Enum.TryParse(vs[2], out sellType);
             Amount = int.Parse(vs[3]);
             sellTypeDesc = vs[4];
             Coins = int.Parse(vs[5]);
@@ -171,7 +171,10 @@ namespace MuEmu
             Const9 = int.Parse(vs[16]);
         }
     }
+    class CashShopItem
+    {
 
+    }
 
     public class CashShop
     {
@@ -252,8 +255,7 @@ namespace MuEmu
             session.SendAsync(new SCashInit()).Wait();
             session.SendAsync(new SCashVersion { Ver1 = version[0], Ver2 = version[1], Ver3 = version[2] }).Wait();
             session.SendAsync(new SCashBanner { Ver1 = 583, Ver2 = 2014, Ver3 = 001 }).Wait();
-
-            session.SendAsync(VersionSelector.CreateMessage<SCashPoints>()).Wait();
+            session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_wCoinC, _wCoinP, _goblinPoints)).Wait();
 
             _player = session.Player;
             log = Logger.ForAccount(session);
@@ -261,15 +263,7 @@ namespace MuEmu
 
         public void SendPoints()
         {
-            _player.Session.SendAsync(new SCashPointsS9
-            {
-                ViewType = 0,
-                Cash_C = _wCoinC,
-                Cash_P = _wCoinP,
-                GoblinPoint = _goblinPoints,
-                TotalCash = _wCoinC,
-                TotalPoint = _wCoinP + _goblinPoints,
-            }).Wait();
+            _player.Session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_wCoinC, _wCoinP, _goblinPoints)).Wait();
         }
 
         public async void SendInventory(CCashInventoryItem message)
@@ -288,25 +282,29 @@ namespace MuEmu
                 TotalItemCount = (ushort)_items.Count,
             });
 
-            await _player.Session.SendAsync(new SCashItemList
+            var items = _items.Select(x => new SCashItemDto
+            {
+                InventoryType = message.InventoryType,
+                AuthCode = 1,
+                GiftName = "",
+                Message = "",
+                UniqueCode = 2,
+                UniqueID1 = 3,
+                UniqueID2 = 4,
+                UniqueID3 = 5,
+            }).ToArray();
+
+            var msg = new SCashItemList
             {
                 aIndex = _player.ID,
                 AccountID = _player.Account.Nickname,
                 InvType = message.InventoryType,
                 InvNum = (byte)id,
                 Result = 1,
-                Items = _items.Select(x => new SCashItemDto
-                {
-                    InventoryType = message.InventoryType,
-                    AuthCode = 1,
-                    GiftName = "",
-                    Message = "",
-                    UniqueCode = 2,
-                    UniqueID1 = 3,
-                    UniqueID2 = 4,
-                    UniqueID3 = 5,
-                }).ToArray()
-            });
+                Items = items
+            };
+            Logger.Debug("Sending list from {0}", message.InventoryType);
+            await _player.Session.SendAsync(msg);
         }
 
         public async void BuyItem(CCashItemBuy message)
@@ -340,14 +338,14 @@ namespace MuEmu
                 case CoinType.GPoints:
                     if(_goblinPoints < neededCoins)
                     {
-                        result = CSResult.InsuficientWCoint;
+                        //result = CSResult.InsuficientWCoint;
                         break;
                     }
                     break;
                 case CoinType.WCoin:
                     if (_wCoinC < neededCoins)
                     {
-                        result = CSResult.InsuficientWCoint;
+                        //result = CSResult.InsuficientWCoint;
                         break;
                     }
                     break;
@@ -360,10 +358,13 @@ namespace MuEmu
 
             if(package.DataTimeExpir < DateTime.Now)
             {
-                result = CSResult.ItemIsNotLongerAvailable;
+                //result = CSResult.ItemIsNotLongerAvailable;
             }
 
-
+            if(CSResult.Ok == result)
+            {
+                _storage.Add(new Item((ushort)product.ItemId));
+            }
 
             await _player.Session.SendAsync(new SCashItemBuy { Result = result });
             SendInventory(new CCashInventoryItem { Page = 0, InventoryType = 0 });

@@ -11,6 +11,15 @@ namespace MU.Network.CashShop
     {
         [WZMember(0)]
         public int CashPoints { get; set; }
+
+        public SCashPoints()
+        {
+
+        }
+        public SCashPoints(int wzCoinC, int wzCoinP, int goblinP)
+        {
+            CashPoints = wzCoinP;
+        }
     }
     [WZContract]
     public class SCashPointsS9 : ICashMessage
@@ -27,6 +36,21 @@ namespace MU.Network.CashShop
         public long TotalPoint { get; set; }
         [WZMember(5)]
         public long GoblinPoint { get; set; }
+
+        public SCashPointsS9()
+        {
+
+        }
+
+        public SCashPointsS9(int wzCoinC, int wzCoinP, int goblinP)
+        {
+            ViewType = 0;
+            TotalCash = wzCoinC;
+            TotalPoint = goblinP + wzCoinP;
+            GoblinPoint = goblinP;
+            Cash_C = wzCoinC;
+            Cash_P = wzCoinP;
+        }
     }
     [WZContract]
     public class SCashInit : ICashMessage
@@ -84,11 +108,11 @@ namespace MU.Network.CashShop
     public class SCashItemList : ICashMessage
     {
         [WZMember(0)] public ushort aIndex { get; set; }
-        [WZMember(0)] public CSInventory InvType { get; set; }
-        [WZMember(0)] public byte InvNum { get; set; }
-        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string AccountID{ get; set; }
-        [WZMember(0)] public int Result { get; set; }
-        [WZMember(0, typeof(ArrayWithScalarSerializer<int>))] public SCashItemDto[] Items { get; set; }
+        [WZMember(1)] public CSInventory InvType { get; set; }
+        [WZMember(2)] public byte InvNum { get; set; }
+        [WZMember(3, typeof(BinaryStringSerializer), 11)] public string AccountID{ get; set; }
+        [WZMember(4)] public int Result { get; set; }
+        [WZMember(5, typeof(ArrayWithScalarSerializer<int>))] public SCashItemDto[] Items { get; set; }
     }
 
     [WZContract]

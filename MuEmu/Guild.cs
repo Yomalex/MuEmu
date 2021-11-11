@@ -149,7 +149,6 @@ namespace MuEmu
             {
                 pMsg = VersionSelector.CreateMessage<SGuildList>((byte)0);
                 
-                Logger.Error("NO GUILD");
                 plr.Session.SendAsync(pMsg).Wait();
                 return;
             }
@@ -160,7 +159,7 @@ namespace MuEmu
                 .Select((x,i) => new GuildListDto
             {
                 Name = x.Name,
-                ConnectAServer = (byte)(guild.ActiveMembers.Any(y => y.Name == x.Name)?0x80:0x00),
+                ConnectAServer = (byte)(x.Server != 0xff?(0x80| x.Server): 0x00),
                 Number = (byte)i,
                 btGuildStatus = x.Rank,
             });
@@ -168,7 +167,6 @@ namespace MuEmu
             pMsg = VersionSelector.CreateMessage<SGuildList>((byte)1, guild.Score, guild.TotalScore, members.ToList(), guild.Rival.Select(x => x.Name).ToList());
             
             plr.Session.SendAsync(pMsg).Wait();
-            Logger.Debug("Player List:{0}", string.Join(", ", guild.Members.Select(x => x.Name)));
         }
 
         internal static Guild Get(string v)
@@ -195,7 +193,7 @@ namespace MuEmu
         public IEnumerable<GuildMember> BattleMasters => Members.Where(x => x.Rank == GuildStatus.BattleMaster);
         public List<GuildMember> Members { get; set; }
 
-        public List<GuildMember> ActiveMembers => Members.Where(x => x.Player != null).ToList();
+        public List<GuildMember> ActiveMembers => Members.Where(x => x.Server != 0xff).ToList();
 
         public byte Score { get; internal set; }
         public int TotalScore { get; internal set; }
@@ -227,7 +225,7 @@ namespace MuEmu
             Index = guildDto.GuildId;
             Name = guildDto.Name;
             Mark = guildDto.Mark;
-            Members = guildDto.MembersInfo.Select(x => new GuildMember(this, x.Memb.Name, (GuildStatus)x.Rank)).ToList();
+            Members = guildDto.MembersInfo.Select(x => new GuildMember(this, x.Memb.Name, (GuildStatus)x.Rank) { Server = 0xff }).ToList();
             Type = guildDto.GuildType;
             
         }
@@ -244,6 +242,7 @@ namespace MuEmu
                 memb.Player = plr;
             }
 
+            memb.Server = (byte)Program.ServerCode;
             plr.Character.Guild = this;
             memb.ViewPort();
 
@@ -260,11 +259,13 @@ namespace MuEmu
             var conMemb = Find(plr.Character.Name);
             conMemb.Player = plr;
             conMemb.ViewPort();
+            conMemb.Server = (byte)Program.ServerCode;
             plr.Character.Guild = this;
 
             var notice = new SNotice(NoticeType.Guild, $"Welcome back {plr.Character.Name}");
 
             ActiveMembers
+                .Where(x => x.Player != null)
                 .Select(x => x.Player.Session)
                 .SendAsync(notice)
                 .Wait();
@@ -401,6 +402,8 @@ namespace MuEmu
         public Player Player { get; set; }
 
         public string Name { get; }
+
+        public byte Server { get; set; }
 
         public GuildStatus Rank { get; private set; }
 

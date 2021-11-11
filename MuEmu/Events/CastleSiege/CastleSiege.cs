@@ -463,8 +463,6 @@ namespace MuEmu.Events.CastleSiege
         {
             _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(CastleSiegeState));
             subStates = new CastleSiegeState(this);
-            var guild = GuildManager.Get("MuEmu");
-            AttackGuild.Add(new AttackGuildInfo { Guild = guild });
         }
 
         public override void Initialize()

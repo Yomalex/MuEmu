@@ -18,7 +18,13 @@ namespace MuEmu.Network.ConnectServer
         {
             foreach(var c in Program.server.Clients.Where(x => x.Player != null && x.Player.Status == MU.Resources.LoginStatus.Playing))
             {
-                c.Player.Character.Friends.ConnectFriend(message.btName.MakeString(), message.Server);
+                var name = message.btName.MakeString();
+                c.Player.Character.Friends.ConnectFriend(name, message.Server);
+                var m = c.Player.Character.Guild?.Find(name)??null;
+                if(m != null && message.Server != Program.ServerCode)
+                {
+                    m.Server = message.Server;
+                }
             }
         }
 
@@ -29,7 +35,13 @@ namespace MuEmu.Network.ConnectServer
             {
                 foreach(var p in message.List)
                 {
-                    c.Player.Character?.Friends.DisconnectFriend(p.btName.MakeString());
+                    var name = p.btName.MakeString();
+                    c.Player.Character?.Friends.DisconnectFriend(name);
+                    var m = c.Player.Character.Guild?.Find(name)??null;
+                    if (m != null && message.Server != Program.ServerCode)
+                    {
+                        m.Server = 0xff;
+                    }
                 }                
             }
         }

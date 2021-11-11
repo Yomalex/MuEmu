@@ -96,8 +96,8 @@ namespace MU.Resources
 
     public enum CSInventory : byte
     {
-        Gift,
-        Storage,
+        Gift = 71,
+        Storage = 83,
     }
 
     // Only Supported versions added
