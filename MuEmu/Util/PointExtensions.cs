@@ -13,6 +13,12 @@ namespace MuEmu.Util
             var y = b.Y - a.Y;
             return new Point(x, y);
         }
+        public static Point Add(this Point a, Point b)
+        {
+            var x = b.X + a.X;
+            var y = b.Y + a.Y;
+            return new Point(x, y);
+        }
         public static int Length(this Point a)
         {
             return a.X*a.X + a.Y*a.Y;

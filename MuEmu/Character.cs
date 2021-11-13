@@ -633,6 +633,7 @@ namespace MuEmu
         public ushort PetTarget { get; set; }
         public DateTime PetLastAttack { get; set; }
         public Item Mount { get; set; }
+        public bool DataLoaded { get; internal set; }
 
         internal void AttackPet(ushort targetNumber)
         {
@@ -803,40 +804,38 @@ namespace MuEmu
             _zen = characterDto.Money;
 
             PCPoints = 0;
-
-            var StatsInfo = new SCharacterMapJoin2
-            {
-                Map = MapID,
-                LevelUpPoints = LevelUpPoints,
-                Str = StrengthTotal,
-                Agi = AgilityTotal,
-                Vit = VitalityTotal,
-                Ene = EnergyTotal,
-                Cmd = CommandTotal,
-                Direccion = Direction,
-                Experience = Experience.ShufleEnding(),
-                NextExperience = NextExperience.ShufleEnding(),
-                Position = _position,
-                Life = (ushort)Health,
-                MaxLife = (ushort)_hpMax,
-                Mana = (ushort)Mana,
-                MaxMana = (ushort)_mpMax,
-                Shield = (ushort)Shield,
-                MaxShield = (ushort)MaxShield,
-                Stamina = (ushort)Stamina,
-                MaxStamina = (ushort)_bpMax,
-                Zen = Money,
-                PKLevel = 3,
-                AddPoints = AddPoints,
-                MaxAddPoints = MaxAddPoints,
-                MinusPoints = MinusPoints,
-                MaxMinusPoints = MaxMinusPoints,
-                ExpandedInv = characterDto.ExpandedInventory,
-                Ruud = 1,
-                ControlCode = (byte)CtlCode,
-                MapX = (byte)Position.X,
-                MapY = (byte)Position.Y,
-            };
+            //byte ctlCode
+            var StatsInfo = VersionSelector.CreateMessage<SCharacterMapJoin2>(
+                MapID, 
+                (byte)Position.X, 
+                (byte)Position.Y, 
+                Direction, 
+                StrengthTotal, 
+                AgilityTotal,
+                VitalityTotal,
+                EnergyTotal,
+                CommandTotal,
+                Experience,
+                NextExperience,
+                (ushort)Health,
+                (ushort)_hpMax,
+                (ushort)Mana,
+                (ushort)_mpMax,
+                (ushort)Shield,
+                (ushort)MaxShield,
+                (ushort)Stamina,
+                (ushort)_bpMax,
+                (byte)3,
+                AddPoints,
+                MaxAddPoints,
+                MinusPoints,
+                MaxMinusPoints,
+                LevelUpPoints,
+                characterDto.ExpandedInventory,
+                Money,
+                1,
+                (byte)CtlCode
+               );
 
             CashShop = new CashShop(plr.Session, characterDto);
             plr.Session.SendAsync(StatsInfo).Wait();
@@ -1227,7 +1226,7 @@ namespace MuEmu
                 State = ObjectState.Regen;
                 _position = Map.GetRespawn();
                 CharacterRegen?.Invoke(this, new EventArgs());
-                var regen = new SCharRegen(MapID, (byte)_position.X, (byte)_position.Y, 1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, Money);
+                var regen = VersionSelector.CreateMessage<SCharRegen>(MapID, (byte)_position.X, (byte)_position.Y, (byte)1, (ushort)Health, (ushort)Mana, (ushort)Shield, (ushort)Stamina, (uint)Experience, (ulong)Money);
                 Player.Session.SendAsync(regen).Wait();
             }
         }
@@ -1244,6 +1243,7 @@ namespace MuEmu
                 Map.AddPlayer(this);
                 _position = position;
                 Map.SetAttribute(_position.X, _position.Y, MapAttributes.Stand);
+                DataLoaded = false;
             }else
             {
                 Map.PositionChanged(Position, position);

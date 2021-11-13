@@ -1426,7 +1426,7 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte MapX { get; set; }
         [WZMember(1)] public byte MapY { get; set; }
-        [WZMember(2)] public Maps MapNumber { get; set; }
+        [WZMember(2)] public byte MapNumber { get; set; }
         [WZMember(3)] public byte Dir { get; set; }
         [WZMember(4)] public ushort Life { get; set; }
         [WZMember(5)] public ushort Mana { get; set; }
@@ -1440,7 +1440,7 @@ namespace MU.Network.Game
         { }
         public SCharRegen(Maps map, byte x, byte y, byte dir, ushort life, ushort mana, ushort shield, ushort bp, uint exp, ulong money)
         {
-            MapNumber = map;
+            MapNumber = (byte)map;
             MapX = x;
             MapY = y;
             Dir = dir;
@@ -1452,6 +1452,39 @@ namespace MU.Network.Game
             Money = money;//.ShufleEnding();
         }
     }
+
+    [WZContract]
+    public class SCharRegenS12Eng : IGameMessage
+    {
+        [WZMember(0)] public byte MapX { get; set; }
+        [WZMember(1)] public byte MapY { get; set; }
+        [WZMember(2)] public ushort MapNumber { get; set; }
+        [WZMember(3)] public byte Dir { get; set; }
+        [WZMember(4)] public ushort Life { get; set; }
+        [WZMember(5)] public ushort Mana { get; set; }
+        [WZMember(6)] public ushort wShield { get; set; }
+        [WZMember(7)] public ushort BP { get; set; }
+        //[WZMember(8)] public ulong unk1 { get; set; }
+        [WZMember(9)] public ulong Exp { get; set; }
+        [WZMember(10)] public ulong Money { get; set; }
+
+        public SCharRegenS12Eng()
+        { }
+        public SCharRegenS12Eng(Maps map, byte x, byte y, byte dir, ushort life, ushort mana, ushort shield, ushort bp, uint exp, ulong money)
+        {
+            MapNumber = (ushort)map;
+            MapX = x;
+            MapY = y;
+            Dir = dir;
+            Life = life;//.ShufleEnding();
+            Mana = mana;//.ShufleEnding();
+            wShield = shield;//.ShufleEnding();
+            BP = bp;//.ShufleEnding();
+            Exp = ((ulong)exp);//.ShufleEnding();
+            Money = money;//.ShufleEnding();
+        }
+    }
+
 
     // 0xC1 0xAA 0x01
     [WZContract]

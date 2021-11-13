@@ -147,7 +147,7 @@ namespace MuEmu
                     {
                         var deadPlayers = new List<Character>();
                         var changedPlayers = new List<Character>();
-                        foreach (var @char in map.Players)
+                        foreach (var @char in map.Players.Where(x => x.DataLoaded))
                         {
                             @char.Friends.Update();
 

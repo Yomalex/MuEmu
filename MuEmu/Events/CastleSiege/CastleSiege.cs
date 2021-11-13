@@ -136,7 +136,10 @@ namespace MuEmu.Events.CastleSiege
                 var left = duration - trans;
 
                 ChangeState(lastState);
-                Trigger(lastState + 1, left);
+                if (lastState + 1 < SiegeStates.EndCycle)
+                    Trigger(lastState + 1, left);
+                else
+                    Trigger(SiegeStates.Idle1, left);
             }
             else
             {

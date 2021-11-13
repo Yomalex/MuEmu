@@ -168,6 +168,7 @@ namespace MU.Network
 
         Move = 0xFFD3,
         MoveEng = 0xFFD4,
+        Move12Eng = 0xFFD7,
         Attack = 0xFFD7,
         AttackEng = 0xFF11,
         Position = 0xFFDF,
@@ -218,6 +219,7 @@ namespace MU.Network
         PetAttack = 0xFFA8,
         InventoryEquipament = 0x20BF,
         EquipamentChange = 0xFF25,
+        Attack12Eng = 0xFFDF,
     }
 
     public enum GensOpCode

@@ -68,7 +68,8 @@ namespace MuEmu.Monsters
 
         public static int InitGroup(int group, EventHandler die = null)
         {
-            _logger.Information("Loading group {0}", group);
+            _logger.Information(ServerMessages.GetMessage(Messages.IA_CreateGroup)/*"Loading group {0}"*/, group);
+            Monster Leader = null;
             foreach (var mob in _instance._IAGroups[group])
             {
                 Point point = new Point();
@@ -97,6 +98,14 @@ namespace MuEmu.Monsters
                 mob.monster = new Monster(mob.Class, ObjectType.Monster, mob.MapNumber, point, mob.StartDir == -1 ? (byte)Program.RandomProvider(7) : (byte)mob.StartDir) { Index = MonstersMng.Instance.GetNewIndex() };
                 //mob.monster.Active = false;
                 mob.monster.Die += die;
+                if(mob.Rank == 0)
+                {
+                    Leader = mob.monster;
+                }
+                else if(Leader != null)
+                {
+                    mob.monster.Leader = Leader;
+                }
                 MonstersMng.Instance.Monsters.Add(mob.monster);
             }
 
@@ -105,7 +114,7 @@ namespace MuEmu.Monsters
 
         public static void DelGroup(int group)
         {
-            _logger.Information("Removing group {0}", group);
+            _logger.Information(ServerMessages.GetMessage(Messages.IA_DeleteGroup)/*"Removing group {0}"*/, group);
             foreach (var mob in _instance._IAGroups[group])
             {
                 MonstersMng.Instance.DeleteMonster(mob.monster);

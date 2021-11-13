@@ -225,6 +225,8 @@ namespace MU.Resources
         Guild_RelationShipCantChange,
         GE_AddEvent,
         GE_GetItem,
+        IA_CreateGroup,
+        IA_DeleteGroup,
     }
     public enum Spell : ushort
     {
@@ -506,7 +508,7 @@ namespace MU.Resources
         GameMaster = 0x20,
     }
 
-    public enum Maps : byte
+    public enum Maps : ushort
     {
         Lorencia,
         Dugeon,

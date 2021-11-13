@@ -47,7 +47,7 @@ namespace MuEmu.Monsters
                 if (_state == value)
                     return;
 
-                if(value == ObjectState.Die)
+                if (value == ObjectState.Die)
                     _regen = DateTimeOffset.Now.AddSeconds(Info.RegenTime);
 
                 _state = value;
@@ -56,7 +56,9 @@ namespace MuEmu.Monsters
         public ObjectType Type { get; set; }
         public MonsterBase Info { get; }
         public ushort Level => Info.Level;
-        public float Life { get => _life;
+        public float Life
+        {
+            get => _life;
             set
             {
                 if (_life == value)
@@ -84,15 +86,18 @@ namespace MuEmu.Monsters
         public MapInfo Map { get; private set; }
         public Point Spawn { get; private set; }
         public Point Position { get; private set; }
-        public Point TPosition { get => _TPosition;
+        public Point TPosition
+        {
+            get => _TPosition;
             private set
             {
                 _TPosition = value;
-                if(Position != _TPosition)
+                if (Position != _TPosition)
                     MakePath();
             }
         }
-        public Player Target {
+        public Player Target
+        {
             get => _target;
             set
             {
@@ -126,7 +131,7 @@ namespace MuEmu.Monsters
 
         public bool CanDrop { get; set; }
         public Dictionary<Player, int> DamageSum { get; private set; } = new Dictionary<Player, int>();
-        public int Attack => Info.Attack + (_rand.Next(Info.DmgMin,Info.DmgMax));
+        public int Attack => Info.Attack + (_rand.Next(Info.DmgMin, Info.DmgMax));
         public int Defense => Info.Defense;
 
         /// <summary>
@@ -138,6 +143,19 @@ namespace MuEmu.Monsters
         /// On regen monster trigger this event with sender as Monster object
         /// </summary>
         public event EventHandler Regen;
+
+        // IA Unit
+        public Monster Leader
+        {
+            get => _leader; set
+            {
+                _leader = value;
+                _delta = _leader.Position.Substract(Position);
+            }
+        }
+        private Point _delta;
+        private Monster _leader;
+
         public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction, Element element = Element.None)
         {
             Type = type;
@@ -196,9 +214,9 @@ namespace MuEmu.Monsters
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
             DeadlyDmg = dmgSend;
             Killer = plr;
-            Life -= dmg+ eDmg;
+            Life -= dmg + eDmg;
 
-            if(State != ObjectState.Dying)
+            if (State != ObjectState.Dying)
             {
                 var attack = VersionSelector.CreateMessage<SAttackResult>(Index, dmgSend, type, (ushort)0);
                 await plr.Session.SendAsync(attack);
@@ -271,7 +289,13 @@ namespace MuEmu.Monsters
                     .ToList();
             }
 
-            if(_monsterState == MonsterState.Walking)
+            if (Target == null && Leader != null)
+            {
+                _monsterState = Leader._monsterState;
+                TPosition = Leader.TPosition.Add(_delta);
+            }
+
+            if (_monsterState == MonsterState.Walking)
             {
                 _path.RemoveAt(0);
                 _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
@@ -302,7 +326,7 @@ namespace MuEmu.Monsters
             }
             if (_monsterState == MonsterState.Battle)
             {
-                if(Target == null || Target.Status != LoginStatus.Playing)
+                if (Target == null || Target.Status != LoginStatus.Playing)
                 {
                     _monsterState = MonsterState.Idle;
                     return;
@@ -319,30 +343,32 @@ namespace MuEmu.Monsters
                         .Wait();
                     TPosition = Position;
                     return;
-                }else if(dis > Info.ViewRange)
+                }
+                else if (dis > Info.ViewRange)
                 {
                     _monsterState = MonsterState.Idle;
                     Target = null;
                     _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.AttackSpeed);
                     return;
-                }else
+                }
+                else
                 {
                     TPosition = Target.Character.Position;
                 }
             }
-            if(_monsterState == MonsterState.Idle)
-             {
+            if (_monsterState == MonsterState.Idle)
+            {
                 var possibleTarget = from plr in ViewPort
-                                     let dist = Distance(plr.Character?.Position??new Point(), Position)
+                                     let dist = Distance(plr.Character?.Position ?? new Point(), Position)
                                      where dist <= Info.ViewRange
                                      orderby dist ascending
                                      select plr;
-                
+
                 var X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.X));
                 var Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.Y));
                 var position = new Point(X, Y);
                 var i = 0;
-                while(Map.ContainsAny(position.X, position.Y, _cantGo)
+                while (Map.ContainsAny(position.X, position.Y, _cantGo)
                     && i < 10)
                 {
                     X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.X));
@@ -351,7 +377,7 @@ namespace MuEmu.Monsters
                     i++;
                 }
                 if (i == 10)
-                 position = Position;
+                    position = Position;
 
                 Target = possibleTarget.FirstOrDefault();
                 TPosition = Target?.Character.Position ?? position;
@@ -381,7 +407,8 @@ namespace MuEmu.Monsters
                             break;
                         }
                     }
-                }else
+                }
+                else
                 {
                     count = _path.Count;
                 }
@@ -398,7 +425,7 @@ namespace MuEmu.Monsters
                         .SendAsync(new SMove(Index, (byte)TPosition.X, (byte)TPosition.Y, Direction))
                         .Wait();
 
-                _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed* count);
+                _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed * count);
                 _monsterState = MonsterState.Walking;
                 return;
             }
@@ -466,9 +493,9 @@ namespace MuEmu.Monsters
         {
             gObjGiveItemSearch(Level);
 
-            var die = new SDiePlayer(Index, 1, (ushort)(Killer?.Session?.ID??0xffff));
+            var die = new SDiePlayer(Index, 1, (ushort)(Killer?.Session?.ID ?? 0xffff));
 
-            if(Killer?.Character == null)
+            if (Killer?.Character == null)
             {
                 return;
             }
@@ -490,7 +517,7 @@ namespace MuEmu.Monsters
             float Zen = 0;
 
             // Party EXP division based on WebZen
-            foreach(var p in partys)
+            foreach (var p in partys)
             {
                 var dmg = p.Sum(x => x.Value);
                 float EXP = baseEXP;
@@ -502,7 +529,7 @@ namespace MuEmu.Monsters
 
                 EXP *= dmg / MaxLife;
                 Zen = EXP;
-                EXP *= Program.Experience.FullExperate+1.0f;
+                EXP *= Program.Experience.FullExperate + 1.0f;
                 Zen *= Program.Zen;
 
                 p.Key.ExpDivision(Index, EXP, Killer, DeadlyDmg);
@@ -549,33 +576,33 @@ namespace MuEmu.Monsters
             }
 
             Item reward = null;
-            if(Info.Bag != null)
+            if (Info.Bag != null)
             {
                 var bag = Info.Bag as Bag;
                 reward = bag.GetReward().FirstOrDefault();
             }
-            
-            if(reward == null)
+
+            if (reward == null)
             {
                 if (_rand.Next(100) < Program.DropRate && CanDrop)
+                {
+                    if (_rand.Next(2) == 0)
                     {
-                        if (_rand.Next(2) == 0)
+                        reward = Program.GlobalEventsManager.GetItem(Level, MapID);
+
+                        if (reward == null)
+                            reward = Pentagrama.Drop(this);
+
+                        if (reward == null && ItemBag.Count > 0)
                         {
-                            reward = Program.GlobalEventsManager.GetItem(Level, MapID);
-
-                            if (reward == null)
-                                reward = Pentagrama.Drop(this);
-
-                            if (reward == null && ItemBag.Count > 0)
-                            {
-                                reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
-                                reward.NewOptionRand();
-                            }
+                            reward = ItemBag[_rand.Next(ItemBag.Count)].Clone() as Item;
+                            reward.NewOptionRand();
                         }
-
-                        if(reward == null)
-                            reward = Item.Zen((uint)Zen);
                     }
+
+                    if (reward == null)
+                        reward = Item.Zen((uint)Zen);
+                }
             }
 
             Map.AddItem(Position.X, Position.Y, reward);
@@ -614,21 +641,23 @@ namespace MuEmu.Monsters
             BallTable[15] = 24;
             BallTable[16] = 35;
 
-            if(ItemBag.Count < 100)
+            if (ItemBag.Count < 100)
             {
-                start:
-                if(_rand.Next(20) == 0)
+            start:
+                if (_rand.Next(20) == 0)
                 {
-                    if(_rand.Next(2) != 0)
+                    if (_rand.Next(2) != 0)
                     {
                         itNum.Type = ItemType.Scroll;
-                        itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type]+1);
-                    }else
+                        itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type] + 1);
+                    }
+                    else
                     {
                         itNum.Type = ItemType.Wing_Orb_Seed;
                         itNum.Index = (ushort)BallTable[_rand.Next((int)ItemType.End)];
                     }
-                }else
+                }
+                else
                 {
                     itNum.Type = (ItemType)_rand.Next((int)ItemType.End);
                     itNum.Index = (ushort)_rand.Next(_maxItemIndex[(int)itNum.Type] + 1);
@@ -667,7 +696,7 @@ namespace MuEmu.Monsters
                 (itNum.Type == ItemType.Potion && itNum.Index == 31)) // Jewel of Guardian
                 {
                     var perc = 0;
-                    if(itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15) // Jewel of Chaos
+                    if (itNum.Type == ItemType.Wing_Orb_Seed && itNum.Index == 15) // Jewel of Chaos
                     {
                         if (Level >= 13 && Level <= 66) // 42%
                         {
@@ -684,15 +713,15 @@ namespace MuEmu.Monsters
                         }
                     }
 
-                    if((itNum.Type == ItemType.Potion && itNum.Index == 17) || // Devil Eye
+                    if ((itNum.Type == ItemType.Potion && itNum.Index == 17) || // Devil Eye
                        (itNum.Type == ItemType.Potion && itNum.Index == 18))   // Devil Key
                     {
                         perc = 0;
                     }
 
-                    if(perc == 0)
+                    if (perc == 0)
                     {
-                        if(itNum.Type == ItemType.Potion && (itNum.Index == 17 || itNum.Index == 18))
+                        if (itNum.Type == ItemType.Potion && (itNum.Index == 17 || itNum.Index == 18))
                         {
                             byte Plus;
 
@@ -732,7 +761,7 @@ namespace MuEmu.Monsters
                     var it = new Item(itNum);
                     var result = it.GetLevel(Level);
 
-                    if(result >= 0)
+                    if (result >= 0)
                     {
                         if ((it.Number.Type == ItemType.Missellaneo && it.Number.Index == 10) || (it.Number.Type == ItemType.Wing_Orb_Seed && it.Number.Index == 11))
                         {
@@ -776,7 +805,7 @@ namespace MuEmu.Monsters
             Map.DelMonster(this);
             Map = ResourceCache.Instance.GetMaps()[map];
             Map.AddMonster(this);
-            Position = new Point(x,y);
+            Position = new Point(x, y);
             _TPosition = new Point(x, y);
         }
     }

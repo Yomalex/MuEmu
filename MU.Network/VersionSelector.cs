@@ -57,8 +57,12 @@ namespace MU.Network
             where _T : new()
         {
             var result = s_instance._opCodeLookUp[typeof(_T)];
-            var type = s_instance._active[result];
-            return Activator.CreateInstance(type, args);
+            if (s_instance._active.ContainsKey(result))
+            {
+                var type = s_instance._active[result];
+                return Activator.CreateInstance(type, args);
+            }
+            return Activator.CreateInstance(typeof(_T), args);
         }
     }
 }

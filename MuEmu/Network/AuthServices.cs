@@ -288,7 +288,8 @@ namespace MuEmu.Network
             
             if (charDto.SkillKey != null)
             {
-                await session.SendAsync(new SSkillKey {
+                var skillKey = new SSkillKey
+                {
                     SkillKey = charDto.SkillKey.SkillKey,
                     ChatWindow = charDto.SkillKey.ChatWindow,
                     E_Key = charDto.SkillKey.EkeyDefine,
@@ -296,7 +297,12 @@ namespace MuEmu.Network
                     Q_Key = charDto.SkillKey.QkeyDefine,
                     R_Key = charDto.SkillKey.RkeyDefine,
                     W_Key = charDto.SkillKey.WkeyDefine,
-                });
+                };
+                if(skillKey.SkillKey == null)
+                {
+                    skillKey.SkillKey = Array.Empty<byte>();
+                }
+                await session.SendAsync(skillKey);
             }
             session.Player.Status = LoginStatus.Playing;
 
@@ -316,6 +322,8 @@ namespace MuEmu.Network
             {
                 @char.Spells.SetBuff(SkillStates.GameMaster, TimeSpan.FromDays(100));
             }
+
+            @char.DataLoaded = true;
         }
 
         [MessageHandler(typeof(CCharacterCreate))]

@@ -9,7 +9,7 @@ namespace MU.Resources.BMD
     public class GateBMD
     {
         [WZMember(0)] public GateType Flag { get; set; }
-        [WZMember(1)] public Maps Map { get; set; }
+        [WZMember(1)] public byte Map { get; set; }
         [WZMember(2)] public byte X1 { get; set; }
         [WZMember(3)] public byte Y1 { get; set; }
         [WZMember(4)] public byte X2 { get; set; }

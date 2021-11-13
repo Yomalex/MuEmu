@@ -25,6 +25,7 @@ namespace MU.Network.Game
             Register<CAction>(GameOpCode.Rotation);
             Register<CMove>(GameOpCode.Move);
             Register<CMoveEng>(GameOpCode.MoveEng);
+            Register<CMove12Eng>(GameOpCode.Move12Eng);
 
             #region Client ChatMessages
             Register<CChatNickname>(GameOpCode.GeneralChat0);
@@ -68,7 +69,6 @@ namespace MU.Network.Game
             //Register<CAttackS5E2>(GameOpCode.Attack);
 
             VersionSelector.Register<SAttackResult>(ServerSeason.Season6Kor, GameOpCode.AttackEng);
-            VersionSelector.Register<SAttackResultS9Eng>(ServerSeason.Season9Eng, GameOpCode.AttackEng);
             VersionSelector.Register<SMagicDuration>(ServerSeason.Season6Kor, GameOpCode.MagicDuration);
             VersionSelector.Register<SMagicDurationS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicDuration);
             VersionSelector.Register<SMagicAttack>(ServerSeason.Season6Kor, GameOpCode.MagicAttack);
@@ -76,7 +76,13 @@ namespace MU.Network.Game
 
             switch (Season)
             {
+                case ServerSeason.Season12Eng:
+                    Register<SMove>(GameOpCode.Move12Eng);
+                    Register<CAttack>(GameOpCode.Attack12Eng);
+                    VersionSelector.Register<SAttackResultS9Eng>(ServerSeason.Season12Eng, GameOpCode.Attack12Eng);
+                    break;
                 case ServerSeason.Season9Eng:// ENG
+                    VersionSelector.Register<SAttackResultS9Eng>(ServerSeason.Season9Eng, GameOpCode.AttackEng);
                     Register<CAttack>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<CTeleportS9>(GameOpCode.Teleport);
@@ -164,6 +170,9 @@ namespace MU.Network.Game
             Register<SPositionSet>(GameOpCode.Position);
             Register<SPointAdd>(GameOpCode.PointAdd);
             Register<SCharRegen>(GameOpCode.CharRegen);
+            Register<SCharRegenS12Eng>(GameOpCode.CharRegen);
+            VersionSelector.Register<SCharRegen>(ServerSeason.Season6Kor, GameOpCode.CharRegen);
+            VersionSelector.Register<SCharRegenS12Eng>(ServerSeason.Season12Eng, GameOpCode.CharRegen);
             Register<SLevelUp>(GameOpCode.LevelUp);
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);

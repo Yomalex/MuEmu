@@ -67,7 +67,9 @@ namespace MuEmu.Network.GameServices
 
         [MessageHandler(typeof(CDataLoadOK))]
         public void CDataLoadOk(GSSession session)
-        { }
+        {
+            session.Player.Character.DataLoaded = true;
+        }
 
         [MessageHandler(typeof(CMove))]
         public async Task CMove(GSSession session, CMove message)
@@ -126,6 +128,12 @@ namespace MuEmu.Network.GameServices
 
         [MessageHandler(typeof(CMoveEng))]
         public async Task CMoveEng(GSSession session, CMoveEng message)
+        {
+            await CMove(session, new CMove { Path = message.Path, X = message.X, Y = message.Y });
+        }
+
+        [MessageHandler(typeof(CMove12Eng))]
+        public async Task CMove12Eng(GSSession session, CMove12Eng message)
         {
             await CMove(session, new CMove { Path = message.Path, X = message.X, Y = message.Y });
         }

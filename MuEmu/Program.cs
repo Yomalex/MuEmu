@@ -85,6 +85,7 @@ namespace MuEmu
         {
             ServerSeason.Season6Kor => false,
             ServerSeason.Season9Eng => true,
+            ServerSeason.Season12Eng => true,
             _ => throw new NotImplementedException()
         };
 
@@ -402,7 +403,7 @@ namespace MuEmu
                         var bmdData = new GateBMD
                         {
                             Flag = mov.GateType,
-                            Map = mov.Map,
+                            Map = (byte)mov.Map,
                             Dir = mov.Dir,
                             Level = mov.ReqLevel,
                             X1 = (byte)mov.Door.Left,

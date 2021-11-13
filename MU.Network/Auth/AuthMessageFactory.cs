@@ -52,6 +52,9 @@ namespace MU.Network.Auth
             Register<SCharacterDelete>(CSOpCode.CharacterDelete);
             Register<SCharacterMapJoin>(CSOpCode.JoinMap);
             Register<SCharacterMapJoin2>(CSOpCode.JoinMap2);
+            Register<SCharacterMapJoin2S12Eng>(CSOpCode.JoinMap2);
+            VersionSelector.Register<SCharacterMapJoin2>(ServerSeason.Season6Kor, CSOpCode.JoinMap2);
+            VersionSelector.Register<SCharacterMapJoin2S12Eng>(ServerSeason.Season12Eng, CSOpCode.JoinMap2);
             Register<SServerMove>(CSOpCode.ServerMove);
         }
     }
