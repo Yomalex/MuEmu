@@ -117,6 +117,7 @@ namespace MU.Network
         InventoryItemDelete = 0xFF28,
         ItemUseSpecialTime = 0xFF29,
         InventoryItemDurUpdate = 0xFF2A,
+        PeriodicEffect = 0xFF2D,
         Talk = 0xFF30,
         CloseWindow = 0xFF31,
         Buy = 0xFF32,
@@ -220,6 +221,11 @@ namespace MU.Network
         InventoryEquipament = 0x20BF,
         EquipamentChange = 0xFF25,
         Attack12Eng = 0xFFDF,
+        SXUpPront = 0x25EC,
+        SXInfo = 0x27EC,
+        SXCharacterInfo = 0x29EC,
+        NewQuestWorldLoad = 0x20F6,
+        NewQuestWorldList = 0x50F6,
     }
 
     public enum GensOpCode

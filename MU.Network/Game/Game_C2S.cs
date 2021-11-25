@@ -973,4 +973,12 @@ namespace MU.Network.Game
         [WZMember(0)] public byte btItemPos { get; set; }
         [WZMember(1)] public byte btValue { get; set; }
     }
+
+    [WZContract]
+    public class CSXInfo : IGameMessage
+    { }
+
+    [WZContract]
+    public class CNewQuest : IGameMessage
+    { }
 }

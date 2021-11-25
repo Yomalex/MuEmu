@@ -849,6 +849,21 @@ namespace MuEmu
             if (Class >= HeroClass.MuseElf && BaseClass == HeroClass.FaryElf)
                 Spells.TryAdd(Spell.InfinityArrow).Wait();
 
+            _=plr.Session.SendAsync(new SXUpPront
+            {
+                AddDex = AgilityAdd,
+                AddEne = EnergyAdd,
+                AddLeadership = CommandAdd,
+                AddStr = StrengthAdd,
+                AddVit = VitalityAdd,
+                Dex = Agility,
+                Ene = Energy,
+                Leadership = Command,
+                Str = Strength,
+                Vit = Vitality,
+                mPrec = MaxMana / 27.5f,
+            });
+
             Spells.SendList();
             MasterLevel.SendInfo();
             Gens.SendMemberInfo();
@@ -932,7 +947,8 @@ namespace MuEmu
         }
         private async void OnMoneyChange()
         {
-            await Player.Session.SendAsync(new SItemGet { Result = 0xFE, Money = Money });
+            var msg = VersionSelector.CreateMessage<SItemGet>(Money);
+            await Player.Session.SendAsync(msg);
         }
         internal void DisposeKalimaGate()
         {
@@ -1097,8 +1113,12 @@ namespace MuEmu
                     break;
                 //case HeroClass.RageFighter:
                 //    break;
-                //case HeroClass.GrowLancer:
-                //    break;
+                case HeroClass.GrowLancer:
+                    _leftAttackMin = (StrengthTotal / 8) + (AgilityTotal / 10);
+                    _leftAttackMax = (StrengthTotal / 4) + (AgilityTotal / 6);
+                    _rightAttackMin = (StrengthTotal / 8) + (AgilityTotal / 10);
+                    _rightAttackMax = (StrengthTotal / 4) + (AgilityTotal / 6);
+                    break;
                 default:
                     _leftAttackMin = (StrengthTotal / 8);
                     _leftAttackMax = (StrengthTotal / 4);
@@ -1195,6 +1215,15 @@ namespace MuEmu
                     _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal * 4;
                     _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
                     _attackSpeed = AgilityTotal / 15.0f;
+                    if (_attackSpeed > 288) _attackSpeed = 288.0f;
+                    break;
+                case HeroClass.GrowLancer:
+                    _defense = AgilityTotal / 7.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.5f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.25f + StrengthTotal * 4;
+                    _attackRatePvP = Level * 3 + AgilityTotal * 2.0f;
+                    _attackSpeed = AgilityTotal / 20.0f;
                     if (_attackSpeed > 288) _attackSpeed = 288.0f;
                     break;
             }
@@ -1805,7 +1834,9 @@ namespace MuEmu
                     addMp = (float)MaxMana / 27.5f;
                     addBp = 1.9f + (float)MaxStamina / 33;
                     break;
-
+                case HeroClass.GrowLancer:
+                case HeroClass.RageFighter:
+                    break;
             }
 
             if (_mp < MaxMana) _mp += Math.Min(addMp+Spells.IncreaseAutoMPRegeneration, MaxMana - _mp);

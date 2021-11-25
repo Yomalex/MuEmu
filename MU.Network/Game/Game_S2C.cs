@@ -380,7 +380,7 @@ namespace MU.Network.Game
         }
     }
 
-    [WZContract]
+    /*[WZContract]
     public class SNewQuestInfo : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
@@ -390,7 +390,7 @@ namespace MU.Network.Game
         {
             QuestList = Array.Empty<NewQuestInfoDto>();
         }
-    }
+    }*/
 
     [WZContract]
     public class SHeatlUpdate : IGameMessage
@@ -799,12 +799,51 @@ namespace MU.Network.Game
 
         [WZMember(1, 12)]
         public byte[] ItemInfo { get; set; }
-
-        public uint Money { get => BitConverter.ToUInt32(ItemInfo, 0).ShufleEnding(); set => ItemInfo = BitConverter.GetBytes(value.ShufleEnding()); }
-
         public SItemGet()
         {
             ItemInfo = Array.Empty<byte>();
+        }
+
+        public SItemGet(uint money)
+        {
+            Result = 0xFE;
+            ItemInfo = BitConverter.GetBytes(money).Reverse().ToArray();
+        }
+
+        public SItemGet(byte result, byte[] info)
+        {
+            ItemInfo = info;
+            Result = result;
+        }
+    }
+
+    [WZContract]
+    public class SItemGetS12Eng : IGameMessage
+    {
+        /// <summary>
+        /// 0xFE: Zen
+        /// </summary>
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public ushort ItemRes { get; set; }
+
+        [WZMember(2, 12)] public byte[] ItemInfo { get; set; }
+        public SItemGetS12Eng()
+        {
+            ItemRes = 0xffff;
+            ItemInfo = Array.Empty<byte>();
+        }
+
+        public SItemGetS12Eng(uint money)
+        {
+            ItemRes = 0xffff;
+            Result = 0xFE;
+            ItemInfo = BitConverter.GetBytes(money).Reverse().ToArray();
+        }
+
+        public SItemGetS12Eng(byte result, byte[] info)
+        {
+            ItemInfo = info;
+            Result = result;
         }
     }
 
@@ -899,7 +938,7 @@ namespace MU.Network.Game
         public byte State { get; set; }
 
         [WZMember(1)]
-        public ushort Number { get; set; }
+        public ushortle Number { get; set; }
 
         [WZMember(2)]
         public byte SkillIndex { get; set; }
@@ -909,9 +948,21 @@ namespace MU.Network.Game
         public SViewSkillState(byte state, ushort number, byte skillIndex)
         {
             State = state;
-            Number = number.ShufleEnding();
+            Number = number;
             SkillIndex = skillIndex;
         }
+    }
+
+    [WZContract]
+    public class SPeriodicEffectS12Eng : IGameMessage
+    {
+        [WZMember(0)] public ushort group { get; set; }
+        [WZMember(1)] public ushort value { get; set; }
+        [WZMember(2)] public byte state { get; set; }
+        [WZMember(3)] public uint time { get; set; }
+        [WZMember(4)] public ushort effect { get; set; } // Season 12 WORD, 9 BYTE
+        [WZMember(5, 12)] public byte[] ItemInfo { get; set; } // Season 9
+        [WZMember(6)] public ushort wEffectValue { get; set; } // Season X addon
     }
 
     [WZContract]
@@ -1167,6 +1218,33 @@ namespace MU.Network.Game
         }
     }
 
+    [WZContract]
+    public class SAttackResultS12Eng : IGameMessage
+    {
+
+        [WZMember(0)]
+        public ushortle Number { get; set; }
+
+        [WZMember(1)]
+        public ushortle Damage { get; set; }
+
+        [WZMember(2)]
+        public ushort DamageType { get; set; }
+
+        [WZMember(3)]
+        public ushortle DamageShield { get; set; }
+
+        public SAttackResultS12Eng() { }
+
+        public SAttackResultS12Eng(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
+        {
+            Number = number;
+            Damage = dmg;
+            DamageShield = dmgShield;
+            DamageType = (ushort)dmgType;
+        }
+    }
+
     [WZContract(Serialized = true)]
     public class SMagicAttack : IGameMessage
     {
@@ -1210,6 +1288,10 @@ namespace MU.Network.Game
             wzTarget = target.ShufleEnding();
         }
     }
+
+    [WZContract(Serialized = true)]
+    public class SMagicAttackS12Eng : SMagicAttackS9Eng, IGameMessage
+    { }
 
     [WZContract(Serialized = true)]
     public class SMagicDuration : IGameMessage
@@ -2373,6 +2455,141 @@ namespace MU.Network.Game
         [WZMember(0)] public ushort wzNumber { get; set; }   // 3
         [WZMember(1, 12)] public byte[] ItemInfo{ get; set; }   // 5
         [WZMember(2)] public Element Element { get; set; }
-}
+    }
+
+    [WZContract]
+    public class SXUpPront : IGameMessage
+    {
+        [WZMember(0)] public ushort Str{ get; set; }
+        [WZMember(1)] public ushort AddStr{ get; set; }
+        [WZMember(2)] public ushort Dex{ get; set; }
+        [WZMember(3)] public ushort AddDex{ get; set; }
+        [WZMember(4)] public ushort Vit{ get; set; }
+        [WZMember(5)] public ushort AddVit{ get; set; }
+        [WZMember(6)] public ushort Ene{ get; set; }
+        [WZMember(7)] public ushort AddEne{ get; set; }
+        [WZMember(8)] public ushort Leadership{ get; set; }
+        [WZMember(9)] public ushort AddLeadership{ get; set; }
+        [WZMember(10)] public float mPrec { get; set; }
+    }
+
+    [WZContract]
+    public class SXCharacterInfo : IGameMessage
+    {
+        //0-3
+        /*237*/
+        [WZMember(0)] public ushort CriticalDamage{ get; set; }//ÐÒÔËÒ»»÷Ôö¼ÓÉËº¦
+        /*239*/
+        [WZMember(1)] public ushort ExcellentDamage{ get; set; }//×¿Ô½Ò»»÷Ôö¼ÓÉËº¦
+        /*241*/
+        [WZMember(2)] public ushort SkillDamageBonus{ get; set; }//¼¼ÄÜ¹¥»÷Á¦Ôö¼Ó
+        /*243*/
+        [WZMember(3)] public ushort Defense{ get; set; }//»ù±¾·ÀÓùÁ¦
+        /*245*/
+        [WZMember(4)] public ushort Str{ get; set; }//Á¦Á¿    //12
+        /*247*/
+        [WZMember(5)] public ushort AddStr{ get; set; }//¸½¼ÓÁ¦Á¿
+        /*249*/
+        [WZMember(6)] public ushort Dex{ get; set; }//Ãô½Ý  //16
+        /*251*/
+        [WZMember(7)] public ushort AddDex{ get; set; }//¸½¼ÓÃô½Ý
+        /*253*/
+        [WZMember(8)] public ushort Vit{ get; set; }//ÌåÁ¦	 //20
+        /*255*/
+        [WZMember(9)] public ushort AddVit{ get; set; }//¸½¼ÓÌåÁ¦
+        /*257*/
+        [WZMember(10)] public ushort Energy{ get; set; }//ÖÇÁ¦  //24
+        /*259*/
+        [WZMember(11)] public ushort AddEnergy{ get; set; }//¸½¼ÓÖÇÁ¦
+        /*261*/
+        [WZMember(12)] public ushort Leadership{ get; set; }//Í³ÂÊ   //28
+        /*263*/
+        [WZMember(13)] public ushort AddLeadership{ get; set; }
+        /*265*/
+        [WZMember(14)] public ushort SDAttack{ get; set; }//Ï®»÷Ê±SD±ÈÂÊ%
+        /*267*/
+        [WZMember(15)] public ushort IgnoreShieldGaugeRate{ get; set; }//SDÎÞÊÓ¼¸ÂÊ%
+        /*269*/
+        [WZMember(16)] public ushort SDAttack1{ get; set; }//¹¥»÷Ê±SD±ÈÂÊ%
+        /*271*/
+        [WZMember(17)] public ushort MoneyAmountDropRate{ get; set; }//»ñµÃ½ð±ÒÔö¼ÓÂÊ%
+        /*273*/
+        [WZMember(18)] public float IgnoreDefenseRate{ get; set; }//ÎÞÊÓ·ÀÓùÁ¦¼¸ÂÊ%
+        /*277*/
+        [WZMember(19)] public float HPRecovery{ get; set; } //ÉúÃü×Ô¶¯»Ö¸´Á¿
+        /*281*/
+        [WZMember(20)] public float MPRecovery{ get; set; }//Ä§·¨»Ö¸´Á¿
+        /*285*/
+        [WZMember(21)] public float StunRate{ get; set; }//Êø¸¿¼¸ÂÊ
+        /*289*/
+        [WZMember(22)] public float ResistStunRate{ get; set; }//Êø¸¿µÖ¿¹¼¸ÂÊ%
+        /*293*/
+        [WZMember(23)] public float fTripleDamageRationInfo{ get; set; }
+        /*297*/
+        [WZMember(24)] public float ShieldDamageReduction{ get; set; }//¶ÜÅÆÎüÊÕÉËº¦
+        /*301*/
+        [WZMember(25)] public float fMonsterDieGetHP_info{ get; set; }//¹ÖÎïËÀÍöÉúÃü»Ö¸´Á¿
+        /*305*/
+        [WZMember(26)] public float fMonsterDieGetMana_info{ get; set; }//¹ÖÎïËÀÍöÄ§·¨»Ö¸´Á¿
+        /*309*/
+        [WZMember(27)] public float fMonsterDieGetSD_info{ get; set; }//¹ÖÎïËÀÍöSD»Ö¸´Á¿
+        /*313*/
+        [WZMember(28)] public float SDRecovery{ get; set; }//SD×Ô¶¯»Ö¸´Á¿
+        /*317*/
+        [WZMember(29)] public float DefensiveFullMPRestoreRate{ get; set; }//Ä§·¨ÖµÍêÈ«»Ö¸´¼¸ÂÊ
+        /*321*/
+        [WZMember(30)] public float DefensiveFullHPRestoreRate{ get; set; }//ÉúÃüÍêÈ«»Ö¸´¼¸ÂÊ
+        /*325*/
+        [WZMember(31)] public float OffensiveFullSDRestoreRate{ get; set; }//SDÍêÈ«»Ö¸´¼¸ÂÊ
+        /*329*/
+        [WZMember(32)] public float BPRecovery{ get; set; }//AG×Ô¶¯»Ö¸´Á¿
+        /*333*/
+        [WZMember(33)] public float fWingDamageAbsorb_info{ get; set; }//ÉËº¦ÎüÊÕÂÊ
+        /*337*/
+        [WZMember(34)] public float BlockRate{ get; set; }//¶Ü·ÀÓù¼¸ÂÊ
+        /*341*/
+        [WZMember(35)] public float ParryRate{ get; set; }//ÎäÆ÷¸ñµµ¼¸ÂÊ
+        /*345*/
+        [WZMember(36)] public float AbsorbLife{ get; set; }//ÉúÃüÁ¦ÎüÊÕÁ¿
+        /*349*/
+        [WZMember(37)] public float AbsorbSD{ get; set; }//SDÎüÊÕÁ¿
+        /*353*/
+        [WZMember(38)] public float FullDamageReflectRate{ get; set; }//·´µ¯¹¥»÷¼¸ÂÊ
+        /*357*/
+        [WZMember(39)] public float fWingDamageIncRate_info{ get; set; }//ÉËº¦Ìá¸ßÂÊ
+        /*361*/
+        [WZMember(40)] public float MPConsumptionRate{ get; set; }//Ä§·¨Ê¹ÓÃ¼õÉÙÂÊ
+        /*365*/
+        [WZMember(41)] public float CriticalDamageRate{ get; set; }//ÐÒÔËÒ»»÷ÉËº¦¼¸ÂÊ
+        /*369*/
+        [WZMember(42)] public float ExcellentDamageRate{ get; set; }//×¿Ô½Ò»»÷ÉËº¦¼¸ÂÊ
+        /*373*/
+        [WZMember(43)] public float DoubleDamageRate{ get; set; }//Ë«±¶ÉËº¦¼¸ÂÊ
+                               // /*377*/	public float  unk5{ get; set; }
+        /*381*/
+        [WZMember(44)] public byte DamageReduction{ get; set; }//ÉËº¦¼õÉÙÂÊ
+        /*382*/
+        [WZMember(45)] public byte BPConsumptionRate{ get; set; }//AGÊ¹ÓÃ¼õÉÙÂÊ
+        /*383*/
+        [WZMember(46)] public byte DamageReflect{ get; set; }//ÉËº¦·´ÉäÂÊ
+        ///*384*/	[WZMember()] public byte  unk36{ get; set; }
+    }
+    [WZContract]
+    public class SNQWorldLoad : IGameMessage
+    { }
+
+    [WZContract]
+    public class SNQWorldListDto
+    {
+        [WZMember(0)] public ushort QuestIndex { get; set; }
+        [WZMember(1)] public byte TagetNumber { get; set; }
+        [WZMember(2)] public byte QuestState { get; set; }
+    }
+
+    [WZContract]
+    public class SNQWorldList : IGameMessage
+    {        
+        [WZMember(0)] public SNQWorldListDto Quest { get; set; }
+    }
 }
 

@@ -90,8 +90,14 @@ namespace MuEmu.Events.Event_Egg
         private TimeSpan GetTimeToNextSpaw()
         {
             var currentTime = DateTime.Now - DateTime.Today;
-            var nextTime = _spans.First(x => x > currentTime);
-            return DateTime.Today.Add(nextTime) - DateTime.Now;
+            try
+            {
+                var nextTime = _spans.First(x => x > currentTime);
+                return DateTime.Today.Add(nextTime) - DateTime.Now;
+            }catch(Exception)
+            {
+                return DateTime.Today.Add(_spans.First()) - DateTime.Now;
+            }
         }
 
         public override void OnTransition(EventState NextState)

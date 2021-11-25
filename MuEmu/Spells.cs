@@ -350,8 +350,20 @@ namespace MuEmu
                 return;
             }
             var m = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);
+            var n = new SPeriodicEffectS12Eng
+            {
+                effect = (ushort)effect,
+                time = (uint)(buff.EndAt-DateTimeOffset.Now).TotalSeconds,
+                value = 0,
+                state = 0,
+                wEffectValue = 0,
+                group = 0,
+                ItemInfo = Array.Empty<byte>()
+            };
 
+            await Player.Session.SendAsync(n);
             await Player.Session.SendAsync(m);
+            Player.SendV2Message(n);
             Player.SendV2Message(m);
         }
 

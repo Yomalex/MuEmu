@@ -308,7 +308,7 @@ namespace MuEmu.Network
 
             GuildManager.Instance.AddPlayer(session.Player);
 
-            await session.SendAsync(new SNewQuestInfo());
+            //await session.SendAsync(new SNewQuestInfo());
             session.Player.Character.Inventory.SendJewelsInfo();
 
             await session.SendAsync(new SUBFInfo { Result = 1 });

@@ -449,7 +449,7 @@ namespace MU.Network.Auth
     {
         [WZMember(0)] public byte MapX { get; set; }//0
         [WZMember(1)] public byte MapY { get; set; }//1
-        [WZMember(2)] public ushort Map { get; set; }//2
+        [WZMember(2)] public byte Map { get; set; }//2
         [WZMember(3)] public byte Direccion { get; set; }//3
         [WZMember(4)] public long Experience { get; set; }//4
         [WZMember(5)] public long NextExperience { get; set; }//c
@@ -466,7 +466,7 @@ namespace MU.Network.Auth
         [WZMember(16)] public ushort MaxShield { get; set; }//28
         [WZMember(17)] public ushort Stamina { get; set; }//2a
         [WZMember(18)] public ushort MaxStamina { get; set; }//2c
-        [WZMember(19)] public ushort unk { get; set; }
+        //[WZMember(19)] public ushort unk { get; set; }
         [WZMember(20)] public uint Zen { get; set; }//2e
         [WZMember(21)] public byte PKLevel { get; set; }//36
         [WZMember(22)] public byte ControlCode { get; set; }//37
@@ -476,9 +476,8 @@ namespace MU.Network.Auth
         [WZMember(26)] public short MinusPoints { get; set; }//3e
         [WZMember(27)] public short MaxMinusPoints { get; set; }//40
         [WZMember(28)] public byte ExpandedInv { get; set; }//41
-        [WZMember(29)] public int Ruud { get; set; }//42
-                                                    //[WZMember(30)]
-                                                    //public byte ExpandedVault { get; set; }//44
+        [WZMember(29)] public uint Ruud { get; set; }//42
+        [WZMember(30)] public byte ExpandedVault { get; set; }//44
 
         public SCharacterMapJoin2S12Eng()
         {
@@ -512,7 +511,7 @@ namespace MU.Network.Auth
             MinusPoints = minusPoints;
             MaxMinusPoints = maxMinusPoints;
             ExpandedInv = expandedInventory;
-            Ruud = ruud;
+            Ruud = (ushort)ruud;
             ControlCode = ctlCode;
             MapX = x;
             MapY = y;

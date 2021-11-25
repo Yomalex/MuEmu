@@ -133,8 +133,14 @@ namespace MuEmu
         {
             var standarQuest = _quests.Where(x => x.Standar).ToArray();
             await Player.Session.SendAsync(new SQuestInfo { Count = (byte)standarQuest.Length, State = QuestStates });
-            var customQuest = _quests.Where(x => !x.Standar).ToArray();
-            await Player.Session.SendAsync(new SNewQuestInfo { QuestList = Array.Empty<NewQuestInfoDto>() });
+            /*var customQuest = _quests.Where(x => !x.Standar).ToArray();
+            await Player.Session.SendAsync(new SNewQuestInfo { QuestList = customQuest.Select((x,i) => new NewQuestInfoDto
+            {
+                Number = (ushort)i,
+                Quest = (ushort)x.Index
+            }).ToArray() });*/
+            await Player.Session.SendAsync(new SNQWorldLoad());
+            await Player.Session.SendAsync(new SNQWorldList { Quest = new SNQWorldListDto { QuestIndex = 11, TagetNumber = 0, QuestState = 1 } });
         }
 
         public async void SendEXPListNPC(ushort npc)

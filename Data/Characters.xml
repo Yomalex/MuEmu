@@ -52,8 +52,8 @@
     <Equipament Slot="13" Type="13" Index="20" Level="2" />
   </Character>
   <Character BaseClass="GrowLancer" Map="Lorencia" Level="1">
-    <Stats Str="0" Agi="0" Vit="0" Ene="0" Cmd="0" />
-    <Attributes Life="0" LevelLife="0" Mana="0" LevelMana="0" VitalityToLife="0" EnergyToMana="0" />    
+    <Stats Str="30" Agi="30" Vit="25" Ene="24" Cmd="0" />
+    <Attributes Life="110" LevelLife="2" Mana="40" LevelMana="1" VitalityToLife="1" EnergyToMana="1" />    
     <Equipament Slot="12" Type="13" Index="20" Level="1" />    
     <Equipament Slot="13" Type="13" Index="20" Level="2" />
   </Character>

@@ -844,11 +844,7 @@ namespace MuEmu.Network.GameServices
                 pickup = @char.Inventory.Get(pos);
             }
 
-            var msg = new SItemGet { Result = pos };
-            if (pos != 0xff)
-            {
-                msg.ItemInfo = pickup.GetBytes();
-            }
+            var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes()??Array.Empty<byte>());
             await session.SendAsync(msg);
 
             /*if (Item.Number != ItemNumber.Zen)
@@ -2480,6 +2476,26 @@ namespace MuEmu.Network.GameServices
                 Element = session.Player.Character.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute??Element.None,
                 ItemInfo = itemBytes,
                 wzNumber = ((ushort)session.ID).ShufleEnding()
+            });
+        }
+        [MessageHandler(typeof(CSXInfo))]
+        public async Task CSXInfo(GSSession session)
+        {
+            await session.SendAsync(new SXCharacterInfo
+            {
+                CriticalDamageRate = session.Player.Character.Inventory.CriticalRate,
+                ExcellentDamageRate = session.Player.Character.Inventory.ExcellentRate,
+                Defense = session.Player.Character.Defense,
+                Dex = session.Player.Character.Agility,
+                Vit = session.Player.Character.Vitality,
+                AddDex = session.Player.Character.AgilityAdd,
+                AddStr = session.Player.Character.StrengthAdd,
+                AddVit = session.Player.Character.VitalityAdd,
+                AddEnergy = session.Player.Character.EnergyAdd,
+                AddLeadership = session.Player.Character.CommandAdd,
+                Energy = session.Player.Character.Energy,
+                Leadership = session.Player.Character.Command,
+                Str = session.Player.Character.Strength,
             });
         }
     }
