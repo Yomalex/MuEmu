@@ -62,6 +62,22 @@ namespace MU.Network.QuestSystem
     }
 
     [WZContract]
+    public class SQuestSwitchListEvent : IQuestMessage
+    {
+        [WZMember(0)] public ushort NPC { get; set; }
+        [WZMember(1, serializerType: typeof(ArrayWithScalarSerializer<ushort>))]
+        public uint[] QuestList { get; set; }
+    }
+
+    [WZContract]
+    public class SQuestSwitchListItem : IQuestMessage
+    {
+        [WZMember(0)] public ushort NPC { get; set; }
+        [WZMember(1, serializerType: typeof(ArrayWithScalarSerializer<ushort>))]
+        public uint[] QuestList { get; set; }
+    }
+
+    [WZContract]
     public class SQuestEXP : IQuestMessage
     {
         [WZMember(0)] public byte Result { get; set; }
@@ -116,4 +132,10 @@ namespace MU.Network.QuestSystem
     [WZContract]
     public class SSendQuestEXPInfo : SSendQuestEXPProgressAsk
     { }
+
+    [WZContract]
+    public class SQuestEXPProgressList : IQuestMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public uint[] QuestInfoIndexID { get; set; }
+    }
 }

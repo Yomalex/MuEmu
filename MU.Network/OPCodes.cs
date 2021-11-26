@@ -350,5 +350,9 @@ namespace MU.Network
         QuestExpInfoAsk = 0x0CF6,
         QuestExpComplete = 0x0DF6,
         QuestEXPProgress = 0x1BF6,
+        QuestExpProgressList = 0x1AF6,
+        QuestEXPEventItemEPList = 0x21F6,
+        QuestSwitchListEvent = 0x03F6,
+        QuestSwitchListItem = 0x04F6,
     }
 }

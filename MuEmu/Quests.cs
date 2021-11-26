@@ -358,6 +358,14 @@ namespace MuEmu
             });
         }
 
+        public async Task QuestEXPProgressList()
+        {
+            await Player.Session.SendAsync(new SQuestEXPProgressList
+            {
+                QuestInfoIndexID = _episodes.Select(x => x.Value.Index).ToArray()
+            });
+        }
+
         public void OnMonsterDie(Monster monster)
         {
             var runningQuests = _quests.Where(x => x.State == QuestState.Reg);

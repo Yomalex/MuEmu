@@ -30,6 +30,14 @@ namespace MU.Network.QuestSystem
     }
 
     [WZContract]
+    public class CQuestEXPProgressList : IQuestMessage
+    { }
+
+    [WZContract]
+    public class CQuestEXPEventItemEPList : IQuestMessage
+    { }
+
+    [WZContract]
     public class CNewQuestInfo : IQuestMessage
     {
         [WZMember(0)]

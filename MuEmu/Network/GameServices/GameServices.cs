@@ -2449,6 +2449,18 @@ namespace MuEmu.Network.GameServices
             var item = session.Player.Character.Inventory.Get(message.btItemPos);
             switch(item.Number)
             {
+                case 6658:// Horn of Uniria
+                    if (session.Player.Character.Mount != null)
+                    {
+                        session.Player.Character.Mount = null;
+                        item.Harmony.Option = 0;
+                        message.btValue = 0xff;
+                        break;
+                    }
+                    session.Player.Character.Mount = item;
+                    item.Harmony.Option = 1;
+                    message.btValue = 0xfe;
+                    break;
                 case 6660://13,4 DarkHorse
                     if(session.Player.Character.Mount != null)
                     {

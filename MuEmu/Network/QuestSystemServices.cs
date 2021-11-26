@@ -161,5 +161,37 @@ namespace MuEmu.Network
                 Rewards = reward,
             });
         }
+
+        [MessageHandler(typeof(CQuestEXPProgressList))]
+        public async Task CQuestEXPProgressList(GSSession session)
+        {
+            await session.Player.Character.Quests.QuestEXPProgressList();
+        }
+
+        [MessageHandler(typeof(CQuestEXPEventItemEPList))]
+        public async Task CQuestEXPEventItemEPList(GSSession session)
+        {
+            var @char = session.Player.Character;
+            if(@char.BaseClass == HeroClass.DarkLord || @char.BaseClass == HeroClass.MagicGladiator || @char.BaseClass == HeroClass.RageFighter)
+            {
+                return;
+            }
+            var rings = session.Player.Character.Inventory.FindAllItems(ItemNumber.FromTypeIndex(13, 20)).Where(x => x.Plus == 1 || x.Plus == 2);
+            if (@char.Level >= 80 || rings.Any())
+            {
+                return;
+            }
+
+            var qs = @char.Quests.GetEpisodeState(1);
+
+            if(qs < 3)
+            {
+                var q = @char.Quests.GetEpisode<QuestInfoIndex>(1,0);
+                await session.SendAsync(new SQuestSwitchListEvent
+                {
+                    QuestList = new uint[] { q.Index },
+                });
+            }
+        }
     }
 }

@@ -907,7 +907,7 @@ namespace MU.Network.Game
         public ushort Type { get; set; }
 
         [WZMember(2)]
-        public Maps Map { get; set; } // 4
+        public byte Map { get; set; } // 4
 
         [WZMember(3)]
         public byte MapX { get; set; }  // 5
@@ -924,7 +924,7 @@ namespace MU.Network.Game
         public STeleport(ushort type, Maps map, Point position, byte dir)
         {
             Type = type;
-            Map = map;
+            Map = (byte)map;
             MapX = (byte)position.X;
             MapY = (byte)position.Y;
             Dir = dir;
