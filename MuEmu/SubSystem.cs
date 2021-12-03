@@ -354,7 +354,7 @@ namespace MuEmu
                     addPlr.AddRange(newPlr.Select(x => new VPCreateS9Dto
                     {
                         CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
                         Name = x.Name,
                         Number = (ushort)(x.Player.Session.ID | 0x8000),
                         Position = x.Position,
@@ -373,7 +373,7 @@ namespace MuEmu
                     addPlr.AddRange(existPlr.Select(x => new VPCreateS9Dto
                     {
                         CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
                         Name = x.Name,
                         Number = (ushort)x.Player.Session.ID,
                         Position = x.Position,
@@ -394,7 +394,7 @@ namespace MuEmu
                     addPlr.AddRange(newPlr.Select(x => new VPCreateDto
                     {
                         CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
                         Name = x.Name,
                         Number = (ushort)(x.Player.Session.ID|0x8000),
                         Position = x.Position,
@@ -405,7 +405,7 @@ namespace MuEmu
                     addPlr.AddRange(existPlr.Select(x => new VPCreateDto
                     {
                         CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | 0),
+                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
                         Name = x.Name,
                         Number = (ushort)x.Player.Session.ID,
                         Position = x.Position,

@@ -4,6 +4,16 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum PKLevel : byte
+    {
+        Hero2,
+        Hero1,
+        Hero,
+        Commoner,
+        Warning,
+        Warning2,
+        Murderer,
+    }
     public enum GERepeatType
     {
         None,

@@ -226,6 +226,7 @@ namespace MU.Network
         SXCharacterInfo = 0x29EC,
         NewQuestWorldLoad = 0x20F6,
         NewQuestWorldList = 0x50F6,
+        PKLevel = 0x08F3,
     }
 
     public enum GensOpCode

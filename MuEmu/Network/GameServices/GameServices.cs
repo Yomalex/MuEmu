@@ -905,6 +905,20 @@ namespace MuEmu.Network.GameServices
                 switch (npc.Class)
                 {
                     case NPCAttributeType.Shop:
+                        if(session.Player.Character.PKLevel >= PKLevel.Warning2)
+                        {
+                            if(npc.NPC == 254)
+                            {
+                                var left = (session.Player.Character.PKTimeEnds - DateTime.Now);
+                                _= session.SendAsync(new SChatTarget(ObjectIndex, $"You have {left.Hours} hour {left.Minutes} minutes left on the outlaw status.")); 
+                            }
+                            else{
+                                await session.SendAsync(new SChatTarget(ObjectIndex, "I don't sell to killers"));
+                            }
+                            
+                            break;
+                        }
+
                         if (npc.Data == 0xffff)
                             break;
                         await session.SendAsync(new STalk { Result = 0 });
@@ -1142,7 +1156,14 @@ namespace MuEmu.Network.GameServices
                 return;
             }
 
-            @char.Money -= gate.ReqZen;
+            if (@char.PKLevel > PKLevel.Warning)
+            {
+                @char.Money -= gate.ReqZen;
+            }
+            else
+            {
+                @char.Money -= gate.ReqZen * 50u;
+            }
 
             await @char.WarpTo(gate.Number);
         }

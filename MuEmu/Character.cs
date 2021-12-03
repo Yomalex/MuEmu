@@ -46,9 +46,26 @@ namespace MuEmu
             Chararacter = @char;
         }
     }
+
+    public class SelfDefense
+    {
+        public Player Player { get; set; }
+        public DateTime Ends { get; set; }
+    }
     public class Character : IDisposable
     {
         #region Private
+        private readonly List<List<float>> pklevelEXP = new List<List<float>>
+        {
+            new List<float> { 0.00f, 0.00f, 0.00f },//hero
+            new List<float> { 0.00f, 0.00f, 0.00f },//hero
+            new List<float> { 0.00f, 0.00f, 0.00f },//hero
+            new List<float> { 0.03f, 0.02f, 0.01f },//commoner
+            new List<float> { 0.05f, 0.05f, 0.05f },//pk1
+            new List<float> { 0.10f, 0.10f, 0.10f },//pk2
+            new List<float> { 0.20f, 0.20f, 0.20f } //murderer
+        };
+
         private float _hp;
         private float _hpMax;
         private float _hpAdd;
@@ -78,7 +95,7 @@ namespace MuEmu
         private bool _needSave;
         private HeroClass _class;
         private ushort _level;
-        private byte _pkLevel;
+        private PKLevel _pkLevel;
         private ushort _levelUpPoints;
         private readonly Random _rand = new Random();
         private float _attackRatePvM = 0.0f;
@@ -333,7 +350,19 @@ namespace MuEmu
                 OnMoneyChange();
             }
         }
-        public byte PKLevel { get => _pkLevel; set { _pkLevel = value; _needSave = true; } }
+        public PKLevel PKLevel { get => _pkLevel; 
+            set
+            {
+                if (_pkLevel == value)
+                    return;
+
+                _pkLevel = value;
+                _needSave = true;
+                var pklev = new SPKLevel { Index = Player.ID, PKLevel = PKLevel };
+                Player.SendV2Message(pklev);
+                _ = Player.Session.SendAsync(pklev);
+            } }
+        public DateTime PKTimeEnds { get; set; }
         #endregion
 
         #region MapInfo
@@ -392,6 +421,9 @@ namespace MuEmu
                 MasterLevel.GetExperience(gain);
 
                 _exp = value;
+
+                if (_exp < 0)
+                    _exp = 0;
 
                 if (_exp >= NextExperience)
                     OnLevelUp();
@@ -635,6 +667,8 @@ namespace MuEmu
         public Item Mount { get; set; }
         public bool DataLoaded { get; internal set; }
 
+        public List<SelfDefense> SelfDefense { get; set; } = new List<SelfDefense>();
+
         internal void AttackPet(ushort targetNumber)
         {
             var pet = Inventory.Get(Equipament.LeftHand);
@@ -794,6 +828,8 @@ namespace MuEmu
             _ene = characterDto.Energy;
             _cmd = characterDto.Command;
             _levelUpPoints = characterDto.LevelUpPoints;
+            _pkLevel = (PKLevel)characterDto.PKLevel;
+            PKTimeEnds = DateTime.Now.AddSeconds(characterDto.PKTime);
 
             CalcStats();
 
@@ -825,7 +861,7 @@ namespace MuEmu
                 (ushort)MaxShield,
                 (ushort)Stamina,
                 (ushort)_bpMax,
-                (byte)3,
+                (byte)PKLevel,
                 AddPoints,
                 MaxAddPoints,
                 MinusPoints,
@@ -970,76 +1006,58 @@ namespace MuEmu
             RegenTime = DateTimeOffset.Now.AddSeconds(4);
             var die = new SDiePlayer((ushort)Player.Session.ID, 1, _killerId);
             DisposeKalimaGate();
-            Player.Session.SendAsync(die);
+            _=Player.Session.SendAsync(die);
             SendV2Message(die);
 
-            var EXPPenalty = 0.00f;
+            int range = 0;
+            if (Level > 220)
+                range = 3;
+            else if (Level > 150)
+                range = 2;
+            else if (Level > 10)
+                range = 1;
 
-            if(Level >= 221)
+            if (_killerId >= MonstersMng.MonsterStartIndex)
             {
-                switch(PKLevel)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        EXPPenalty = 0.01f;
-                        break;
-                    case 4:
-                        EXPPenalty = 0.05f;
-                        break;
-                    case 5:
-                        EXPPenalty = 0.10f;
-                        break;
-                    case 6:
-                        EXPPenalty = 0.20f;
-                        break;
-                }
-            }else if(Level >= 151)
+                Experience -= (long)(Experience * pklevelEXP[(byte)PKLevel][range]);
+                Money -= (uint)(Money * 0.04f);
+            }
+            else
             {
-                switch (PKLevel)
+                var killer = Program.server.Clients.FirstOrDefault(x => x.ID == _killerId);
+                if(killer != null)
                 {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        EXPPenalty = 0.02f;
-                        break;
-                    case 4:
-                        EXPPenalty = 0.05f;
-                        break;
-                    case 5:
-                        EXPPenalty = 0.10f;
-                        break;
-                    case 6:
-                        EXPPenalty = 0.20f;
-                        break;
+                    var plr = killer.Player;
+                    var duel = killer.Player.Character.Duel == Duel;
+                    if(!plr.Character.SelfDefense.Any(x => x.Player.Character == this) && !duel)
+                    {
+                        if(PKLevel <= PKLevel.Commoner)
+                        {
+                            switch(plr.Character.PKLevel)
+                            {
+                                case PKLevel.Hero:
+                                case PKLevel.Hero1:
+                                case PKLevel.Hero2:
+                                case PKLevel.Commoner:
+                                    plr.Character.PKLevel = PKLevel.Warning;
+                                    plr.Character.PKTimeEnds = DateTime.Now.AddHours(3);
+                                    break;
+                                case PKLevel.Warning:
+                                    plr.Character.PKLevel = PKLevel.Warning;
+                                    plr.Character.PKTimeEnds = plr.Character.PKTimeEnds.AddHours(3);
+                                    break;
+                                case PKLevel.Warning2:
+                                    plr.Character.PKLevel = PKLevel.Murderer;
+                                    plr.Character.PKTimeEnds = plr.Character.PKTimeEnds.AddHours(3);
+                                    break;
+                                case PKLevel.Murderer:
+                                    plr.Character.PKTimeEnds = plr.Character.PKTimeEnds.AddHours(3);
+                                    break;
+                            }
+                        }
+                    }
                 }
             }
-            else if (Level >= 11)
-            {
-                switch (PKLevel)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                        EXPPenalty = 0.02f;
-                        break;
-                    case 4:
-                        EXPPenalty = 0.05f;
-                        break;
-                    case 5:
-                        EXPPenalty = 0.10f;
-                        break;
-                    case 6:
-                        EXPPenalty = 0.20f;
-                        break;
-                }
-            }
-
-            var expReduced = Experience * EXPPenalty;
-            Experience -= (long)expReduced;
         }
         #endregion
         public void CalcStats()
@@ -1246,7 +1264,7 @@ namespace MuEmu
 
         public void TryRegen()
         {
-            if(RegenTime <= DateTimeOffset.Now)
+            if (RegenTime <= DateTimeOffset.Now)
             {
                 Health = MaxHealth;
                 Mana = MaxMana;
@@ -1337,6 +1355,8 @@ namespace MuEmu
                 charDto.Money = _zen;
                 charDto.CtlCode = (int)CtlCode;
                 charDto.Resets = Resets;
+                charDto.PKLevel = (byte)_pkLevel;
+                charDto.PKTime = (int)(PKTimeEnds - DateTime.Now).TotalSeconds;
                 if(charDto.Gens == null)
                 {
                     charDto.Gens = new GensDto
@@ -1554,6 +1574,28 @@ namespace MuEmu
             GSSession sourceSession = source >= MonstersMng.MonsterStartIndex ? null : Program.server.Clients.FirstOrDefault(x => x.ID == source);
 
             _killerId = source;
+
+            if(_killerId < MonstersMng.MonsterStartIndex)
+            {
+                var plr = Program.server.Clients.First(x => x.ID == source).Player;
+                if (!plr.Character.SelfDefense.Any(x => x.Player.Character == this))
+                {
+                    if(PKLevel.Warning2 > PKLevel)
+                    {
+                        var selfDefense = SelfDefense.FirstOrDefault(x => x.Player == plr);
+                        if (selfDefense != null)
+                        {
+                            selfDefense.Ends = DateTime.Now.AddMinutes(5);
+                        }
+                        else
+                        {
+                            SelfDefense.Add(new SelfDefense { Player = plr, Ends = DateTime.Now.AddMinutes(5) });
+                            _ = Player.Session.SendAsync(new SNotice(NoticeType.Blue, "Selfdefense active for " + plr.Character.Name));
+                        }
+                    }                    
+                }
+            }
+
             switch (_rand.Next(6))
             {
                 case 0:
@@ -1816,6 +1858,9 @@ namespace MuEmu
 
             float addMp = 0;
             float addBp = 0;
+
+            SelfDefense = SelfDefense.Where(x => x.Ends > DateTime.Now).ToList();
+            PKLevel = (PKLevel)Math.Ceiling(Math.Min(Math.Max((PKTimeEnds - DateTime.Now).TotalHours,0) / 3.0f + 3.0f, 6.0f));
 
             switch (BaseClass)
             {

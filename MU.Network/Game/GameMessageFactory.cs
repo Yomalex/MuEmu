@@ -340,6 +340,8 @@ namespace MU.Network.Game
 
             Register<SNQWorldLoad>(GameOpCode.NewQuestWorldLoad);
             Register<SNQWorldList>(GameOpCode.NewQuestWorldList);
+
+            Register<SPKLevel>(GameOpCode.PKLevel);
         }
     }
 }

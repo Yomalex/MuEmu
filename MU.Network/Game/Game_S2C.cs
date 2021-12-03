@@ -2591,5 +2591,12 @@ namespace MU.Network.Game
     {        
         [WZMember(0)] public SNQWorldListDto Quest { get; set; }
     }
+
+    [WZContract]
+    public class SPKLevel : IGameMessage
+    {
+        [WZMember(0)] public ushortle Index { get; set; }
+        [WZMember(1)] public PKLevel PKLevel { get; set; }
+    }
 }
 

@@ -66,6 +66,8 @@ namespace MU.DataBase
         public uint Money { get; set; }
 
         public byte ExpandedInventory { get; set; }
+        public short PKLevel { get; set; } = 3;
+        public int PKTime { get; set; } = 0;
 
         // Inventory
         [NotMapped]

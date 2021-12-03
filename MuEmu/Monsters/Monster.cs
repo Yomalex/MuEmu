@@ -500,6 +500,7 @@ namespace MuEmu.Monsters
                 return;
             }
             Killer.Character.Quests.OnMonsterDie(this);
+            Killer.Character.PKTimeEnds = Killer.Character.PKTimeEnds.AddSeconds(Level*-1);
 
             var result = DamageSum.Where(x => x.Key.Status != LoginStatus.Playing).Select(x => x.Key);
             foreach (var r in result)
