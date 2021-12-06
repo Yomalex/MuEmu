@@ -237,7 +237,6 @@ namespace MuEmu.Network.GameServices
                 @char.Mana = mana;
                 DamageType type = DamageType.Regular;
                 var attack = 0.0f;
-
                 switch (spell.Number)
                 {
                     case Spell.Falling_Slash:
@@ -322,6 +321,12 @@ namespace MuEmu.Network.GameServices
                             type = DamageType.Miss;
                         }
                         break;
+                }
+
+                if (@char.Spells.CheckCombo(spell.Number))
+                {
+                    attack += (@char.StrengthTotal + @char.AgilityTotal + @char.EnergyTotal)/2.0f;
+                    @char.Spells.AttackSend(Spell.Combo, target, true);
                 }
 
                 player?.Character.GetAttacked((ushort)@char.Player.Session.ID, @char.Direction, 0, (int)attack, type, spell.Number, eDmg);
@@ -430,6 +435,12 @@ namespace MuEmu.Network.GameServices
                     var eDmg = await @char.PentagramAttack(mom);
                     await mom.GetAttacked(@char.Player, attack, type, eDmg);
                 }
+            }
+
+            if (@char.Spells.CheckCombo(message.MagicNumber))
+            {
+                attack += (@char.StrengthTotal + @char.AgilityTotal + @char.EnergyTotal) / 2;
+                @char.Spells.AttackSend(Spell.Combo, message.Target, true);
             }
 
             switch (message.MagicNumber)

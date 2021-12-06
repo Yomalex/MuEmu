@@ -293,6 +293,7 @@ namespace MU.Resources
         FireSlash = 55,
         PowerSlash,
         SpiralSlash,
+        Combo = 59,
         Force = 60,
         FireBurst,
         Earthshake,

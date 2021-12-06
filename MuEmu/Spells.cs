@@ -55,7 +55,8 @@ namespace MuEmu
         private List<Buff> _buffs;
         private List<Spell> _newSpell = new List<Spell>();
         private List<Spell> _delSpell = new List<Spell>();
-
+        private List<Spell> _combo = new List<Spell>();
+        private DateTime _comboTimer;
 
         // MasterLevel and other skills effect
         public float PvMAttackSuccessRate { get; private set; }
@@ -108,7 +109,7 @@ namespace MuEmu
 
 
             var spells = ResourceCache.Instance.GetSkills();
-            
+
             foreach (var skill in Character.BaseInfo.Spells)
             {
                 var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[skill]);
@@ -120,7 +121,7 @@ namespace MuEmu
 
             foreach (var skill in character.Spells)
             {
-                var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[(Spell)skill.Magic],skill.Level);
+                var spell = SpellMagicInfo.FromSpellInfo(Character.Class, spells[(Spell)skill.Magic], skill.Level);
                 _spellList.Add((Spell)skill.Magic, spell);
                 SetEffect(spell);
                 Logger
@@ -150,25 +151,25 @@ namespace MuEmu
                 .Select(x => x.Value)
                 .FirstOrDefault();
 
-            if(spell == null)
+            if (spell == null)
             {
                 Logger.Error($"Can't find skill {skill}");
                 return false;
             }
 
-            if(spell.ReqLevel > Character.Level)
+            if (spell.ReqLevel > Character.Level)
             {
                 await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need reach Lv. {spell.ReqLevel}"));
                 return false;
             }
 
-            if(spell.Str > Character.Strength)
+            if (spell.Str > Character.Strength)
             {
                 await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need {spell.Str} of Strength"));
                 return false;
             }
 
-            if(spell.Agility > Character.Agility)
+            if (spell.Agility > Character.Agility)
             {
                 await Player.Session.SendAsync(new SNotice(NoticeType.Blue, $"You need {spell.Agility} of Agility"));
                 return false;
@@ -191,7 +192,7 @@ namespace MuEmu
                 return false;
             }
 
-            if(_spellList.ContainsKey(skill))
+            if (_spellList.ContainsKey(skill))
             {
                 return false;
             }
@@ -200,7 +201,7 @@ namespace MuEmu
 
             Add(skill);
 
-            if(Player.Status == LoginStatus.Playing)
+            if (Player.Status == LoginStatus.Playing)
             {
                 await Player.Session.SendAsync(new SSpells(0, new MuEmu.Network.Data.SpellDto
                 {
@@ -238,9 +239,9 @@ namespace MuEmu
         {
             var list = _spellList
                 .Where(x => !x.Value.IsMLSkill)
-                .Select((x,i) => new MuEmu.Network.Data.SpellDto { 
-                    Index = (byte)i, 
-                    Spell = (ushort)x.Key 
+                .Select((x, i) => new MuEmu.Network.Data.SpellDto {
+                    Index = (byte)i,
+                    Spell = (ushort)x.Key
                 })
                 .ToArray();
             var list2 = _spellList
@@ -253,9 +254,47 @@ namespace MuEmu
                     MasterSkillNextValue = x.Value.MLInfo.GetValue((short)(x.Value.Level + 1)),
                 })
                 .ToArray();
-            
+
             await Player.Session.SendAsync(new SMasterLevelSkillListS9ENG { Skills = list2 });
             await Player.Session.SendAsync(new SSpells(0, list));
+        }
+
+        private byte SkillType(Spell spell) => spell switch
+        {
+            Spell.Uppercut => 0,
+            Spell.Cyclone => 0,
+            Spell.Lunge => 0,
+            //Spell.Cutting => 0,
+            //Spell.Hacking => 0,
+            Spell.TwistingSlash => 1,
+            Spell.RagefulBlow => 1,
+            Spell.DeathStab => 1,
+            _ => 0xff,
+        };
+
+        public bool CheckCombo(Spell spell)
+        {
+            var t = SkillType(spell);
+            var comboEnabled = Character.Quests.IsClear(3);
+            if (!comboEnabled || t == 0xff || (t == 1 && (_combo.Count == 0 || _comboTimer<DateTime.Now)))
+            {
+                _combo.Clear();
+                return false;
+            }
+            if(t == 0 || !_combo.Contains(spell))
+            {
+                if (t == 0)
+                    _combo.Clear();
+
+                _combo.Add(spell);
+                _comboTimer=DateTime.Now.AddSeconds(3);
+                if (_combo.Count == 3)
+                {
+                    _combo.Clear();
+                    return true;
+                }
+            }
+            return false;
         }
 
         internal void ItemSkillAdd(Spell skill)
