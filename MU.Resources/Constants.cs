@@ -238,6 +238,154 @@ namespace MU.Resources
         IA_CreateGroup,
         IA_DeleteGroup,
     }
+    public enum MonsterSpell : ushort
+    {
+        ThunderBreak = 1,
+        BloodyWind,
+        FireRay,
+        Very,
+        VampiresRickTouch,
+        //DarkElf
+        GroupAddress,
+        GroupTherapy,
+        Geom,
+        //Balram
+        TheDirection,
+        //Death Spirit
+        ReduceManaAG,
+        //Soram
+        Push,
+        //Balgass
+        DirectLandHit,
+        Balgass,
+        //Kentauros
+        MultiShot,
+        //Persona
+        Demon,
+        //Twin Tail
+        HairAttack,
+        //Dread
+        Twotimesapeer,
+        //Nightmare
+        DogAttack,
+        Potlike,
+        Summon,
+        FireJeans,
+        Warp,
+        //Maya hand
+        Pressure,
+        PowerWave,
+        IceStorm,
+        BrokenShower,
+        //Ghost
+        Stern,
+        dog,
+        //
+        Roar,
+        Breakperiod,
+        AngerStrike,
+        //Cooler Tin
+        DogBall,
+        //
+        Blow,
+        // Selupan
+        PoisonBall,
+        FrostStorm,
+        FrostShock,
+        Fall,
+        Recall,
+        Healing,
+        Icing,
+        Teleportation,
+        Invincible,
+        Berserk,
+        //Shieldbottle
+        Defense,
+        Shield,
+        //HealingDisease
+        HDHealing,
+        //Quartermaster
+        Skill01,
+        Skill02,
+        //Combat Instructor
+        Skill03,
+        //Knight Commander
+        Skill04,
+        //Archmage
+        PillarofFire,
+        WideMeteorite,
+        //Assassinated leader
+        Skill06,
+        //Riders GM
+        EarthShakes,
+        Bite,
+        //Riders Director
+        HeadofCEE,
+        //Dessler
+        BladeDoor,
+        Skill07,
+        //Vermont
+        Skill08 = 60,
+        Skill09,
+        //El kaneu
+        Skill14,
+        Skill15,
+        //Ion
+        BloodAttack,
+        GigantikStorm,
+        Flame,
+        General,
+        //Bloody Golem
+        BGStern,
+        //Location Queen
+        Ice,
+        //Berserker
+        SternBall,
+        //Zeno Outsider
+        ZOStern,
+        //Safi Queen
+        SternRoom,
+        //Ice Nail Pin
+        INPIce,
+        //Shadow Master
+        SMStern,
+        //The Dark memeodeu
+        Solitary,
+        //The Dark Giant
+        Dokgong,
+        //Dark Iron Knight
+        Poison,
+        //Medusa
+        CursePoison,
+        Chaotic,
+        Gigantik,
+        Evil,
+        //Salamander
+        OneHitSkill,
+        TwoHitsSkill,
+        German,
+        //Undine
+        UOneHitSkill,
+        SkillStrikes2,
+        UIce,
+        //Gnome
+        GOneHitSkill,
+        GSkillStrikes2,
+        Stun,
+        //Silpideu
+        SOneHitSkill,
+        SSkillStrikes2,
+        SPush,
+        //Hill Lhasa
+        HLOneHitSkill,
+        HLSkillStrikes2,
+        HLHPLoss,
+        //Lord Silvester
+        GeneralStrike,
+        Windwhirlwind,
+        Curseofthewind,
+        Windcalled,
+    }
     public enum Spell : ushort
     {
         None,
@@ -329,6 +477,11 @@ namespace MU.Resources
         Recovery = 234,
         MultiShot = 235,
         LightingStorm = 237,
+
+        SelupanPoison = 250,
+        SelupanIceStorm,
+        SelupanIceStrike,
+        SelupanFirstSkill,
 
         //RF Skills
         KillingBlow = 260,

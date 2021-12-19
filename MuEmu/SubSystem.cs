@@ -465,7 +465,7 @@ namespace MuEmu
                 //var playerVP = targetVP;
 
                 newObj = (from obj in playerVP
-                              where obj.State == ObjectState.Regen && obj.Active
+                              where (obj.State == ObjectState.Regen||obj.UseTeleport) && obj.Active
                               select obj).ToList();
 
                 existObj = (from obj in playerVP
@@ -499,6 +499,7 @@ namespace MuEmu
             foreach(var it in newObj)
             {
                 it.ViewPort.Add(plr.Player);
+                it.UseTeleport = false;
             }
 
             foreach (var it in existObj)

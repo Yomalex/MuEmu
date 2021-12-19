@@ -20,6 +20,7 @@ namespace MuEmu.Events
         EventEgg,
         MuRummy,
         CastleSiege,
+        Raklion,
     }
     internal class EventInfo
     {

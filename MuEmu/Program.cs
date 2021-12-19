@@ -56,6 +56,7 @@ using MuEmu.Network.GameServices;
 using MuEmu.Events.Event_Egg;
 using MuEmu.Events.Rummy;
 using MuEmu.Events.CastleSiege;
+using MuEmu.Events.Raklion;
 
 namespace MuEmu
 {
@@ -80,6 +81,8 @@ namespace MuEmu
         public static EventManagement EventManager;
         public static GlobalEvents GlobalEventsManager;
         public static GoldenInvasion GoldenInvasionManager;
+
+        public static ServerInfoDto XMLConfiguration;
 
         private static bool NewEncode(ServerSeason season) => season switch
         {
@@ -119,6 +122,7 @@ namespace MuEmu
             }
 
             var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
+            XMLConfiguration = xml;
             ServerMessages.LoadMessages($"./Data/Lang/ServerMessages({xml.Lang}).xml");
 
             Name = xml.Name;
@@ -439,6 +443,7 @@ namespace MuEmu
                 .AddEvent(Events.Events.EventEgg, new EventEgg())
                 .AddEvent(Events.Events.MuRummy, new MuRummy())
                 .AddEvent(Events.Events.CastleSiege, new CastleSiege())
+                .AddEvent(Events.Events.Raklion, new BattleOfSelupan())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
                 ;
             LuckyCoins.Initialize();

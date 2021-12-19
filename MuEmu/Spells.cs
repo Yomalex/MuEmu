@@ -321,7 +321,76 @@ namespace MuEmu
             _spellList.Remove(skill);
             SendList();
         }
+        public async void SetBuff(SkillStates effect, TimeSpan time, Monster source)
+        {
+            if (_buffs.Any(x => x.State == effect))
+                return;
 
+            var buff = new Buff { State = effect, EndAt = DateTimeOffset.Now.Add(time), Source = null };
+            var @char = Player?.Character ?? null;
+
+            switch (effect)
+            {
+                case SkillStates.ShadowPhantom:
+                    if (@char == null)
+                        break;
+                    buff.AttackAdd = @char.Level / 3 + 45;
+                    buff.DefenseAdd = @char.Level / 3 + 50;
+                    break;
+                case SkillStates.HAttackPower:
+                    buff.AttackAdd = 25;
+                    break;
+                case SkillStates.HAttackSpeed:
+                    break;
+                case SkillStates.HDefensePower:
+                    buff.DefenseAdd = 100;
+                    break;
+                case SkillStates.HMaxLife:
+                    buff.LifeAdd = 500;
+                    break;
+                case SkillStates.HMaxMana:
+                    buff.ManaAdd = 500;
+                    break;
+                case SkillStates.Poison:
+                    buff.PoisonDamage = 12 + source.Attack / 10;
+                    break;
+                case SkillStates.SkillDamageDeflection:
+                    buff.DamageDeflection = (30 + (source.Attack / 42)) / 100.0f;
+                    break;
+            }
+
+            _buffs.Add(buff);
+            if (Monster != null)
+            {
+                var m2 = new SViewSkillState(1, Monster.Index, (byte)effect);
+
+                if (Monster.Info.ViewRange <= 0)
+                {
+                    await Monster.Map.SendAsync(m2);
+                }
+                else
+                {
+                    await Monster.ViewPort.Select(x => x.Session).SendAsync(m2);
+                }
+                return;
+            }
+            var m = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);
+            var n = new SPeriodicEffectS12Eng
+            {
+                effect = (ushort)effect,
+                time = (uint)(buff.EndAt - DateTimeOffset.Now).TotalSeconds,
+                value = 0,
+                state = 0,
+                wEffectValue = 0,
+                group = 0,
+                ItemInfo = Array.Empty<byte>()
+            };
+
+            await Player.Session.SendAsync(n);
+            await Player.Session.SendAsync(m);
+            Player.SendV2Message(n);
+            Player.SendV2Message(m);
+        }
         public async void SetBuff(SkillStates effect, TimeSpan time, Character source = null)
         {
             if (_buffs.Any(x => x.State == effect))
@@ -366,7 +435,7 @@ namespace MuEmu
                     buff.ManaAdd = 500;
                     break;
                 case SkillStates.Poison:
-                    buff.PoisonDamage = 12 + source.EnergyTotal / 10;
+                    buff.PoisonDamage = 12 + (source?.EnergyTotal??0) / 10;
                     break;
                 case SkillStates.SkillDamageDeflection:
                     buff.DamageDeflection = (30 + (source.EnergyTotal / 42))/100.0f;
@@ -430,11 +499,15 @@ namespace MuEmu
             }
 
             var poison = _buffs.FirstOrDefault(x => x.State == SkillStates.Poison);
-            if(poison != null)
+            try
             {
-               Player?.Character.GetAttacked(poison.Source?.Player.ID??0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison, 0).Wait();
-               Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage + (int)(Monster.Life * 0.03f), DamageType.Poison, 0).Wait();
-            }
+                if (poison != null)
+                {
+                    Player?.Character.GetAttacked(poison.Source?.Player.ID ?? 0xffff, 0x00, 0x00, poison.PoisonDamage, DamageType.Poison, Spell.Poison, 0).Wait();
+                    Monster?.GetAttacked(poison.Source.Player, poison.PoisonDamage + (int)(Monster.Life * 0.03f), DamageType.Poison, 0).Wait();
+                }
+            }catch(Exception)
+            { }
         }
 
         public async void ClearAll()
@@ -477,7 +550,7 @@ namespace MuEmu
             Target &= 0x7FFF;
             Target = Success ? (ushort)(Target | 0x8000) : Target;
 
-            var message = VersionSelector.CreateMessage<SMagicAttack>(spell, (ushort)Player.Session.ID, Target);
+            var message = VersionSelector.CreateMessage<SMagicAttack>(spell, (Player?.ID??Monster.Index), Target);
 
             if (Monster == null)
             {
@@ -486,6 +559,10 @@ namespace MuEmu
                     .SendAsync(message);
 
                 Player.SendV2Message(message);
+            }
+            else
+            {
+                _=Monster.ViewPort.Select(x => x?.Session).SendAsync(message);
             }
         }
 

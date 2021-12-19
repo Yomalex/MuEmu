@@ -36,6 +36,9 @@ namespace MuEmu.Monsters
         private MonsterState _monsterState;
         private List<Point> _path = null;
         private Point _TPosition;
+
+        public bool UseTeleport { get; set; }
+
         private bool _active;
 
         public ushort Index { get; set; }
@@ -806,8 +809,11 @@ namespace MuEmu.Monsters
             Map.DelMonster(this);
             Map = ResourceCache.Instance.GetMaps()[map];
             Map.AddMonster(this);
+            var msg = VersionSelector.CreateMessage<SMagicAttack>(Spell.Teleport, Index, Index);
+            ViewPort.Where(x => x.Character.MonstersVP.Contains(Index)).SendAsync(msg).Wait();
             Position = new Point(x, y);
             _TPosition = new Point(x, y);
+            UseTeleport = true;
         }
     }
 }

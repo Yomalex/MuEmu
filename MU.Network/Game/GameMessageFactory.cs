@@ -342,6 +342,8 @@ namespace MU.Network.Game
             Register<SNQWorldList>(GameOpCode.NewQuestWorldList);
 
             Register<SPKLevel>(GameOpCode.PKLevel);
+
+            Register<SMonsterSkillS9Eng>(GameOpCode.MonsterSkill);
         }
     }
 }

@@ -2598,5 +2598,12 @@ namespace MU.Network.Game
         [WZMember(0)] public ushortle Index { get; set; }
         [WZMember(1)] public PKLevel PKLevel { get; set; }
     }
+    [WZContract]
+    public class SMonsterSkillS9Eng : IGameMessage
+    {
+        [WZMember(0)] public ushort MonsterSkillNumber { get; set; }  // 3
+        [WZMember(1)] public ushort ObjIndex { get; set; } // 4
+        [WZMember(2)] public ushort TargetObjIndex { get; set; }	// 6
+    }
 }
 

@@ -66,6 +66,7 @@ namespace MuEmu.Resources.XML
     {
         [XmlElement] public string Monsters { get; set; } = "./Data/Monsters/Monster";
         [XmlElement] public string MonsterSetBase { get; set; } = "./Data/Monsters/MonsterSetBase";
+        [XmlElement] public string SelupanPatterns { get; set; } = "./Data/Monsters/PatterSelupan.xml";
         [XmlElement] public string MapServer { get; set; } = "./Data/MapServer.xml";
     }
 

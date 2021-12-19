@@ -3357,6 +3357,40 @@
   <Normal Type="425" Map="Elbeland" Radio="3" PosX="178" PosY="172" Dir="-1">//CaptainBeasty</Normal>
   <Normal Type="425" Map="Elbeland" Radio="3" PosX="178" PosY="175" Dir="-1">//CaptainBeasty</Normal>
   <Normal Type="425" Map="Elbeland" Radio="3" PosX="176" PosY="176" Dir="-1">//CaptainBeasty</Normal>
+	
+	<Normal Type="459" Map="Selupan" Radio="3" PosX="145" PosY="31" Dir="-1">//Selupan</Normal>
+	
+	<Normal Type="460" Map="Selupan" Radio="3" PosX="141" PosY="27" Dir="-1">//Spider Eggs 1</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="141" PosY="28" Dir="-1">//Spider Eggs 2</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="142" PosY="28" Dir="-1">//Spider Eggs 3</Normal>
+	
+	<Normal Type="460" Map="Selupan" Radio="3" PosX="146" PosY="34" Dir="-1">//Spider Eggs 1</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="147" PosY="34" Dir="-1">//Spider Eggs 2</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="146" PosY="33" Dir="-1">//Spider Eggs 3</Normal>
+	
+	<Normal Type="460" Map="Selupan" Radio="3" PosX="152" PosY="31" Dir="-1">//Spider Eggs 1</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="152" PosY="30" Dir="-1">//Spider Eggs 2</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="151" PosY="30" Dir="-1">//Spider Eggs 3</Normal>
+	
+	<Normal Type="460" Map="Selupan" Radio="3" PosX="146" PosY="29" Dir="-1">//Spider Eggs 1</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="146" PosY="30" Dir="-1">//Spider Eggs 2</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="147" PosY="29" Dir="-1">//Spider Eggs 3</Normal>
+	
+	<Normal Type="460" Map="Selupan" Radio="3" PosX="145" PosY="24" Dir="-1">//Spider Eggs 1</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="144" PosY="24" Dir="-1">//Spider Eggs 2</Normal>
+	<Normal Type="461" Map="Selupan" Radio="3" PosX="144" PosY="25" Dir="-1">//Spider Eggs 3</Normal>
+	
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="144" PosY="25" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="144" PosY="29" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="144" PosY="32" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="144" PosY="35" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="144" PosY="38" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="153" PosY="24" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="153" PosY="28" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="153" PosY="32" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="153" PosY="35" Dir="-1">//Coolutin</Normal>
+	<Normal Type="457" Map="Selupan" Radio="3" PosX="153" PosY="38" Dir="-1">//Coolutin</Normal>
+	
   <Golden Type="43" Map="Noria" Radio="30" PosX="10" PosY="10" PosX2="240" PosY2="240" Dir="-1" Quant="4">//Golden Budge Dragon<Element>None</Element></Golden>
   <Golden Type="44" Map="Lorencia" Radio="30" PosX="182" PosY="128" PosX2="195" PosY2="145" Dir="-1" Quant="7">//Dragon<Element>None</Element></Golden>
   <Golden Type="53" Map="Lorencia" Radio="30" PosX="185" PosY="132" PosX2="185" PosY2="132" Dir="-1" Quant="2">//Golden Titan<Element>None</Element></Golden>

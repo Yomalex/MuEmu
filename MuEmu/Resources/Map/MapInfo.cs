@@ -118,7 +118,13 @@ namespace MuEmu.Resources.Map
             return new Point();
         }
 
+        /// <summary>
+        /// On Player warps into the map (Sender as Player)
+        /// </summary>
         public event EventHandler PlayerJoins;
+        /// <summary>
+        /// On Player leave the map (Sender as Player)
+        /// </summary>
         public event EventHandler PlayerLeaves;
 
         /// <summary>

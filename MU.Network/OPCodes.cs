@@ -227,6 +227,7 @@ namespace MU.Network
         NewQuestWorldLoad = 0x20F6,
         NewQuestWorldList = 0x50F6,
         PKLevel = 0x08F3,
+        MonsterSkill = 0x0069,
     }
 
     public enum GensOpCode
