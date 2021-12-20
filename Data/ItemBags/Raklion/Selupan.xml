@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="65535" Monster="459" Plus="0" LevelMin="1" DropItemCount="10" DropItemRate="15" DropZenRate="85" MinZen="5000" MaxZen="5000">
+    <!-- S4 Items -->
+	<!-- Sword -->
+  <Item Number="26" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="27" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="28" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	
+	<!-- Bow -->
+  <Item Number="2071" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	
+	<!-- Scepter -->
+  <Item Number="1041" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	
+	<!-- Staff -->
+  <Item Number="2590" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="2591" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	
+	<!-- Mace -->
+  <Item Number="1040" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	
+	<!-- Shield -->
+  <Item Number="3089" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="3090" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="3091" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="3092" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	
+	<!-- Excellent -->
+	<!-- Staff -->	
+  <Item Number="2568" MinLevel="0" MaxLevel="0" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2569" MinLevel="0" MaxLevel="0" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2565" MinLevel="0" MaxLevel="0" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2566" MinLevel="0" MaxLevel="0" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	
+	<!-- Spear -->
+  <Item Number="1546" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	
+	<!--Bow-->
+  <Item Number="2065" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	<!--Sword-->
+  <Item Number="13" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="16" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="31" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	<!--Mace-->
+  <Item Number="1031" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	<!--Stick-->
+  <Item Number="2576" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2581" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	<!--Scepter-->
+  <Item Number="1033" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="1034" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	<!--Crossbow-->
+  <Item Number="2064" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="2062" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	<!--Shield-->
+  <Item Number="3085" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="3086" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+  <Item Number="3088" MinLevel="0" MaxLevel="3" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="2" />
+	
+	<!--Sets-->
+	<!--Titan-->
+  <Item Number="3629" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4141" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4653" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5165" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5677" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Brave-->
+  <Item Number="3630" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4142" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4654" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5166" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5678" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Destroy-->
+  <Item Number="3631" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4143" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4655" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5167" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5679" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Phantom-->
+  <Item Number="3632" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4144" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4656" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5168" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5680" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Seraphim-->
+  <Item Number="3633" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4145" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4657" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5169" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5681" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Divine-->
+  <Item Number="3634" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4146" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4658" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5170" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5682" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Royal-->
+  <Item Number="3635" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4147" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4659" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5171" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5683" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Hades-->
+  <Item Number="3636" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4148" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4660" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5172" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5684" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+	<!--Succubus-->
+  <Item Number="3637" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4149" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="4661" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5173" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+  <Item Number="5685" MinLevel="3" MaxLevel="5" Luck="true" Skill="false" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />
+</ItemList>

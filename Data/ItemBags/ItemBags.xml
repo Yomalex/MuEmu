@@ -91,4 +91,6 @@
   <ItemBag Monster="135" Bag="White Wizard\WhiteWizard.xml" />
   <ItemBag Monster="136" Bag="White Wizard\OrcSoldier.xml" />
   <ItemBag Monster="137" Bag="White Wizard\OrcArcher.xml" />
+	<!-- Raklion - Selupan -->
+<ItemBag Monster="459" Bag="Raklion\Selupan.xml" />
 </ItemBags>
