@@ -1,4 +1,5 @@
 ﻿using MU.Resources;
+using MuEmu.Monsters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace MuEmu.Data
         public int Luck { get; set; }
         public int Skill { get; set; }
         public int Option { get; set; }
+        public int Excellent { get; set; }
         public int Count { get; set; }
         public int Success { get; set; }
 
@@ -55,6 +57,9 @@ namespace MuEmu.Data
             if (Option > (item.Option28*4)) // No match Option
                 return false;
 
+            if (Excellent > item.ExcellentCount || (Excellent == 0 && item.ExcellentCount != 0))
+                return false;
+
             return true;
         }
     }
@@ -63,6 +68,7 @@ namespace MuEmu.Data
         public string Name { get; set; }
         public int GeneralSuccess { get; set; }
         public int BaseCost { get; set; }
+        public int NPC { get; set; }
         public List<IngredientInfo> Ingredients { get; set; }
         public List<IngredientInfo> ResultSuccess { get; set; }
         public IngredientInfo ResultFail { get; set; }
@@ -175,8 +181,9 @@ namespace MuEmu.Data
             var cbItems = @char.Inventory.ChaosBox.Items;
             var items = from obj in cbItems select obj.Value;
             var MixMatching = new Dictionary<MixInfo, int>();
+            var npc = @char.Player.Window as Monster;
 
-            foreach (var m in Mixes/*.OrderByDescending(x => x.Ingredients.Count())*/)
+            foreach (var m in Mixes.Where(x => x.NPC == npc.Info.Monster))
             {
                 var ingCount = 0;
                 var iteCount = 0;

@@ -465,22 +465,22 @@ namespace MuEmu.Network.GameServices
                         var mvpcopy = @char.MonstersVP.ToList();
                         var t1 = mvpcopy
                             .FirstOrDefault(
-                            x => MonstersMng
+                            x => (MonstersMng
                             .Instance
-                            .GetMonster(x)
+                            .GetMonster(x)?
                             .Position
                             .Substract(pos)
-                            .Length() < 2);
+                            .Length()??100) < 2);
 
                         var t2 = mvpcopy
                             .Except(new[] { t1 })
                             .FirstOrDefault(
-                            x => MonstersMng
+                            x => (MonstersMng
                             .Instance
-                            .GetMonster(x)
+                            .GetMonster(x)?
                             .Position
                             .Substract(pos)
-                            .Length() < 4);
+                            .Length() ?? 100) < 4);
 
                         var l = new List<ushort>() { message.Target };
 

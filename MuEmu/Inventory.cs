@@ -322,10 +322,11 @@ namespace MuEmu
         /// <summary>
         /// Try add by default an item with size 5x3 (min free space for ChaosBox mixes)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True: it can</returns>
         public bool TryAdd()
         {
-            return _inventory.TryAdd(new System.Drawing.Size(5, 3));
+            var freeSpace = new System.Drawing.Size(5, 3);
+            return _inventory.TryAdd(freeSpace) | (_exInventory1?.TryAdd(freeSpace)??false) | (_exInventory2?.TryAdd(freeSpace) ?? false);
         }
 
         /// <summary>
@@ -587,6 +588,8 @@ namespace MuEmu
                     break;
                 case MoveItemFlags.ChaosBox:
                 case MoveItemFlags.DarkTrainer:
+                case MoveItemFlags.OsboumeBox:
+                case MoveItemFlags.ElpisBox:
                     sFrom = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
@@ -626,6 +629,8 @@ namespace MuEmu
                     break;
                 case MoveItemFlags.ChaosBox:
                 case MoveItemFlags.DarkTrainer:
+                case MoveItemFlags.OsboumeBox:
+                case MoveItemFlags.ElpisBox:
                     sTo = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
@@ -638,7 +643,7 @@ namespace MuEmu
                     sTo = _muun;
                     break;
                 default:
-                    _logger.Error("Invalid move flag:{0}", from);
+                    _logger.Error("Invalid move flag:{0}", to);
                     return false;
             }
 

@@ -11,6 +11,22 @@
   <!-- Aditional JOCreation Add Success -->
   <Jewel type="14" index="22" success="10" />
 
+	<Mix name="Gemstone" success="80" value="100000" NPC="368">
+		<Ingredient iid="0" type="14" index="41" level="0" luck="0" skill="0" option="0" count="1" />
+		<RewardSuccess iid="0" type="14" index="42" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="High refine stone" success="50" value="0" NPC="369">
+		<Ingredient iid="0" type="-1" index="-1" level="255" luck="-1" skill="-1" option="0" excellent="1" count="1" />
+		<RewardSuccess iid="0" type="14" index="44" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Low refine stone" success="20" value="0" NPC="369">
+		<Ingredient iid="0" type="-1" index="-1" level="4-15" luck="-1" skill="-1" option="0" excellent="0" count="1" />
+		<RewardSuccess iid="0" type="14" index="43" />
+		<RewardFail iid="-1" />
+	</Mix>
+
   <Mix name="Mithril" success="80" value="100000">
     <Ingredient iid="0" type="12" index="148" level="0-15" luck="-1" skill="-1" option="0" count="1" />
     <Ingredient iid="1" type="12" index="15" count="1" />

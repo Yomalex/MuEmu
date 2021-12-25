@@ -76,5 +76,18 @@ namespace MuEmu.Util
             var prop = type.GetProperty(name);
             prop.SetValue(a, value);
         }
+
+        public static void SetBit(this byte a, byte bit)
+        {
+            a = (byte)(a | (1 << bit));
+        }
+        public static void ClearBit(this byte a, byte bit)
+        {
+            a = (byte)(a & ~(1 << bit));
+        }
+        public static bool GetBit(this byte a, byte bit)
+        {
+            return (a & (1 << bit)) != 0;
+        }
     }
 }

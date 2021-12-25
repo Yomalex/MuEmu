@@ -58,10 +58,10 @@ namespace MuEmu.Monsters
             if (mob == null)
                 return;
 
-            _clearIndex.Add(mob.Index);
-            Monsters.Remove(mob);
             mob.Map.DelMonster(mob);
             mob.ViewPort.ForEach(x => x.Character.MonstersVP.Remove(mob.Index));
+            _clearIndex.Add(mob.Index);
+            Monsters.Remove(mob);
         }
 
         public void LoadMonster(string file)
@@ -155,7 +155,7 @@ namespace MuEmu.Monsters
 
         public Monster GetMonster(ushort Index)
         {
-            return Monsters.First(x => x.Index == Index);
+            return Monsters.FirstOrDefault(x => x.Index == Index);
         }
         
         public static void Initialize()

@@ -846,6 +846,7 @@ namespace MuEmu.Resources
                     Name = m.Name,
                     BaseCost = m.Value,
                     GeneralSuccess = m.Success,
+                    NPC = m.NPC,
                     Ingredients = new List<IngredientInfo>(),
                     ResultSuccess = new List<IngredientInfo>(),
                 };
@@ -858,6 +859,7 @@ namespace MuEmu.Resources
                         Level = x.Level.Split("-").Select(y => int.Parse(y)).ToArray(),
                         Luck = x.Luck,
                         Option = x.Option,
+                        Excellent = x.Excellent,
                         Skill = x.Skill,
                         Success = x.Success,
                     }

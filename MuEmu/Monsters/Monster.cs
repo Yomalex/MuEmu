@@ -50,8 +50,16 @@ namespace MuEmu.Monsters
                 if (_state == value)
                     return;
 
-                if (value == ObjectState.Die)
-                    _regen = DateTimeOffset.Now.AddSeconds(Info.RegenTime);
+                switch(value)
+                {
+                    case ObjectState.Die:
+                        _regen = DateTimeOffset.Now.AddSeconds(Info.RegenTime);
+                        Die?.Invoke(this, new EventArgs());
+                        break;
+                    case ObjectState.Dying:
+                        Dying?.Invoke(this, new EventArgs());
+                        break;
+                }
 
                 _state = value;
             }
@@ -72,7 +80,6 @@ namespace MuEmu.Monsters
                 if (_life <= 0)
                 {
                     _life = 0;
-                    Die?.Invoke(this, new EventArgs());
                     State = ObjectState.Dying;
                 }
 
@@ -141,6 +148,10 @@ namespace MuEmu.Monsters
         /// On die monster trigger this event with sender as Monster object
         /// </summary>
         public event EventHandler Die;
+        /// <summary>
+        /// On Dying monster trigger this event with sender as Monster object
+        /// </summary>
+        public event EventHandler Dying;
 
         /// <summary>
         /// On regen monster trigger this event with sender as Monster object
@@ -175,7 +186,7 @@ namespace MuEmu.Monsters
             Map = ResourceCache.Instance.GetMaps()[MapID];
             Map.AddMonster(this);
             State = ObjectState.Regen;
-            Die += OnDie;
+            Dying += OnDying;
             Spells = new Spells(this);
             ItemBag = new List<Item>();
             _nextAction = DateTimeOffset.Now;
@@ -492,7 +503,7 @@ namespace MuEmu.Monsters
             return true;
         }
 
-        private void OnDie(object obj, EventArgs args)
+        private void OnDying(object obj, EventArgs args)
         {
             gObjGiveItemSearch(Level);
 

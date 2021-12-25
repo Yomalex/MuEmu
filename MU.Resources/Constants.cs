@@ -1011,6 +1011,7 @@ namespace MU.Resources
         PersonalShop,
         DarkTrainer = 5,
         ElpisBox,
+        OsboumeBox,
         PentagramBox = 17,
         Event = 21,
         Muun = 22,

@@ -48,6 +48,9 @@ namespace MuEmu.Resources.XML
         public IngredientInfoDto[] RewardSuccess { get; set; }
 
         public IngredientInfoDto RewardFail { get; set; }
+
+        [XmlAttribute("NPC")]
+        public int NPC { get; set; } = 238;// Chaos Goblins by Default
     }
 
     [XmlType(AnonymousType = true)]
@@ -73,6 +76,9 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute("option")]
         public int Option { get; set; } = -1;
+
+        [XmlAttribute("excellent")]
+        public int Excellent { get; set; } = -1;
 
         [XmlAttribute("count")]
         public int Count { get; set; } = 1;

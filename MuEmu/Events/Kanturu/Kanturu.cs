@@ -129,15 +129,17 @@ namespace MuEmu.Events.Kanturu
                 mob.Active = false;
             }
 
+            mob.Map.SendAsync(new SNotice(NoticeType.Gold, mob.Info.Name + " killed by " + mob.Killer.Character.Name));
+
             if(CurrentState == KanturuBattleOfMayaState.Maya1 && _LeftHand)
             {
-                Trigger(KanturuBattleOfMayaState.End1);
+                Trigger(KanturuBattleOfMayaState.End1, TimeSpan.FromSeconds(5));
             }else if (CurrentState == KanturuBattleOfMayaState.Maya2 && _RightHand)
             {
-                Trigger(KanturuBattleOfMayaState.End2);
+                Trigger(KanturuBattleOfMayaState.End2, TimeSpan.FromSeconds(5));
             }else if (CurrentState == KanturuBattleOfMayaState.Maya3 && _LeftHand && _RightHand)
             {
-                Trigger(KanturuBattleOfMayaState.End3);
+                Trigger(KanturuBattleOfMayaState.End3, TimeSpan.FromSeconds(5));
             }
         }
 

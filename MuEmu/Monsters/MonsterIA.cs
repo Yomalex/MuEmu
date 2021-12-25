@@ -68,7 +68,7 @@ namespace MuEmu.Monsters
 
         public static int InitGroup(int group, EventHandler die = null)
         {
-            _logger.Information(ServerMessages.GetMessage(Messages.IA_CreateGroup)/*"Loading group {0}"*/, group);
+            _logger.Information(ServerMessages.GetMessage(Messages.IA_CreateGroup, group)/*"Loading group {0}"*/);
             Monster Leader = null;
             foreach (var mob in _instance._IAGroups[group])
             {
@@ -114,7 +114,7 @@ namespace MuEmu.Monsters
 
         public static void DelGroup(int group)
         {
-            _logger.Information(ServerMessages.GetMessage(Messages.IA_DeleteGroup)/*"Removing group {0}"*/, group);
+            _logger.Information(ServerMessages.GetMessage(Messages.IA_DeleteGroup, group)/*"Removing group {0}"*/);
             foreach (var mob in _instance._IAGroups[group])
             {
                 MonstersMng.Instance.DeleteMonster(mob.monster);

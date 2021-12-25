@@ -113,6 +113,9 @@
   <NPC Type="257" Map="Elbeland" Radio="0" PosX="100" PosY="218" Dir="1">//Elf Soldier</NPC>
   <NPC Type="257" Map="Elbeland" Radio="0" PosX="45" PosY="164" Dir="1">//Elf Soldier</NPC>
   <NPC Type="540" Map="Elbeland" Radio="0" PosX="49" PosY="216" Dir="2">//Double Goer</NPC>
+	
+  <NPC Type="368" Map="Kantru3" Radio="0" PosX="77" PosY="175" Dir="2">//Elpis</NPC>
+	
   <NPC Type="468" Map="SantaTown" Radio="0" PosX="191" PosY="24" Dir="1">//Little Santa Yellow</NPC>
   <NPC Type="469" Map="SantaTown" Radio="0" PosX="205" PosY="9" Dir="1">//Little Santa Green</NPC>
   <NPC Type="470" Map="SantaTown" Radio="0" PosX="236" PosY="7" Dir="1">//Little Santa Red</NPC>

@@ -210,11 +210,11 @@ namespace MuEmu
                                     //obj.Update();
                                     break;
                                 case ObjectState.Dying:
+                                    obj.State = ObjectState.Dying2;
+                                    break;
+                                case ObjectState.Dying2:
                                     obj.State = ObjectState.Die;
                                     break;
-                                //case ObjectState.Dying2:
-                                //    obj.State = ObjectState.Die;
-                                //    break;
                                 case ObjectState.Die:
                                     obj.State = ObjectState.WaitRegen;
                                     break;
@@ -473,7 +473,7 @@ namespace MuEmu
                                 select obj).ToList();
 
                 deadObj = (from obj in playerVP
-                           where obj.State == ObjectState.WaitRegen || obj.Active == false
+                           where obj.State == ObjectState.Dying2 || obj.Active == false
                            select obj).ToList();
 
                 lostObj = (from obj in targetVP

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MU.Resources;
+using MuEmu.Util;
 
 namespace MuEmu
 {
@@ -110,6 +111,8 @@ namespace MuEmu
         }
         public DateTime ExpireTime { get; set; } = DateTime.MinValue;
         public byte OptionExe { get; set; }
+
+        public byte ExcellentCount => CountOfExcellent();
         public byte SetOption { get; set; }
         public uint BuyPrice { get; set; }
         public uint SellPrice { get; set; }
@@ -1291,6 +1294,18 @@ namespace MuEmu
             return $"[{Serial}]" + BasicInfo.Name + (Plus > 0 ? " +" + Plus.ToString() : "") + (Luck ? " +Luck" : "") + (Skill ? " +Skill" : "") + (Option28 > 0 ? " +Option" : "") + (PentagramaMainAttribute != Element.None ? " (" + PentagramaMainAttribute.ToString() + ")" : "");
         }
 
+        private byte CountOfExcellent()
+        {
+            byte count = 0;
+            for(byte i =0; i < 8; i++)
+            {
+                if(OptionExe.GetBit(i))
+                {
+                    count ++;
+                }
+            }
+            return count;
+        }
         private int RepairItemPrice()
         {
             var baseDur = (float)DurabilityBase;
