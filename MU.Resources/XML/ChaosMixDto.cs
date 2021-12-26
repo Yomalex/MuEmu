@@ -85,5 +85,8 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute("success")]
         public int Success { get; set; } = 100;
+
+        [XmlAttribute("harmony")]
+        public int Harmony { get; set; } = -1;
     }
 }

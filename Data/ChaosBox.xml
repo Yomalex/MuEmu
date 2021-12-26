@@ -11,6 +11,11 @@
   <!-- Aditional JOCreation Add Success -->
   <Jewel type="14" index="22" success="10" />
 
+	<Mix name="Restore enchancement" success="100" value="130000" NPC="370">
+		<Ingredient iid="0" type="-1" index="-1" level="255" luck="-1" skill="0" option="0" count="1" harmony="1" />
+		<RewardSuccess iid="0" harmony="0" />
+		<RewardFail iid="-1" />
+	</Mix>
 	<Mix name="Gemstone" success="80" value="100000" NPC="368">
 		<Ingredient iid="0" type="14" index="41" level="0" luck="0" skill="0" option="0" count="1" />
 		<RewardSuccess iid="0" type="14" index="42" />

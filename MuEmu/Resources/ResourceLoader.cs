@@ -860,6 +860,7 @@ namespace MuEmu.Resources
                         Luck = x.Luck,
                         Option = x.Option,
                         Excellent = x.Excellent,
+                        Harmony = x.Harmony,
                         Skill = x.Skill,
                         Success = x.Success,
                     }
@@ -873,6 +874,8 @@ namespace MuEmu.Resources
                         Level = x.Level.Split("-").Select(y => int.Parse(y)).ToArray(),
                         Luck = x.Luck,
                         Option = x.Option,
+                        Excellent = x.Excellent,
+                        Harmony = x.Harmony,
                         Skill = x.Skill,
                         Success = x.Success,
                     }
@@ -885,6 +888,8 @@ namespace MuEmu.Resources
                         Level = m.RewardFail.Level.Split("-").Select(y => int.Parse(y)).ToArray(),
                         Luck = m.RewardFail.Luck,
                         Option = m.RewardFail.Option,
+                        Excellent = m.RewardFail.Excellent,
+                        Harmony = m.RewardFail.Harmony,
                         Skill = m.RewardFail.Skill,
                         Success = m.RewardFail.Success,
                     };

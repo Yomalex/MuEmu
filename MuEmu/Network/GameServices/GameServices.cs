@@ -644,6 +644,10 @@ namespace MuEmu.Network.GameServices
                         await inv.Delete(message.Source);
                     }
                     break;
+                case 7211: // Lower Refining Stone
+                case 7212: // Higher Refining Stone
+                    inv.Get(message.Dest).Harmony.UseRefiningStone(Source);
+                    break;
                 case 13 * 512 + 66: //Invitation of the Santa Town's
 
                     break;
@@ -661,7 +665,7 @@ namespace MuEmu.Network.GameServices
                             Source.Durability -= (byte)(5 - Target.Durability);
                         }
                         var LostMap = new Item(new ItemNumber(7196), new { Source.Plus });
-                        inv.Delete(message.Dest);
+                        await inv.Delete(message.Dest);
                         inv.Add(LostMap);
                     }
                     break;

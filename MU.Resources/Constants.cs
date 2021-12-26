@@ -1012,6 +1012,7 @@ namespace MU.Resources
         DarkTrainer = 5,
         ElpisBox,
         OsboumeBox,
+        JerridonBox,
         PentagramBox = 17,
         Event = 21,
         Muun = 22,

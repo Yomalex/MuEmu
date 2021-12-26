@@ -22,6 +22,7 @@ namespace MuEmu.Data
         public int Option { get; set; }
         public int Excellent { get; set; }
         public int Count { get; set; }
+        public int Harmony { get; set; }
         public int Success { get; set; }
 
         public bool Match(Item item)
@@ -58,6 +59,9 @@ namespace MuEmu.Data
                 return false;
 
             if (Excellent > item.ExcellentCount || (Excellent == 0 && item.ExcellentCount != 0))
+                return false;
+
+            if(Harmony > item.Harmony.Option)
                 return false;
 
             return true;
@@ -155,9 +159,21 @@ namespace MuEmu.Data
                 mix.Plus = res2?.Item.Plus??0;
             }
 
+            if(res.Harmony != -1)
+            {
+                mix.Harmony.Option = (byte)res.Harmony;
+                mix.Harmony.Level = 0;
+            }
+            else
+            {
+                mix.Harmony.Option = res2?.Item.Harmony.Option??0;
+                mix.Harmony.Level = res2?.Item.Harmony.Level??0;
+            }
+
             mix.Luck = res.Luck == -1 ? res2?.Item.Luck??false : (res.Luck > 0 ? true : false);
             mix.Skill = res.Skill == -1 ? res2?.Item.Skill??false : (res.Skill > 0 ? true : false);
             mix.Option28 = (byte)(res.Option == -1 ? res2?.Item.Option28??0x00 : res.Option);
+            mix.OptionExe = (byte)(res.Excellent == -1 ? res2?.Item.OptionExe ?? 0x00 : res.Excellent);
             mix.Character = @char;
             mix.Account = @char.Account;
             mix.Character = @char;

@@ -28,6 +28,25 @@ namespace MuEmu
         public int EffectValue => GetEffectValue();
         public string EffectName => GetEffectName();
 
+        public async void UseRefiningStone(Item refiningStone)
+        {
+            if (Option == 0)
+                return;
+
+            var percent = refiningStone.Number.Number == 7211 ? 25 : 75;
+
+            if (percent < Program.RandomProvider(100))
+            {
+                Level = 0;
+            }
+            else
+            {
+                Level++;
+            }
+            Item.OnItemChange();
+            await Item.Character.Inventory.Delete(refiningStone);
+        }
+
         private byte GetItemType()
         {
             if (Item == null)

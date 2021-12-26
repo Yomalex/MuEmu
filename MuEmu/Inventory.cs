@@ -590,6 +590,7 @@ namespace MuEmu
                 case MoveItemFlags.DarkTrainer:
                 case MoveItemFlags.OsboumeBox:
                 case MoveItemFlags.ElpisBox:
+                case MoveItemFlags.JerridonBox:
                     sFrom = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
@@ -631,6 +632,7 @@ namespace MuEmu
                 case MoveItemFlags.DarkTrainer:
                 case MoveItemFlags.OsboumeBox:
                 case MoveItemFlags.ElpisBox:
+                case MoveItemFlags.JerridonBox:
                     sTo = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
