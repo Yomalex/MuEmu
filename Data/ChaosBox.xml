@@ -11,6 +11,150 @@
   <!-- Aditional JOCreation Add Success -->
   <Jewel type="14" index="22" success="10" />
 
+	<Mix name="380 Option Aura Staff" success="50" value="10000000">
+		<Ingredient iid="0" type="5" index="19" level="4-6" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Aura Staff" success="60" value="10000000">
+		<Ingredient iid="0" type="5" index="19" level="7-9" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Aura Staff" success="70" value="10000000">
+		<Ingredient iid="0" type="5" index="19" level="10-13" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Aura Staff" success="80" value="10000000">
+		<Ingredient iid="0" type="5" index="19" level="14-15" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+
+	<Mix name="380 Option Solay Scepter" success="50" value="10000000">
+		<Ingredient iid="0" type="2" index="14" level="4-6" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Solay Scepter" success="60" value="10000000">
+		<Ingredient iid="0" type="2" index="14" level="7-9" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Solay Scepter" success="70" value="10000000">
+		<Ingredient iid="0" type="2" index="14" level="10-13" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Solay Scepter" success="80" value="10000000">
+		<Ingredient iid="0" type="2" index="14" level="14-15" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+
+	<Mix name="380 Option Explosion Blade" success="50" value="10000000">
+		<Ingredient iid="0" type="0" index="23" level="4-6" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Explosion Blade" success="60" value="10000000">
+		<Ingredient iid="0" type="0" index="23" level="7-9" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Explosion Blade" success="70" value="10000000">
+		<Ingredient iid="0" type="0" index="23" level="10-13" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Explosion Blade" success="80" value="10000000">
+		<Ingredient iid="0" type="0" index="23" level="14-15" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+
+	<Mix name="380 Option Grand Viper Staff" success="50" value="10000000">
+		<Ingredient iid="0" type="5" index="12" level="4-6" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Grand Viper Staff" success="60" value="10000000">
+		<Ingredient iid="0" type="5" index="12" level="7-9" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Grand Viper Staff" success="70" value="10000000">
+		<Ingredient iid="0" type="5" index="12" level="10-13" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option Grand Viper Staff" success="80" value="10000000">
+		<Ingredient iid="0" type="5" index="12" level="14-15" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+
+	<Mix name="380 Option BoneBalde" success="50" value="10000000">
+		<Ingredient iid="0" type="0" index="22" level="4-6" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option BoneBalde" success="60" value="10000000">
+		<Ingredient iid="0" type="0" index="22" level="7-9" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option BoneBalde" success="70" value="10000000">
+		<Ingredient iid="0" type="0" index="22" level="10-13" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
+	<Mix name="380 Option BoneBalde" success="80" value="10000000">
+		<Ingredient iid="0" type="0" index="22" level="14-15" luck="-1" skill="-1" option="4" count="1" />
+		<Ingredient iid="1" type="14" index="42" />
+		<Ingredient iid="2" type="14" index="31" />
+		<RewardSuccess iid="0" excellent="128" />
+		<RewardFail iid="0" />
+	</Mix>
 	<Mix name="Restore enchancement" success="100" value="130000" NPC="370">
 		<Ingredient iid="0" type="-1" index="-1" level="255" luck="-1" skill="0" option="0" count="1" harmony="1" />
 		<RewardSuccess iid="0" harmony="0" />

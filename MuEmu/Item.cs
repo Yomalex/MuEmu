@@ -114,6 +114,8 @@ namespace MuEmu
 
         public byte ExcellentCount => CountOfExcellent();
         public byte SetOption { get; set; }
+
+        public bool Option380 { get => (OptionExe & 0x80) == 1; set => OptionExe = (byte)((OptionExe & 0x7F) | (value ? 0x80 : 0x00)); }
         public uint BuyPrice { get; set; }
         public uint SellPrice { get; set; }
         public int RepairPrice => RepairItemPrice();
@@ -425,7 +427,7 @@ namespace MuEmu
                     var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
                     ms.WriteByte((byte)tmp);
                     ms.WriteByte(Durability);
-                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0) | (byte)OptionExe));
+                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0) | (byte)(OptionExe&0x3f)));
                     ms.WriteByte(SetOption); // Acient Option
 
                     byte itemPeriod = 0;
@@ -436,7 +438,11 @@ namespace MuEmu
                         itemPeriod <<= 1;
                     }
 
-                    ms.WriteByte((byte)(((Number & 0x1E00) >> 5) | (((byte)OptionExe & 0x80) >> 4) | itemPeriod));
+                    byte Option380 = (byte)((OptionExe & 0x80) >> 4);
+                    byte LeftItemType = (byte)((Number & 0x1E00) >> 5);
+                    byte complete = (byte)(LeftItemType | Option380 | itemPeriod);
+
+                    ms.WriteByte(complete);
                     if (IsPentagramItem || IsPentagramJewel)
                     {
                         ms.WriteByte(BonusSocket);
@@ -995,9 +1001,9 @@ namespace MuEmu
 
         public void Delete(GameContext db)
         {
+            _deleted = true;
             var _db = db.Items.Find(Serial);
             Logger.Information("Deleting item {0}", ToString());
-            _deleted = true;
             if (_db == null)
                 return;
             db.Remove(_db);
@@ -1039,11 +1045,26 @@ namespace MuEmu
                 case 1:
                     switch (Harmony.Option)
                     {
+                        case 1:
+                            AttackMin += Harmony.EffectValue;
+                            break;
+                        case 2:
+                            AttackMax += Harmony.EffectValue;
+                            break;
                         case 3: //DECREASE_REQUIRE_STR
                             ReqStrength -= Harmony.EffectValue;
                             break;
                         case 4: //DECREASE_REQUIRE_DEX
                             ReqAgility -= Harmony.EffectValue;
+                            break;
+                        case 5:
+                            AttackMax += Harmony.EffectValue;
+                            AttackMin += Harmony.EffectValue;
+                            break;
+                        case 6:
+                            //CriticalDamage += Harmony.EffectValue;
+                            break;
+                        case 7:
                             break;
                     }
                     break;
@@ -1055,6 +1076,19 @@ namespace MuEmu
                             break;
                         case 3: //DECREASE_REQUIRE_DEX
                             ReqAgility -= Harmony.EffectValue;
+                            break;
+                    }
+                    break;
+                case 3:// Defense
+                    switch (Harmony.Option)
+                    {
+                        case 1:
+                            Defense += Harmony.EffectValue;
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            //IncreaseHP += Harmony.EffectValue;
                             break;
                     }
                     break;

@@ -1784,7 +1784,7 @@ namespace MuEmu.Network.GameServices
             session.Player.Character.Inventory.Remove(transfer);
             @char.Inventory.Add(transfer);
 
-            @char.Inventory.Remove(message.Position, true);
+            await @char.Inventory.Remove(message.Position, true);
             var res = session.Player.Character.Inventory.Add(item);
 
             session.Player.Character.Money -= item.PShopValueZ;

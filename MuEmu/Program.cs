@@ -279,8 +279,8 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("cmd", Character.AddCmd)))
                     .AddCommand(new Command<GSSession>("set", autority:MustBeGameMaster)
                         .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
-                        .AddCommand(new Command<GSSession>("zen", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Money = uint.Parse(b.Argument))
-                        .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument)))))
+                        .AddCommand(new Command<GSSession>("zen", UpdateZen))
+                        .AddCommand(new Command<GSSession>("exp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Experience = uint.Parse(b.Argument))))
                     .AddCommand(new Command<GSSession>("levelup", LevelUp, MustBeGameMaster, "Level up current character, use: '/levelup 100' add 100 levels to current character"))
                     .AddCommand(new Command<GSSession>("reset", Character.Reset, null, "Resets current Character"))
                     .AddCommand(new Command<GSSession>("drop", CreateItem, MustBeGameMaster, "Create item <Number>")))
@@ -297,6 +297,11 @@ namespace MuEmu
             }
         }
 
+        private static void UpdateZen(object sender, CommandEventArgs e)
+        {
+            var session = sender as GSSession;
+            session.Player.Character.Money = uint.Parse(e.Argument);
+        }
         private static void CreateItem(object sender, CommandEventArgs e)
         {
             var session = sender as GSSession;

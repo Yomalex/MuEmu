@@ -49,6 +49,8 @@ namespace MuEmu
         private int _criticalRate;
         private float _reflect;
         private float _increaseHP;
+        private float _increaseSD;
+        private float _increaseSDRecovery;
         private float _increaseMP;
         private float _dropZen;
         private float _dmgDecrease;
@@ -58,11 +60,14 @@ namespace MuEmu
         private float _increaseWizardry;
         private bool _tradeOpen;
         private List<Transaction> _transactions = new List<Transaction>();
+        private float _increaseDamage;
+        private float _attackSuccessRate;
 
         public float ExcellentRate => _excellentRate;
         public int CriticalRate => _criticalRate;
         public int Defense => _defense;
         public int DefenseRate => _defenseRate;
+        public float IncreaseAttack => _increaseDamage;
         public float IncreaseWizardryRate => _increaseWizardryRate;
         public float IncreaseWizardry => _increaseWizardry;
         public float IncreaseLifeRate => _increaseLifeRate;
@@ -70,6 +75,8 @@ namespace MuEmu
         public float DropZen => _dropZen;
         public float Reflect => _reflect;
         public float IncreaseHP => _increaseHP;
+        public float IncreaseSD => _increaseSD;
+        public float IncreaseSDRecovery => _increaseSDRecovery;
         public float IncreaseMP => _increaseMP;
         public float DmgDecrease => _dmgDecrease;
 
@@ -432,6 +439,40 @@ namespace MuEmu
                 _dmgDecrease += item.DamageDecrease;
                 _increaseMP += item.IncreaseMana;
                 _increaseHP += item.IncreaseHP;
+
+                if(item.Option380)
+                {
+                    switch(item.Number.Type)
+                    {
+                        case ItemType.Sword:
+                        case ItemType.Axe:
+                        case ItemType.Scepter:
+                        case ItemType.Spear:
+                        case ItemType.BowOrCrossbow:
+                        case ItemType.Staff:
+                            _increaseDamage += 200.0f;
+                            _attackSuccessRate += 10.0f;
+                            break;
+                        case ItemType.Helm:
+                            _increaseSDRecovery += 20;
+                            _defenseRate += 10;
+                            break;
+                        case ItemType.Armor:
+                            _defenseRate += 10;
+                            break;
+                        case ItemType.Pant:
+                            _defenseRate += 10;
+                            break;
+                        case ItemType.Gloves:
+                            _increaseHP += 200;
+                            _defenseRate += 10;
+                            break;
+                        case ItemType.Boots:
+                            _increaseSD += 700;
+                            _defenseRate += 10;
+                            break;
+                    }
+                }
             }
         }
 
@@ -824,7 +865,7 @@ namespace MuEmu
         /// Remove item from character inventory without delete it from database
         /// </summary>
         /// <param name="from">Position</param>
-        public void Remove(byte from, bool send = false)
+        public async Task Remove(byte from, bool send = false)
         {
             var st = GetStorage(from);
             st?.Remove(from);
@@ -833,7 +874,7 @@ namespace MuEmu
             if (send)
             {
                 var session = Character.Player.Session;
-                _ = session.SendAsync(new SInventoryItemDelete(from, 1));
+                await session.SendAsync(new SInventoryItemDelete(from, 1));
             }
         }
 
@@ -846,15 +887,11 @@ namespace MuEmu
         public async Task Delete(byte target, bool send = true)
         {
             _needSave = true;
-            var session = Character.Player.Session;
             var st = GetStorage(target);
             var it = st?.Get(target) ?? Unequip((Equipament)target);
             _forDelete.Add(it);
 
-            Remove(target);
-
-            if(send)
-                await session.SendAsync(new SInventoryItemDelete(target, 1));
+            await Remove(target, send);
         }
 
         /// <summary>
@@ -865,7 +902,6 @@ namespace MuEmu
         /// <returns></returns>
         public async Task Delete(Item item, bool send = true)
         {
-            var st = GetStorage(item);
             var slot = (byte)item.SlotId;
             await Delete(slot, send);
         }
@@ -1272,7 +1308,10 @@ namespace MuEmu
         /// <param name="storage"></param>
         public void DeleteAll(Storage storage)
         {
-            _forDelete.AddRange(storage.Items.Values);
+            foreach(var it in storage.Items.Values)
+            {
+                _=Delete(it,false);
+            }
             storage.Clear();
         }
 
@@ -1387,7 +1426,7 @@ namespace MuEmu
 
         internal void Remove(List<Item> transfer)
         {
-            transfer.ForEach(x => Remove((byte)x.SlotId));
+            transfer.ForEach(x => Remove((byte)x.SlotId).Wait());
         }
     }
 }

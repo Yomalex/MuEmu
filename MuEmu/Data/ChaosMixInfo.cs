@@ -117,26 +117,32 @@ namespace MuEmu.Data
             if (successRate > 100)
                 successRate = 100;
             var rand = new Random();
+            ChaosBoxMixResult result = ChaosBoxMixResult.Success;
+
             if (rand.Next(0, 100) > successRate - 1)
             {
-                if(ResultFail.IID == -1)
-                    @char.Inventory.DeleteChaosBox();
-
-                return ChaosBoxMixResult.Fail;
+                result = ChaosBoxMixResult.Fail;
             }
 
             @char.Inventory.DeleteChaosBox();
 
             var prob = rand.Next(0, 100);
             IngredientInfo res = null;
-            foreach (var r in ResultSuccess)
+            if (result == ChaosBoxMixResult.Success)
             {
-                if(prob < r.Success)
+                foreach (var r in ResultSuccess)
                 {
-                    res = r;
-                    break;
+                    if (prob < r.Success)
+                    {
+                        res = r;
+                        break;
+                    }
+                    prob -= r.Success;
                 }
-                prob -= r.Success;
+            }
+            else
+            {
+                res = ResultFail;
             }
 
             if (res == null)
@@ -144,42 +150,45 @@ namespace MuEmu.Data
 
             var res2 = pairIng.FirstOrDefault(x => x.Ingredient.IID == res.IID);
 
-            var mix = new Item(res.ItemNumber != ItemNumber.Invalid ? res.ItemNumber : res2.Item.Number);
-            
-            if (res.Level.Length == 1)
+            if (res.ItemNumber != ItemNumber.Invalid || res2 != null)
             {
-                mix.Plus = res.Level[0] == 255 ? res2.Item.Plus : (byte)res.Level[0];
-            }
-            else if (res.Level.Length == 2)
-            {
-                mix.Plus = (byte)rand.Next(res.Level[0], res.Level[1]);
-            }
-            else
-            {
-                mix.Plus = res2?.Item.Plus??0;
+                var mix = new Item(res.ItemNumber != ItemNumber.Invalid ? res.ItemNumber : res2.Item.Number);
+
+                if (res.Level.Length == 1)
+                {
+                    mix.Plus = res.Level[0] == 255 ? res2.Item.Plus : (byte)res.Level[0];
+                }
+                else if (res.Level.Length == 2)
+                {
+                    mix.Plus = (byte)rand.Next(res.Level[0], res.Level[1]);
+                }
+                else
+                {
+                    mix.Plus = res2?.Item.Plus ?? 0;
+                }
+
+                if (res.Harmony != -1)
+                {
+                    mix.Harmony.Option = (byte)res.Harmony;
+                    mix.Harmony.Level = 0;
+                }
+                else
+                {
+                    mix.Harmony.Option = res2?.Item.Harmony.Option ?? 0;
+                    mix.Harmony.Level = res2?.Item.Harmony.Level ?? 0;
+                }
+
+                mix.Luck = res.Luck == -1 ? res2?.Item.Luck ?? false : (res.Luck > 0 ? true : false);
+                mix.Skill = res.Skill == -1 ? res2?.Item.Skill ?? false : (res.Skill > 0 ? true : false);
+                mix.Option28 = (byte)(res.Option == -1 ? res2?.Item.Option28 ?? 0x00 : res.Option);
+                mix.OptionExe = (byte)(res.Excellent == -1 ? res2?.Item.OptionExe ?? 0x00 : res.Excellent);
+                mix.Character = @char;
+                mix.Account = @char.Account;
+                mix.Character = @char;
+                @char.Inventory.ChaosBox.Add(mix);
             }
 
-            if(res.Harmony != -1)
-            {
-                mix.Harmony.Option = (byte)res.Harmony;
-                mix.Harmony.Level = 0;
-            }
-            else
-            {
-                mix.Harmony.Option = res2?.Item.Harmony.Option??0;
-                mix.Harmony.Level = res2?.Item.Harmony.Level??0;
-            }
-
-            mix.Luck = res.Luck == -1 ? res2?.Item.Luck??false : (res.Luck > 0 ? true : false);
-            mix.Skill = res.Skill == -1 ? res2?.Item.Skill??false : (res.Skill > 0 ? true : false);
-            mix.Option28 = (byte)(res.Option == -1 ? res2?.Item.Option28??0x00 : res.Option);
-            mix.OptionExe = (byte)(res.Excellent == -1 ? res2?.Item.OptionExe ?? 0x00 : res.Excellent);
-            mix.Character = @char;
-            mix.Account = @char.Account;
-            mix.Character = @char;
-            @char.Inventory.ChaosBox.Add(mix);
-
-            return ChaosBoxMixResult.Success;
+            return result;
         }
 
         public override string ToString()

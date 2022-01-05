@@ -1069,7 +1069,7 @@ namespace MuEmu
             _hpMax = (att.Life + att.LevelLife * (Level - 1 + (MasterLevel.Level - 1)) + att.VitalityToLife * Vitality)* (1.0f + Inventory.IncreaseHP + Spells.IncreaseMaxHP);
             _mpMax = (att.Mana + att.LevelMana * (Level - 1 + (MasterLevel.Level - 1)) + att.EnergyToMana * Energy)* (1.0f + Inventory.IncreaseMP);
             _bpMax = ((att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal)) * (1.0f + Spells.IncreaseMaxAG);
-            _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/;
+            _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/ + Inventory.IncreaseSD;
 
             Inventory.CalcStats();
             ObjCalc();
@@ -1428,6 +1428,7 @@ namespace MuEmu
             attack += Spells.BuffList.Sum(x => x.AttackAdd);
             attack += rightHand?.AditionalDamage ?? 0;
             attack += leftHand?.AditionalDamage ?? 0;
+            attack += Inventory.IncreaseAttack;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1707,6 +1708,7 @@ namespace MuEmu
             attack += _rand.Next(spell.Damage.X, spell.Damage.Y);
             attack += rightHand?.AditionalDamage ?? 0;
             attack += leftHand?.AditionalDamage ?? 0;
+            attack += Inventory.IncreaseAttack;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1751,6 +1753,7 @@ namespace MuEmu
             attack += Inventory.IncreaseWizardry;
             attack *= 1.0f + Inventory.IncreaseWizardryRate;
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
+            attack += Inventory.IncreaseAttack;
 
             if (wing != null) // Wings increase Dmg 12%+(Level*2)%
             {
@@ -1854,7 +1857,7 @@ namespace MuEmu
             var update2 = _mp < MaxMana || _bp < MaxStamina;
 
             if (_hp < MaxHealth) _hp += Math.Min(add+Spells.IncreaseAutoHPRegeneration, MaxHealth - _hp);
-            if (_sd < MaxShield) _sd += Math.Min(add+Spells.IncreaseAutoSDRegeneration, MaxShield - _sd);
+            if (_sd < MaxShield) _sd += Math.Min(add+Spells.IncreaseAutoSDRegeneration+Inventory.IncreaseSDRecovery, MaxShield - _sd);
 
             float addMp = 0;
             float addBp = 0;
