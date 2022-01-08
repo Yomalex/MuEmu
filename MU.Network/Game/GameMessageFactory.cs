@@ -89,7 +89,7 @@ namespace MU.Network.Game
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<CTeleportS9>(GameOpCode.Teleport);
                     Register<CMagicDurationS9>(GameOpCode.MagicDuration);
-                    //Register<CPositionSet>(GameOpCode.Position);
+                    Register<CPositionSetS9>(GameOpCode.Position9Eng);
                     Register<CBeattackS9>(GameOpCode.Position);
                     Register<SMagicAttackS9Eng>(GameOpCode.MagicAttack);
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
@@ -175,6 +175,7 @@ namespace MU.Network.Game
             Register<SSkillKey>(GameOpCode.SkillKey);
             Register<SAction>(GameOpCode.Rotation);
             Register<SPositionSet>(GameOpCode.Position);
+            Register<SPositionSetS9Eng>(GameOpCode.Position9Eng);
             Register<SPointAdd>(GameOpCode.PointAdd);
             Register<SCharRegen>(GameOpCode.CharRegen);
             Register<SCharRegenS12Eng>(GameOpCode.CharRegen);
@@ -188,6 +189,7 @@ namespace MU.Network.Game
             Register<STalk>(GameOpCode.Talk);
             Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
             Register<STax>(GameOpCode.Tax);
+            Register<CWarehouseMoney>(GameOpCode.WarehouseMoney);
             Register<SWarehouseMoney>(GameOpCode.WarehouseMoney);
             Register<SQuestWindow>(GameOpCode.QuestWindow);
             Register<SBuy>(GameOpCode.Buy);

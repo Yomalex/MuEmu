@@ -59,6 +59,7 @@ namespace MuEmu.Resources.XML
         [XmlElement] public float Zen { get; set; } = 10.0f;
         [XmlElement] public int DropRate { get; set; } = 60;
         [XmlElement] public ushort MaxPartyLevelDifference { get; set; } = 400;
+        [XmlElement] public bool PVP { get; set; } = false;
     }
 
     [XmlType(AnonymousType = true)]
@@ -66,8 +67,11 @@ namespace MuEmu.Resources.XML
     {
         [XmlElement] public string Monsters { get; set; } = "./Data/Monsters/Monster";
         [XmlElement] public string MonsterSetBase { get; set; } = "./Data/Monsters/MonsterSetBase";
-        [XmlElement] public string SelupanPatterns { get; set; } = "./Data/Monsters/PatterSelupan.xml";
+        [XmlElement] public string SelupanPatterns { get; set; } = "./Data/Monsters/PatternSelupan.xml";
         [XmlElement] public string MapServer { get; set; } = "./Data/MapServer.xml";
+        [XmlElement] public string MayaLeftHandPatterns { get; set; } = "./Data/Monsters/PatternMayaLeftHand.xml";
+        [XmlElement] public string MayaRightHandPatterns { get; set; } = "./Data/Monsters/PatternMayaRightHand.xml";
+        [XmlElement] public string NightmarePatterns { get; set; } = "./Data/Monsters/PatternNightmare.xml";
     }
 
     [XmlType(AnonymousType = true)]

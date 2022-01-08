@@ -159,6 +159,18 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class CPositionSetS9 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte X { get; set; }
+
+        [WZMember(1)]
+        public byte Y { get; set; }
+
+        public Point Position => new Point(X, Y);
+    }
+
+    [WZContract]
     public class CPointAdd : IGameMessage
     {
         [WZMember(0)]
@@ -981,4 +993,14 @@ namespace MU.Network.Game
     [WZContract]
     public class CNewQuest : IGameMessage
     { }
+
+    [WZContract]
+    public class CWarehouseMoney : IGameMessage
+    {
+        //0xC1
+        //0x08
+        //0x81
+        [WZMember(0)] public byte Type { get; set; }
+        [WZMember(1)] public uint Money { get; set; }
+    }
 }

@@ -107,6 +107,9 @@ namespace MuEmu.Events.Kanturu
         private Kanturu _manager;
         private bool _LeftHand = false;
         private bool _RightHand = false;
+        private PatternManager _hand1;
+        private PatternManager _hand2;
+
         public KanturuBattleOfMaya(Kanturu mng)
         {
             _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(KanturuBattleOfMaya));
@@ -154,7 +157,6 @@ namespace MuEmu.Events.Kanturu
                 NextState == KanturuBattleOfMayaState.EndCycle2 ||
                 NextState == KanturuBattleOfMayaState.EndCycle3)
             {
-                //var str = "[Kanturu] Next batlle will start in 1minute.";
                 var str = ServerMessages.GetMessage(Messages.Kanturu_NextBattle);
                 Program.MapAnoucement(Maps.Kantru1, str).Wait();
                 Program.MapAnoucement(Maps.Kantru2, str).Wait();
@@ -183,14 +185,21 @@ namespace MuEmu.Events.Kanturu
                     _manager.SendAll(new SKanturuBattleTime { BattleTime = (int)TimeLeft.TotalMilliseconds });
                     break;
                 case KanturuBattleOfMayaState.Maya1:
-                    _LeftHand = false;
-                    _RightHand = false;
-                    _manager.LoadScene(3);
-                    MonsterIA.InitGroup(20, DieMonster);
+                    {
+                        _LeftHand = false;
+                        _RightHand = false;
+                        _manager.LoadScene(3);
+                        MonsterIA.InitGroup(20, DieMonster);
+                        var h1 = MonstersMng.Instance.Monsters.FirstOrDefault(x => x.Info.Monster == 363 || x.Info.Monster == 362);
+                        _hand1 = new PatternManager(h1, Program.XMLConfiguration.Files.MayaLeftHandPatterns);
+                        _hand1.UseSkill += _hand_UseSkill;
+                    }
                     break;
                 case KanturuBattleOfMayaState.End1:
+                    _hand1.UseSkill -= _hand_UseSkill;
+                    _hand1 = null;
                     MonsterIA.DelGroup(20);
-                    if(_manager.MonsterCount()>1 || !_LeftHand)
+                    if (_manager.MonsterCount()>1 || !_LeftHand)
                     {
                         _manager.FailState = true;
                         Trigger(KanturuBattleOfMayaState.End);
@@ -214,12 +223,19 @@ namespace MuEmu.Events.Kanturu
                     _manager.SendAll(new SKanturuBattleTime { BattleTime = (int)TimeLeft.TotalMilliseconds });
                     break;
                 case KanturuBattleOfMayaState.Maya2:
-                    _LeftHand = false;
-                    _RightHand = false;
-                    MonsterIA.InitGroup(21, DieMonster);
-                    _manager.LoadScene(4);
+                    {
+                        _LeftHand = false;
+                        _RightHand = false;
+                        MonsterIA.InitGroup(21, DieMonster);
+                        _manager.LoadScene(4);
+                        var h1 = MonstersMng.Instance.Monsters.FirstOrDefault(x => x.Info.Monster == 363 || x.Info.Monster == 362);
+                        _hand2 = new PatternManager(h1, Program.XMLConfiguration.Files.MayaRightHandPatterns);
+                        _hand2.UseSkill += _hand_UseSkill;
+                    }
                     break;
                 case KanturuBattleOfMayaState.End2:
+                    _hand2.UseSkill -= _hand_UseSkill;
+                    _hand2 = null;
                     MonsterIA.DelGroup(21);
                     if (_manager.MonsterCount() > 1 || !_RightHand)
                     {
@@ -243,12 +259,24 @@ namespace MuEmu.Events.Kanturu
                     _manager.SendAll(new SKanturuBattleTime { BattleTime = (int)TimeLeft.TotalMilliseconds });
                     break;
                 case KanturuBattleOfMayaState.Maya3:
-                    _LeftHand = false;
-                    _RightHand = false;
-                    MonsterIA.InitGroup(22, DieMonster);
-                    _manager.LoadScene(5);
+                    {
+                        _LeftHand = false;
+                        _RightHand = false;
+                        MonsterIA.InitGroup(22, DieMonster);
+                        _manager.LoadScene(5);
+                        var h1 = MonstersMng.Instance.Monsters.FirstOrDefault(x => x.Info.Monster == 362);
+                        var h2 = MonstersMng.Instance.Monsters.FirstOrDefault(x => x.Info.Monster == 363);
+                        _hand1 = new PatternManager(h1, Program.XMLConfiguration.Files.MayaLeftHandPatterns);
+                        _hand2 = new PatternManager(h2, Program.XMLConfiguration.Files.MayaRightHandPatterns);
+                        _hand1.UseSkill += _hand_UseSkill;
+                        _hand2.UseSkill += _hand_UseSkill;
+                    }
                     break;
                 case KanturuBattleOfMayaState.End3:
+                    _hand1.UseSkill -= _hand_UseSkill;
+                    _hand2.UseSkill -= _hand_UseSkill;
+                    _hand1 = null;
+                    _hand2 = null;
                     MonsterIA.DelGroup(22);
                     if (_manager.MonsterCount() > 1 || !_LeftHand || !_RightHand)
                     {
@@ -283,8 +311,53 @@ namespace MuEmu.Events.Kanturu
             }
         }
 
+        private void _maya_UseSkill(object sender, UseSkillEventArgs e)
+        {
+            var monster = sender as Monster;
+            var msg0 = new SKanturuWideAttack
+            {
+                ObjClass = monster.Info.Monster,
+                Type = 0,
+            };
+            _manager.SendAll(msg0);
+        }
+
+        private void _hand_UseSkill(object sender, UseSkillEventArgs e)
+        {
+            var monster = sender as Monster;
+            var msg1 = new SKanturuWideAttack
+            {
+                ObjClass = monster.Info.Monster,
+                Type = 1,
+            };
+            DamageType type;
+            Spell spell;
+            if (monster.Target != null)
+            {
+                var attack = monster.MonsterAttack(out type, out spell);
+                monster.Target?.Character.GetAttacked(monster.Index, 1, 1, attack, type, spell, 0);
+            }
+            switch (e.Spell)
+            {
+                case MonsterSpell.Pressure:
+                    //monster.Spells.AttackSend(Spell.pres, monster.Target.ID, true);
+                    break;
+                case MonsterSpell.PowerWave:
+                    monster.Spells.AttackSend(Spell.PowerWave, monster.Target.ID, true);
+                    break;
+                case MonsterSpell.BrokenShower:
+                    _manager.SendAll(msg1);
+                    break;
+                case MonsterSpell.IceStorm:
+                    break;
+            }
+
+        }
+
         public override void Update()
         {
+            _hand1?.Update();
+            _hand2?.Update();
             switch(CurrentState)
             {
                 case KanturuBattleOfMayaState.Maya1:
@@ -312,11 +385,14 @@ namespace MuEmu.Events.Kanturu
             }
             base.Update();
         }
+
+
     }
 
     public class KanturuBattleOfNightmare : StateMachine<KanturuBattleOfNightmareState>
     {
         private Kanturu _manager;
+        private PatternManager _nightmare;
         public KanturuBattleOfNightmare(Kanturu mng)
         {
             _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(KanturuBattleOfNightmare));
@@ -350,13 +426,19 @@ namespace MuEmu.Events.Kanturu
                     _manager.SendAll(new SNotice(NoticeType.Gold, ServerMessages.GetMessage(Messages.Kanturu_NightmareNotify)));
                     break;
                 case KanturuBattleOfNightmareState.Start:
-                    _manager.LoadScene(2);
-                    MonsterIA.InitGroup(23, DieMonster);
-                    _manager.FailState = true;
-                    Trigger(KanturuBattleOfNightmareState.End, TimeSpan.FromSeconds(1200));
-                    _manager.SendAll(new SKanturuBattleTime { BattleTime = (int)TimeLeft.TotalSeconds });
+                    {
+                        _manager.LoadScene(2);
+                        MonsterIA.InitGroup(23, DieMonster);
+                        var mob = MonstersMng.Instance.Monsters.FirstOrDefault(x => x.Info.Monster == 361);
+                        _nightmare = new PatternManager(mob, Program.XMLConfiguration.Files.NightmarePatterns);
+                        _nightmare.UseSkill += _nightmare_UseSkill;
+                        _manager.FailState = true;
+                        Trigger(KanturuBattleOfNightmareState.End, TimeSpan.FromSeconds(1200));
+                        _manager.SendAll(new SKanturuBattleTime { BattleTime = (int)TimeLeft.TotalSeconds });
+                    }
                     break;
                 case KanturuBattleOfNightmareState.End:
+                    _nightmare = null;
                     MonsterIA.DelGroup(23);
                     _logger.Information("Battle result:{0}", _manager.FailState?"Fail":"Win");
                     _manager.SendAll(new SKanturuBattleResult { Result = (byte)(_manager.FailState ? 0 : 1) });
@@ -372,6 +454,28 @@ namespace MuEmu.Events.Kanturu
                         _manager.Trigger(EventState.Closed);
                     }
                     Trigger(KanturuBattleOfNightmareState.None);
+                    break;
+            }
+        }
+
+        private void _nightmare_UseSkill(object sender, UseSkillEventArgs e)
+        {
+            var monster = (Monster)sender;
+            switch(e.Spell)
+            {
+                case MonsterSpell.DogAttack:
+                    break;
+                case MonsterSpell.Potlike:
+                    break;
+                case MonsterSpell.Summon:
+                    break;
+                case MonsterSpell.FireJeans:
+                    break;
+                case MonsterSpell.Warp:
+                        monster.Warp(Maps.Kantru3,
+                        (byte)(monster.Position.X + Program.RandomProvider(6, -6)),
+                        (byte)(monster.Position.Y + Program.RandomProvider(6, -6))
+                        );
                     break;
             }
         }

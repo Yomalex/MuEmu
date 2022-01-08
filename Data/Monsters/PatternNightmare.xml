@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<Patterns Monster="361" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Pattern Number="1">
+		<Skill>DogAttack</Skill>
+	</Pattern>
+	<Pattern Number="2">
+		<Skill>DogAttack</Skill>
+		<Skill>Potlike</Skill>
+	</Pattern>
+	<Pattern Number="3">
+		<Skill>DogAttack</Skill>
+		<Skill>Potlike</Skill>
+		<Skill>Summon</Skill>
+	</Pattern>
+	<Pattern Number="4">
+		<Skill>DogAttack</Skill>
+		<Skill>Potlike</Skill>
+		<Skill>Summon</Skill>
+		<Skill>FireJeans</Skill>
+	</Pattern>
+	<Pattern Number="5">
+		<Skill>DogAttack</Skill>
+		<Skill>Potlike</Skill>
+		<Skill>Summon</Skill>
+		<Skill>FireJeans</Skill>
+		<Skill>Warp</Skill>
+	</Pattern>
+</Patterns>

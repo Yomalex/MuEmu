@@ -66,6 +66,11 @@ namespace MuEmu.Network.GameServices
                     if (target.Player.Character.Health <= 0.0f)
                         return;
 
+                    var rivals = session.Player.Character.Duel == target.Player.Character.Duel;
+
+                    if (!(Program.XMLConfiguration.GamePlay.PVP || rivals))
+                        return;
+
                     /*await session.Player
                         .SendV2Message(new SAction((ushort)session.ID, message.DirDis, message.AttackAction, targetId));*/
 

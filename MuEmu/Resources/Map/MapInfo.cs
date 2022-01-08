@@ -41,14 +41,12 @@ namespace MuEmu.Resources.Map
 
         internal Item ItemPickUp(Character @char, ushort number)
         {
-            var item = (from obj in @char.Map.Items
-                        where obj.Index == number && obj.State == ItemState.Created
-                        select obj).FirstOrDefault();
-
-            if(item == null)
+            if(!Items.ContainsKey(number) || Items[number].State != ItemState.Created)
             {
-                throw new Exception("Invalid item");
+                throw new Exception("This item don't exists.");
             }
+
+            var item = Items[number];
 
             if (
                 item.Item.Number != ItemNumber.Zen && 
@@ -62,9 +60,9 @@ namespace MuEmu.Resources.Map
 
             var msg = new SViewPortItemDestroy { ViewPort = new VPDestroyDto[] { new VPDestroyDto(item.Index) } };
             var session = @char.Player.Session;
-            _ = session.SendAsync(msg);
-            @char.SendV2Message(msg);
             item.State = ItemState.Deleting;
+            session.SendAsync(msg).Wait();
+            @char.SendV2Message(msg);
             return item.Item;
         }
 
@@ -76,7 +74,8 @@ namespace MuEmu.Resources.Map
         public int Height { get; }
         public List<Monster> Monsters { get; }
         public List<Character> Players { get; }
-        public List<ItemInMap> Items { get; }
+        public Dictionary<ushort, ItemInMap> Items { get; }
+        public ushort CurIndex { get; set; }
         public int Map { get; }
 
         public bool IsEvent { get; }
@@ -177,7 +176,7 @@ namespace MuEmu.Resources.Map
 
             Monsters = new List<Monster>();
             Players = new List<Character>();
-            Items = new List<ItemInMap>();
+            Items = new Dictionary<ushort, ItemInMap>();
             switch((Maps)Map)
             {
                 case Maps.Lorencia:
@@ -341,7 +340,7 @@ namespace MuEmu.Resources.Map
             var own = DateTimeOffset.Now.AddSeconds(60);
 
             ItemInMap it = new ItemInMap {
-                Index = (ushort)(Items.Count),
+                Index = CurIndex,
                 Item = item,
                 State = ItemState.Creating,
                 Position = new Point(X, Y),
@@ -350,8 +349,18 @@ namespace MuEmu.Resources.Map
                 OwnedTime = own,
             };
 
-            lock(Items)
-                Items.Add(it);
+            lock (Items)
+            {
+                if (Items.ContainsKey(CurIndex))
+                {
+                    Items[CurIndex] = it;
+                }
+                else
+                {
+                    Items.Add(CurIndex, it);
+                }
+                CurIndex++;
+            }
 
             return valid;
         }

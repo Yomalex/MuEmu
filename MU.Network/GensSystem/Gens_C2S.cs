@@ -16,4 +16,14 @@ namespace MU.Network.GensSystem
     {
         //[WZMember(0)] public byte Result { get; set; }
     }
+
+    [WZContract]
+    public class CRequestMemberInfo : IGensMessage
+        {}
+
+    [WZContract]
+    public class CRequestReward : IGensMessage
+    {
+        [WZMember(0)] public byte Reward { get; set; }
+    }
 }

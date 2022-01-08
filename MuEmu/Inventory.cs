@@ -493,7 +493,7 @@ namespace MuEmu
                     try
                     {
                         firts.Overlap(it);
-                        return (byte)firts.SlotId;
+                        return 0xfd;// (byte)firts.SlotId;
                     }
                     catch (Exception ex)
                     {
@@ -843,6 +843,24 @@ namespace MuEmu
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns a list of all items in the main inventory including extended inventorys
+        /// </summary>
+        /// <returns></returns>
+        public List<Item> MainInventory()
+        {
+            var items = new List<Item>();
+            items.AddRange(_equipament.Values);
+            items.AddRange(_inventory.Items.Values);
+            
+            if(_exInventory1 != null)
+                items.AddRange(_exInventory1.Items.Values);
+            if (_exInventory2 != null)
+                items.AddRange(_exInventory2.Items.Values);
+
+            return items;
         }
 
         /// <summary>

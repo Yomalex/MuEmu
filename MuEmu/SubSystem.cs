@@ -229,17 +229,17 @@ namespace MuEmu
                         {
                             foreach (var it in map.Items)
                             {
-                                switch (it.State)
+                                switch (it.Value.State)
                                 {
                                     case ItemState.Creating:
-                                        it.State = ItemState.Created;
+                                        it.Value.State = ItemState.Created;
                                         break;
                                     case ItemState.Created:
-                                        if (it.validTime < DateTimeOffset.Now)
-                                            it.State = ItemState.Deleting;
+                                        if (it.Value.validTime < DateTimeOffset.Now)
+                                            it.Value.State = ItemState.Deleting;
                                         break;
                                     case ItemState.Deleting:
-                                        it.State = ItemState.Deleted;
+                                        it.Value.State = ItemState.Deleted;
                                         break;
                                 }
                             }
@@ -620,7 +620,7 @@ namespace MuEmu
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)
         {
             var oldVP = plr.ItemsVP;
-            var targetVP = Map.Items.ToList();
+            var targetVP = Map.Items.Values.ToList();
             var pos = plr.Position;
             pos.Offset(15, 15);
 
@@ -799,10 +799,10 @@ namespace MuEmu
                                 {
                                     using (var transaction = db.Database.BeginTransaction())
                                     {
-                                        var fordel = map.Value.Items.Where(x => x.State == ItemState.Deleting).ToList();
+                                        var fordel = map.Value.Items.Values.Where(x => x.State == ItemState.Deleting).ToList();
                                         fordel.ForEach(x =>
                                         {
-                                            map.Value.Items.Remove(x);
+                                            map.Value.Items.Remove(x.Index);
                                             x.Item.Delete(db);
                                         });
 

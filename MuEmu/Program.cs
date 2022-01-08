@@ -264,6 +264,7 @@ namespace MuEmu
                     .AddCommand(new Command<GSSession>("gates", (object a, CommandEventArgs b) => ResourceCache.Instance.ReloadGates(), help:"Reload gate list")))
                 .AddCommand(new Command<GSSession>("create", autority: MustBeGameMaster, help:"Create client side files")
                     .AddCommand(new Command<GSSession>("movereq", DumpMoveReq, null, "Create MoveRequest file for client")))
+                .AddCommand(new Command<GSSession>("decrypt", DumpFile, null, "Aply Decrypt to file"))
                 .AddCommand(new Command<GSSession>("db", autority: MustBeGameMaster, help:"Generate db changes, use help")
                     .AddCommand(new Command<GSSession>("migrate", Migrate, help:"delete DB and create it again"))
                     .AddCommand(new Command<GSSession>("create", Create, help:"Create DB"))
@@ -362,6 +363,26 @@ namespace MuEmu
             }
         }
 
+        private static void DumpFile(object sender, CommandEventArgs e)
+        {
+            var file = e.Argument.Split(" ");
+            byte[] data;
+            var chunck = int.Parse(file[1]);
+            using (var fs = new FileStream(file[0], FileMode.Open))
+            {
+                data = new byte[fs.Length];
+                fs.Read(data, 0, data.Length);
+            }
+            using(var fs = new FileStream(file[0] + "d", FileMode.Create))
+            {
+                fs.Seek(4, SeekOrigin.Begin);
+                MakeXOR(data, 4, chunck);
+                fs.Write(data, 0,data.Length);
+            }
+
+            Log.Information(file[0]+" -> "+ file[0] + "d P:"+ chunck);
+        }
+
         private static void DumpMoveReq(object sender, CommandEventArgs e)
         {
             var gates = ResourceCache.Instance.GetGates();
@@ -371,12 +392,16 @@ namespace MuEmu
                 .Select(x => x.Value);
 
             using(var fs = new FileStream("./MoveReq.bmd", FileMode.Create))
+            using (var fs2 = new FileStream("./MoveReq_eng.bmd", FileMode.Create))
             {
                 var num = BitConverter.GetBytes(moves.Count());
                 fs.Write(num, 0, 4);
+                fs2.Write(num, 0, 4);
 
                 var data = new byte[0xFA0];
+                var data2 = new byte[0xFA0];
                 using (var ms = new MemoryStream(data))
+                using(var ms2 = new MemoryStream(data2))
                 {
                     foreach (var mov in moves)
                     {
@@ -390,11 +415,23 @@ namespace MuEmu
                             ServerName = mov.Name,
                         };
                         Serializer.Serialize(ms, bmdData);
+                        Serializer.Serialize(ms2, new MoveReqBMDS9Eng
+                        {
+                            Gate = mov.Number,
+                            Level = mov.ReqLevel,
+                            MoveNumber = mov.Move,
+                            Zen = mov.ReqZen,
+                            ClientName = mov.Name,
+                            ServerName = mov.Name,
+                        });
+                        Log.Information("{0}\t{1}\t\t{2}\t{3}\t{4}", mov.Move, mov.Name, mov.ReqLevel, mov.ReqZen, mov.Number);
                     }
                 }
 
                 MakeXOR(data, 0, 80);
+                MakeXOR(data2, 0, 84);
                 fs.Write(data, 0, data.Length);
+                fs2.Write(data2, 0, data2.Length);
             }
 
             Log.Information("MoveReq.bmd Created");

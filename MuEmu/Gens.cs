@@ -104,6 +104,11 @@ namespace MuEmu
             player.Session.SendAsync(obj).Wait();
         }
 
+        internal void UpdateInfo(GensDto dto)
+        {
+            Ranking = dto.Ranking;
+        }
+
         internal void Join(GensType influence)
         {
             Influence = influence;

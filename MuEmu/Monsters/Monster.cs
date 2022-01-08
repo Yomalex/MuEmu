@@ -65,6 +65,7 @@ namespace MuEmu.Monsters
             }
         }
         public ObjectType Type { get; set; }
+        public MonsterState MonsterState { get => _monsterState; set => _monsterState = value; }
         public MonsterBase Info { get; }
         public ushort Level => Info.Level;
         public float Life
@@ -167,11 +168,13 @@ namespace MuEmu.Monsters
                 _delta = _leader.Position.Substract(Position);
             }
         }
+        public bool CanGoToBattleState { get; set; }
         private Point _delta;
         private Monster _leader;
 
         public Monster(ushort Monster, ObjectType type, Maps mapID, Point position, byte direction, Element element = Element.None)
         {
+            CanGoToBattleState = true;
             Type = type;
             MapID = mapID;
             Spawn = position;
@@ -292,7 +295,7 @@ namespace MuEmu.Monsters
             if (Life == 0 && State == ObjectState.Live)
                 Life = MaxLife;
 
-            if (_nextAction > DateTimeOffset.Now)
+            if (_nextAction > DateTimeOffset.Now || Spells.BufActive(SkillStates.SkillSleep))
                 return;
 
             lock (ViewPort)
@@ -311,14 +314,16 @@ namespace MuEmu.Monsters
 
             if (_monsterState == MonsterState.Walking)
             {
-                _path.RemoveAt(0);
                 _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.MoveSpeed);
 
                 if (_path.Count == 0)
+                {
                     _monsterState = Target != null ? MonsterState.Battle : MonsterState.Idle;
+                }
                 else
                 {
                     Position = _path[0];
+                    _path.RemoveAt(0);
 
                     if (Target != null)
                     {
@@ -346,7 +351,7 @@ namespace MuEmu.Monsters
                     return;
                 }
                 var dis = Distance(Target.Character.Position, Position);
-                if (dis <= Info.AttackRange)
+                if (dis <= Info.AttackRange && CanGoToBattleState)
                 {
                     _nextAction = DateTimeOffset.Now.AddMilliseconds(Info.AttackSpeed);
                     DamageType type = DamageType.Miss;
@@ -817,6 +822,12 @@ namespace MuEmu.Monsters
 
         public void Warp(Maps map, byte x, byte y)
         {
+            var att = Map.GetAttributes(x, y);
+            if(att.Contains(MapAttributes.NoWalk) || att.Contains(MapAttributes.Hide))
+            {
+                return;
+            }
+
             Map.DelMonster(this);
             Map = ResourceCache.Instance.GetMaps()[map];
             Map.AddMonster(this);

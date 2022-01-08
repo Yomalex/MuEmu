@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<Patterns Monster="363" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Pattern Number="1">
+		<Skill>Pressure</Skill>
+	</Pattern>
+	<Pattern Number="2">
+		<Skill>Pressure</Skill>
+		<Skill>PowerWave</Skill>
+	</Pattern>
+	<Pattern Number="3">
+		<Skill>Pressure</Skill>
+		<Skill>PowerWave</Skill>
+		<Skill>IceStorm</Skill>
+	</Pattern>
+	<Pattern Number="4">
+		<Skill>Pressure</Skill>
+		<Skill>PowerWave</Skill>
+		<Skill>IceStorm</Skill>
+		<Skill>BrokenShower</Skill>
+	</Pattern>
+</Patterns>

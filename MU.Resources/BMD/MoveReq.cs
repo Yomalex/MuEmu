@@ -30,4 +30,29 @@ namespace MuEmu.Resources.BMD
         public string ServerName { get => btServerName.MakeString(); set => btServerName = value.GetBytes(); }
         public string ClientName { get => btClientName.MakeString(); set => btClientName = value.GetBytes(); }
     }
+
+    [WZContract]
+    public class MoveReqBMDS9Eng
+    {
+        [WZMember(0)]
+        public int MoveNumber { get; set; }
+
+        [WZMember(1, typeof(BinaryStringSerializer), 32)]
+        public string ServerName { get; set; }
+
+        [WZMember(2, typeof(BinaryStringSerializer), 32)]
+        public string ClientName { get; set; }
+
+        [WZMember(3)]
+        public int Level { get; set; }
+
+        [WZMember(4)]
+        public int Level2 { get; set; }
+
+        [WZMember(5)]
+        public int Zen { get; set; }
+
+        [WZMember(6)]
+        public int Gate { get; set; }
+    }
 }

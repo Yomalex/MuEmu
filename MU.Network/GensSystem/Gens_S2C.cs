@@ -80,4 +80,17 @@ namespace MU.Network.GensSystem
             wIndex = Index.ShufleEnding();
         }
     }
+
+    [WZContract]
+    public class SGensReward : IGensMessage
+    {
+        [WZMember(0)] public byte ItemType { get; set; }
+    }
+
+    [WZContract]
+    public class SGensBattleZoneData : IGensMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public ushort[] MapList { get; set; } = new ushort[103];
+        [WZMember(1, typeof(ArraySerializer))] public int[] WarpList { get; set; } = new int[60];
+    }
 }

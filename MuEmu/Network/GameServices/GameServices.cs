@@ -151,6 +151,19 @@ namespace MuEmu.Network.GameServices
             @char.SendV2Message(msg);
         }
 
+        [MessageHandler(typeof(CPositionSetS9))]
+        public async Task CPositionSet(GSSession session, CPositionSetS9 message)
+        {
+            var pos = message.Position;
+            //Logger.ForAccount(session).Debug("PositionS9 set Recv {0}", pos);
+            var @char = session.Player.Character;
+            var msg = new SPositionSetS9Eng((ushort)session.ID, pos);
+            @char.Position = pos;
+            @char.TPosition = pos;
+            await session.SendAsync(msg);
+            @char.SendV2Message(msg);
+        }
+
         #region Chat MessageHandlers
         // 0xC1 0x00
         [MessageHandler(typeof(CChatNickname))]
@@ -749,7 +762,7 @@ namespace MuEmu.Network.GameServices
         throwItem:
             await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
 
-            logger.Information("Drop item {0} at {1},{2} in {3} deleted at {4}", item.Number, message.MapX, message.MapY, plr.Character.MapID, date);
+            logger.Information("Drop item {0} at {1},{2} in {3} deleted at {4}", item, message.MapX, message.MapY, plr.Character.MapID, date);
         }
 
         [MessageHandler(typeof(CItemGet))]
@@ -765,14 +778,27 @@ namespace MuEmu.Network.GameServices
             }
             catch(Exception ex)
             {
+                var msgex = VersionSelector.CreateMessage<SItemGet>((byte)0xff, Array.Empty<byte>());
+                session.SendAsync(msgex).Wait();
                 session.Exception(ex);
                 return;
             }
 
             if(pickup.IsZen)
             {
-                session.Player.Character.Money += pickup.BuyPrice;
-            }else
+                if(session.Player.Character.Money == uint.MaxValue)
+                {
+                    var msgex = VersionSelector.CreateMessage<SItemGet>((byte)0xff, Array.Empty<byte>());
+                    session.SendAsync(msgex).Wait();
+                    return;
+                }
+
+                if (session.Player.Character.Money <= uint.MaxValue - pickup.BuyPrice)
+                    session.Player.Character.Money += pickup.BuyPrice;
+                else
+                    session.Player.Character.Money = uint.MaxValue;
+            }
+            else
             {
                 pos = @char.Inventory.Add(pickup);
                 pickup = @char.Inventory.Get(pos);
@@ -864,7 +890,7 @@ namespace MuEmu.Network.GameServices
                         await session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_Vault_active, session.Player.Account.ActiveVault + 1)));
                         await session.SendAsync(new STalk { Result = NPCWindow.Warehouse });
                         await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
-                        await session.SendAsync(new SWarehouseMoney(session.Player.Account.VaultMoney, session.Player.Character.Money));
+                        await session.SendAsync(new SWarehouseMoney(true, session.Player.Account.VaultMoney, session.Player.Character.Money));
                         break;
                     case NPCAttributeType.GuildMaster:
                         GuildManager.NPCTalk(session.Player, obj);
@@ -1240,6 +1266,31 @@ namespace MuEmu.Network.GameServices
         public void CWarehouseUseEnd(GSSession session)
         {
             session.Player.Character.Inventory.Lock = false;
+        }
+
+        [MessageHandler(typeof(CWarehouseMoney))]
+        public async Task CWarehouseMoney(GSSession session, CWarehouseMoney message)
+        {
+            var r = false;
+            if (message.Type == 0x00)
+            {
+                if (session.Player.Character.Money >= message.Money)
+                {
+                    session.Player.Account.VaultMoney += (int)message.Money;
+                    session.Player.Character.Money -= message.Money;
+                    r = true;
+                }
+            }
+            else
+            {
+                if (session.Player.Account.VaultMoney >= message.Money)
+                {
+                    session.Player.Account.VaultMoney -= (int)message.Money;
+                    session.Player.Character.Money += message.Money;
+                    r = true;
+                }
+            }
+            await session.SendAsync(new SWarehouseMoney(r, session.Player.Account.VaultMoney, session.Player.Character.Money));
         }
 
         [MessageHandler(typeof(CItemModify))]

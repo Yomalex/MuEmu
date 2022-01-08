@@ -333,6 +333,13 @@ namespace MU.Network.Event
         [WZMember(0)] public byte Result { get; set; }
     }
 
+    [WZContract]
+    public class SKanturuWideAttack : IEventMessage
+    {
+        [WZMember(0)] public ushortle ObjClass{get; set; } // 4
+        [WZMember(1)] public byte Type { get; set; }	// 6
+    }
+
     // Imperial
     [WZContract]
     public class SImperialEnterResult : IEventMessage

@@ -66,6 +66,7 @@ namespace MU.Network.Event
             Register<SKanturuBattleTime>(EventOpCode.KanturuBattleTime);
             Register<SKanturuMonsterUserCount>(EventOpCode.KanturuMonsterUserCount);
             Register<SKanturuBattleResult>(EventOpCode.KanturuBattleResult);
+            Register<SKanturuWideAttack>(EventOpCode.KanturuWideAttack);
 
             // Imperial
             Register<CImperialGuardianEnter>(EventOpCode.ImperialGuardianEnter);

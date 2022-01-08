@@ -554,6 +554,28 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class SPositionSetS9Eng : IGameMessage
+    {
+        [WZMember(0)]
+        public ushortle Number { get; set; }
+
+        [WZMember(1)]
+        public byte X { get; set; }
+
+        [WZMember(2)]
+        public byte Y { get; set; }
+
+        public SPositionSetS9Eng() { }
+
+        public SPositionSetS9Eng(ushort number, Point pos)
+        {
+            Number = number;
+            X = (byte)pos.X;
+            Y = (byte)pos.Y;
+        }
+    }
+
+    [WZContract]
     public class SPointAdd : IGameMessage
     {
         [WZMember(0)]
@@ -704,23 +726,25 @@ namespace MU.Network.Game
     [WZContract]
     public class SWarehouseMoney : IGameMessage
     {
+        [WZMember(0)] public byte Result { get; set; }
         /// <summary>
         /// Warehouse Money
         /// </summary>
-        [WZMember(0)]
+        [WZMember(1)]
         public int wMoney { get; set; }
 
         /// <summary>
         /// Inventory Money
         /// </summary>
-        [WZMember(1)]
+        [WZMember(2)]
         public uint iMoney { get; set; }
 
         public SWarehouseMoney()
         { }
 
-        public SWarehouseMoney(int _wMoney, uint _iMoney)
+        public SWarehouseMoney(bool _result, int _wMoney, uint _iMoney)
         {
+            Result = (byte)(_result ? 1 : 0);
             wMoney = _wMoney;
             iMoney = _iMoney;
         }

@@ -65,6 +65,26 @@ namespace MuEmu
             new List<float> { 0.10f, 0.10f, 0.10f },//pk2
             new List<float> { 0.20f, 0.20f, 0.20f } //murderer
         };
+        private readonly List<float> pkLevelDropPVM = new List<float>
+        {
+            0.00f,
+            0.00f,
+            0.00f,
+            0.06f, // Commoner
+            0.25f, // warning
+            0.50f,
+            0.90f, // murderer
+        };
+        private readonly List<float> pkLevelDropPVP = new List<float>
+        {
+            0.00f,
+            0.00f,
+            0.00f,
+            0.00f, // Commoner
+            0.25f, // warning
+            0.50f,
+            0.90f, // murderer
+        };
 
         private float _hp;
         private float _hpMax;
@@ -338,9 +358,9 @@ namespace MuEmu
                 if (value == _zen)
                     return;
 
-                if (value < 0)
+                if (value > int.MaxValue)
                 {
-                    _zen = 0;
+                    _zen = int.MaxValue;
                 }
                 else
                 {
@@ -1017,13 +1037,20 @@ namespace MuEmu
             else if (Level > 10)
                 range = 1;
 
+            var drop = 0.0f;
+
             if (_killerId >= MonstersMng.MonsterStartIndex)
             {
                 Experience -= (long)(Experience * pklevelEXP[(byte)PKLevel][range]);
                 Money -= (uint)(Money * 0.04f);
+                Player.Account.VaultMoney -= (int)(Player.Account.VaultMoney * 0.04f);
+
+                drop = pkLevelDropPVM[(byte)PKLevel];
             }
             else
             {
+                drop = pkLevelDropPVP[(byte)PKLevel];
+
                 var killer = Program.server.Clients.FirstOrDefault(x => x.ID == _killerId);
                 if(killer != null)
                 {
@@ -1055,7 +1082,24 @@ namespace MuEmu
                                     break;
                             }
                         }
+                        else
+                        {
+                            
+                        }
                     }
+                }
+            }
+
+            // Drop on Die
+            if(drop*100 > Program.RandomProvider(100))
+            {
+                var allItems = Inventory.MainInventory();
+                if(allItems.Any())
+                {
+                    var rand = Program.RandomProvider(allItems.Count);
+                    var it = allItems[rand];
+                    _ = Inventory.Remove((byte)it.SlotId, true);
+                    Map.AddItem(Position.X, Position.Y, it, this);
                 }
             }
         }

@@ -173,6 +173,7 @@ namespace MU.Network
         Attack = 0xFFD7,
         AttackEng = 0xFF11,
         Position = 0xFFDF,
+        Position9Eng = 0xFF15,
 
         MiniMapNPC = 0x03E7,
         PeriodItemCount = 0x11D2,
@@ -237,7 +238,10 @@ namespace MU.Network
         RequestLeave = 0x03F8,
         ViewPortGens = 0x05F8,
         SendGensInfo = 0x07F8,
+        RequestReward = 0x09F8,
         RemoveMember = 0x7F9,
+        RewardSend = 0x0AF8,
+        RequestMemberInfo = 0x0BF8,
     }
 
     public enum GuildOpCode
@@ -289,6 +293,7 @@ namespace MU.Network
         KanturuStateChange = 0x03D1,
         KanturuBattleResult = 0x04D1,
         KanturuBattleTime = 0x05D1,
+        KanturuWideAttack = 0x06D1,
         KanturuMonsterUserCount = 0x07D1,
 
         ImperialGuardianEnter = 0x01F7,

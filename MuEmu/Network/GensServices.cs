@@ -1,5 +1,6 @@
 ﻿using MU.Network.GensSystem;
 using MU.Resources;
+using MuEmu.Entity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -55,6 +56,36 @@ namespace MuEmu.Network
 
             @char.Gens.Leave();
             await session.SendAsync(new SGensLeaveResult(1, (ushort)session.ID));
+        }
+
+        [MessageHandler(typeof(CRequestReward))]
+        public async Task RequestReward(GSSession session, CRequestReward message)
+        {
+            var result = new SGensReward { ItemType = 3 };
+            var @char = session.Player.Character;
+
+            
+            if(!@char.Inventory.TryAdd())
+            {
+                await session.SendAsync(result);
+                return;
+            }
+
+            result.ItemType = 0;
+
+            await session.SendAsync(result);
+        }
+
+        [MessageHandler(typeof(CRequestMemberInfo))]
+        public void RequestMemberInfo(GSSession session)
+        {
+            var gens = session.Player.Gens;
+            using(var db = new GameContext())
+            {
+                var info = db.Gens.Find(session.Player.Character.Id);
+                gens.UpdateInfo(info);
+                gens.SendMemberInfo();
+            }
         }
     }
 }
