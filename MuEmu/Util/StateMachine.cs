@@ -51,12 +51,12 @@ namespace MuEmu.Util
             _nextStateIn = DateTimeOffset.Now.Add(@in);
         }
 
-        public void ChangeState(T nextSate)
+        public void ChangeState(T nextState)
         {
-            if (!nextSate.Equals(CurrentState))
+            if (!nextState.Equals(CurrentState))
             {
-                var protectedState = nextSate;
-                OnTransition(_nextState);
+                var protectedState = nextState;
+                OnTransition(nextState);
                 CurrentState = protectedState;
             }
         }

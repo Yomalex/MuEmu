@@ -92,5 +92,11 @@
   <ItemBag Monster="136" Bag="White Wizard\OrcSoldier.xml" />
   <ItemBag Monster="137" Bag="White Wizard\OrcArcher.xml" />
 	<!-- Raklion - Selupan -->
-<ItemBag Monster="459" Bag="Raklion\Selupan.xml" />
+  <ItemBag Monster="459" Bag="Raklion\Selupan.xml" />
+	<!-- Obelisk -->
+	<ItemBag Monster="627" Bag="Acheron Guardian\Cursed Fire Tower.xml" />
+	<ItemBag Monster="628" Bag="Acheron Guardian\Cursed Water Tower.xml" />
+	<ItemBag Monster="629" Bag="Acheron Guardian\Cursed Earth Tower.xml" />
+	<ItemBag Monster="630" Bag="Acheron Guardian\Cursed Wind Tower.xml" />
+	<ItemBag Monster="631" Bag="Acheron Guardian\Cursed Darkness Tower.xml" />
 </ItemBags>

@@ -3,6 +3,7 @@ using MU.Network.Event;
 using MU.Network.Game;
 using MU.Resources;
 using MuEmu.Events;
+using MuEmu.Events.AcheronGuardian;
 using MuEmu.Events.BloodCastle;
 using MuEmu.Events.CastleSiege;
 using MuEmu.Events.ChaosCastle;
@@ -429,6 +430,13 @@ namespace MuEmu.Network
                 await session.Player.Character.Inventory.Delete((byte)item.SlotId);
             }
             await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CAcheronEventEnter))]
+        public void AcheronEventEnter(GSSession session)
+        {
+            Program.EventManager.GetEvent<AcheronGuardian>()
+                .TryAdd(session.Player);
         }
     }
 }

@@ -321,6 +321,9 @@ namespace MU.Network
         CastleSiegeGuildMarkOfOwner = 0x02B9,
         CastleSiegeGuildList = 0xFFB4,
         CastleSiegeMinimap = 0xFFB6,
+
+        AcheronEnterReq = 0x4BF8,
+        AcheronEnter = 0x4CF8,
     }
     public enum CashOpCode : ushort
     {

@@ -57,6 +57,7 @@ using MuEmu.Events.Event_Egg;
 using MuEmu.Events.Rummy;
 using MuEmu.Events.CastleSiege;
 using MuEmu.Events.Raklion;
+using MuEmu.Events.AcheronGuardian;
 
 namespace MuEmu
 {
@@ -486,6 +487,7 @@ namespace MuEmu
                 .AddEvent(Events.Events.MuRummy, new MuRummy())
                 .AddEvent(Events.Events.CastleSiege, new CastleSiege())
                 .AddEvent(Events.Events.Raklion, new BattleOfSelupan())
+                .AddEvent(Events.Events.AcheronGuardian, new AcheronGuardian())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
                 ;
             LuckyCoins.Initialize();

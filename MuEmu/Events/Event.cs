@@ -93,5 +93,20 @@ namespace MuEmu.Events
         {
             return null;
         }
+
+        public PlayerEventInfo GetPlayerEventInfo(Player plr)
+        {
+            if (plr == null)
+                throw new ArgumentNullException(nameof(plr));
+
+            var info = _players.FirstOrDefault(x => x.Player == plr);
+            if (info == null)
+            {
+                info = new PlayerEventInfo { Player = plr };
+                _players.Add(info);
+            }
+
+            return info;
+        }
     }
 }

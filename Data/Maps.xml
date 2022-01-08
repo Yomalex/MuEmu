@@ -84,6 +84,7 @@
   <Map Map="81" AttributteFile="./Data/Terrains/81_Karutan2.att" />
   <Map Map="82" AttributteFile="./Data/Terrains/82_Doppelganger_Renewal.att" />
   <Map Map="91" AttributteFile="./Data/Terrains/91_Acheron.att" />
+  <Map Map="92" AttributteFile="./Data/Terrains/91_Acheron.att" />
   <Map Map="95" AttributteFile="./Data/Terrains/95_Debenter.att" />
   <Map Map="96" AttributteFile="./Data/Terrains/96_Debenter_ArcaBattle.att" />
   <Map Map="97" AttributteFile="./Data/Terrains/97_ChaosCastleSurvival.att" />

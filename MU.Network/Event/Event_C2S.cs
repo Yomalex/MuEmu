@@ -100,4 +100,8 @@ namespace MU.Network.Event
         [WZMember(1)] public byte py { get; set; }
         [WZMember(2)] public byte Ipos { get; set; }
     }
+
+    [WZContract]
+    public class CAcheronEventEnter : IEventMessage
+    { }
 }

@@ -411,4 +411,10 @@ namespace MU.Network.Event
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public InventoryDto[] Inventory { get; set; }
     }
+
+    [WZContract]
+    public class SAcheronEventEnter : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
 }

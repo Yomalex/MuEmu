@@ -21,6 +21,7 @@ namespace MuEmu.Events
         MuRummy,
         CastleSiege,
         Raklion,
+        AcheronGuardian,
     }
     internal class EventInfo
     {

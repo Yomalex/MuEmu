@@ -92,6 +92,10 @@ namespace MU.Network.Event
 
             Register<SEventInventory>(EventOpCode.EventInventory);
 
+            // Acheron Guardian
+            Register<CAcheronEventEnter>(EventOpCode.AcheronEnterReq);
+            Register<SAcheronEventEnter>(EventOpCode.AcheronEnter);
+
             //CastleSiege
             Register<SLeftTimeAlarm>(EventOpCode.CastleSiegeLeftTimeAlarm);
             Register<CSiegeState>(EventOpCode.CastleSiegeState);
