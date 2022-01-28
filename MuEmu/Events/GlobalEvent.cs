@@ -56,6 +56,7 @@ namespace MuEmu.Events
             Active = Start < DateTime.Now && Start.Add(Duration) > DateTime.Now;
             if(RepeatType != GERepeatType.None && Start.Add(Duration) < DateTime.Now)
             {
+updateCondition:
                 switch(RepeatType)
                 {
                     case GERepeatType.Annually:
@@ -71,6 +72,9 @@ namespace MuEmu.Events
                         Start = Start.AddDays(1);
                         break;
                 }
+                if(Start.Add(Duration) < DateTime.Now)
+                    goto updateCondition;
+
                 Logger
                     .ForContext(Constants.SourceContextPropertyName, Name)
                     .Information("Updated active period, Start {0} - End {1}", Start, Start.Add(Duration));

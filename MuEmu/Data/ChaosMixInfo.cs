@@ -1,4 +1,5 @@
-﻿using MU.Resources;
+﻿using MU.Network.Game;
+using MU.Resources;
 using MuEmu.Monsters;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,9 @@ namespace MuEmu.Data
         public int Excellent { get; set; }
         public int Count { get; set; }
         public int Harmony { get; set; }
+        public int SetOption { get; set; }
         public int Success { get; set; }
+        public int Socket { get; set; }
 
         public bool Match(Item item)
         {
@@ -64,6 +67,12 @@ namespace MuEmu.Data
             if(Harmony > item.Harmony.Option)
                 return false;
 
+            if (SetOption > item.SetOption)
+                return false;
+
+            if(Socket == 254 && !item.Slots.Any(x => x == SocketOption.EmptySocket))
+                return false;
+
             return true;
         }
     }
@@ -77,7 +86,7 @@ namespace MuEmu.Data
         public List<IngredientInfo> ResultSuccess { get; set; }
         public IngredientInfo ResultFail { get; set; }
 
-        public ChaosBoxMixResult Execute(Character @char)
+        public ChaosBoxMixResult Execute(Character @char, CChaosBoxItemMixButtonClick mixAditionalInfo = null)
         {
             var cbItems = @char.Inventory.ChaosBox.Items;
             var items = cbItems.Select(x => x.Value);
@@ -92,8 +101,8 @@ namespace MuEmu.Data
             foreach(var ing in Ingredients)
             {
                 var count = items.Where(x => ing.Match(x)).Count();
-                if (ing.Count > count)
-                    return ChaosBoxMixResult.Fail;
+                if (ing.Count > count && !ingOk.Any(x => x.Key.IID==ing.IID))
+                    return ChaosBoxMixResult.IncorrectItems;
 
                 ingOk.Add(ing, count);
             }
@@ -150,6 +159,9 @@ namespace MuEmu.Data
 
             var res2 = pairIng.FirstOrDefault(x => x.Ingredient.IID == res.IID);
 
+            // find any Seed Spear
+            var seed = pairIng.FirstOrDefault(x => x.Item.Number >= 6244 && x.Item.Number <= 6273);
+
             if (res.ItemNumber != ItemNumber.Invalid || res2 != null)
             {
                 var mix = new Item(res.ItemNumber != ItemNumber.Invalid ? res.ItemNumber : res2.Item.Number);
@@ -182,6 +194,16 @@ namespace MuEmu.Data
                 mix.Skill = res.Skill == -1 ? res2?.Item.Skill ?? false : (res.Skill > 0 ? true : false);
                 mix.Option28 = (byte)(res.Option == -1 ? res2?.Item.Option28 ?? 0x00 : res.Option);
                 mix.OptionExe = (byte)(res.Excellent == -1 ? res2?.Item.OptionExe ?? 0x00 : res.Excellent);
+                mix.SetOption = (byte)(res.SetOption == -1 ? res2?.Item.SetOption ?? 0x00 : res.SetOption);
+                if(res.Socket != -1 && seed != null)
+                {
+                    var code = seed.Item.Number.Index - 100;
+                    var level = code / 6;
+                    var type = (SocketOption)(seed.Item.Plus + (code % 6) * 10 + level * 50);
+
+                    mix.Slots = res2?.Item.Slots ?? new SocketOption[5];
+                    mix.Slots[mixAditionalInfo.Info] = type;
+                }
                 mix.Character = @char;
                 mix.Account = @char.Account;
                 mix.Character = @char;

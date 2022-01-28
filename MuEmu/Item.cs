@@ -310,6 +310,7 @@ namespace MuEmu
             _vid = (StorageID)dto.VaultId;
             BonusSocket = dto.SocketBonus;
             PetEXP = dto.PetEXP;
+            SetOption = dto.SetOption;
 
             if (string.IsNullOrEmpty(dto.SocketOptions))
             {
@@ -986,6 +987,7 @@ namespace MuEmu
             _db.PJewels = string.Join(",", PentagramJewels.Select(x => x.ToString()));
             _db.PetLevel = PetLevel;
             _db.PetEXP = PetEXP;
+            _db.SetOption = SetOption;
 
             log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", _db.Number, ToString(), _db.AccountId, _db.VaultId == 0 ? "C" : "V", _db.VaultId == 0 ? _db.CharacterId : _db.VaultId, SlotId);
             if (_db.ItemId == 0)
@@ -1658,16 +1660,39 @@ namespace MuEmu
 
             if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider(2) == 0) || Program.RandomProvider(4) == 0 && Spell != Spell.None)
             {
-                Skill = true;
+                Skill = BasicInfo.Skill != Spell.None;
             }
             else
             {
                 Skill = false;
             }
 
-            if (Program.RandomProvider(randOp) == 0)
+            if (BasicInfo.Option && Program.RandomProvider(randOp) == 0)
             {
                 Option28 = (byte)Program.RandomProvider(4);
+            }
+
+            if (
+                (Number.Type == ItemType.Helm && Number.Number >= 3629) || // Helm S4
+                (Number.Type == ItemType.Armor && Number.Number >= 4141) || // Armor S4
+                (Number.Type == ItemType.Pant && Number.Number >= 4653) || // Pants S4
+                (Number.Type == ItemType.Gloves && Number.Number >= 5165) || // Gloves S4
+                (Number.Type == ItemType.Boots && Number.Number >= 5677) ||// Boots S4
+                (Number.Number >= 26 && Number.Number <= 28) || // Swords S4
+                Number.Number == 1040 || // Frost Mace S4
+                Number.Number == 2071 || // Dark Stinger Bow S4
+                (Number.Number >= 2590 && Number.Number <= 2592 ) || // Imperial Staff S4
+                (Number.Type == ItemType.Shield && Number.Number >= 3089) // Shields S4
+                )
+            {
+                var randSocketNumber = Program.RandomProvider(5, 1);
+                Slots = new SocketOption[randSocketNumber];
+                for (var i = 0; i < randSocketNumber; i++)
+                {
+                    Slots[i] = SocketOption.EmptySocket;
+                }
+
+                OptionExe = 0;
             }
         }
 

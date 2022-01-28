@@ -861,6 +861,8 @@ namespace MuEmu.Resources
                         Option = x.Option,
                         Excellent = x.Excellent,
                         Harmony = x.Harmony,
+                        SetOption = x.SetOption,
+                        Socket = x.Socket,
                         Skill = x.Skill,
                         Success = x.Success,
                     }
@@ -876,6 +878,8 @@ namespace MuEmu.Resources
                         Option = x.Option,
                         Excellent = x.Excellent,
                         Harmony = x.Harmony,
+                        SetOption = x.SetOption,
+                        Socket = x.Socket,
                         Skill = x.Skill,
                         Success = x.Success,
                     }
@@ -890,6 +894,8 @@ namespace MuEmu.Resources
                         Option = m.RewardFail.Option,
                         Excellent = m.RewardFail.Excellent,
                         Harmony = m.RewardFail.Harmony,
+                        SetOption = m.RewardFail.SetOption,
+                        Socket = m.RewardFail.Socket,
                         Skill = m.RewardFail.Skill,
                         Success = m.RewardFail.Success,
                     };

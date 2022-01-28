@@ -1217,7 +1217,7 @@ namespace MuEmu.Network.GameServices
         }
 
         [MessageHandler(typeof(CChaosBoxItemMixButtonClick))]
-        public async Task CChaosBoxItemMixButtonClick(GSSession session)
+        public async Task CChaosBoxItemMixButtonClick(GSSession session, CChaosBoxItemMixButtonClick message)
         {
             var @char = session.Player.Character;
             var cbMix = @char.Inventory.ChaosBox;
@@ -1225,12 +1225,14 @@ namespace MuEmu.Network.GameServices
             var mixInfo = ResourceCache.Instance.GetChaosMixInfo();
             var mixMatched = mixInfo.FindMix(@char);
 
+            Logger.Debug("Client aditional info {0},{1}", message.Type, message.Info);
+
             if (mixMatched == null)
             {
                 Logger.ForAccount(session)
                     .Error("Invalid MIX");
 
-                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail, ItemInfo = Array.Empty<byte>() });
+                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.IncorrectItems, ItemInfo = Array.Empty<byte>() });
                 return;
             }
 
@@ -1240,13 +1242,13 @@ namespace MuEmu.Network.GameServices
             if (!@char.Inventory.TryAdd())
             {
                 await session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_ChaosBoxMixError)));
-                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.Fail, ItemInfo = Array.Empty<byte>() });
+                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.TooManyItems, ItemInfo = Array.Empty<byte>() });
                 return;
             }
 
-            var result = mixMatched.Execute(@char);
+            var result = mixMatched.Execute(@char, message);
 
-            if (result == ChaosBoxMixResult.Fail)
+            if (result != ChaosBoxMixResult.Success)
             {
                 await session.SendAsync(new SShopItemList(cbMix.GetInventory()) { ListType = 3 });
             }
@@ -2291,7 +2293,7 @@ namespace MuEmu.Network.GameServices
 
             var result = mixMatched.Execute(@char);
 
-            if (result == ChaosBoxMixResult.Fail)
+            if (result != ChaosBoxMixResult.Success)
             {
                 await session.SendAsync(new SShopItemList(cbMix.GetInventory()) { ListType = 3 });
             }

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="65535" Monster="459" Plus="0" LevelMin="1" DropItemCount="10" DropItemRate="15" DropZenRate="85" MinZen="5000" MaxZen="5000">
+<ItemList Monster="459" Plus="0" LevelMin="1" DropItemCount="10" DropItemRate="15" DropZenRate="85" MinZen="5000" MaxZen="5000">
     <!-- S4 Items -->
 	<!-- Sword -->
   <Item Number="26" MinLevel="3" MaxLevel="5" Luck="true" Skill="true" MinOption="0" MaxOption="1" MinExcellent="0" MaxExcellent="0" />

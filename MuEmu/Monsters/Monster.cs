@@ -674,7 +674,7 @@ namespace MuEmu.Monsters
                     else
                     {
                         itNum.Type = ItemType.Wing_Orb_Seed;
-                        itNum.Index = (ushort)BallTable[_rand.Next((int)ItemType.End)];
+                        itNum.Index = (ushort)BallTable[_rand.Next(BallTable.Length)];
                     }
                 }
                 else

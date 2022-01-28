@@ -632,6 +632,9 @@ namespace MuEmu
                 case MoveItemFlags.OsboumeBox:
                 case MoveItemFlags.ElpisBox:
                 case MoveItemFlags.JerridonBox:
+                case MoveItemFlags.UnsocketSeedBox:
+                case MoveItemFlags.SeedMasterBox:
+                case MoveItemFlags.SeedAplication:
                     sFrom = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:
@@ -674,6 +677,9 @@ namespace MuEmu
                 case MoveItemFlags.OsboumeBox:
                 case MoveItemFlags.ElpisBox:
                 case MoveItemFlags.JerridonBox:
+                case MoveItemFlags.UnsocketSeedBox:
+                case MoveItemFlags.SeedMasterBox:
+                case MoveItemFlags.SeedAplication:
                     sTo = _chaosBox;
                     break;
                 case MoveItemFlags.Trade:

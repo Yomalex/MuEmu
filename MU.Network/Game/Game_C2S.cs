@@ -472,7 +472,13 @@ namespace MU.Network.Game
 
     [WZContract]
     public class CChaosBoxItemMixButtonClick : IGameMessage
-    { }
+    {
+        //0xC1
+        //0x05
+        //0x86
+        [WZMember(0)] public ChaosMixType Type { get; set; }
+        [WZMember(1)] public byte Info { get; set; }
+    }
 
     [WZContract]
     public class CChaosBoxItemMixButtonClickS5 : IGameMessage // Season 5 reference

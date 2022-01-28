@@ -23,7 +23,6 @@
   <NPC Type="256" Map="Lorencia" Radio="0" PosX="130" PosY="126" Dir="3">//JewelMix</NPC>
   <NPC Type="379" Map="Lorencia" Radio="0" PosX="130" PosY="121" Dir="3">//Fireworks Girl</NPC>
   <NPC Type="478" Map="Lorencia" Radio="0" PosX="129" PosY="118" Dir="3">//Lucky Coins</NPC>
-  <NPC Type="452" Map="Lorencia" Radio="0" PosX="150" PosY="139" Dir="1">//Seed Jewel creator</NPC>
   <NPC Type="479" Map="Lorencia" Radio="0" PosX="131" PosY="147" Dir="1">//Chaos Card Master</NPC>
   <NPC Type="543" Map="Lorencia" Radio="0" PosX="144" PosY="127" Dir="3">//Gens Duprian Steward</NPC>
   <NPC Type="547" Map="Lorencia" Radio="0" PosX="139" PosY="138" Dir="3">//Market Union Member Julia</NPC>
@@ -113,6 +112,8 @@
   <NPC Type="257" Map="Elbeland" Radio="0" PosX="100" PosY="218" Dir="1">//Elf Soldier</NPC>
   <NPC Type="257" Map="Elbeland" Radio="0" PosX="45" PosY="164" Dir="1">//Elf Soldier</NPC>
   <NPC Type="540" Map="Elbeland" Radio="0" PosX="49" PosY="216" Dir="2">//Double Goer</NPC>
+	<NPC Type="452" Map="Elbeland" Radio="0" PosX="45" PosY="242" Dir="1">//Seed Jewel creator</NPC>
+	<NPC Type="453" Map="Elbeland" Radio="0" PosX="50" PosY="242" Dir="1">//Seed Jewel creator</NPC>
 	
   <NPC Type="368" Map="Kantru3" Radio="0" PosX="77" PosY="175" Dir="2">//Elpis</NPC>
 	

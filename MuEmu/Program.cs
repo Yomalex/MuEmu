@@ -315,6 +315,7 @@ namespace MuEmu
             try
             {
                 var item = new Item(ushort.Parse(e.Argument));
+                item.NewOptionRand();
                 map.AddItem(@char.Position.X, @char.Position.Y, item);
             }catch(Exception ex)
             {

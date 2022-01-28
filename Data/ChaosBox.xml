@@ -11,6 +11,109 @@
   <!-- Aditional JOCreation Add Success -->
   <Jewel type="14" index="22" success="10" />
 
+	<Mix name="Seed sphere aplication Fire L1" success="100" value="0" NPC="453">
+		<Ingredient iid="0" socket="254" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Fire -->
+		<Ingredient iid="3" type="12" index="100" />
+		<RewardSuccess iid="0" socket="1" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Seed Ground L1" success="100" value="0" NPC="452">
+		<!-- Spear Empty -->
+		<Ingredient iid="0" type="12" index="70" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Ground -->
+		<Ingredient iid="3" type="12" index="65" />
+		<RewardSuccess iid="3" type="12" index="105" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Seed Lightning L1" success="100" value="0" NPC="452">
+		<!-- Spear Empty -->
+		<Ingredient iid="0" type="12" index="70" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Lightning -->
+		<Ingredient iid="3" type="12" index="64" />
+		<RewardSuccess iid="3" type="12" index="104" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Seed Wind L1" success="100" value="0" NPC="452">
+		<!-- Spear Empty -->
+		<Ingredient iid="0" type="12" index="70" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Wind -->
+		<Ingredient iid="3" type="12" index="63" />
+		<RewardSuccess iid="3" type="12" index="103" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Seed Ice L1" success="100" value="0" NPC="452">
+		<!-- Spear Empty -->
+		<Ingredient iid="0" type="12" index="70" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Ice -->
+		<Ingredient iid="3" type="12" index="62" />
+		<RewardSuccess iid="3" type="12" index="102" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Seed Water L1" success="100" value="0" NPC="452">
+		<!-- Spear Empty -->
+		<Ingredient iid="0" type="12" index="70" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Water -->
+		<Ingredient iid="3" type="12" index="61" />
+		<RewardSuccess iid="3" type="12" index="101" />
+		<RewardFail iid="-1" />
+	</Mix>
+	<Mix name="Seed Fire L1" success="100" value="0" NPC="452">
+		<!-- Spear Empty -->
+		<Ingredient iid="0" type="12" index="70" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="1" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="2" type="14" index="22" />
+		<!-- Seed Fire -->
+		<Ingredient iid="3" type="12" index="60" />
+		<RewardSuccess iid="3" type="12" index="100" />
+		<RewardFail iid="-1" />
+	</Mix>
+	
+	<Mix name="Extract Seed" success="83" value="1000000" NPC="452">
+		<!-- Excellent +4 -->
+		<Ingredient iid="0" level="4-15" excellent="1" option="4" />
+		<!-- Set +4 -->
+		<Ingredient iid="1" level="4-15" setOption="1" option="4" />
+		<!-- Jewel of Chaos -->
+		<Ingredient iid="2" type="12" index="15" />
+		<!-- Jewel of Creation -->
+		<Ingredient iid="3" type="14" index="22" />
+		<!-- Jewel of Harmony -->
+		<Ingredient iid="4" type="14" index="42" />
+		<!--Seeds-->
+		<RewardSuccess iid="2" type="12" index="100" level="0-5" success="20" />
+		<RewardSuccess iid="2" type="12" index="101" level="0-5" success="20" />
+		<RewardSuccess iid="2" type="12" index="102" level="0-5" success="20" />
+		<RewardSuccess iid="2" type="12" index="103" level="0-5" success="20" />
+		<RewardSuccess iid="2" type="12" index="104" level="0-5" success="20" />
+		<RewardFail iid="-1" />
+	</Mix>
 	<Mix name="380 Option Aura Staff" success="50" value="10000000">
 		<Ingredient iid="0" type="5" index="19" level="4-6" luck="-1" skill="-1" option="4" count="1" />
 		<Ingredient iid="1" type="14" index="42" />

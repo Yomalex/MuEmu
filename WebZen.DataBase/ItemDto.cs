@@ -60,5 +60,8 @@ namespace MU.DataBase
 
         [Column(TypeName = "BIGINT(5)")]
         public long PetEXP { get; set; }
+
+        [Column(TypeName = "TINYINT(1) UNSIGNED")]
+        public byte SetOption { get; set; }
     }
 }

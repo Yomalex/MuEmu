@@ -88,5 +88,10 @@ namespace MuEmu.Resources.XML
 
         [XmlAttribute("harmony")]
         public int Harmony { get; set; } = -1;
+
+        [XmlAttribute("setOption")]
+        public int SetOption { get; set; } = -1;
+        [XmlAttribute("socket")]
+        public int Socket { get; set; } = -1;
     }
 }
