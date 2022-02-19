@@ -133,6 +133,38 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true)]
+    public class SSpellsS12Eng : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Count { get; set; }
+
+        [WZMember(1)]
+        public byte ListType { get; set; }
+
+        [WZMember(2, SerializerType = typeof(ArraySerializer))]
+        public SpellDto[] Spells { get; set; }
+
+        public SSpellsS12Eng()
+        {
+            Spells = Array.Empty<SpellDto>();
+        }
+
+        public SSpellsS12Eng(byte listType, SpellDto[] spells)
+        {
+            Count = (byte)spells.Length;
+            ListType = listType;
+            Spells = spells;
+        }
+
+        public SSpellsS12Eng(byte listType, SpellDto spell)
+        {
+            Count = (byte)0xFE;
+            ListType = listType;
+            Spells = new SpellDto[] { spell };
+        }
+    }
+
+    [WZContract(LongMessage = true)]
     public class SFriends : IGameMessage
     {
         [WZMember(0)]
@@ -1315,7 +1347,10 @@ namespace MU.Network.Game
 
     [WZContract(Serialized = true)]
     public class SMagicAttackS12Eng : SMagicAttackS9Eng, IGameMessage
-    { }
+    {
+        public SMagicAttackS12Eng() { }
+        public SMagicAttackS12Eng(Spell magic, ushort source, ushort target) : base(magic, source, target) { }
+    }
 
     [WZContract(Serialized = true)]
     public class SMagicDuration : IGameMessage
@@ -1390,9 +1425,10 @@ namespace MU.Network.Game
     [WZContract]
     public class SChainMagic : IGameMessage
     {
-        [WZMember(0)] public ushort wzMagic { get; set; }
+        [WZMember(0)] public ushortle Magic { get; set; }
         [WZMember(1)] public ushort UserIndex { get; set; }
-        [WZMember(2, typeof(ArrayWithScalarSerializer<byte>))] public ushort[] Targets { get; set; }
+        [WZMember(2)] public byte Padding { get; set; }
+        [WZMember(3, typeof(ArrayWithScalarSerializer<byte>))] public ushort[] Targets { get; set; }
     }
 
     [WZContract]

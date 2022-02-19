@@ -26,6 +26,13 @@ namespace WebZen.Util
             return r;
         }
 
+        public static implicit operator ushortle(int value)
+        {
+            var r = new ushortle();
+            r.Set((ushort)value);
+            return r;
+        }
+
         public static implicit operator ushort(ushortle value)=> value.Get();
     }
 

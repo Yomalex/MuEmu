@@ -507,8 +507,8 @@ namespace MuEmu.Network.GameServices
 
                         var obj = new SChainMagic
                         {
-                            wzMagic = ((ushort)Spell.ChainLighting).ShufleEnding(),
-                            UserIndex = (ushort)session.ID,
+                            Magic = ((ushort)message.MagicNumber),
+                            UserIndex = @char.Player.ID,
                             Targets = l.ToArray(),
                         };
                         var mg = VersionSelector.CreateMessage<SMagicAttack>(message.MagicNumber, @char.Player.ID, message.Target);

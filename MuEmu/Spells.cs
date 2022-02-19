@@ -203,7 +203,7 @@ namespace MuEmu
 
             if (Player.Status == LoginStatus.Playing)
             {
-                await Player.Session.SendAsync(new SSpells(0, new MuEmu.Network.Data.SpellDto
+                await Player.Session.SendAsync(VersionSelector.CreateMessage<SSpells>((byte)0, new MuEmu.Network.Data.SpellDto
                 {
                     Index = (byte)pos,
                     Spell = (ushort)skill,
@@ -256,7 +256,7 @@ namespace MuEmu
                 .ToArray();
 
             await Player.Session.SendAsync(new SMasterLevelSkillListS9ENG { Skills = list2 });
-            await Player.Session.SendAsync(new SSpells(0, list));
+            await Player.Session.SendAsync(VersionSelector.CreateMessage<SSpells>((byte)0, list));
         }
 
         private byte SkillType(Spell spell) => spell switch
@@ -308,11 +308,12 @@ namespace MuEmu
 
             if (Player.Status == LoginStatus.Playing)
             {
-                Player.Session.SendAsync(new SSpells(0, new MuEmu.Network.Data.SpellDto
+                var msg = VersionSelector.CreateMessage<SSpells>((byte)0, new MuEmu.Network.Data.SpellDto
                 {
                     Index = (byte)pos,
                     Spell = (ushort)skill,
-                })).Wait();
+                });
+                Player.Session.SendAsync(msg).Wait();
             }
         }
 

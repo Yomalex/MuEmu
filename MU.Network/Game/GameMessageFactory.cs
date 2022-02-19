@@ -149,6 +149,9 @@ namespace MU.Network.Game
             Register<SCheckSum>(GameOpCode.GameSecurity);
             Register<SWeather>(GameOpCode.Weather);
             Register<SSpells>(GameOpCode.Spells);
+            Register<SSpellsS12Eng>(GameOpCode.Spells);
+            VersionSelector.Register<SSpells>(ServerSeason.Season6Kor, GameOpCode.Spells);
+            VersionSelector.Register<SSpellsS12Eng>(ServerSeason.Season12Eng, GameOpCode.Spells);
             Register<SQuestInfo>(GameOpCode.QuestInfo);
             Register<SFriends>(GameOpCode.FriendList);
             Register<SKillCount>(GameOpCode.KillCount);
