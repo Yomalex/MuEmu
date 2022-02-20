@@ -453,31 +453,32 @@ namespace MU.Network.Auth
         [WZMember(3)] public byte Direccion { get; set; }//3
         [WZMember(4)] public long Experience { get; set; }//4
         [WZMember(5)] public long NextExperience { get; set; }//c
-        [WZMember(6)] public ushort LevelUpPoints { get; set; }//14
-        [WZMember(7)] public ushort Str { get; set; }//16
-        [WZMember(8)] public ushort Agi { get; set; }//18
-        [WZMember(9)] public ushort Vit { get; set; }//1a
-        [WZMember(10)] public ushort Ene { get; set; }//1c
-        [WZMember(11)] public ushort Life { get; set; }//1e
-        [WZMember(12)] public ushort MaxLife { get; set; }//20
-        [WZMember(13)] public ushort Mana { get; set; }//22
-        [WZMember(14)] public ushort MaxMana { get; set; }//24
-        [WZMember(15)] public ushort Shield { get; set; }//26
-        [WZMember(16)] public ushort MaxShield { get; set; }//28
-        [WZMember(17)] public ushort Stamina { get; set; }//2a
-        [WZMember(18)] public ushort MaxStamina { get; set; }//2c
-        //[WZMember(19)] public ushort unk { get; set; }
-        [WZMember(20)] public uint Zen { get; set; }//2e
-        [WZMember(21)] public byte PKLevel { get; set; }//36
-        [WZMember(22)] public byte ControlCode { get; set; }//37
-        [WZMember(23)] public short AddPoints { get; set; }//38
-        [WZMember(24)] public short MaxAddPoints { get; set; }//3a 
-        [WZMember(25)] public ushort Cmd { get; set; }//3c
-        [WZMember(26)] public short MinusPoints { get; set; }//3e
-        [WZMember(27)] public short MaxMinusPoints { get; set; }//40
-        [WZMember(28)] public byte ExpandedInv { get; set; }//41
-        [WZMember(29)] public uint Ruud { get; set; }//42
-        [WZMember(30)] public byte ExpandedVault { get; set; }//44
+        [WZMember(6)] public ushort paddingC { get; set; }
+        [WZMember(7)] public ushort LevelUpPoints { get; set; }//14
+        [WZMember(8)] public ushort Str { get; set; }//16
+        [WZMember(9)] public ushort Agi { get; set; }//18
+        [WZMember(10)] public ushort Vit { get; set; }//1a
+        [WZMember(11)] public ushort Ene { get; set; }//1c
+        [WZMember(12)] public ushort Life { get; set; }//1e
+        [WZMember(13)] public ushort MaxLife { get; set; }//20
+        [WZMember(14)] public ushort Mana { get; set; }//22
+        [WZMember(15)] public ushort MaxMana { get; set; }//24
+        [WZMember(16)] public ushort Shield { get; set; }//26
+        [WZMember(17)] public ushort MaxShield { get; set; }//28
+        [WZMember(18)] public ushort Stamina { get; set; }//2a
+        [WZMember(19)] public ushort MaxStamina { get; set; }//2c
+        //[WZMember(20)] public ushort unk { get; set; }
+        [WZMember(21)] public uint Zen { get; set; }//2e
+        [WZMember(22)] public byte PKLevel { get; set; }//36
+        [WZMember(23)] public byte ControlCode { get; set; }//37
+        [WZMember(24)] public short AddPoints { get; set; }//38
+        [WZMember(25)] public short MaxAddPoints { get; set; }//3a 
+        [WZMember(26)] public ushort Cmd { get; set; }//3c
+        [WZMember(27)] public short MinusPoints { get; set; }//3e
+        [WZMember(28)] public short MaxMinusPoints { get; set; }//40
+        [WZMember(29)] public byte ExpandedInv { get; set; }//41
+        [WZMember(30)] public uint Ruud { get; set; }//42
+        [WZMember(31)] public byte ExpandedVault { get; set; }//44
 
         public SCharacterMapJoin2S12Eng()
         {

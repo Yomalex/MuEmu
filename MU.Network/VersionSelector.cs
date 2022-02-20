@@ -62,7 +62,21 @@ namespace MU.Network
                 var type = s_instance._active[result];
                 return Activator.CreateInstance(type, args);
             }
-            return Activator.CreateInstance(typeof(_T), args);
+
+            try
+            {
+                var subType = (from d in s_instance._types
+                               where d.Value.ContainsKey(result)
+                               select d)
+                            .OrderByDescending(x => x.Key)
+                            .First()
+                            .Value[result];
+
+                return Activator.CreateInstance(subType, args);
+            }catch (Exception ex)
+            {
+                return Activator.CreateInstance(typeof(_T), args);
+            }            
         }
     }
 }
