@@ -395,9 +395,9 @@ namespace MuEmu
             }
             var sViewSkillState = new SViewSkillState(1, (ushort)Player.Session.ID, (byte)effect);
 
-            await Player.Session.SendAsync(n);
+            await Player.Session.SendAsync(sPeriodicEffect);
             await Player.Session.SendAsync(sViewSkillState);
-            Player.SendV2Message(n);
+            Player.SendV2Message(sPeriodicEffect);
             Player.SendV2Message(sViewSkillState);
         }
         public async void SetBuff(SkillStates effect, TimeSpan time, Character source = null)
