@@ -1012,13 +1012,18 @@ namespace MU.Network.Game
     [WZContract]
     public class SPeriodicEffectS12Eng : IGameMessage
     {
-        [WZMember(0)] public ushort group { get; set; }
-        [WZMember(1)] public ushort value { get; set; }
-        [WZMember(2)] public byte state { get; set; }
-        [WZMember(3)] public uint time { get; set; }
-        [WZMember(4)] public ushort effect { get; set; } // Season 12 WORD, 9 BYTE
-        [WZMember(5, 12)] public byte[] ItemInfo { get; set; } // Season 9
-        [WZMember(6)] public ushort wEffectValue { get; set; } // Season X addon
+        [WZMember(0)] public byte padding3 { get; set; }//3
+        [WZMember(1)] public ushort group { get; set; }//4
+        [WZMember(2)] public ushort value { get; set; }//6
+        [WZMember(3)] public byte state { get; set; }//8
+        [WZMember(4)] public byte padding9 { get; set; }//9
+        [WZMember(5)] public ushort paddingA { get; set; }//10
+        [WZMember(6)] public uint time { get; set; }//12
+        [WZMember(7)] public ushort effect { get; set; } //16 Season 12 WORD, 9 BYTE
+        [WZMember(8, 12)] public byte[] ItemInfo { get; set; } //18 Season 9
+        [WZMember(9)] public ushort padding1E { get; set; }//30
+        [WZMember(10)] public ushort wEffectValue { get; set; } //32 Season X addon
+        [WZMember(11)] public ushort padding22 { get; set; }//34
     }
 
     [WZContract]
