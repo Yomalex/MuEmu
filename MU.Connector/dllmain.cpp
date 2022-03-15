@@ -46,6 +46,16 @@ public:
         VirtualProtect(targetAddress, sizeof(copy), VPOld, &VPOld);
     }
 
+    static void ChangeFunctionAddress(void* offset, void* target)
+    {
+        int size = 5;
+        VirtualProtect(offset, size, PAGE_EXECUTE_READWRITE, &VPOld);
+        BYTE * newJump = (BYTE*)offset;
+        *((DWORD*)&newJump[1]) = ((DWORD)target) - ((DWORD)offset) - 5;
+        VirtualProtect(offset, size, VPOld, &VPOld);
+        Print(fp, "ChangeFunctionAddress from %p to %p\n", offset, target);
+    }
+
     static void Jump(void* offset, void* target)
     {
         BYTE newJump[5] = { 0xE9, 0, 0, 0, 0 };
@@ -266,7 +276,7 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
     WZSender(d, buff, size);
 }
 
-void SendPacketS16(DWORD len, BYTE* lpMsg)
+void SendPacketS16(BYTE* lpMsg, DWORD len)
 {
     SendPacket(lpMsg, len, 0, 0);
 }
@@ -275,7 +285,7 @@ void ProtocolCoreAEx(int unk, int head, BYTE* buff, int size, int enc)
 {
 }
 
-void ProtocolCoreBEx(DWORD head, BYTE* buff, DWORD size, DWORD enc)
+void ProtocolCoreBDll(BYTE head, BYTE* buff, DWORD size, int enc)
 {
     switch (head)
     {
@@ -295,6 +305,49 @@ void ProtocolCoreBEx(DWORD head, BYTE* buff, DWORD size, DWORD enc)
         break;
     }
     ProtocolCoreB(head, buff, size, enc);
+}
+
+void ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
+{
+    static BYTE DecBuff[7024];
+    unsigned int DecSize;
+
+    auto Type = buff[0];
+    auto Offset = (Type & 1) == 1 ? 2 : 3;
+    WORD Size = (Type & 1) == 1 ? buff[1] : MAKEWORD(buff[2], buff[1]);
+    auto OPCode = buff[Offset];
+    auto Encode = Type >= 0xC3 ? 1 : 0;
+    auto Padding = buff[Size - 1];
+
+    if (Encode)
+    {
+        auto DataSize = Size - Offset - 1;
+        if (DataSize % 16)
+        {
+            Print(fp, "0xC3 Error on Encripted packet, data size:%d, raw Size:%d, padding:%d\n", DataSize, Size, Padding);
+            return;
+        }
+
+        m_Decryption->ProcessData(&DecBuff[Offset], &buff[Offset], DataSize);
+        DecSize = Size - Padding;
+        DecBuff[0] = Type - 2;
+        if ((Type & 1) == 1)
+        {
+            DecBuff[1] = DecSize;
+        }
+        else
+        {
+            DecBuff[1] = DecSize & 0xFF;
+            DecBuff[2] = (DecSize & 0xFF00) >> 8;
+        }
+        Size = DecSize;
+        buff = DecBuff;
+        OPCode = DecBuff[Offset];
+    }
+
+    PacketPrint(fp, buff, Size, Encode ? "RecvDec" : "Recv");
+    Print(fp, "%02X\n", OPCode);
+    ProtocolCoreBDll(head, buff, size, 1);
 }
 
 void ParsePacket(void* PackStream, int unk1, int unk2)
@@ -347,7 +400,7 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
         if (unk1 == 1)
             ProtocolCoreA(unk2, OPCode, buff, Size, Encode);
         else
-            ProtocolCoreBEx(OPCode, buff, Size, Encode);
+            ProtocolCoreBDll(OPCode, buff, Size, Encode);
     }
 }
 
@@ -445,12 +498,12 @@ void MainConfiguration()
 
     // Hooks
     old_Send = main_Send.Set(old_Send, SendPacket);
-    old_SendS16 = main_SendS16.Set(old_SendS16, SendPacketS16);
-    old_SendS161 = main_SendS161.Set(old_SendS161, SendPacketS16);
-    old_SendS162 = main_SendS162.Set(old_SendS162, SendPacketS16);
+    main_SendS16.ChangeFunctionAddress(old_SendS16, SendPacketS16);
+    main_SendS161.ChangeFunctionAddress(old_SendS161, SendPacketS16);
+    main_SendS162.ChangeFunctionAddress(old_SendS162, SendPacketS16);
     old_Recv = main_Recv.Set(old_Recv, ParsePacket);
     main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
-    main_procCoreB.Set(pCoreBHook, ProtocolCoreBEx);
+    main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);
 
     if(sprintfFix)
         old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
@@ -482,6 +535,14 @@ void MainConfiguration()
     for (auto &i : ParserINI("WriteByte"))
     {
         Hook<void>::WriteByte(i.first, *i.second.buf);
+        delete[] i.second.buf;
+    }
+
+    //Dump
+    for (auto& i : ParserINI("Dump"))
+    {
+        //Hook<void>::WriteByte(i.first, *i.second.buf);
+        PacketPrint(fp, (BYTE*)i.first, *i.second.buf, "Dump");
         delete[] i.second.buf;
     }
 

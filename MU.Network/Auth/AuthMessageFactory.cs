@@ -39,6 +39,9 @@ namespace MU.Network.Auth
 
             // S2C
             Register<SJoinResult>(CSOpCode.JoinResult);
+            Register<SJoinResultS16Eng>(CSOpCode.JoinResult);
+            VersionSelector.Register<SJoinResult>(ServerSeason.Season6Kor, CSOpCode.JoinResult);
+            VersionSelector.Register<SJoinResultS16Eng>(ServerSeason.Season16Eng, CSOpCode.JoinResult);
             Register<SLoginResult>(CSOpCode.Login);
 
             VersionSelector.Register<SCharacterList>(ServerSeason.Season6Kor, CSOpCode.CharacterList);

@@ -116,6 +116,7 @@ namespace MU.Resources
         Season6Kor,
         Season9Eng,
         Season12Eng,
+        Season16Eng,
     }
     public enum GremoryStorage : byte
     {

@@ -15,6 +15,6 @@ namespace CSEmu.Network.Data
         public byte Load { get; set; }
 
         [WZMember(2)]
-        public byte Padding { get; set; }
+        public byte Type { get; set; }
     }
 }

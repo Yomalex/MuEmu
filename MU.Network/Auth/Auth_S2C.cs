@@ -11,7 +11,6 @@ using WebZen.Util;
 
 namespace MU.Network.Auth
 {
-
     [WZContract] // 0xC1
     public class SJoinResult : IAuthMessage
     {
@@ -40,6 +39,46 @@ namespace MU.Network.Auth
             ClientVersion = clientVersion.GetBytes();
         }
     }
+
+    [WZContract] // 0xC1
+    public class SJoinResultS16Eng : IAuthMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public byte junk1 { get; set; }
+
+        [WZMember(2)]
+        public byte NumberH { get; set; }
+
+        [WZMember(3)]
+        public uint junk2 { get; set; }
+
+        [WZMember(4)]
+        public byte NumberL { get; set; }
+
+        [WZMember(5, 5)]
+        public byte[] ClientVersion { get; set; }
+
+        [WZMember(6)]
+        public uint Key { get; set; }
+
+        public SJoinResultS16Eng()
+        {
+            ClientVersion = Array.Empty<byte>();
+        }
+
+        public SJoinResultS16Eng(byte result, int number, string clientVersion)
+        {
+            Result = result;
+            number = 5000;
+            NumberH = (byte)((number >> 8) & 0xff);
+            NumberL = (byte)(number & 0xff);
+            ClientVersion = clientVersion.GetBytes();
+        }
+    }
+
 
     [WZContract]
     public class SLoginResult : IAuthMessage

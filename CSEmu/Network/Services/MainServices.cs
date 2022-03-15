@@ -17,8 +17,11 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CServerList))]
         public void ServerListHandler(CSSession session, CServerList message)
         {
-            var servers = ServerManager.Instance.Servers.Where(x => x.Visible).Select(x => new ServerDto { Index = x.Index, Load = x.Load, Padding = 0x77 }).ToArray();
-            //Logger.Information("Sending Server list {0} servers", servers.Length);
+            var servers = ServerManager.Instance.Servers
+                .Where(x => x.Visible)
+                .Select(x => new ServerDto { Index = x.Index, Load = x.Load, Type = 0 })
+                .ToArray();
+            Logger.Information("Sending Server list {0} servers", servers.Length);
             session.SendAsync(new SServerList(servers));
         }
 

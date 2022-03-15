@@ -14,6 +14,7 @@ using MuEmu.Monsters;
 using MU.Resources;
 using MU.Network.Auth;
 using MuEmu.Network.ConnectServer;
+using MU.Network;
 
 namespace MuEmu.Network
 {
@@ -45,7 +46,8 @@ namespace MuEmu.Network
 
             Session.Player = new Player(Session);
 
-            Session.SendAsync(new SJoinResult(1, Session.ID, ClientVersion)).Wait();
+            var msg = VersionSelector.CreateMessage<SJoinResult>((byte)1, Session.ID, ClientVersion);
+            _ = Session.SendAsync(msg);
 
             Connect?.Invoke(this, new WZServerEventArgs { session = Session });
         }

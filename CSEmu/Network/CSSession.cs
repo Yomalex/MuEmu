@@ -14,7 +14,7 @@ namespace CSEmu.Network
 
         public async void SendAsync(object message)
         {
-            await Send(_server.Encode(message, ref _outSerial));
+            await Send(_server.Encode(message, ref _outSerial, this));
         }
     }
 
