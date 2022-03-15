@@ -66,7 +66,7 @@ namespace MU.Network
             try
             {
                 var subType = (from d in s_instance._types
-                               where d.Value.ContainsKey(result)
+                               where d.Value.ContainsKey(result) && d.Key <= s_instance._activeSeason
                                select d)
                             .OrderByDescending(x => x.Key)
                             .First()
