@@ -1009,4 +1009,12 @@ namespace MU.Network.Game
         [WZMember(0)] public byte Type { get; set; }
         [WZMember(1)] public uint Money { get; set; }
     }
+    [WZContract]
+    public class CFavoritesList : IGameMessage
+    {
+        //0xC1
+        //0x1C
+        //0x6D,0x01
+        [WZMember(1, typeof(ArrayWithScalarSerializer<uint>))] public uint[] Region { get; set; }
+    }
 }

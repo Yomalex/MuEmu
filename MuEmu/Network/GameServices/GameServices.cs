@@ -2518,5 +2518,11 @@ namespace MuEmu.Network.GameServices
                 Str = session.Player.Character.Strength,
             });
         }
+
+        [MessageHandler(typeof(CFavoritesList))]
+        public async Task CFavoritesList(GSSession session, CFavoritesList message)
+        {
+            //lackting
+        }
     }
 }

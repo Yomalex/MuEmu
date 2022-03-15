@@ -74,7 +74,8 @@ namespace MuEmu.Util
         {
             var type = typeof(T);
             var prop = type.GetProperty(name);
-            prop.SetValue(a, value);
+            if(prop != null)
+                prop.SetValue(a, value);
         }
 
         public static void SetBit(this byte a, byte bit)

@@ -25,7 +25,7 @@ namespace WebZen.Network
             _packetRijndael = useRijndael;
         }
 
-        public int Decode(MemoryStream rawPacket, out short serial, List<object> messages)
+        public int Decode(MemoryStream rawPacket, out short serial, List<object> messages, WZClient client)
         {
             using (var decPacket = new MemoryStream())
             using (var posPacket = new MemoryStream())
@@ -68,7 +68,7 @@ namespace WebZen.Network
 
                         if(_packetRijndael)
                         {
-                            dec = PacketEncrypt.Decrypt(tmp);
+                            dec = PacketEncrypt.Decrypt(tmp, client);
                             if (dec.Length == 0)
                                 return size;
 
@@ -90,7 +90,7 @@ namespace WebZen.Network
 
                         if (_packetRijndael)
                         {
-                            dec = PacketEncrypt.Decrypt(tmp);
+                            dec = PacketEncrypt.Decrypt(tmp, client);
                             if (dec.Length == 0)
                                 return size;
 
@@ -352,7 +352,7 @@ namespace WebZen.Network
             Logger.Debug("Packet: {0}", s);
         }
 
-        public byte[] Encode(object message, ref short serial)
+        public byte[] Encode(object message, ref short serial, WZClient client)
         {
             MessageFactory factory = null;
             try
@@ -403,7 +403,7 @@ namespace WebZen.Network
                     data.Position = (att.LongMessage ? 3 : 2);
                     if (_packetRijndael == true)
                     {
-                        PacketEncrypt.Encrypt(data, data);
+                        PacketEncrypt.Encrypt(data, data, client);
                         //PacketPrint(data);
                     }
                     else

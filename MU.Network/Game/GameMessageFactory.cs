@@ -162,10 +162,9 @@ namespace MU.Network.Game
             #region Server ViewPortMessages
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
-            Register<SViewPortCreateS9>(GameOpCode.ViewPortCreate);
             Register<SViewPortChangeS9>(GameOpCode.ViewPortChange);
+            Register<SViewPortChangeS12>(GameOpCode.ViewPortChange);
             Register<SViewPortMonCreate>(GameOpCode.ViewPortMCreate);
-            Register<SViewPortMonCreateS9>(GameOpCode.ViewPortMCreate);
             Register<SViewPortDestroy>(GameOpCode.ViewPortDestroy);
             Register<SViewPortItemDestroy>(GameOpCode.ViewPortItemDestroy);
             #endregion
@@ -200,6 +199,9 @@ namespace MU.Network.Game
             Register<SItemGet>(GameOpCode.ItemGet);
             Register<SItemGetS12Eng>(GameOpCode.ItemGet);
             Register<STeleport>(GameOpCode.Teleport);
+            Register<STeleportS12Eng>(GameOpCode.Teleport);
+            VersionSelector.Register<STeleport>(ServerSeason.Season6Kor, GameOpCode.Teleport);
+            VersionSelector.Register<STeleportS12Eng>(ServerSeason.Season12Eng, GameOpCode.Teleport);
             Register<SViewSkillState>(GameOpCode.ViewSkillState);
             Register<SPeriodicEffectS12Eng>(GameOpCode.PeriodicEffect);
             Register<SInventoryItemDelete>(GameOpCode.InventoryItemDelete);
@@ -349,6 +351,8 @@ namespace MU.Network.Game
             Register<SPKLevel>(GameOpCode.PKLevel);
 
             Register<SMonsterSkillS9Eng>(GameOpCode.MonsterSkill);
+
+            Register<CFavoritesList>(GameOpCode.FavoritesList);
         }
     }
 }

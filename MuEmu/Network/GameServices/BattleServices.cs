@@ -230,6 +230,10 @@ namespace MuEmu.Network.GameServices
                         spells.SetBuff(SkillStates.SkillDamageDeflection, TimeSpan.FromSeconds(60 + @char.EnergyTotal / 40), @char);
                         @char.Spells.AttackSend(spell.Number, message.Target, true);
                         break;
+                    case Spell.Berseker:
+                        spells.SetBuff(SkillStates.Berseker, TimeSpan.FromSeconds(60 + @char.EnergyTotal / 40), @char);
+                        @char.Spells.AttackSend(spell.Number, message.Target, true);
+                        break;
                     case Spell.Sleep:
                         spells.SetBuff(SkillStates.SkillSleep, TimeSpan.FromSeconds(30 + @char.EnergyTotal / 25), @char);
                         @char.Spells.AttackSend(spell.Number, message.Target, true);

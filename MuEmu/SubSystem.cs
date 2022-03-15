@@ -23,6 +23,7 @@ using MuEmu.Network.ConnectServer;
 using WebZen.Handlers;
 using WebZen.Network;
 using MU.Resources.XML;
+using MU.Network;
 
 namespace MuEmu
 {
@@ -347,88 +348,29 @@ namespace MuEmu
             }
 
             var addPlr = new List<VPCreateAbs>();
-            switch(Program.Season)
+            var typeBase = Program.Season switch
             {
-                case ServerSeason.Season12Eng:
-                case ServerSeason.Season9Eng:
-                    addPlr.AddRange(newPlr.Select(x => new VPCreateS9Dto
-                    {
-                        CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
-                        Name = x.Name,
-                        Number = (ushort)(x.Player.Session.ID | 0x8000),
-                        Position = x.Position,
-                        TPosition = x.TPosition,
-                        ViewSkillState = x.Spells.ViewSkillStates,
-                        Player = x.Player,
-                        PentagramMainAttribute = (byte)(x.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute??0),
-                        CurLife = (uint)x.Health,
-                        MaxLife = (uint)x.MaxHealth,
-                        Level = x.Level,
-                        MuunItem = 0xffff,
-                        MuunRideItem = 0xffff,
-                        MuunSubItem = 0xffff,
-                        ServerCodeOfHomeWorld = 0,
-                    }));
-                    addPlr.AddRange(existPlr.Select(x => new VPCreateS9Dto
-                    {
-                        CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
-                        Name = x.Name,
-                        Number = (ushort)x.Player.Session.ID,
-                        Position = x.Position,
-                        TPosition = x.TPosition,
-                        ViewSkillState = x.Spells.ViewSkillStates,
-                        Player = x.Player,
-                        PentagramMainAttribute = (byte)(x.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute ?? 0),
-                        CurLife = (uint)x.Health,
-                        MaxLife = (uint)x.MaxHealth,
-                        Level = x.Level,
-                        MuunItem = 0xffff,
-                        MuunRideItem = 0xffff,
-                        MuunSubItem = 0xffff,
-                        ServerCodeOfHomeWorld = 0,
-                    }));
-                    break;
-                default:
-                    addPlr.AddRange(newPlr.Select(x => new VPCreateDto
-                    {
-                        CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
-                        Name = x.Name,
-                        Number = (ushort)(x.Player.Session.ID|0x8000),
-                        Position = x.Position,
-                        TPosition = x.TPosition,
-                        ViewSkillState = x.Spells.ViewSkillStates,
-                        Player = x.Player
-                    }));
-                    addPlr.AddRange(existPlr.Select(x => new VPCreateDto
-                    {
-                        CharSet = x.Inventory.GetCharset(),
-                        DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel),
-                        Name = x.Name,
-                        Number = (ushort)x.Player.Session.ID,
-                        Position = x.Position,
-                        TPosition = x.TPosition,
-                        ViewSkillState = x.Spells.ViewSkillStates,
-                        Player = x.Player
-                    }));
-                    break;
+                ServerSeason.Season12Eng => typeof(VPCreateS12Dto),
+                ServerSeason.Season9Eng => typeof(VPCreateS9Dto),
+                _ => typeof(VPCreateDto),
+            };
+
+            foreach(var x in newPlr)
+            {
+                var obj = Activator.CreateInstance(typeBase) as VPCreateAbs;
+                AssignVP(obj, x, true);                
+                addPlr.Add(obj);
             }
 
-            
-            switch (Program.Season)
+            foreach (var x in existPlr)
             {
-                case ServerSeason.Season12Eng:
-                case ServerSeason.Season9Eng:
-                    if (addPlr.Any())
-                        await plr.Player.Session.SendAsync(new SViewPortCreateS9 { ViewPort = addPlr.Select(x => (VPCreateS9Dto)x).ToArray() });
-                    break;
-                default:
-                    if (addPlr.Any())
-                        await plr.Player.Session.SendAsync(new SViewPortCreate { ViewPort = addPlr.Select(x => (VPCreateDto)x).ToArray() });
-                    break;
+                var obj = Activator.CreateInstance(typeBase) as VPCreateAbs;
+                AssignVP(obj, x, false);
+                addPlr.Add(obj);
             }
+
+            var msg = new SViewPortCreate(addPlr);
+            await plr.Player.Session.SendAsync(msg);
 
             if (lostPlr.Any())
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
@@ -443,6 +385,33 @@ namespace MuEmu
                 await plr.Player.Session.SendAsync(new SViewPortGens { VPGens = gensVP.ToArray() });
         }
 
+        private static void AssignVP(VPCreateAbs obj, Character x, bool create)
+        {
+            obj.CharSet = x.Inventory.GetCharset();
+            obj.DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel);
+            obj.Name = x.Name;
+            obj.Number = (ushort)(x.Player.Session.ID | (create ? 0x8000 : 0));
+            obj.Position = x.Position;
+            obj.TPosition = x.TPosition;
+            try
+            {
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(x => (ushort)x).ToArray());
+            }
+            catch(InvalidCastException)
+            {
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(x => (byte)x).ToArray());
+            }
+            obj.Player = x.Player;
+            obj.Set("PentagramMainAttribute", (byte)(x.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute ?? 0));
+            obj.Set("CurLife", (uint)x.Health);
+            obj.Set("MaxLife", (uint)x.MaxHealth);
+            obj.Set("Level", x.Level);
+            obj.Set("MuunItem", (ushort)0xffff);
+            obj.Set("MuunRideItem", (ushort)0xffff);
+            obj.Set("MuunSubItem", (ushort)0xffff);
+            obj.Set("ServerCodeOfHomeWorld", (ushort)0);
+        }
+
         private static async void PlayerMonsViewport(MapInfo Map, Character plr)
         {
             List<Monsters.Monster> newObj;
@@ -455,14 +424,10 @@ namespace MuEmu
             {
                 oldVP = plr.MonstersVP;
                 var targetVP = Map.Monsters.Where(x => x.Active);
-                //var pos = plr.Position;
-                //pos.Offset(15, 15);
 
                 var playerVP = from obj in targetVP
                                where obj.Position.Substract(plr.Position).LengthSquared() <= 10
                                select obj;
-
-                //var playerVP = targetVP;
 
                 newObj = (from obj in playerVP
                               where (obj.State == ObjectState.Regen||obj.UseTeleport) && obj.Active
@@ -511,74 +476,24 @@ namespace MuEmu
             oldVP.AddRange(existObj.Select(x => x.Index));
 
             var addObj = new List<VPMCreateAbs>();
-
-            if (newObj.Any())
+            var baseType = Program.Season switch
             {
-                switch (Program.Season)
-                {
-                    case ServerSeason.Season12Eng:
-                    case ServerSeason.Season9Eng:
-                        addObj.AddRange(newObj.Select(x => new VPMCreateS9Dto
-                        {
-                            Number = (ushort)(x.Index | 0x8000),
-                            Position = x.Position,
-                            TPosition = x.TPosition,
-                            Type = x.Info.Monster,
-                            ViewSkillState = Array.Empty<byte>(),
-                            Path = (byte)(x.Direction << 4),
-                            PentagramMainAttribute = x.Element,
-                            Level = x.Level,
-                            Life = (uint)x.Life,
-                            MaxLife = (uint)x.MaxLife,
-                        }));
-                        break;
-                    default:
-                        addObj.AddRange(newObj.Select(x => new VPMCreateDto
-                        {
-                            Number = (ushort)(x.Index | 0x8000),
-                            Position = x.Position,
-                            TPosition = x.TPosition,
-                            Type = x.Info.Monster,
-                            ViewSkillState = Array.Empty<byte>(),
-                            Path = (byte)(x.Direction << 4),
-                        }));
-                        break;
-                }
+                ServerSeason.Season12Eng => typeof(VPMCreateS12Dto),
+                ServerSeason.Season9Eng => typeof(VPMCreateS9Dto),
+                _ => typeof(VPMCreateDto),
+            };
+
+            foreach(var x in newObj)
+            {
+                var obj = Activator.CreateInstance(baseType) as VPMCreateAbs;
+                AssignVPM(obj, x, true);
+                addObj.Add(obj);
             }
-                
-
-            if (existObj.Any())
+            foreach (var x in existObj)
             {
-                switch (Program.Season)
-                {
-                    case ServerSeason.Season12Eng:
-                    case ServerSeason.Season9Eng:
-                        addObj.AddRange(existObj.Select(x => new VPMCreateS9Dto
-                        {
-                            Number = x.Index,
-                            Position = x.Position,
-                            TPosition = x.TPosition,
-                            Type = x.Info.Monster,
-                            ViewSkillState = Array.Empty<byte>(),
-                            Path = (byte)(x.Direction << 4),
-                            PentagramMainAttribute = x.Element,
-                            Level = x.Level,
-                            Life = (uint)x.Life,
-                            MaxLife = (uint)x.MaxLife,
-                        }));
-                        break;
-                    default:
-                        addObj.AddRange(existObj.Select(x => new VPMCreateDto
-                        {
-                            Number = x.Index,
-                            Position = x.Position,
-                            TPosition = x.TPosition,
-                            Type = x.Info.Monster,
-                            ViewSkillState = Array.Empty<byte>(),
-                            Path = (byte)(x.Direction << 4),
-                        }));
-                        break;
-                }
+                var obj = Activator.CreateInstance(baseType) as VPMCreateAbs;
+                AssignVPM(obj, x, false);
+                addObj.Add(obj);
             }
 
             var remObj = new List<VPDestroyDto>();
@@ -599,22 +514,35 @@ namespace MuEmu
             if (addObj.Any())
             {
                 var c = 0;
+                var limit = 1;
                 while(c < addObj.Count)
                 {
-                    var send = addObj.Skip(c).Take(0xff);
-                    c += 0xff;
-                    switch (Program.Season)
-                    {
-                        case ServerSeason.Season12Eng:
-                        case ServerSeason.Season9Eng:
-                            await plr.Player.Session.SendAsync(new SViewPortMonCreateS9 { ViewPort = send.Select(x => (VPMCreateS9Dto)x).ToArray() });
-                            break;
-                        default:
-                            await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = send.Select(x => (VPMCreateDto)x).ToArray() });
-                            break;
-                    }
+                    var send = addObj.Skip(c).Take(limit);
+                    c += limit;
+                    await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = send.ToArray() });
                 }                
             }
+        }
+
+        private static void AssignVPM(VPMCreateAbs obj, Monsters.Monster x, bool v)
+        {
+            obj.Number = (ushort)(x.Index | (v?0x8000:0));
+            obj.Position = x.Position;
+            obj.TPosition = x.TPosition;
+            obj.Type = x.Info.Monster;
+            var tmp = new SkillStates[] { SkillStates.ShadowPhantom };
+            obj.Path = (byte)(x.Direction << 4);
+            try
+            {
+                obj.Set("ViewSkillState", tmp/*x.Spells.ViewSkillStates*/);
+            }catch(InvalidCastException)
+            {
+                obj.Set("ViewSkillState", tmp/*x.Spells.ViewSkillStates*/.Select(x => (byte)x).ToArray());
+            }
+            obj.Set("PentagramMainAttribute", x.Element);
+            obj.Set("Level", x.Level);
+            obj.Set("Life", (uint)x.Life);
+            obj.Set("MaxLife", (uint)x.MaxLife);
         }
 
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)

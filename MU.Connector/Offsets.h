@@ -1,11 +1,14 @@
 #pragma once
 
 #define CLIENT_S9 //1.05.25
-//#define CLIENT_S12
+//#define CLIENT_S12 //1.18.70
 
+typedef BYTE* (__thiscall* T_WZParse)(void* thisPtr);
+typedef void(__thiscall* T_WZSender)(DWORD* thisPtr, BYTE* buff, DWORD len);
 typedef void(_stdcall* T_GetStartupInfoA)(LPSTARTUPINFOA lpStartupinfo);
 typedef void(_stdcall* T_OutputDebugStringA)(LPCSTR lpOutputString);
 typedef void(*T_WZSend)(LPBYTE, DWORD, int, int);
+typedef void(*T_WZSendS16)(LPBYTE, DWORD);
 typedef void(*T_WZRecv)(LPBYTE, int, int);
 typedef void(*T_sprintf)(char*, const char*, ...);
 typedef void(*T_ProcCoreA)(int, int, BYTE*, int, int);
@@ -13,6 +16,8 @@ typedef void(*T_ProcCoreB)(DWORD, BYTE*, DWORD, DWORD);
 typedef void (*T_ConnToCS)(char* hostname, int port);
 
 #ifdef CLIENT_S9
+#define CLIENT_VERSION "10525"
+
 #define CTRL_FREEZE_FIX (0x0053125F+1) // S9
 #define MAPSRV_DELACCID_FIX 0x004FAC1D // S9
 
@@ -42,13 +47,15 @@ typedef void (*T_ConnToCS)(char* hostname, int port);
 
 /// MU Online Season 12 V1.18.70 Offsets
 #ifdef CLIENT_S12
+#define CLIENT_VERSION "11870"
+
 #define SEND_PACKET_HOOK 0x00BAEBDD // S12
 #define MU_SEND_PACKET 0x00BAF008 // S12
 #define MU_SENDER_CLASS 0x159F3E4 // S12
 #define PARSE_PACKET_HOOK 0x00C19CF5
 #define PARSE_PACKET_STREAM 0xBAFACC // S12
-#define PROTOCOL_CORE1 0xBE50E1 // S9
-#define PROTOCOL_CORE2 0xC150A9 // S9
+#define PROTOCOL_CORE1 0xBE50E1 // S12
+#define PROTOCOL_CORE2 0xC150A9 // S12
 
 #define CLIENIP 0x01596520
 #define CLIENTPORT 0x01595A54

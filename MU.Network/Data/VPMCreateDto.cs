@@ -12,10 +12,10 @@ namespace MuEmu.Network.Data
     public abstract class VPMCreateAbs
     {
         [WZMember(0)]
-        public ushort wzNumber { get; set; }
+        public ushortle Number { get; set; }
 
         [WZMember(2)]
-        public ushort wzType { get; set; }
+        public ushortle Type { get; set; }
 
         [WZMember(4)]
         public byte X { get; set; }
@@ -31,28 +31,6 @@ namespace MuEmu.Network.Data
 
         [WZMember(8)]
         public byte Path { get; set; }
-
-        public ushort Number
-        {
-            get
-            {
-                return wzNumber.ShufleEnding();
-            }
-
-            set
-            {
-                wzNumber = value.ShufleEnding();
-            }
-        }
-
-        public ushort Type
-        {
-            get => wzType.ShufleEnding();
-            set
-            {
-                wzType = value.ShufleEnding();
-            }
-        }
 
         public Point Position
         {
@@ -118,6 +96,60 @@ namespace MuEmu.Network.Data
             {
                 wzLevel = value.ShufleEnding();
             }
+        }
+
+        public uint MaxLife
+        {
+            get
+            {
+                return wzMaxLife.ShufleEnding();
+            }
+
+            set
+            {
+                wzMaxLife = value.ShufleEnding();
+            }
+        }
+
+        public uint Life
+        {
+            get
+            {
+                return wzLife.ShufleEnding();
+            }
+
+            set
+            {
+                wzLife = value.ShufleEnding();
+            }
+        }
+    }
+
+    [WZContract]
+    public class VPMCreateS12Dto : VPMCreateAbs
+    {
+        [WZMember(9)]
+        public Element PentagramMainAttribute { get; set; }
+        [WZMember(10)]
+        public ushortle Level { get; set; }
+        [WZMember(11)]
+        public uint wzMaxLife { get; set; }
+        [WZMember(12)]
+        public uint wzLife { get; set; }
+
+        [WZMember(13, typeof(ArraySerializer))]
+        public byte[] Test { get; set; }
+
+        /*[WZMember(13, typeof(ArrayWithScalarSerializer<uint>))]
+        public SkillStates[] ViewSkillState { get; set; }*/
+        /*[WZMember(14)]
+        public ushort padding { get; set; }*/
+
+
+        public VPMCreateS12Dto()
+        {
+            //ViewSkillState = Array.Empty<SkillStates>();
+            Test = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7 };
         }
 
         public uint MaxLife

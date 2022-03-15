@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using WebZen.Network;
 
 namespace MuEmu.Network
@@ -11,6 +12,7 @@ namespace MuEmu.Network
     {
         public Player Player { get; set; }
         public ushort PreviousCode { get; set; }
+        public byte[] Key => _rijndael.Key;
 
         public GSSession(WZServer server, Socket socket, AsyncCallback onRecv)
             : base(server, socket, onRecv)
@@ -21,7 +23,7 @@ namespace MuEmu.Network
             if (Closed)
                 return;
 
-            await Send(_server.Encode(message, ref _outSerial));
+            await Send(_server.Encode(message, ref _outSerial, this));
         }
     }
 

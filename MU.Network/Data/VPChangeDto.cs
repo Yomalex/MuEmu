@@ -88,13 +88,13 @@ namespace MuEmu.Network.Data
     {
         [WZMember(11, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
         //public byte SkillStateCount { get; set; }
-        public SkillStates[] ViewSkillState { get; set; } //Num_ViewSkillState
+        public byte[] ViewSkillState { get; set; } //Num_ViewSkillState
 
         public VPChangeDto()
         {
             CharSet = Array.Empty<byte>();
             Id = Array.Empty<byte>();
-            ViewSkillState = Array.Empty<SkillStates>();
+            ViewSkillState = Array.Empty<byte>();
         }
     }
 
@@ -111,19 +111,43 @@ namespace MuEmu.Network.Data
         [WZMember(18)] public ushort ServerCodeOfHomeWorld { get; set; }
 
         [WZMember(19, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public SkillStates[] ViewSkillState { get; set; }
+        public byte[] ViewSkillState { get; set; }
 
         public VPChangeS9Dto()
         {
             CharSet = Array.Empty<byte>();
             Id = Array.Empty<byte>();
-            ViewSkillState = Array.Empty<SkillStates>();
+            ViewSkillState = Array.Empty<byte>();
         }
 
         public ushort MuunItem { get => wzMuunItem.ShufleEnding(); set => wzMuunItem = value.ShufleEnding(); }
         public ushort MuunSubItem { get => wzMuunSubItem.ShufleEnding(); set => wzMuunSubItem = value.ShufleEnding(); }
         public ushort MuunRideItem { get => wzMuunRideItem.ShufleEnding(); set => wzMuunRideItem = value.ShufleEnding(); }
         public ushort Level { get => wzLevel.ShufleEnding(); set => wzLevel = value.ShufleEnding(); }
+        public uint MaxLife { get => wzMaxLife.ShufleEnding(); set => wzMaxLife = value.ShufleEnding(); }
+        public uint CurLife { get => wzCurLife.ShufleEnding(); set => wzCurLife = value.ShufleEnding(); }
+    }
+    [WZContract]
+    public class VPChangeS12Dto : VPChangeAbs
+    {
+        [WZMember(11)] public byte PentagramMainAttribute { get; set; }
+        [WZMember(12)] public ushortle MuunItem { get; set; }
+        [WZMember(13)] public ushortle MuunSubItem { get; set; }
+        [WZMember(14)] public ushortle MuunRideItem { get; set; }
+        [WZMember(15)] public ushortle Level { get; set; }
+        [WZMember(16)] public uint wzMaxLife { get; set; }
+        [WZMember(17)] public uint wzCurLife { get; set; }
+        [WZMember(18)] public ushort ServerCodeOfHomeWorld { get; set; }
+
+        [WZMember(19, SerializerType = typeof(ArrayWithScalarSerializer<ushort>))]
+        public SkillStates[] ViewSkillState { get; set; }
+
+        public VPChangeS12Dto()
+        {
+            CharSet = Array.Empty<byte>();
+            Id = Array.Empty<byte>();
+            ViewSkillState = Array.Empty<SkillStates>();
+        }
         public uint MaxLife { get => wzMaxLife.ShufleEnding(); set => wzMaxLife = value.ShufleEnding(); }
         public uint CurLife { get => wzCurLife.ShufleEnding(); set => wzCurLife = value.ShufleEnding(); }
     }

@@ -1348,7 +1348,10 @@ namespace MuEmu
                 return;
 
             if (State == ObjectState.Live)
-                await Player.Session.SendAsync(new STeleport(256, MapID, _position, Direction));
+            {
+                var msg = VersionSelector.CreateMessage<STeleport>((ushort)256, MapID, _position, Direction);
+                await Player.Session.SendAsync(msg);
+            }
         }
 
         public async Task WarpTo(int gate)
@@ -1946,47 +1949,33 @@ namespace MuEmu
             var left = Inventory.Get(Equipament.LeftHand);
             var right = Inventory.Get(Equipament.RightHand);
 
-            if ((left != null && left.Number.Type == ItemType.BowOrCrossbow && left.Number.Index != 7)) // Isn't Bolts
+            var bl = left.Number.Type == ItemType.BowOrCrossbow && left != Inventory.Arrows;
+            var br = right.Number.Type == ItemType.BowOrCrossbow && right != Inventory.Arrows;
+
+            var bow = bl ? left : (br ? right : null);
+
+            if(bow != null && Inventory.Arrows != null && Inventory.Arrows.Durability > 0)
             {
+                Inventory.Arrows.Durability -= 1;
                 if (Inventory.Arrows.Durability <= 0)
                 {
-                    return;
+                    Inventory.Delete(Inventory.Arrows).Wait();
                 }
 
-                if(!Spells.BufActive(SkillStates.InfinityArrow))
-                    right.Durability--;
-
-                if(right.Durability == 0)
-                {
-                    Inventory.Delete(right).Wait();
-                }
-                left.BowWeaponDurabilityDown(Defense);
-            }else
-            if (right != null && right.Number.Type == ItemType.BowOrCrossbow && right.Number.Index != 15) // Isn't Arrows
-            {
-                if (left.Durability <= 0)
-                {
-                    return;
-                }
-
-                if (!Spells.BufActive(SkillStates.InfinityArrow))
-                    right.Durability--;
-                if (left.Durability == 0)
-                {
-                    Inventory.Delete(left).Wait();
-                }
-                right.BowWeaponDurabilityDown(Defense);
+                bow.BowWeaponDurabilityDown(Defense);
             }
-
-            if (right != null && left != null  && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
+            else
+            {
+                if (right != null && left != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow &&
                 left.Number.Type >= ItemType.Sword && left.Number.Type < ItemType.BowOrCrossbow)
-            {
-                var item = Program.RandomProvider(2) == 0 ? right : left;
-                item.NormalWeaponDurabilityDown(Defense);
-            }
-            else if (right != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)
-            {
-                right.NormalWeaponDurabilityDown(Defense);
+                {
+                    var item = Program.RandomProvider(2) == 0 ? right : left;
+                    item.NormalWeaponDurabilityDown(Defense);
+                }
+                else if (right != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)
+                {
+                    right.NormalWeaponDurabilityDown(Defense);
+                }
             }
         }
 

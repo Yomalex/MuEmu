@@ -23,6 +23,7 @@ namespace MU.Network
     public enum AHOpCode : ushort
     {
         AHCheck = 0x11FA,
+        AHEncKey = 0x00FA,
     }
 
     public enum CSOpCode : ushort
@@ -229,6 +230,7 @@ namespace MU.Network
         NewQuestWorldList = 0x50F6,
         PKLevel = 0x08F3,
         MonsterSkill = 0x0069,
+        FavoritesList = 0x016D,
     }
 
     public enum GensOpCode

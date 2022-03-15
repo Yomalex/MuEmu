@@ -107,7 +107,7 @@ namespace MuEmu.Network.ConnectServer
         {
             try
             {
-                _client.Client.Send(_encoder.Encode(message, ref _outSerial));
+                _client.Client.Send(_encoder.Encode(message, ref _outSerial, this));
             }
             catch (SocketException)
             {

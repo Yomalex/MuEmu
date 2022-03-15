@@ -33,4 +33,10 @@ struct PMSG_IDPASS_OLD
 	BYTE CliVersion[5];	// 1C
 	BYTE CliSerial[16];	// 21
 };
+struct PMSG_AHKEY
+{
+	PBMSG_HEAD h;
+	BYTE subcode;	// 3
+	BYTE PreSharedKey[32];
+};
 #pragma pack()

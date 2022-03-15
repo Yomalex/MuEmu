@@ -27,6 +27,10 @@ namespace MuEmu.Network
         public string ClientSerial { get; set; }
         public IEnumerable<GSSession> Clients => _clients.Values.Select(x => x as GSSession);
 
+
+        /// <summary>
+        /// Sender as Server, WZServerEventArgs with GSSession
+        /// </summary>
         public event EventHandler<WZServerEventArgs> Connect;
         public event EventHandler<WZServerEventArgs> Disconnect;
 
@@ -65,24 +69,24 @@ namespace MuEmu.Network
                         });
                 }
                 Session.Player.Status = LoginStatus.NotLogged;
-            }
 
-            using (var db = new GameContext())
-            {
-                if (Session.Player.Account != null)
+                using (var db = new GameContext())
                 {
-                    var acc = (from a in db.Accounts
-                               where a.AccountId == Session.Player.Account.ID
-                               select a).First();
+                    if (Session.Player.Account != null)
+                    {
+                        var acc = (from a in db.Accounts
+                                   where a.AccountId == Session.Player.Account.ID
+                                   select a).First();
 
-                    acc.IsConnected = false;
+                        acc.IsConnected = false;
 
-                    db.Accounts.Update(acc);
-                    db.SaveChanges();
-                    Logger.ForAccount(Session).Information("Disconnecting...");
+                        db.Accounts.Update(acc);
+                        db.SaveChanges();
+                        Logger.ForAccount(Session).Information("Disconnecting...");
+                    }
                 }
+                Session.Player.Account = null;
             }
-            Session.Player.Account = null;
             //db.SaveChanges();
 
             Session.Player = null;

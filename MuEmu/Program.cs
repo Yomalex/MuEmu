@@ -134,8 +134,8 @@ namespace MuEmu
             GameContext.ConnectionString = ConnectionString;
             SimpleModulus.LoadDecryptionKey("./Data/Dec1.dat");
             SimpleModulus.LoadEncryptionKey("./Data/Enc2.dat");
-            byte[] key = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
-            PacketEncrypt.Initialize(key);
+            //byte[] key = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
+            //PacketEncrypt.Initialize(key);
 
             var ip = new IPEndPoint(IPAddress.Parse(xml.Connection.IP), xml.Connection.Port);
             var csIP = new IPEndPoint(IPAddress.Parse(xml.Connection.ConnectServerIP), 44405);
@@ -185,6 +185,7 @@ namespace MuEmu
             server = new WZGameServer(ip, mh, mf, NewEncode(Season));
             server.ClientVersion = xml.Client.Version;
             server.ClientSerial = xml.Client.Serial;
+            server.Connect += Server_Connect;
 
             var cmh = new MessageHandler[]
             {
@@ -297,6 +298,12 @@ namespace MuEmu
 
                 Handler.ProcessCommands(null, input);
             }
+        }
+
+        private static void Server_Connect(object sender, WZServerEventArgs e)
+        {
+            Log.Information("Sending PSK");
+            _ = e.session.SendAsync(new SAHPreSharedKey { Key = e.session.Key });
         }
 
         private static void UpdateZen(object sender, CommandEventArgs e)

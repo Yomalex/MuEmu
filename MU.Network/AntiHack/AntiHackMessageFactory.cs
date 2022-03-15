@@ -16,6 +16,7 @@ namespace MU.Network.AntiHack
             Register<CAHCheck>(AHOpCode.AHCheck);
 
             // S2C
+            Register<SAHPreSharedKey>(AHOpCode.AHEncKey);
         }
     }
 }

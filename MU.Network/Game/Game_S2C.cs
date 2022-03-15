@@ -226,25 +226,41 @@ namespace MU.Network.Game
     public class SViewPortCreate : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public VPCreateDto[] ViewPort { get; set; }
+        public VPCreateAbs[] ViewPort { get; set; }
 
         public SViewPortCreate()
         {
-            ViewPort = Array.Empty<VPCreateDto>();
+            ViewPort = Array.Empty<VPCreateAbs>();
+        }
+        public SViewPortCreate(IEnumerable<VPCreateAbs> viewPort)
+        {
+            ViewPort = viewPort.ToArray();
+        }
+    }
+
+    /*[WZContract(LongMessage = true)]
+    public class SViewPortCreateS9 : IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public object[] ViewPort { get; set; }
+
+        public SViewPortCreateS9()
+        {
+            ViewPort = Array.Empty<object>();
         }
     }
 
     [WZContract(LongMessage = true)]
-    public class SViewPortCreateS9 : IGameMessage
+    public class SViewPortCreateS12 : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public VPCreateS9Dto[] ViewPort { get; set; }
+        public object[] ViewPort { get; set; }
 
-        public SViewPortCreateS9()
+        public SViewPortCreateS12()
         {
-            ViewPort = Array.Empty<VPCreateS9Dto>();
+            ViewPort = Array.Empty<object>();
         }
-    }
+    }*/
 
     [WZContract(LongMessage = true)]
     public class SViewPortChange : IGameMessage
@@ -271,18 +287,30 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true)]
-    public class SViewPortMonCreate : IGameMessage
+    public class SViewPortChangeS12 : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
-        public VPMCreateDto[] ViewPort { get; set; }
+        public VPChangeS12Dto[] ViewPort { get; set; }
 
-        public SViewPortMonCreate()
+        public SViewPortChangeS12()
         {
-            ViewPort = Array.Empty<VPMCreateDto>();
+            ViewPort = Array.Empty<VPChangeS12Dto>();
         }
     }
 
     [WZContract(LongMessage = true)]
+    public class SViewPortMonCreate : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPMCreateAbs[] ViewPort { get; set; }
+
+        public SViewPortMonCreate()
+        {
+            ViewPort = Array.Empty<VPMCreateAbs>();
+        }
+    }
+
+    /*[WZContract(LongMessage = true)]
     public class SViewPortMonCreateS9 : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
@@ -293,6 +321,18 @@ namespace MU.Network.Game
             ViewPort = Array.Empty<VPMCreateS9Dto>();
         }
     }
+
+    [WZContract(LongMessage = true)]
+    public class SViewPortMonCreateS12 : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPMCreateS12Dto[] ViewPort { get; set; }
+
+        public SViewPortMonCreateS12()
+        {
+            ViewPort = Array.Empty<VPMCreateS12Dto>();
+        }
+    }*/
 
     [WZContract(LongMessage = true)]
     public class SViewPortItemCreate : IGameMessage
@@ -981,6 +1021,41 @@ namespace MU.Network.Game
         {
             Type = type;
             Map = (byte)map;
+            MapX = (byte)position.X;
+            MapY = (byte)position.Y;
+            Dir = dir;
+        }
+    };
+
+    [WZContract(Serialized = true)]
+    public class STeleportS12Eng : IGameMessage
+    {
+        // C3:1C
+        [WZMember(0)]
+        public byte Unk { get; set; }
+
+        [WZMember(1)]
+        public ushort Type { get; set; }
+
+        [WZMember(2)]
+        public Maps Map { get; set; } // 4
+
+        [WZMember(3)]
+        public byte MapX { get; set; }  // 5
+
+        [WZMember(4)]
+        public byte MapY { get; set; }  // 6
+
+        [WZMember(5)]
+        public byte Dir { get; set; }   // 7
+
+        public STeleportS12Eng()
+        { }
+
+        public STeleportS12Eng(ushort type, Maps map, Point position, byte dir)
+        {
+            Type = type;
+            Map = map;
             MapX = (byte)position.X;
             MapY = (byte)position.Y;
             Dir = dir;

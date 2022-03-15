@@ -1,19 +1,18 @@
 // dllmain.cpp : Define el punto de entrada de la aplicaci√≥n DLL.
 #include "pch.h"
-#include <stdio.h>
-#include <WinSock2.h>
-#include <windows.h>
-#include <DBGHELP.H>
 #include "../../CryptoPP/cryptlib.h"
 #include "../../CryptoPP/modes.h"
 #include "../../CryptoPP/aes.h"
 #include "Offsets.h"
 #include "Protocol.h"
+#include "Util.h"
+#include "MiniDump.h"
 #pragma comment(lib,"../../CryptoPP/Win32/Output/Release/cryptlib.lib")
 
 LPBYTE _GetStartupInfoA = (LPBYTE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetStartupInfoA");
 LPBYTE _OutputDebugStringA = (LPBYTE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "OutputDebugStringA");
 
+FILE* fp=NULL;
 template<typename T>
 class Hook
 {
@@ -30,6 +29,9 @@ public:
 
     T Set(void * oldFunc, void * newFunc)
     {
+        if (oldFunc == nullptr)
+            return (T)(copy + 1);
+
         memcpy(copy, oldFunc, sizeof(copy));
         Jump(oldFunc, newFunc);
 
@@ -51,6 +53,7 @@ public:
         *((DWORD*)&newJump[1]) = ((DWORD)target) - ((DWORD)offset) - 5;
         memcpy(offset, newJump, sizeof(newJump));
         VirtualProtect(offset, sizeof(newJump), VPOld, &VPOld);
+        Print(fp, "Jump from %p to %p\n", offset, target);
     }
 
     static void Call(void* offset, void* target)
@@ -60,6 +63,7 @@ public:
         *((DWORD*)&newJump[1]) = ((DWORD)target) - ((DWORD)offset) - 5;
         memcpy(offset, newJump, sizeof(newJump));
         VirtualProtect(offset, sizeof(newJump), VPOld, &VPOld);
+        Print(fp, "Call from %p to %p\n", offset, target);
     }
 
     static void Write(void* offset, BYTE array[], int size)
@@ -67,6 +71,14 @@ public:
         VirtualProtect(offset, size, PAGE_EXECUTE_READWRITE, &VPOld);
         memcpy(offset, array, size);
         VirtualProtect(offset, size, VPOld, &VPOld);
+        char buff[1024];
+        char buff2[1024];
+        for (auto n =0; n < size; n++)
+        {
+            sprintf(buff + n, "%c", array[n]);
+            sprintf(buff2 + n*2, "%02X", array[n]);
+        }
+        Print(fp, "Write to %p, %s %s\n", offset, buff2, buff);
     }
 
     static void WriteByte(void* offset, BYTE bt)
@@ -74,6 +86,7 @@ public:
         VirtualProtect(offset, 1, PAGE_EXECUTE_READWRITE, &VPOld);
         *((LPBYTE)offset) = bt;
         VirtualProtect(offset, 1, VPOld, &VPOld);
+        Print(fp, "Write to %p, %02X\n", offset, bt);
     }
 
     static void ChangeAddress(DWORD Addr, DWORD AddrNew)
@@ -87,115 +100,87 @@ public:
             MOV DWORD PTR DS : [EAX] , EDX;
         }
         VirtualProtect((LPVOID)Addr, 4, OldProtect, &OldProtect);
+        Print(fp, "ChangeAddress on %08X to %08X\n", Addr, AddrNew);
     }
 };
 template<typename T>
 DWORD Hook<T>::VPOld = 0;
 
+// Hooks
 Hook<T_GetStartupInfoA> kernel32_GetStartupInfoA;
 Hook<T_OutputDebugStringA> kernel32_OutputDebugStringA;
 Hook<T_WZSend> main_Send;
+Hook<T_WZSendS16> main_SendS16;
+Hook<T_WZSendS16> main_SendS161;
+Hook<T_WZSendS16> main_SendS162;
 Hook<T_WZRecv> main_Recv;
 Hook<T_sprintf> main_sprintf;
+Hook<T_ProcCoreA> main_procCoreA;
+Hook<T_ProcCoreB> main_procCoreB;
 T_GetStartupInfoA old_GetStartupInfoA;
 T_OutputDebugStringA old_OutputDebugStringA;
 
 // Crypto
-CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Encryption m_Encryption;
-CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Decryption m_Decryption;
+CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Encryption* m_Encryption;
+CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Decryption* m_Decryption;
 
 // Functions
 auto old_Send = (T_WZSend)SEND_PACKET_HOOK;// 0x00BAEBDD;
+auto old_SendS16 = (T_WZSendS16)SEND_PACKET_HOOK;// 0x00BAEBDD;
+auto old_SendS161 = (T_WZSendS16)nullptr;// 0x00BAEBDD;
+auto old_SendS162 = (T_WZSendS16)nullptr;// 0x00BAEBDD;
 auto old_Recv = (T_WZRecv)PARSE_PACKET_HOOK;// 0x00C19CF5;
 auto ProtocolCoreA = (T_ProcCoreA)PROTOCOL_CORE1;// 0xBE50E1;
 auto ProtocolCoreB = (T_ProcCoreB)PROTOCOL_CORE2;// 0xC150A9;
 auto old_sprintf = (T_sprintf)0x00D0A18A;
+auto WZSender = (T_WZSender)MU_SEND_PACKET;
+auto WZParser = (T_WZParse)PARSE_PACKET_STREAM;
 
+// Variables
+auto WZSenderClass = (DWORD**)MU_SENDER_CLASS;
+char szIp[50];
+char szVersion[] = CLIENT_VERSION;
+char szSerial[18] = "fughy683dfu7teqg";
+int iPort = 44405;
+LPTOP_LEVEL_EXCEPTION_FILTER PreviousExceptionFilter = NULL;
+bool UEF = false;
+bool Initialized = false;
+
+// Constants
 const char* cfgFile = ".\\config.ini";
-
-FILE* fp;
-bool SendHooked = false;
-
-void BuxConvert(char* buf, int size)
-{
-    static unsigned char bBuxCode[3] = { 0xFC, 0xCF, 0xAB };
-    for (int n = 0; n < size; n++)
-    {
-        buf[n] ^= bBuxCode[n % 3];		// Nice trick from WebZen
-    }
-}
-
-inline void DataSend(BYTE* buff, DWORD len)
-{
-    __asm
-    {
-        PUSH len;
-        PUSH buff;
-        MOV ECX, DWORD PTR DS : [MU_SENDER_CLASS] ;//MU SENDER CLASS
-        MOV EDX, MU_SEND_PACKET;
-        CALL EDX;
-    }
-}
-
-std::map<WORD, const char*> packetName =
-{
-    { 0xFF00, "Join" },
-    { 0x06F4, "Server List" },
-    { 0x03F4, "Server Info" },
-    { 0x00F1, "JoinResult" },
-    { 0x01F1, "Login" },
-    { 0x00F3, "CharacterList" },
-    { 0x03F3, "JoinMap2" },
-    { 0x15F3, "JoinMap" },
-    { 0x144E, "MuunRideViewPort" },
-    { 0x03E7, "NPCInfo" },
-    { 0xFF26, "HpUpdate" },
-    { 0xFF27, "ManaUpdate" },
-    { 0xFF13, "VPMonsterCreate" },
-    { 0xFF0E, "LiveClient" },
-    { 0xFF0F, "Weather" },
-    { 0xFF0D, "Notice" },
-    { 0xFF18, "Rotation" },
+std::map<std::string, void*> cmd = {
+    {"URL", szIp},
+    {"Version", szVersion},
+    {"Serial", szSerial},
+    {"Port", &iPort}
 };
+std::map<std::string, int> cmdl = {
+    {"URL", sizeof(szIp)},
+    {"Version", sizeof(szVersion)},
+    {"Serial", sizeof(szSerial)},
+    {"Port", sizeof(iPort)}
+};
+BYTE key[] = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
+BYTE xORKey[] = { 0xAB, 0x11, 0xCD, 0xFE, 0x18, 0x23, 0xC5, 0xA3, 0xCA, 0x33, 0xC1, 0xCC, 0x66,
+                0x67, 0x21, 0xF3, 0x32, 0x12, 0x15, 0x35, 0x29, 0xFF, 0xFE, 0x1D, 0x44, 0xEF,
+                0xCD, 0x41, 0x26, 0x3C, 0x4E, 0x4D };
 
-void Print(const char * format, ...)
+void XOrData(bool Encode, BYTE * lpBuffer, int size, int offset)
 {
-    va_list ap;
-    va_start(ap, format);
-    vfprintf(fp, format, ap);
-    vprintf(format, ap);
-    va_end(ap);
-}
-
-inline void PacketPrint(LPBYTE buff, DWORD size, const char* szName, const char * szDesc)
-{
-    static char hex[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', '∑' };
-    static char DecBuff[100];
-    unsigned int j, a;
-
-    Print("%s PACKET %s [%d]={0x", szDesc, szName, size);
-    for (unsigned int i = 0; i < size; i++)
+    if (Encode)
     {
-        j = 0;
-        a = (buff[i] >> 4) & 0x0f;
-        DecBuff[j++] = hex[a];
-        a = buff[i] & 0x0f;
-        DecBuff[j++] = hex[a];
-        if (i + 1 < size)
+        for (auto n = offset; n < size-1; n++)
         {
-            DecBuff[j++] = ',';
-            DecBuff[j++] = ' ';
-            DecBuff[j++] = '0';
-            DecBuff[j++] = 'x';
+            lpBuffer[n + 1] ^= lpBuffer[n] ^ xORKey[n % 32];
         }
-
-        DecBuff[j++] = 0;
-
-        fprintf(fp, DecBuff);
-        printf(DecBuff);
     }
-
-    Print("}\n");
+    else
+    {
+        for (auto n = size-1; n > offset; n--)
+        {
+            lpBuffer[n] ^= lpBuffer[n-1] ^ xORKey[n % 32];
+        }
+    }
 }
 
 void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
@@ -206,31 +191,16 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
 
     BYTE type = lpMsg[0];
 
-    WORD* p = (WORD*)(lpMsg + (type == 0xC1 ? 2 : 3));
+    auto Offset = (type == 0xC1 ? 2 : 3);
 
+    memcpy(send, lpMsg, len);
+    XOrData(false, send, len, Offset);
+    PacketPrint(fp, send, len, enc ? "SendEnc>" : "Send>");
+
+    WORD* p = (WORD*)(send + Offset);
     BYTE proto = (*p)&0xff;
     BYTE subco = ((*p)&0xff00)>>8;
-
-    auto r = packetName.find(*p);
-    if (r == packetName.end())
-    {
-        r = packetName.find(*p | 0xFF00);
-    }
-    if (r == packetName.end())
-    {
-        r = packetName.find(*p | 0xFF00);
-    }
-
-    if (r != packetName.end())
-    {
-        PacketPrint(lpMsg, len, (*r).second, "Send>");
-    }
-    else
-    {
-        PacketPrint(lpMsg, len, "unknow", "Send>");
-    }
-
-
+    
     switch (proto)
     {
         case 0xF1:
@@ -239,8 +209,8 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
             {
                 case 0x01:
                 {
-#ifdef CLIENT_S9
-                    PMSG_IDPASS_OLD* lpMsg2 = (PMSG_IDPASS_OLD*)lpMsg;
+#ifdef CLIENT_S91
+                    PMSG_IDPASS_OLD* lpMsg2 = (PMSG_IDPASS_OLD*)send;
                     // Fix account id save for s9
                     DWORD OldProtect;
                     VirtualProtect((LPVOID)0x08B97990, 12, PAGE_EXECUTE_READWRITE, &OldProtect);
@@ -251,6 +221,7 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
                     BuxConvert(AccountID, 10);
 
                     memcpy((void*)0x08B97990, AccountID, 11);
+                    Print(fp, "Account Info:\nAccount:%s\nVersion:%s\nSerial:%s", AccountID, lpMsg2->CliVersion, lpMsg2->CliSerial);
 #endif
                 }
                 break;
@@ -266,7 +237,7 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
         size = len;
         size -= offset;
         int newSize = (1 + (size / 16)) * 16;
-        m_Encryption.ProcessData(send + offset, lpMsg+offset, newSize);
+        m_Encryption->ProcessData(send + offset, lpMsg+offset, newSize);
         send[newSize + offset] = (BYTE)(newSize - size);
         size = newSize + offset + 1;
 
@@ -280,15 +251,50 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
             send[1] = (BYTE)(size >> 8) & 0xff;
             send[2] = (BYTE)(size) & 0xff;
         }
+
+        PacketPrint(fp, send, size, "m_Encryption");
     }
     else
     {
-        memcpy(send, lpMsg, len);
+        buff = lpMsg;
         size = len;
     }
 
     fflush(fp);
-    DataSend(send, size);
+
+    DWORD* d = *WZSenderClass;
+    WZSender(d, buff, size);
+}
+
+void SendPacketS16(DWORD len, BYTE* lpMsg)
+{
+    SendPacket(lpMsg, len, 0, 0);
+}
+
+void ProtocolCoreAEx(int unk, int head, BYTE* buff, int size, int enc)
+{
+}
+
+void ProtocolCoreBEx(DWORD head, BYTE* buff, DWORD size, DWORD enc)
+{
+    switch (head)
+    {
+    case 0xFA:
+        switch (buff[3])
+        {
+        case 0x00:
+        {
+            PMSG_AHKEY* pShared = (PMSG_AHKEY*)buff;
+            m_Encryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
+            m_Decryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
+            Print(fp, "New Key recived");
+            PacketPrint(fp, pShared->PreSharedKey, sizeof(pShared->PreSharedKey), "PSK");
+        }
+        return;
+        }
+        break;
+    }
+    ProtocolCoreB(head, buff, size, enc);
 }
 
 void ParsePacket(void* PackStream, int unk1, int unk2)
@@ -299,375 +305,218 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
 
     while (true)
     {
-        __asm {
-            MOV ECX, PackStream;
-            MOV EDX, PARSE_PACKET_STREAM;
-            CALL EDX;
-            MOV buff, EAX;
-        }
+        buff = WZParser(PackStream);
         if (!buff)
             break;
 
+        auto Type = buff[0];
+        auto Offset = (Type & 1) == 1 ? 2 : 3;
+        WORD Size = (Type & 1) == 1 ? buff[1] : MAKEWORD(buff[2], buff[1]);
+        auto OPCode = buff[Offset];
+        auto Encode = Type >= 0xC3 ? 1 : 0;
+        auto Padding = buff[Size - 1];
 
-        int proto;
-        int size;
-        int enc;
-        int padding;
-
-        switch (buff[0])
+        if (Encode)
         {
-        case 0xC1:
-            proto = buff[2];
-            size = buff[1];
-            enc = 0;
-            break;
-        case 0xC2:
-            proto = buff[3];
-            size = MAKEWORD(buff[2], buff[1]);
-            enc = 0;
-            break;
-        case 0xC3:
-            enc = 1;
-            size = buff[1];
-            padding = buff[size - 1];
-            if ((size - 3) % 16 != 0)
+            auto DataSize = Size - Offset - 1;
+            if (DataSize % 16)
             {
-                printf("0xC3 Error on Encripted packet, data size:%d, raw Size:%d, padding:%d\n", size - 3, size, padding);
+                Print(fp, "0xC3 Error on Encripted packet, data size:%d, raw Size:%d, padding:%d\n", DataSize, Size, Padding);
                 return;
             }
-            m_Decryption.ProcessData(&DecBuff[2], &buff[2], size - 3);
-            //memcpy(&DecBuff[2], &buff[2], DecSize - 2);
-            DecSize = size - padding;
-            DecBuff[0] = 0xC1;
-            DecBuff[1] = DecSize;
-            size = DecSize;
-            buff = DecBuff;
-            proto = DecBuff[2];
-            break;
-        case 0xC4:
-            enc = 1;
-            size = buff[2] | (buff[1]<<8);
 
-            if ((size - 4) % 16 != 0)
+            m_Decryption->ProcessData(&DecBuff[Offset], &buff[Offset], DataSize);
+            DecSize = Size - Padding;
+            DecBuff[0] = Type-2;
+            if ((Type & 1) == 1)
             {
-                printf("Error on Encripted packet, data size:%d", size - 4);
-                return;
+                DecBuff[1] = DecSize;
             }
-            m_Decryption.ProcessData(&DecBuff[3], &buff[3], size - 4);
-            //memcpy(&DecBuff[3], &buff[3], DecSize - 3);
-            DecSize = size;//-buff[size - 1];
-            size = DecSize;
-            DecBuff[0] = 0xC2;
-            DecBuff[2] = LOBYTE(size);
-            DecBuff[1] = HIBYTE(size);
+            else
+            {
+                DecBuff[1] = DecSize & 0xFF;
+                DecBuff[2] = (DecSize&0xFF00)>>8;
+            }
+            Size = DecSize;
             buff = DecBuff;
-            proto = buff[3];
-            break;
+            OPCode = DecBuff[Offset];
         }
 
-        WORD* p = (WORD*)(buff + (buff[0] == 0xC1 ? 2 : 3));
-
-        BYTE subco = (BYTE)(((*p) & 0xff00) >> 8);
-
-        auto r = packetName.find(*p);
-        auto r2 = packetName.find(*p | 0xFF00);
-
-        if (r == packetName.end())
-        {
-            r = packetName.find(*p | 0xFF00);
-        }
-        if (r == packetName.end())
-        {
-            r = packetName.find(*p | 0xFF00);
-        }
-
-        if (r != packetName.end())
-        {
-            PacketPrint(buff, size, (*r).second, "Recv<");
-        }
-        else
-        {
-            PacketPrint(buff, size, "unknow", "Recv<");
-        }
-
+        PacketPrint(fp, buff, Size, Encode ? "RecvDec" : "Recv");
+        Print(fp, "%02X\n", OPCode);
         if (unk1 == 1)
-            ProtocolCoreA(unk2, proto, buff, size, enc);
+            ProtocolCoreA(unk2, OPCode, buff, Size, Encode);
         else
-            ProtocolCoreB(proto, buff, size, enc);
+            ProtocolCoreBEx(OPCode, buff, Size, Encode);
     }
 }
 
-#ifdef CLIENT_S9
-auto ConnectToCS = (T_ConnToCS)MU_CONNECT_FUNC;
-char szVersion[] = "10525";
-char szSerial[18] = "fughy683dfu7teqg";
-
-void Connect()
+WSABUF StrToByteArray(std::string s)
 {
-    char szIp[128];
-    int port;
-    GetPrivateProfileStringA("MU", "URL", "127.0.0.1", szIp, 128, cfgFile);
-    port = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
-    printf("Connecto to %s:%d\n", szIp, port);
-    ConnectToCS(szIp, port);
-}
-
-void onCsHook2()
-{
-    Connect();
-
-    _asm
+    WSABUF result;
+    if (s.find("<") != std::string::npos)
     {
-        mov ecx, CONNECT_HOOK2;
-        sub ecx, onCsHook2;
-        jmp ecx;
+        auto pos = s.find(">");
+        auto sub = s.substr(1, pos-1);
+        auto source = cmd[sub];
+        result.len = cmdl[sub];
+        result.buf = (char*)new BYTE[result.len];
+        memcpy(result.buf, source, result.len);
+        return result;
     }
-}
 
-void __declspec(naked) onCsHook()
-{
-    Connect();
+    result.len = s.length()/2;
+    result.buf = (char*)new BYTE[result.len];
 
-    _asm
+    for (auto i = 0; i < result.len; i++)
     {
-        push eax;
-        //call 0x00635371; // it's not needed, 635371 is original Connect function, we use muConnectToCS
-        mov edx, 0x004DEA9A; // S9
-        jmp edx;
+        result.buf[i] = (BYTE)std::stoi(s.substr(i * 2, 2), nullptr, 16);
     }
+
+    return result;
 }
 
-int __cdecl loc_sprintf(char* buffer, const char* format, ...)
+std::map<void*,WSABUF> ParserINI(LPCSTR lpAppName)
 {
-    int ret = -1;
+    static char buffer[1024];
+    auto length = GetPrivateProfileSectionA(lpAppName, buffer, sizeof(buffer), cfgFile);
+    std::string delimiter = "=";
+    std::map<void*, WSABUF> result;
 
-    if (IsBadReadPtr(buffer, 1) || IsBadReadPtr(format, 1))
+    Print(fp, "ParserINI(%s:%d)=%s\n", lpAppName, length, buffer);
+
+    for (auto i = 0; i < length;)
     {
-        printf("IsBadReadPtr sprintf(%p, %p, ...)\n", buffer, format);
-        if (!IsBadReadPtr(buffer, 1))
-            strcpy(buffer, "<Bad_Format>");
-        return ret;
+        auto pBuf = buffer + i;
+        std::string s = pBuf;
+        auto pos = s.find(delimiter);
+        std::string key = s.substr(0, pos);
+        std::string value = s.substr(pos + delimiter.length());
+        auto ikey = (void*)std::stoi(key, nullptr, 16);
+        result[ikey] = StrToByteArray(value);
+        i += strlen(pBuf) + 1;
     }
 
-    //printf("sprintf(%s, %s, ...)\n", buffer, format);
-    va_list va;
-    va_start(va, format);
-    ret = vsprintf(buffer, format, va);
-    va_end(va);
-
-    return ret;
+    return result;
 }
 
-void ProcLoading()
+void MainConfiguration()
 {
-    fp = fopen("ParsePacket.log", "a+");
-    BYTE key[] = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
+    if (Initialized)
+        return;
 
-    m_Encryption.SetKey(key, sizeof(key));
-    m_Decryption.SetKey(key, sizeof(key));
+    m_Encryption = new CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Encryption();
+    m_Decryption = new CryptoPP::ECB_Mode<CryptoPP::Rijndael>::Decryption();
 
-    old_Send = main_Send.Set(old_Send, SendPacket);
-    old_Recv = main_Recv.Set(old_Recv, ParsePacket);
-    old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
+    m_Encryption->SetKey(key, sizeof(key));
+    m_Decryption->SetKey(key, sizeof(key));
 
-    BYTE c[32];
-    memset(c, 0x90, 32);
-
-    Hook<void>::Jump((void*)CONNECT_HOOK1, onCsHook);
-    Hook<void>::Write((void*)CONNECT_HOOK2, c, 6);
-    Hook<void>::Jump((void*)CONNECT_HOOK2, onCsHook2);
-    //Hook<void>::ChangeAddress(VERSION_HOOK1, (DWORD)szVersion);
-    //Hook<void>::ChangeAddress(VERSION_HOOK2, (DWORD)szVersion);
-    //Hook<void>::ChangeAddress(VERSION_HOOK3, (DWORD)szVersion);
-    Hook<void>::ChangeAddress(SERIAL_HOOK1, (DWORD)szSerial);
-    Hook<void>::ChangeAddress(SERIAL_HOOK2, (DWORD)szSerial);
-    Hook<void>::Jump((void*)0x0063562F, (void*)0x0063564C);//remove filter.bmd
-    //009C79AC   |> C9              LEAVE
-    Hook<void>::Jump((void*)0x009C77C8, (void*)0x009C79AC);// HelpData_Eng.bmd Corrupt
-    Hook<void>::WriteByte((void*)CTRL_FREEZE_FIX, 0x02);
-    Hook<void>::Write((void*)MAPSRV_DELACCID_FIX, c, 5); // nop call to memcpy in mapserver, because buff source is empty, due to no account id from webzen http (remove new login system)
-    Hook<void>::WriteByte((void*)(0x005CA914 + 2), 0x26);// Box of Kundun 2-5 fix
-    Hook<void>::WriteByte((void*)(0x005CA8C7 + 3), 0x07);// Box of Heaven fix
-    Hook<void>::WriteByte((void*)0x009E5EDC, 0xEB); // S9 -- Cherry Blossom Opening MuRuumy Windows Fix, JNZ -> JMP
-    //MemSet(0x00802160, 0x90, 6); // S9 -- Joh option display on Ancients
-    //Hook<void>::WriteByte((void*)0x00A31BE6, 0x30); // S9 -- Decreased limit of screen refresh frequency, 60 -> 48
-    Hook<void>::WriteByte((void*)0x00A31BE7, 0x7D); // JE -> JGE -- limit check == -> >=
-
+    GetPrivateProfileStringA("MU", "URL", "127.0.0.1", szIp, sizeof(szIp), cfgFile);
+    iPort = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
     GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", szSerial, 18, cfgFile);
-    GetPrivateProfileStringA("MU", "Version", "10525", szVersion, 5, cfgFile);
-
-    for (int i = 0; i < 5; i++)
+    GetPrivateProfileStringA("MU", "Version", CLIENT_VERSION, szVersion, sizeof(szVersion), cfgFile);
+    if (GetPrivateProfileIntA("MU", "Console", 0, cfgFile) == 1)
     {
-        szVersion[i] = szVersion[i] + (i + 1);
+        AllocConsole();
+        freopen("CONOUT$", "w", stdout);
     }
-}
-#endif
-#ifdef CLIENT_S12
-void ProcLoading()
-{
-    fp = fopen("ParsePacket.log", "a+");
-    BYTE key[] = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
+    if (GetPrivateProfileIntA("MU", "Log", 0, cfgFile) == 1)
+    {
+        fp = fopen("ParsePacket.log", "w");
+    }
+    for (int i = 0; i < 5; i++)
+        szVersion[i] = szVersion[i] + (i + 1);
 
-    m_Encryption.SetKey(key, sizeof(key));
-    m_Decryption.SetKey(key, sizeof(key));
+    // Offset
+    old_Send = (T_WZSend)GetPrivateProfileIntHexA("OFFSET", "Send", SEND_PACKET_HOOK, cfgFile);
+    old_SendS16 = (T_WZSendS16)GetPrivateProfileIntHexA("OFFSET", "SendS16", 0, cfgFile);
+    old_SendS161 = (T_WZSendS16)GetPrivateProfileIntHexA("OFFSET", "SendS161", 0, cfgFile);
+    old_SendS162 = (T_WZSendS16)GetPrivateProfileIntHexA("OFFSET", "SendS162", 0, cfgFile);
+    old_Recv = (T_WZRecv)GetPrivateProfileIntHexA("OFFSET", "Recv", PARSE_PACKET_HOOK, cfgFile);
+    ProtocolCoreA = (T_ProcCoreA)GetPrivateProfileIntHexA("OFFSET", "CoreA", PROTOCOL_CORE1, cfgFile);
+    ProtocolCoreB = (T_ProcCoreB)GetPrivateProfileIntHexA("OFFSET", "CoreB", PROTOCOL_CORE2, cfgFile);
+    WZSender = (T_WZSender)GetPrivateProfileIntHexA("OFFSET", "SendPacket", MU_SEND_PACKET, cfgFile);
+    WZParser = (T_WZParse)GetPrivateProfileIntHexA("OFFSET", "ParsePacket", PARSE_PACKET_STREAM, cfgFile);
+    WZSenderClass = (DWORD**)GetPrivateProfileIntHexA("OFFSET", "SenderClass", MU_SENDER_CLASS, cfgFile);
+    auto pCoreAHook = (T_ProcCoreA)GetPrivateProfileIntHexA("OFFSET", "ProcCoreAHook", 0, cfgFile);
+    auto pCoreBHook = (T_ProcCoreB)GetPrivateProfileIntHexA("OFFSET", "ProcCoreBHook", 0, cfgFile);
 
+    auto sprintfFix = GetPrivateProfileIntA("MU", "sprintfFix", 0, cfgFile) == 1;
+
+    // Hooks
     old_Send = main_Send.Set(old_Send, SendPacket);
+    old_SendS16 = main_SendS16.Set(old_SendS16, SendPacketS16);
+    old_SendS161 = main_SendS161.Set(old_SendS161, SendPacketS16);
+    old_SendS162 = main_SendS162.Set(old_SendS162, SendPacketS16);
     old_Recv = main_Recv.Set(old_Recv, ParsePacket);
+    main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
+    main_procCoreB.Set(pCoreBHook, ProtocolCoreBEx);
 
-    Hook<void>::Jump((void*)0x00BAEEC5, (void*)0x0A3A86EF);
-    Hook<void>::Jump((void*)0x0A327E33, (void*)0x00BEAA7F);
-    Hook<void>::Call((void*)0x0051087E, (void*)0x0A317ED0);
-    Hook<void>::Call((void*)0x00511238, (void*)0x0A317ED0);
-    Hook<void>::Call((void*)0x0051196A, (void*)0x0A317ED0);
-    Hook<void>::Call((void*)0x00511DB6, (void*)0x0A317ED0);
+    if(sprintfFix)
+        old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
 
-    BYTE a[] = { 0xEB, 0x4B };
-    Hook<void>::Write((void*)0x005069DC, a, sizeof(a));
+    char buff[100];
+        
+    //Jumps
+    BYTE data[4];
+    for (auto i : ParserINI("JUMPS"))
+    {
+        for (auto n = 0; n < 4; n++)
+            data[3 - n] = i.second.buf[n];
 
-    BYTE b[] = { 0xE9,0xBA,0x00,0x00,0x00,0x90 };
-    Hook<void>::Write((void*)0x00506E1E, b, sizeof(b));
+        Hook<void>::Jump(i.first, (VOID*)(*(DWORD*)data));
+        delete[] i.second.buf;
+    }
 
-    // Disable Log encoder
-    BYTE c[32];
-    memset(c, 0x90, 32);
-    //Hook<void>::Write((void*)0x00D42114, c, sizeof(c));
+    //Call
+    for (auto i : ParserINI("Call"))
+    {
+        for (auto n = 0; n < 4; n++)
+            data[3 - n] = i.second.buf[n];
 
-    BYTE GG_JMP[] = { 0xE9,0x88,0x00,0x00,0x00,0x90 };
-    Hook<void>::Write((void*)0x00507524, GG_JMP, sizeof(GG_JMP));//1.18.70
-    BYTE GG_JMP1[] = { 0xEB,0x19 };
-    Hook<void>::Write((void*)0x005074E1, GG_JMP1, sizeof(GG_JMP1));//1.18.70
+        Hook<void>::Call(i.first, (VOID*)(*(DWORD*)data));
+        delete[] i.second.buf;
+    }
 
-    //Remove GameGuard
-    Hook<void>::WriteByte((void*)0x0050CFD2, 0xEB);//1.18.70
-    Hook<void>::WriteByte((void*)0x00CC296F, 0xEB);//1.18.70
+    //WriteByte
+    for (auto &i : ParserINI("WriteByte"))
+    {
+        Hook<void>::WriteByte(i.first, *i.second.buf);
+        delete[] i.second.buf;
+    }
 
-    Hook<void>::WriteByte((void*)0x00CC2AA8, 0xEB);//1.18.70
-    //??
-    Hook<void>::WriteByte((void*)0x015964E0, 0x86);//1.18.70
-    //??????
-    Hook<void>::Write((void*)0x00460DE2, c, 13);//1.18.70
+    //Write
+    for (auto &i : ParserINI("Write"))
+    {
+        Hook<void>::Write(i.first, (BYTE*)i.second.buf, i.second.len);
+        delete[] i.second.buf;
+    }
+    //ChangeAddress
+    for (auto &i : ParserINI("ChangeAddress"))
+    {
+        Hook<void>::ChangeAddress((DWORD)i.first, (DWORD)i.second.buf);
+        //delete[] i.second.buf;
+    }
 
-    Hook<void>::WriteByte((void*)0x004BC12C, 0xEB);
-    Hook<void>::WriteByte((void*)0x00AD5F93, 0xEB);
-    Hook<void>::WriteByte((void*)0x00AD5F94, 0x43);
-    Hook<void>::WriteByte((void*)0x00B100D2, 0xEB);
-    Hook<void>::Write((void*)0x00C7B11C, c, 2);//1.18.70
-
-    //?ItemtooltipBmd
-    Hook<void>::WriteByte((void*)0x0085216E, 0xEB);//1.18.70
-    //?itemsetoptiontext
-    Hook<void>::WriteByte((void*)0x00529b6c, 0xEB);//1.18.70
-    //masterskillTooltip
-    Hook<void>::WriteByte((void*)0x00b02eb5, 0xEB);//1.18.70
-    //SkillToolTipText
-    BYTE SKILL_JMP[] = { 0xE9,0xAD,0x00,0x00,0x00,0x90 };
-    Hook<void>::Write((void*)0x00CCA2F8, SKILL_JMP, sizeof(SKILL_JMP));//1.18.70
-
-    GetPrivateProfileStringA("MU", "URL", "127.0.0.1", (char*)CLIENIP, 256, cfgFile);
-    GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", (char*)CLIENTSERIAL, 18, cfgFile);
-    *((int*)CLIENTPORT) = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
-
-    kernel32_GetStartupInfoA.Release();
+    Initialized = true;
 }
-#endif
+
 void _stdcall new_GetStartupInfoA(LPSTARTUPINFOA lpStartupinfo)
 {
-    ProcLoading();
-
+    MainConfiguration();
+    kernel32_GetStartupInfoA.Release();
     GetStartupInfoA(lpStartupinfo);
 }
 
-typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)( // Callback ??? ??
-    HANDLE hProcess,
-    DWORD dwPid,
-    HANDLE hFile,
-    MINIDUMP_TYPE DumpType,
-    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-    CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-
-LPTOP_LEVEL_EXCEPTION_FILTER PreviousExceptionFilter = NULL;
-
-LONG WINAPI UnHandledExceptionFilter(struct _EXCEPTION_POINTERS* exceptionInfo)
-{
-    fflush(fp);
-    HMODULE    DllHandle = NULL;
-
-    // Windows 2000 ???? ?? DBGHELP? ???? ??? ??? ??.
-    DllHandle = LoadLibraryA("DBGHELP.DLL");
-
-    if (DllHandle)
-    {
-        MINIDUMPWRITEDUMP Dump = (MINIDUMPWRITEDUMP)GetProcAddress(DllHandle, "MiniDumpWriteDump");
-
-        if (Dump)
-        {
-            char DumpPath[MAX_PATH] = { 0, };
-            SYSTEMTIME SystemTime;
-
-            GetLocalTime(&SystemTime);
-
-            sprintf_s(DumpPath, MAX_PATH, "%d-%d-%d_%dh%dm%ds.dmp",
-                SystemTime.wYear,
-                SystemTime.wMonth,
-                SystemTime.wDay,
-                SystemTime.wHour,
-                SystemTime.wMinute,
-                SystemTime.wSecond);
-
-            HANDLE FileHandle = CreateFileA(
-                DumpPath,
-                GENERIC_WRITE,
-                FILE_SHARE_WRITE,
-                NULL, CREATE_ALWAYS,
-                FILE_ATTRIBUTE_NORMAL,
-                NULL);
-
-            if (FileHandle != INVALID_HANDLE_VALUE)
-            {
-                _MINIDUMP_EXCEPTION_INFORMATION MiniDumpExceptionInfo;
-
-                MiniDumpExceptionInfo.ThreadId = GetCurrentThreadId();
-                MiniDumpExceptionInfo.ExceptionPointers = exceptionInfo;
-                MiniDumpExceptionInfo.ClientPointers = NULL;
-
-                BOOL Success = Dump(
-                    GetCurrentProcess(),
-                    GetCurrentProcessId(),
-                    FileHandle,
-                    (_MINIDUMP_TYPE)(MiniDumpWithUnloadedModules +
-                        MiniDumpWithHandleData +
-                        MiniDumpWithFullMemory), //webzen...
-                    &MiniDumpExceptionInfo,
-                    NULL,
-                    NULL);
-
-                if (Success)
-                {
-                    CloseHandle(FileHandle);
-
-                    return EXCEPTION_CONTINUE_SEARCH;// EXCEPTION_EXECUTE_HANDLER;
-                }
-            }
-
-            CloseHandle(FileHandle);
-        }
-    }
-
-    return EXCEPTION_CONTINUE_SEARCH;
-}
-
-bool UEF = false;
 void _stdcall new_OutputDebugStringA(LPCSTR lpOutputString)
 {
-    printf("OutputDebugString: %s", lpOutputString);
+    Print(fp, "OutputDebugString: %s", lpOutputString);
     if (!UEF)
     {
         SetErrorMode(SEM_FAILCRITICALERRORS);
         PreviousExceptionFilter = SetUnhandledExceptionFilter(UnHandledExceptionFilter);
         UEF = true;
     }
-    //old_OutputDebugStringA(lpOutputString);
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -678,15 +527,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-#ifdef  CLIENT_S9
-        ProcLoading();
-#endif //  CLIENT_S9
-#ifdef CLIENT_S12
         old_GetStartupInfoA = kernel32_GetStartupInfoA.Set(_GetStartupInfoA, new_GetStartupInfoA);
-#endif // CLIENT_S12
         old_OutputDebugStringA = kernel32_OutputDebugStringA.Set(_OutputDebugStringA, new_OutputDebugStringA);
-        AllocConsole();
-        freopen("CONOUT$", "w", stdout);
         break;
     case DLL_THREAD_ATTACH:
         break;
@@ -694,6 +536,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
         break;
     case DLL_PROCESS_DETACH:
         fclose(fp);
+        delete m_Encryption;
+        delete m_Decryption;
         break;
     }
     return TRUE;

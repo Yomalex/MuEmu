@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using WebZen.Handlers;
@@ -34,7 +35,7 @@ namespace WebZen.Network
 
         public bool SimpleStream { get; set; }
 
-        public byte[] Encode(object message, ref short serial) => _encoder.Encode(message, ref serial);
+        public byte[] Encode(object message, ref short serial, WZClient client) => _encoder.Encode(message, ref serial, client);
         
         public WZServer()
         {
@@ -119,7 +120,7 @@ namespace WebZen.Network
                         }
                         else
                         {
-                            readed += _decoder.Decode(received, out serial, messages);
+                            readed += _decoder.Decode(received, out serial, messages, sender);
                         }
 
                         if (serial != -1 && !sender.IsValidSerial(serial))
@@ -177,10 +178,16 @@ namespace WebZen.Network
         protected short _inSerial;
         public short _outSerial;
 
+        private static RandomNumberGenerator _keyGenerator;
+        protected Rijndael _rijndael;
+
         private bool _closed;
         public bool Closed { get => _closed | !(_sock?.Connected??false); private set => _closed = value; }
 
         public byte[] Data => _recvBuffer;
+
+        public int BlockSize => _rijndael.BlockSize;
+
         public byte[] Received(IAsyncResult ar)
         {
             int recv = 0;
@@ -212,6 +219,16 @@ namespace WebZen.Network
             _sock = socket;
             _onRecv = onRecv;
             Closed = false;
+
+            if (_keyGenerator == null)
+                _keyGenerator = RandomNumberGenerator.Create();
+
+            _rijndael = Rijndael.Create();
+            var key = new byte[32];
+            _keyGenerator.GetBytes(key);
+            _rijndael.Key = key;
+            _rijndael.Mode = CipherMode.ECB;
+            _rijndael.Padding = PaddingMode.None;
         }
 
         public void Recv()
@@ -256,6 +273,16 @@ namespace WebZen.Network
             {
 
             }
+        }
+
+        internal ICryptoTransform CreateEncryptor()
+        {
+            return _rijndael.CreateEncryptor();
+        }
+
+        internal ICryptoTransform CreateDecryptor()
+        {
+            return _rijndael.CreateDecryptor();
         }
     }
 }
