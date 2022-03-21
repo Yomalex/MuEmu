@@ -39,4 +39,16 @@ struct PMSG_AHKEY
 	BYTE subcode;	// 3
 	BYTE PreSharedKey[32];
 };
+struct PMSG_CONNECT_CLIENT_RECV
+{
+	PBMSG_HEAD header; // C1:F1:00
+	BYTE SubHead;
+	BYTE result;
+	BYTE junk1;
+	BYTE indexH;
+	BYTE junk2[4];
+	BYTE indexL;
+	BYTE version[5];
+	DWORD Key;
+};
 #pragma pack()

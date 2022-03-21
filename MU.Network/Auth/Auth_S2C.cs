@@ -41,7 +41,7 @@ namespace MU.Network.Auth
     }
 
     [WZContract] // 0xC1
-    public class SJoinResultS16Eng : IAuthMessage
+    public class SJoinResultS16Kor : IAuthMessage
     {
         [WZMember(0)]
         public byte Result { get; set; }
@@ -64,15 +64,14 @@ namespace MU.Network.Auth
         [WZMember(6)]
         public uint Key { get; set; }
 
-        public SJoinResultS16Eng()
+        public SJoinResultS16Kor()
         {
             ClientVersion = Array.Empty<byte>();
         }
 
-        public SJoinResultS16Eng(byte result, int number, string clientVersion)
+        public SJoinResultS16Kor(byte result, int number, string clientVersion)
         {
-            Result = result;
-            number = 5000;
+            Result = 0;
             NumberH = (byte)((number >> 8) & 0xff);
             NumberL = (byte)(number & 0xff);
             ClientVersion = clientVersion.GetBytes();

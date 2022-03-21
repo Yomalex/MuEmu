@@ -90,7 +90,7 @@ namespace MuEmu
             ServerSeason.Season6Kor => false,
             ServerSeason.Season9Eng => true,
             ServerSeason.Season12Eng => true,
-            ServerSeason.Season16Eng => true,
+            ServerSeason.Season16Kor => true,
             _ => throw new NotImplementedException()
         };
 
@@ -128,7 +128,7 @@ namespace MuEmu
             ServerMessages.LoadMessages($"./Data/Lang/ServerMessages({xml.Lang}).xml");
 
             Name = xml.Name;
-            Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Client.Version, xml.Client.Serial, xml.Database.DataBase);
+            Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Client.Version, xml.Client.Serial, xml.Database.DataBase, xml.Season);
 
             ConnectionString = $"Server={xml.Database.DBIp};port=3306;Database={xml.Database.DataBase};user={xml.Database.BDUser};password={xml.Database.DBPassword};Convert Zero Datetime=True;";
 

@@ -48,6 +48,9 @@ public:
 
     static void ChangeFunctionAddress(void* offset, void* target)
     {
+        if (offset == nullptr)
+            return;
+
         int size = 5;
         VirtualProtect(offset, size, PAGE_EXECUTE_READWRITE, &VPOld);
         BYTE * newJump = (BYTE*)offset;
@@ -58,6 +61,9 @@ public:
 
     static void Jump(void* offset, void* target)
     {
+        if (offset == nullptr)
+            return;
+
         BYTE newJump[5] = { 0xE9, 0, 0, 0, 0 };
         VirtualProtect(offset, sizeof(newJump), PAGE_EXECUTE_READWRITE, &VPOld);
         *((DWORD*)&newJump[1]) = ((DWORD)target) - ((DWORD)offset) - 5;
@@ -68,6 +74,9 @@ public:
 
     static void Call(void* offset, void* target)
     {
+        if (offset == nullptr)
+            return;
+
         BYTE newJump[5] = { 0xE8, 0, 0, 0, 0 };
         VirtualProtect(offset, sizeof(newJump), PAGE_EXECUTE_READWRITE, &VPOld);
         *((DWORD*)&newJump[1]) = ((DWORD)target) - ((DWORD)offset) - 5;
@@ -78,6 +87,9 @@ public:
 
     static void Write(void* offset, BYTE array[], int size)
     {
+        if (offset == nullptr)
+            return;
+
         VirtualProtect(offset, size, PAGE_EXECUTE_READWRITE, &VPOld);
         memcpy(offset, array, size);
         VirtualProtect(offset, size, VPOld, &VPOld);
@@ -93,6 +105,9 @@ public:
 
     static void WriteByte(void* offset, BYTE bt)
     {
+        if (offset == nullptr)
+            return;
+
         VirtualProtect(offset, 1, PAGE_EXECUTE_READWRITE, &VPOld);
         *((LPBYTE)offset) = bt;
         VirtualProtect(offset, 1, VPOld, &VPOld);
@@ -101,6 +116,9 @@ public:
 
     static void ChangeAddress(DWORD Addr, DWORD AddrNew)
     {
+        if (Addr == 0)
+            return;
+
         DWORD OldProtect;
         VirtualProtect((LPVOID)Addr, 4, PAGE_EXECUTE_READWRITE, &OldProtect);
         __asm
@@ -285,22 +303,36 @@ void ProtocolCoreAEx(int unk, int head, BYTE* buff, int size, int enc)
 {
 }
 
+BYTE NewEncPacket[8192];
 void ProtocolCoreBDll(BYTE head, BYTE* buff, DWORD size, int enc)
 {
+    auto subcode = buff[0] == 0xC1 ? buff[3] : buff[4];
     switch (head)
     {
     case 0xFA:
-        switch (buff[3])
+        switch (subcode)
         {
-        case 0x00:
-        {
-            PMSG_AHKEY* pShared = (PMSG_AHKEY*)buff;
-            m_Encryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
-            m_Decryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
-            Print(fp, "New Key recived");
-            PacketPrint(fp, pShared->PreSharedKey, sizeof(pShared->PreSharedKey), "PSK");
+            case 0x00:
+            {
+                PMSG_AHKEY* pShared = (PMSG_AHKEY*)buff;
+                m_Encryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
+                m_Decryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
+                Print(fp, "New PSKey recived");
+                PacketPrint(fp, pShared->PreSharedKey, sizeof(pShared->PreSharedKey), "PSK");
+            }
+            return;
         }
-        return;
+        break;
+    case 0xF1:
+        switch (subcode)
+        {
+            case 0x00:
+            {
+                memcpy(NewEncPacket, buff, size);
+            }
+            break;
+        default:
+            break;
         }
         break;
     }
@@ -453,6 +485,31 @@ std::map<void*,WSABUF> ParserINI(LPCSTR lpAppName)
     return result;
 }
 
+int CheckIntegrityS16Kor()
+{
+    return 1;
+}
+
+__declspec(naked) void FixLogin()
+{
+#define MAIN_FIX_LOGIN_HOOK								0x00D3865B
+#define MAIN_FIX_LOGIN_JMP								0x00D38728
+#define MAIN_FIX_LOGIN_VALUE							0x2010
+    
+    static const DWORD JMP_1 = MAIN_FIX_LOGIN_JMP;
+
+    _asm
+    {
+        Lea Eax, NewEncPacket
+        Mov Dword Ptr Ss : [Ebp - MAIN_FIX_LOGIN_VALUE] , Eax
+    }
+
+    _asm
+    {
+        Jmp[JMP_1]
+    }
+}
+
 void MainConfiguration()
 {
     if (Initialized)
@@ -501,6 +558,14 @@ void MainConfiguration()
     main_SendS16.ChangeFunctionAddress(old_SendS16, SendPacketS16);
     main_SendS161.ChangeFunctionAddress(old_SendS161, SendPacketS16);
     main_SendS162.ChangeFunctionAddress(old_SendS162, SendPacketS16);
+    if (GetPrivateProfileIntA("MU", "CheckIntegrityS16Kor", 0, cfgFile) == 1)
+    {
+        Hook<void>::ChangeFunctionAddress((void*)0x00508676, CheckIntegrityS16Kor);
+        Hook<void>::ChangeFunctionAddress((void*)0x00D2654B, CheckIntegrityS16Kor);
+        Hook<void>::ChangeFunctionAddress((void*)0x00E098E8, CheckIntegrityS16Kor);
+        Hook<void>::ChangeFunctionAddress((void*)0x00E09A21, CheckIntegrityS16Kor);
+        Hook<void>::Jump((void*)MAIN_FIX_LOGIN_HOOK, FixLogin);
+    }
     old_Recv = main_Recv.Set(old_Recv, ParsePacket);
     main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
     main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);

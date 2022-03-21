@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServerMessage>
     <Message ID="Server_Cfg" Message="El archivo de configuracion del servidor es inexistente, primero configure los datos del servidor" />
-    <Message ID="Server_Title" Message="GameServer .NetCore3.1 [{0}]{1} Client:{2}#!{3} DB:{4}" />
+    <Message ID="Server_Title" Message="GameServer .NetCore3.1 [{0}]{1} {5} Client:{2}#!{3} DB:{4}" />
     <Message ID="Server_MySQL_Error" Message="Error con la base de datos" />
     <Message ID="Server_Error" Message="Error interno" />
     <Message ID="Server_CSServer_Error" Message="No se puede conectar con el ConnectServer" />
@@ -23,6 +23,7 @@
     <Message ID="RCache_Loading_Gates" Message="Precargando Portales..." />
     <Message ID="RCache_Loading_Quests" Message="Precargando Quests..." />
     <Message ID="RCache_Loading_ChaosMixs" Message="Precargando ChaosBox..." />
+	<Message ID="RCache_Loading_ItemBags" Message="Precargando ItemBags..." />
     <Message ID="MonsterMng_Loading" Message="Cargando monstruos desde el archivo {0}" />
     <Message ID="MonsterMng_Types" Message="Cargados {0} clases de mountruos" />
     <Message ID="MonsterMng_Loading2" Message="Cargando posiciones desde el archivo {0}" />
@@ -55,20 +56,21 @@
     <Message ID="Kanturu_Successfull" Message="{0} Ah derrotado a la pesadilla, ahora tienes accesso a la refineria" />
     <Message ID="Kanturu_Fail" Message="Debido a que se ah agotado el tiempo, debemos regresar al area segura" />
     <Message ID="IV_IndexAlreadyUsed" Message="Personaje:{0} Index repedita:{1}" />
-  <Message ID="IVEX_AlreadyEquiped" Message="Ya hay un item equipado en el Slot {0}" />
-  <Message ID="IVEX_NeedMoreStrength" Message="Se requiere {0} de Fuerza" />
-  <Message ID="IVEX_NeedMoreAgility" Message="Se requiere {0} de Agilidad" />
-  <Message ID="IVEX_NeedMoreVitality" Message="Se requiere {0} de Vitalidad" />
-  <Message ID="IVEX_NeedMoreEnergy" Message="Se requiere {0} de Fuerza" />
-  <Message ID="IVEX_NeedMoreCommand" Message="Se requiere {0} de Fuerza" />
-  <Message ID="IVEX_CharNotLogged" Message="El personaje no esta loggeado" />
-  <Message ID="IVEX_UnequipNoEquiped" Message="Tratando de retirar un item no equipado {0}" />
-  <Message ID="IV_MoveItem" Message="Moviendo item {0}:{1} {4} a {2}:{3}" />
-  <Message ID="IV_CantMove" Message="No se puede mover" />
-  <Message ID="IVEX_PentagramTradeLimit" Message="[Pentagrama] No se puede tradear mas" />
-  <Message ID="IV_DBSaveDeletingItem" Message="Borrando {0} Items" />
-  <Message ID="CS_LastNotify" Message="Siege Warfare will start in {0} minute(s)." />
-  <Message ID="CS_Notify" Message="Siege Warfare is being waged!" />
-  <Message ID="GE_AddEvent" Message="Added event: {0}, Active: {1} - Item Drop Per: {2}" />
-  <Message ID="GE_GetItem" Message="Event item drop for event: {0} - Map:{1} - Item:{2}" />
+    <Message ID="IVEX_AlreadyEquiped" Message="Ya hay un item equipado en el Slot {0}" />
+    <Message ID="IVEX_NeedMoreStrength" Message="Se requiere {0} de Fuerza" />
+    <Message ID="IVEX_NeedMoreAgility" Message="Se requiere {0} de Agilidad" />
+    <Message ID="IVEX_NeedMoreVitality" Message="Se requiere {0} de Vitalidad" />
+    <Message ID="IVEX_NeedMoreEnergy" Message="Se requiere {0} de Fuerza" />
+    <Message ID="IVEX_NeedMoreCommand" Message="Se requiere {0} de Fuerza" />
+    <Message ID="IVEX_CharNotLogged" Message="El personaje no esta loggeado" />
+    <Message ID="IVEX_UnequipNoEquiped" Message="Tratando de retirar un item no equipado {0}" />
+    <Message ID="IV_MoveItem" Message="Moviendo item {0}:{1} {4} a {2}:{3}" />
+    <Message ID="IV_CantMove" Message="No se puede mover" />
+    <Message ID="IVEX_PentagramTradeLimit" Message="[Pentagrama] No se puede tradear mas" />
+    <Message ID="IV_DBSaveDeletingItem" Message="Borrando {0} Items" />
+    <Message ID="CS_LastNotify" Message="Siege Warfare will start in {0} minute(s)." />
+    <Message ID="CS_Notify" Message="Siege Warfare is being waged!" />
+    <Message ID="GE_AddEvent" Message="Added event: {0}, Active: {1} - Item Drop Per: {2}" />
+    <Message ID="GE_GetItem" Message="Event item drop for event: {0} - Map:{1} - Item:{2}" />
+	<Message ID="IA_DeleteGroup" Message="Grupo {0} eliminado" />
 </ServerMessage>
