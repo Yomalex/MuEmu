@@ -487,6 +487,7 @@ std::map<void*,WSABUF> ParserINI(LPCSTR lpAppName)
 
 int CheckIntegrityS16Kor()
 {
+    Print(fp, "CheckIntegrity:True");
     return 1;
 }
 
@@ -558,14 +559,6 @@ void MainConfiguration()
     main_SendS16.ChangeFunctionAddress(old_SendS16, SendPacketS16);
     main_SendS161.ChangeFunctionAddress(old_SendS161, SendPacketS16);
     main_SendS162.ChangeFunctionAddress(old_SendS162, SendPacketS16);
-    if (GetPrivateProfileIntA("MU", "CheckIntegrityS16Kor", 0, cfgFile) == 1)
-    {
-        Hook<void>::ChangeFunctionAddress((void*)0x00508676, CheckIntegrityS16Kor);
-        Hook<void>::ChangeFunctionAddress((void*)0x00D2654B, CheckIntegrityS16Kor);
-        Hook<void>::ChangeFunctionAddress((void*)0x00E098E8, CheckIntegrityS16Kor);
-        Hook<void>::ChangeFunctionAddress((void*)0x00E09A21, CheckIntegrityS16Kor);
-        Hook<void>::Jump((void*)MAIN_FIX_LOGIN_HOOK, FixLogin);
-    }
     old_Recv = main_Recv.Set(old_Recv, ParsePacket);
     main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
     main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);
@@ -583,6 +576,13 @@ void MainConfiguration()
             data[3 - n] = i.second.buf[n];
 
         Hook<void>::Jump(i.first, (VOID*)(*(DWORD*)data));
+        delete[] i.second.buf;
+    }
+
+    //CheckIntegrity
+    for (auto i : ParserINI("CheckIntegrity"))
+    {
+        Hook<void>::ChangeFunctionAddress(i.first, CheckIntegrityS16Kor);
         delete[] i.second.buf;
     }
 
@@ -672,3 +672,4 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 extern "C" _declspec(dllexport) void Init()
 {
 }
+extern "C" __declspec(dllexport) void Entry() {}
