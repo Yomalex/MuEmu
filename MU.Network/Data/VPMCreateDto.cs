@@ -71,43 +71,30 @@ namespace MuEmu.Network.Data
         [WZMember(9)]
         public Element PentagramMainAttribute { get; set; }
         [WZMember(10)]
-        public ushort wzLevel { get; set; }
-        [WZMember(11)]
-        public uint wzMaxLife { get; set; }
-        [WZMember(12)]
-        public uint wzLife { get; set; }
-
-        [WZMember(13, typeof(ArrayWithScalarSerializer<byte>))]
-        public byte[] ViewSkillState { get; set; }
-
-        public VPMCreateS9Dto()
-        {
-            ViewSkillState = Array.Empty<byte>();
-        }
-
-        public ushort Level
-        {
-            get
-            {
-                return wzLevel.ShufleEnding();
-            }
-
-            set
-            {
-                wzLevel = value.ShufleEnding();
-            }
-        }
-
+        public ushortle Level { get; set; }
+        [WZMember(11, typeof(ArraySerializer))]
+        public byte[] wzMaxLife { get; set; }
+        [WZMember(12, typeof(ArraySerializer))]
+        public byte[] wzLife { get; set; }
         public uint MaxLife
         {
             get
             {
-                return wzMaxLife.ShufleEnding();
+                uint result = 0;
+                result |= (uint)wzMaxLife[0] << 24;//HB-HW
+                result |= (uint)wzMaxLife[1] << 8;
+                result |= (uint)wzMaxLife[2] << 16;
+                result |= (uint)wzMaxLife[3];
+                return result;
             }
 
             set
             {
-                wzMaxLife = value.ShufleEnding();
+                wzMaxLife = new byte[4];
+                wzMaxLife[0] = (byte)(value >> 24);
+                wzMaxLife[1] = (byte)(value >> 8);
+                wzMaxLife[2] = (byte)(value >> 16);
+                wzMaxLife[3] = (byte)(value);
             }
         }
 
@@ -115,14 +102,31 @@ namespace MuEmu.Network.Data
         {
             get
             {
-                return wzLife.ShufleEnding();
+                uint result = 0;
+                result |= (uint)wzLife[0] << 24;//HB-HW
+                result |= (uint)wzLife[1] << 8;
+                result |= (uint)wzLife[2] << 16;
+                result |= (uint)wzLife[3];
+                return result;
             }
 
             set
             {
-                wzLife = value.ShufleEnding();
+                wzLife = new byte[4];
+                wzLife[0] = (byte)(value >> 24);
+                wzLife[1] = (byte)(value >> 8);
+                wzLife[2] = (byte)(value >> 16);
+                wzLife[3] = (byte)(value);
             }
         }
+
+        [WZMember(13, typeof(ArrayWithScalarSerializer<byte>))]
+        public byte[] ViewSkillState { get; set; }
+
+        public VPMCreateS9Dto()
+        {
+            ViewSkillState = Array.Empty<byte>();
+        }        
     }
 
     [WZContract]
@@ -132,36 +136,41 @@ namespace MuEmu.Network.Data
         public Element PentagramMainAttribute { get; set; }
         [WZMember(10)]
         public ushortle Level { get; set; }
-        [WZMember(11)]
-        public uint wzMaxLife { get; set; }
-        [WZMember(12)]
-        public uint wzLife { get; set; }
+        [WZMember(11, typeof(ArraySerializer))]
+        public byte[] wzMaxLife { get; set; }
+        [WZMember(12, typeof(ArraySerializer))]
+        public byte[] wzLife { get; set; }
 
-        [WZMember(13, typeof(ArraySerializer))]
-        public byte[] Test { get; set; }
-
-        /*[WZMember(13, typeof(ArrayWithScalarSerializer<uint>))]
-        public SkillStates[] ViewSkillState { get; set; }*/
+        [WZMember(14, typeof(ArrayWithScalarSerializer<byte>))]
+        public SkillStates[] ViewSkillState { get; set; }
         /*[WZMember(14)]
         public ushort padding { get; set; }*/
 
 
         public VPMCreateS12Dto()
         {
-            //ViewSkillState = Array.Empty<SkillStates>();
-            Test = new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7 };
+            ViewSkillState = new SkillStates[32];
         }
 
         public uint MaxLife
         {
             get
             {
-                return wzMaxLife.ShufleEnding();
+                uint result = 0;
+                result |= (uint)wzMaxLife[0] << 24;//HB-HW
+                result |= (uint)wzMaxLife[1] << 8;
+                result |= (uint)wzMaxLife[2] << 16;
+                result |= (uint)wzMaxLife[3];
+                return result;
             }
 
             set
             {
-                wzMaxLife = value.ShufleEnding();
+                wzMaxLife = new byte[4];
+                wzMaxLife[0] = (byte)(value >> 24);
+                wzMaxLife[1] = (byte)(value >> 8);
+                wzMaxLife[2] = (byte)(value >> 16);
+                wzMaxLife[3] = (byte)(value);
             }
         }
 
@@ -169,12 +178,21 @@ namespace MuEmu.Network.Data
         {
             get
             {
-                return wzLife.ShufleEnding();
+                uint result = 0;
+                result |= (uint)wzLife[0] << 24;//HB-HW
+                result |= (uint)wzLife[1] << 8;
+                result |= (uint)wzLife[2] << 16;
+                result |= (uint)wzLife[3];
+                return result;
             }
 
             set
             {
-                wzLife = value.ShufleEnding();
+                wzLife = new byte[4];
+                wzLife[0] = (byte)(value >> 24);
+                wzLife[1] = (byte)(value >> 8);
+                wzLife[2] = (byte)(value >> 16);
+                wzLife[3] = (byte)(value);
             }
         }
     }

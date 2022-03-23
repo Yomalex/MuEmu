@@ -94,7 +94,7 @@ namespace MuEmu
                         await Task.Delay(1000);
                     }
 
-                    Log.Error("Connection with CS lost");
+                    Log.Error(ServerMessages.GetMessage(Messages.Server_CSServer_Lost));
                 }
                 catch (Exception)
                 {
@@ -369,7 +369,7 @@ namespace MuEmu
                 addPlr.Add(obj);
             }
 
-            var msg = new SViewPortCreate(addPlr);
+            var msg = VersionSelector.CreateMessage<SViewPortCreate>(addPlr);
             await plr.Player.Session.SendAsync(msg);
 
             if (lostPlr.Any())
@@ -475,7 +475,7 @@ namespace MuEmu
             oldVP.AddRange(newObj.Select(x => x.Index));
             oldVP.AddRange(existObj.Select(x => x.Index));
 
-            var addObj = new List<VPMCreateAbs>();
+            var addObj = new List<object>();
             var baseType = Program.Season switch
             {
                 ServerSeason.Season12Eng => typeof(VPMCreateS12Dto),
@@ -485,14 +485,14 @@ namespace MuEmu
 
             foreach(var x in newObj)
             {
-                var obj = Activator.CreateInstance(baseType) as VPMCreateAbs;
-                AssignVPM(obj, x, true);
+                var obj = Activator.CreateInstance(baseType);
+                AssignVPM((VPMCreateAbs)obj, x, true);
                 addObj.Add(obj);
             }
             foreach (var x in existObj)
             {
-                var obj = Activator.CreateInstance(baseType) as VPMCreateAbs;
-                AssignVPM(obj, x, false);
+                var obj = Activator.CreateInstance(baseType);
+                AssignVPM((VPMCreateAbs)obj, x, false);
                 addObj.Add(obj);
             }
 
@@ -510,16 +510,18 @@ namespace MuEmu
                         break;
                 }
             }
-
             if (addObj.Any())
             {
                 var c = 0;
-                var limit = 1;
+                // Packet for Season 12Eng is with problem in the SkillState Effect list
+                var limit = ServerSeason.Season12Eng==Program.Season?1:20;
                 while(c < addObj.Count)
                 {
                     var send = addObj.Skip(c).Take(limit);
                     c += limit;
-                    await plr.Player.Session.SendAsync(new SViewPortMonCreate { ViewPort = send.ToArray() });
+
+                    var msg = VersionSelector.CreateMessage<SViewPortMonCreateS6Kor>(send);
+                    await plr.Player.Session.SendAsync(msg);
                 }                
             }
         }
@@ -530,17 +532,16 @@ namespace MuEmu
             obj.Position = x.Position;
             obj.TPosition = x.TPosition;
             obj.Type = x.Info.Monster;
-            var tmp = new SkillStates[] { SkillStates.ShadowPhantom };
             obj.Path = (byte)(x.Direction << 4);
             try
             {
-                obj.Set("ViewSkillState", tmp/*x.Spells.ViewSkillStates*/);
-            }catch(InvalidCastException)
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates);
+            }catch(Exception)
             {
-                obj.Set("ViewSkillState", tmp/*x.Spells.ViewSkillStates*/.Select(x => (byte)x).ToArray());
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(x => (byte)x).ToArray());
             }
             obj.Set("PentagramMainAttribute", x.Element);
-            obj.Set("Level", x.Level);
+            obj.Set("Level", new ushortle(x.Level));
             obj.Set("Life", (uint)x.Life);
             obj.Set("MaxLife", (uint)x.MaxLife);
         }

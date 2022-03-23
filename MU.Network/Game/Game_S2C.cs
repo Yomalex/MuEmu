@@ -226,27 +226,31 @@ namespace MU.Network.Game
     public class SViewPortCreate : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public VPCreateAbs[] ViewPort { get; set; }
+        public VPCreateDto[] ViewPort { get; set; }
 
         public SViewPortCreate()
         {
-            ViewPort = Array.Empty<VPCreateAbs>();
+            ViewPort = Array.Empty<VPCreateDto>();
         }
         public SViewPortCreate(IEnumerable<VPCreateAbs> viewPort)
         {
-            ViewPort = viewPort.ToArray();
+            ViewPort = viewPort.Select(x => (VPCreateDto)viewPort).ToArray();
         }
     }
 
-    /*[WZContract(LongMessage = true)]
+    [WZContract(LongMessage = true)]
     public class SViewPortCreateS9 : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public object[] ViewPort { get; set; }
+        public VPCreateS9Dto[] ViewPort { get; set; }
 
         public SViewPortCreateS9()
         {
-            ViewPort = Array.Empty<object>();
+            ViewPort = Array.Empty<VPCreateS9Dto>();
+        }
+        public SViewPortCreateS9(IEnumerable<VPCreateAbs> viewPort)
+        {
+            ViewPort = viewPort.Select(x => (VPCreateS9Dto)viewPort).ToArray();
         }
     }
 
@@ -254,13 +258,17 @@ namespace MU.Network.Game
     public class SViewPortCreateS12 : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public object[] ViewPort { get; set; }
+        public VPCreateS12Dto[] ViewPort { get; set; }
 
         public SViewPortCreateS12()
         {
-            ViewPort = Array.Empty<object>();
+            ViewPort = Array.Empty<VPCreateS12Dto>();
         }
-    }*/
+        public SViewPortCreateS12(IEnumerable<VPCreateAbs> viewPort)
+        {
+            ViewPort = viewPort.Select(x => (VPCreateS12Dto)viewPort).ToArray();
+        }
+    }
 
     [WZContract(LongMessage = true)]
     public class SViewPortChange : IGameMessage
@@ -299,40 +307,52 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true)]
-    public class SViewPortMonCreate : IGameMessage
+    public class SViewPortMonCreateS6Kor : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
-        public VPMCreateAbs[] ViewPort { get; set; }
+        public VPMCreateDto[] ViewPort { get; set; }
 
-        public SViewPortMonCreate()
+        public SViewPortMonCreateS6Kor()
         {
-            ViewPort = Array.Empty<VPMCreateAbs>();
+            ViewPort = Array.Empty<VPMCreateDto>();
         }
-    }
-
-    /*[WZContract(LongMessage = true)]
-    public class SViewPortMonCreateS9 : IGameMessage
-    {
-        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
-        public VPMCreateS9Dto[] ViewPort { get; set; }
-
-        public SViewPortMonCreateS9()
+        public SViewPortMonCreateS6Kor(IEnumerable<object> vp)
         {
-            ViewPort = Array.Empty<VPMCreateS9Dto>();
+            ViewPort = vp.Select(x => (VPMCreateDto)x).ToArray();
         }
     }
 
     [WZContract(LongMessage = true)]
-    public class SViewPortMonCreateS12 : IGameMessage
+    public class SViewPortMonCreateS9Eng : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPMCreateS9Dto[] ViewPort { get; set; }
+
+        public SViewPortMonCreateS9Eng()
+        {
+            ViewPort = Array.Empty<VPMCreateS9Dto>();
+        }
+        public SViewPortMonCreateS9Eng(IEnumerable<object> vp)
+        {
+            ViewPort = vp.Select(x => (VPMCreateS9Dto)x).ToArray();
+        }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SViewPortMonCreateS12Eng : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
         public VPMCreateS12Dto[] ViewPort { get; set; }
 
-        public SViewPortMonCreateS12()
+        public SViewPortMonCreateS12Eng()
         {
             ViewPort = Array.Empty<VPMCreateS12Dto>();
         }
-    }*/
+        public SViewPortMonCreateS12Eng(IEnumerable<object> vp)
+        {
+            ViewPort = vp.Select(x => (VPMCreateS12Dto)x).ToArray();
+        }
+    }
 
     [WZContract(LongMessage = true)]
     public class SViewPortItemCreate : IGameMessage

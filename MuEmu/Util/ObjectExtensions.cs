@@ -72,7 +72,7 @@ namespace MuEmu.Util
 
         public static void Set<T>(this T a, string name, object value)
         {
-            var type = typeof(T);
+            var type = a.GetType();
             var prop = type.GetProperty(name);
             if(prop != null)
                 prop.SetValue(a, value);

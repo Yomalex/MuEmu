@@ -238,6 +238,7 @@ namespace MU.Resources
         GE_GetItem,
         IA_CreateGroup,
         IA_DeleteGroup,
+        Server_CSServer_Lost,
     }
     public enum MonsterSpell : ushort
     {

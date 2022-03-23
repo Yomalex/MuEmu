@@ -161,10 +161,20 @@ namespace MU.Network.Game
 
             #region Server ViewPortMessages
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
+            Register<SViewPortCreateS9>(GameOpCode.ViewPortCreate);
+            Register<SViewPortCreateS12>(GameOpCode.ViewPortCreate);
+            VersionSelector.Register<SViewPortCreate>(ServerSeason.Season6Kor, GameOpCode.ViewPortCreate);
+            VersionSelector.Register<SViewPortCreateS9>(ServerSeason.Season9Eng, GameOpCode.ViewPortCreate);
+            VersionSelector.Register<SViewPortCreateS12>(ServerSeason.Season12Eng, GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
             Register<SViewPortChangeS9>(GameOpCode.ViewPortChange);
             Register<SViewPortChangeS12>(GameOpCode.ViewPortChange);
-            Register<SViewPortMonCreate>(GameOpCode.ViewPortMCreate);
+            Register<SViewPortMonCreateS6Kor>(GameOpCode.ViewPortMCreate);
+            Register<SViewPortMonCreateS9Eng>(GameOpCode.ViewPortMCreate);
+            Register<SViewPortMonCreateS12Eng>(GameOpCode.ViewPortMCreate);
+            VersionSelector.Register<SViewPortMonCreateS6Kor>(ServerSeason.Season6Kor, GameOpCode.ViewPortMCreate);
+            VersionSelector.Register<SViewPortMonCreateS9Eng>(ServerSeason.Season9Eng, GameOpCode.ViewPortMCreate);
+            VersionSelector.Register<SViewPortMonCreateS12Eng>(ServerSeason.Season12Eng, GameOpCode.ViewPortMCreate);
             Register<SViewPortDestroy>(GameOpCode.ViewPortDestroy);
             Register<SViewPortItemDestroy>(GameOpCode.ViewPortItemDestroy);
             #endregion

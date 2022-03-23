@@ -10,6 +10,14 @@ namespace WebZen.Util
     public class ushortle
     {
         [WZMember(0, typeof(ArraySerializer))] public byte[] data { get; set; }
+        public ushortle()
+        {
+            Set(0);
+        }
+        public ushortle(ushort value)
+        {
+            Set(value);
+        }
         public void Set(ushort value)
         {
             data = BitConverter.GetBytes(value).Reverse().ToArray();

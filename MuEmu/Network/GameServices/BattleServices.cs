@@ -439,6 +439,8 @@ namespace MuEmu.Network.GameServices
                 else
                 {
                     mom = MonstersMng.Instance.GetMonster(message.Target);
+                    if (mom == null)
+                        return;
                     attack = @char.SkillAttack(magic, mom.Defense, out type);
                     pos = mom.Position;
                     var eDmg = await @char.PentagramAttack(mom);
