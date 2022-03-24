@@ -71,7 +71,7 @@ namespace MU.Network.Auth
 
         public SJoinResultS16Kor(byte result, int number, string clientVersion)
         {
-            Result = 0;
+            Result = result;
             NumberH = (byte)((number >> 8) & 0xff);
             NumberL = (byte)(number & 0xff);
             ClientVersion = clientVersion.GetBytes();

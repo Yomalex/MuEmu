@@ -169,6 +169,7 @@ namespace MuEmu
                     .RegisterRule<CCloseWindow>(MustBePlaying)
                     .RegisterRule<CDataLoadOK>(MustBePlaying)
                     .RegisterRule<CAction>(MustBePlaying)
+                    .RegisterRule<CWarehouseMoney>(MustBePlaying)
             };
             var mf = new MessageFactory[]
             {

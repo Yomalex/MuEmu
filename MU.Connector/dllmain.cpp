@@ -487,7 +487,7 @@ std::map<void*,WSABUF> ParserINI(LPCSTR lpAppName)
 
 int CheckIntegrityS16Kor()
 {
-    Print(fp, "CheckIntegrity:True");
+    Print(fp, "CheckIntegrity:True\n");
     return 1;
 }
 
