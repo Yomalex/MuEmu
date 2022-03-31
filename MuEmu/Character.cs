@@ -788,9 +788,18 @@ namespace MuEmu
         public static byte GetClientClass(HeroClass dbClass)
         {
             var @class = (int)dbClass;
-            var changeUp = @class & 0x03;
 
-            var result = @class & 0xF0;
+            var result = @class & 0xF8;
+            if(Program.Season >= ServerSeason.Season16Kor)
+            {
+                result |= (@class & 1) << 3;
+                result |= (@class & 2) << 1;
+                result |= (@class & 4) >> 1;
+                result &= 0xFF;
+                return (byte)result;
+            }
+
+            var changeUp = @class & 0x03;
             result |= (changeUp == 1) ? 0x08 : 0x00;
             result |= (changeUp == 2) ? 0x0C : 0x00;
             result <<= Program.Season == ServerSeason.Season12Eng ? 0 : 1;

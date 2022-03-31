@@ -3,6 +3,7 @@ using BlubLib.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace WebZen.Network
@@ -20,6 +21,26 @@ namespace WebZen.Network
 
             if(!_typeLookup.ContainsKey(opCode))
                 _typeLookup.Add(opCode, type);
+        }
+
+        protected void ChangeOPCode<T>(ushort opCode)
+            where T : new()
+        {
+            var type = typeof(T);
+            _opCodeLookup[type] = opCode;
+        }
+
+        protected void ChangeType<T>(ushort opCode, object oldType)
+            where T : new()
+        {
+            var type = typeof(T);
+            var oType = oldType.GetType();
+            _opCodeLookup.Remove(oType);
+            _opCodeLookup.Add(type,opCode);
+            if (_typeLookup.ContainsValue(oType))
+            {
+                _typeLookup[opCode] = type;
+            }
         }
 
         public ushort GetOpCode(Type type)
@@ -72,6 +93,17 @@ namespace WebZen.Network
             where T : TMessage, new()
         {
             Register<T>(DynamicCast<ushort>.From(opCode));
+        }
+        protected void ChangeOPCode<T>(TOpCode opCode)
+            where T : TMessage, new()
+        {
+            ChangeOPCode<T>(DynamicCast<ushort>.From(opCode));
+        }
+
+        protected void ChangeType<T>(TOpCode opCode, object oldType)
+            where T : TMessage, new()
+        {
+            ChangeType<T>(DynamicCast<ushort>.From(opCode), oldType);
         }
 
         public new TOpCode GetOpCode(Type type)

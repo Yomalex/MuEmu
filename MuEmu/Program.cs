@@ -91,13 +91,14 @@ namespace MuEmu
             ServerSeason.Season9Eng => true,
             ServerSeason.Season12Eng => true,
             ServerSeason.Season16Kor => true,
+            ServerSeason.Season17Kor => true,
             _ => throw new NotImplementedException()
         };
 
         static void Main(string[] args)
         {
             Predicate<GSSession> MustNotBeLoggedIn = session => session.Player.Status == LoginStatus.NotLogged;
-            Predicate<GSSession> MustBeLoggedIn = session => session.Player.Status == LoginStatus.Logged;
+            Predicate<GSSession> MustBeLoggedIn = session => (session.Player?.Status??LoginStatus.NotLogged) == LoginStatus.Logged;
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
             Predicate<GSSession> MustBeLoggedOrPlaying = session => session.Player.Status == LoginStatus.Logged || session.Player.Status == LoginStatus.Playing;
             Predicate<GSSession> MustBeGameMaster = session => (session.Player.Character.CtlCode&ControlCode.GameMaster) != 0;
@@ -260,6 +261,7 @@ namespace MuEmu
 
             Handler
                 .AddCommand(new Command<GSSession>("help", Help, help:"Use help <cmd> for get help on any command"))
+                .AddCommand(new Command<GSSession>("pck", PacketCreate, autority: MustBeGameMaster, help:"Index Packet<byte>"))
                 .AddCommand(new Command<GSSession>("exit", Close, autority: MustBeGameMaster, help: "Close game server"))
                 .AddCommand(new Command<GSSession>("quit", Close, autority: MustBeGameMaster, help: "Close game server"))
                 .AddCommand(new Command<GSSession>("stop", Close, autority: MustBeGameMaster, help: "Close game server"))
@@ -300,6 +302,21 @@ namespace MuEmu
 
                 Handler.ProcessCommands(null, input);
             }
+        }
+
+        private static void PacketCreate(object sender, CommandEventArgs e)
+        {
+            var args = e.Argument.Split(" ");
+            var index = int.Parse(args[0]);
+            var length = args[1].Length / 2;
+            var array = new byte[length];
+            for (var i = 0; i < length; i++)
+            {
+                array[i] = byte.Parse(args[1].Substring(i*2, 2), System.Globalization.NumberStyles.HexNumber);
+            }
+
+            var session = server.Clients.First(x => x.ID == index);
+            _=session.Send(array);
         }
 
         private static void Server_Connect(object sender, WZServerEventArgs e)

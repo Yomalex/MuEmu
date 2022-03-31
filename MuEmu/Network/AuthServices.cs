@@ -50,6 +50,12 @@ namespace MuEmu.Network
             BuxDecode.Decode(message.btAccount);
             BuxDecode.Decode(message.btPassword);
 
+            if(session.TryLoginCount>2)
+            {
+                await session.SendAsync(new SLoginResult(LoginResult.ConnectionClosed3Fail));
+                return;
+            }
+
             if(Program.server.ClientVersion != message.ClientVersion)
             {
                 Logger.Error("Bad client version {0} != {1}", Program.server.ClientVersion, message.ClientVersion);
@@ -68,7 +74,7 @@ namespace MuEmu.Network
 
             if(string.IsNullOrWhiteSpace(message.Account) || string.IsNullOrWhiteSpace(message.Password))
             {
-                await session.SendAsync(new SLoginResult(LoginResult.Fail));
+                await session.SendAsync(new SLoginResult(LoginResult.AccountError));
                 return;
             }    
 
@@ -84,7 +90,7 @@ namespace MuEmu.Network
                     Logger.Information("Account {0} Don't exists", message.Account);
                     if (!Program.AutoRegistre)
                     {
-                        await session.SendAsync(new SLoginResult(LoginResult.Fail));
+                        await session.SendAsync(new SLoginResult(LoginResult.AccountError));
                         return;
                     }else
                     {
@@ -120,7 +126,8 @@ namespace MuEmu.Network
 
                 if (acc.Password != GetHashPassword(message.Password, ref salt))
                 {
-                    await session.SendAsync(new SLoginResult(LoginResult.ConnectionError));
+                    await session.SendAsync(new SLoginResult(LoginResult.PasswordError));
+                    session.TryLoginCount++;
                     return;
                 }
 
@@ -207,6 +214,21 @@ namespace MuEmu.Network
             Logger.ForAccount(session)
                 .Information("Try to join with {0}", Character.Name);
             await session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = (byte)(valid?0:1) });
+        }
+
+        [MessageHandler(typeof(CServerList))]
+        public async Task CServerList(GSSession session)
+        {
+            await session.SendAsync(new SServerList
+            {
+                List = new ServerDto[] { new ServerDto {
+                data1 = 1,
+                data2 = 0,
+                gold = 0,
+                server = 20,
+                type = 0,
+            } }
+            });
         }
 
         [MessageHandler(typeof(CCharacterMapJoin2))]
@@ -312,6 +334,14 @@ namespace MuEmu.Network
             session.Player.Character.Inventory.SendJewelsInfo();
 
             await session.SendAsync(new SUBFInfo { Result = 1 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 0 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 1 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 2 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 3 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 4 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 5 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 6 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 7 });
 
             await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
 

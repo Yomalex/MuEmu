@@ -60,6 +60,10 @@ namespace MU.Network.Auth
     { }
 
     [WZContract]
+    public class CServerList : IAuthMessage
+    { }
+
+    [WZContract]
     public class CCharacterCreate : IAuthMessage
     {
         [WZMember(0, typeof(BinaryStringSerializer), 10)]

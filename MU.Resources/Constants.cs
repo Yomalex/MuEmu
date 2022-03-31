@@ -652,8 +652,9 @@ namespace MU.Resources
 
     public enum LoginResult : byte
     {
+        PasswordError,
         Ok = 1,
-        Fail,
+        AccountError,
         IsConnected,
         ServerFull,
         IsBanned,

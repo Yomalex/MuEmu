@@ -12,7 +12,7 @@ typedef void(*T_WZSendS16)(LPBYTE, DWORD);
 typedef void(*T_WZRecv)(LPBYTE, int, int);
 typedef void(*T_sprintf)(char*, const char*, ...);
 typedef void(*T_ProcCoreA)(int, int, BYTE*, int, int);
-typedef void(*T_ProcCoreB)(DWORD, BYTE*, DWORD, DWORD);
+typedef BOOL(*T_ProcCoreB)(DWORD, BYTE*, DWORD, DWORD);
 typedef void (*T_ConnToCS)(char* hostname, int port);
 
 #ifdef CLIENT_S9

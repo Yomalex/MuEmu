@@ -30,6 +30,7 @@ namespace MU.Network
     {
         JoinResult = 0x00F1,
         Login = 0x01F1,
+        LoginS17Kor = 0x020E,
         CharacterList = 0x00F3,
         CharacterCreate = 0x01F3,
         CharacterDelete = 0x02F3,
@@ -42,6 +43,7 @@ namespace MU.Network
         ResetList = 0x0AFA,
         Resets = 0x0BFA,
         EnableCreate = 0x00DE,
+        ChannelList = 0x57EC,
     }
 
     public enum GameOpCode : ushort
@@ -67,6 +69,7 @@ namespace MU.Network
         KillCount = 0x01B8,
         ClientClose = 0x02F1,
         ClientMessage = 0x03F1,
+        Eventnotification = 0xFEF1,
         CharRegen = 0x04F3,
         LevelUp = 0x5F3,
         PointAdd = 0x06F3,

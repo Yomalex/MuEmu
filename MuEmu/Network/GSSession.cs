@@ -13,6 +13,7 @@ namespace MuEmu.Network
         public Player Player { get; set; }
         public ushort PreviousCode { get; set; }
         public byte[] Key => _rijndael.Key;
+        public byte TryLoginCount { get; set; }
 
         public GSSession(WZServer server, Socket socket, AsyncCallback onRecv)
             : base(server, socket, onRecv)

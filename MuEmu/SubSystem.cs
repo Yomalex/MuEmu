@@ -478,6 +478,7 @@ namespace MuEmu
             var addObj = new List<object>();
             var baseType = Program.Season switch
             {
+                ServerSeason.Season16Kor => typeof(VPMCreateS12Dto),
                 ServerSeason.Season12Eng => typeof(VPMCreateS12Dto),
                 ServerSeason.Season9Eng => typeof(VPMCreateS9Dto),
                 _ => typeof(VPMCreateDto),

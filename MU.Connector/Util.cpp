@@ -27,16 +27,16 @@ void PacketPrint(FILE * fp, LPBYTE buff, DWORD size, const char* szDesc)
     static char DecBuff2[1000];
     unsigned int j, a;
 
-    DecBuff[0] = 0;
-    DecBuff2[0] = 0;
+    ZeroMemory(DecBuff, sizeof(DecBuff));
+    ZeroMemory(DecBuff2, sizeof(DecBuff));
     Print(fp, "%s PACKET [%d]={\n", szDesc, size);
     for (unsigned int i = 0; i < size; i++)
     {
         if ((i % 16) == 0 && i != 0)
         {
             Print(fp, "%s %s\n", DecBuff, DecBuff2);
-            DecBuff[0] = 0;
-            DecBuff2[0] = 0;
+            ZeroMemory(DecBuff, sizeof(DecBuff));
+            ZeroMemory(DecBuff2, sizeof(DecBuff));
         }
         sprintf(itoab, "%c", buff[i]);
         strcat(DecBuff2, itoab);

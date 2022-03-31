@@ -304,7 +304,7 @@ void ProtocolCoreAEx(int unk, int head, BYTE* buff, int size, int enc)
 }
 
 BYTE NewEncPacket[8192];
-void ProtocolCoreBDll(BYTE head, BYTE* buff, DWORD size, int enc)
+BOOL ProtocolCoreBDll(BYTE head, BYTE* buff, DWORD size, int enc)
 {
     auto subcode = buff[0] == 0xC1 ? buff[3] : buff[4];
     switch (head)
@@ -317,29 +317,17 @@ void ProtocolCoreBDll(BYTE head, BYTE* buff, DWORD size, int enc)
                 PMSG_AHKEY* pShared = (PMSG_AHKEY*)buff;
                 m_Encryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
                 m_Decryption->SetKey(pShared->PreSharedKey, sizeof(pShared->PreSharedKey));
-                Print(fp, "New PSKey recived");
+                Print(fp, "New PSKey recived\n");
                 PacketPrint(fp, pShared->PreSharedKey, sizeof(pShared->PreSharedKey), "PSK");
             }
-            return;
-        }
-        break;
-    case 0xF1:
-        switch (subcode)
-        {
-            case 0x00:
-            {
-                memcpy(NewEncPacket, buff, size);
-            }
-            break;
-        default:
-            break;
+            return 1;
         }
         break;
     }
-    ProtocolCoreB(head, buff, size, enc);
+    return ProtocolCoreB(head, buff, size, enc);
 }
 
-void ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
+BOOL ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
 {
     static BYTE DecBuff[7024];
     unsigned int DecSize;
@@ -357,7 +345,7 @@ void ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
         if (DataSize % 16)
         {
             Print(fp, "0xC3 Error on Encripted packet, data size:%d, raw Size:%d, padding:%d\n", DataSize, Size, Padding);
-            return;
+            return 0;
         }
 
         m_Decryption->ProcessData(&DecBuff[Offset], &buff[Offset], DataSize);
@@ -378,8 +366,8 @@ void ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
     }
 
     PacketPrint(fp, buff, Size, Encode ? "RecvDec" : "Recv");
-    Print(fp, "%02X\n", OPCode);
-    ProtocolCoreBDll(head, buff, size, 1);
+    Print(fp, "%p %02X\n", buff, OPCode);
+    return ProtocolCoreBDll(OPCode, buff, size, 1);
 }
 
 void ParsePacket(void* PackStream, int unk1, int unk2)
@@ -428,7 +416,8 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
         }
 
         PacketPrint(fp, buff, Size, Encode ? "RecvDec" : "Recv");
-        Print(fp, "%02X\n", OPCode);
+        Print(fp, "%02X unk1:%d unk2:%d\n", OPCode, unk1, unk2);
+
         if (unk1 == 1)
             ProtocolCoreA(unk2, OPCode, buff, Size, Encode);
         else

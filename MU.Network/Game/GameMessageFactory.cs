@@ -363,6 +363,7 @@ namespace MU.Network.Game
             Register<SMonsterSkillS9Eng>(GameOpCode.MonsterSkill);
 
             Register<CFavoritesList>(GameOpCode.FavoritesList);
+            Register<SEventNotificationS16Kor>(GameOpCode.Eventnotification);
         }
     }
 }

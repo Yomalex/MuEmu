@@ -11,7 +11,7 @@ using WebZen.Util;
 
 namespace MU.Network.Auth
 {
-    [WZContract] // 0xC1
+    [WZContract] // 0xC10CF10001IIIIVVVVVVVVVV
     public class SJoinResult : IAuthMessage
     {
         [WZMember(0)]
@@ -226,6 +226,50 @@ namespace MU.Network.Auth
         }
     }
 
+    [WZContract(LongMessage = true)]
+    public class SCharacterListS16Kor : CharList, IAuthMessage
+    {
+        [WZMember(0)] public byte unk1 { get; set; }
+        [WZMember(1)] public byte MaxClass { get; set; }
+        [WZMember(2)] public byte MoveCount { get; set; }
+        [WZMember(3)] public byte Count { get; set; }
+        [WZMember(4)] public byte CharacterSlotCount { get; set; }
+        [WZMember(5)] public byte WhExpansion { get; set; }
+        [WZMember(6, typeof(ArraySerializer))] public CharacterPreviewS16KorDto[] CharacterList { get; set; }
+
+        public SCharacterListS16Kor()
+        {
+            CharacterList = Array.Empty<CharacterPreviewS16KorDto>();
+        }
+
+        public SCharacterListS16Kor(byte maxClas, byte moveCnt, byte CharSlotCount, byte WhSlotCount) : base(maxClas, moveCnt, CharSlotCount, WhSlotCount)
+        {
+            MaxClass = maxClas;
+            MoveCount = moveCnt;
+            CharacterSlotCount = CharSlotCount;
+            WhExpansion = WhSlotCount;
+            CharacterList = Array.Empty<CharacterPreviewS16KorDto>();
+        }
+
+        public override CharList AddChar(byte id, CharacterDto @char, byte[] charSet, GuildStatus gStatus)
+        {
+            var l = CharacterList.ToList();
+            l.Add(new CharacterPreviewS16KorDto
+            {
+                CharSet = charSet,
+                ControlCode = (ControlCode)@char.CtlCode,
+                GuildStatus = gStatus,
+                index = id,
+                level = @char.Level,
+                name = @char.Name,
+                PKLevel = (byte)@char.PKLevel
+            });
+            CharacterList = l.ToArray();
+            Count = (byte)CharacterList.Count();
+            return this;
+        }
+    }
+
     [WZContract]
     public class SCharacterCreate : IAuthMessage
     {
@@ -385,6 +429,23 @@ namespace MU.Network.Auth
             PKLevel = pkLevel;
         }
     }
+
+    [WZContract]
+    public class CharacterPreviewS16KorDto
+    {
+        [WZMember(0)] public byte index { get; set; } // 0
+        //MAX_CHARACTER_LENGTH + 1
+        [WZMember(1, typeof(BinaryStringSerializer), 11)]
+        public string name { get; set; } // 1
+        [WZMember(2)] public ushort level { get; set; } // 12
+        [WZMember(3)] public ControlCode ControlCode { get; set; } // 14
+        //[MAX_PREVIEW_DATA]
+        [WZMember(4, 20)]
+        public byte[] CharSet { get; set; } // 15
+        [WZMember(5)] public GuildStatus GuildStatus { get; set; } //35
+        [WZMember(6)] public byte PKLevel { get; set; } //36
+        [WZMember(7)] public byte unk37 { get; set; } //37
+}
 
     [WZContract]
     public class SCharacterMapJoin : IAuthMessage
@@ -566,6 +627,94 @@ namespace MU.Network.Auth
                 MapY = (byte)value.Y;
             }
         }
+    }
+
+    [WZContract(Serialized = false)] // 0xC3
+    public class SCharacterMapJoin2S16Kor : IAuthMessage
+    {
+        [WZMember(0)] public byte MapX { get; set; }//4
+        [WZMember(1)] public byte MapY { get; set; } //5
+        [WZMember(2)] public Maps Map { get; set; } //6
+        [WZMember(3)] public byte Direction { get; set; } //8
+        [WZMember(4)] public long Experience { get; set; }// [8]; //9
+        [WZMember(5)] public long NextExperience { get; set; }// [8]; //17
+        [WZMember(6)] public byte unk1 { get; set; } //25
+        [WZMember(7)] public ushort LevelUpPoints { get; set; } //26
+        [WZMember(8)] public ushort Str { get; set; } //28
+        [WZMember(9)] public ushort Agi { get; set; } //30
+        [WZMember(10)] public ushort Vit { get; set; } //32
+        [WZMember(11)] public ushort Ene { get; set; } //34
+        [WZMember(12)] public ushort Life { get; set; } //36
+        [WZMember(13)] public ushort MaxLife { get; set; } //38
+        [WZMember(14)] public ushort Mana { get; set; } //40
+        [WZMember(15)] public ushort MaxMana { get; set; } //42
+        [WZMember(16)] public ushort Shield { get; set; } //44
+        [WZMember(17)] public ushort MaxShield { get; set; } //46
+        [WZMember(18)] public ushort Stamina { get; set; } //48
+        [WZMember(19)] public ushort MaxStamina { get; set; } //50
+        [WZMember(20)] public uint Zen { get; set; }  // 52
+        [WZMember(21)] public byte PKLevel { get; set; } // 56
+        [WZMember(22)] public byte ControlCode { get; set; } // 57
+        [WZMember(23)] public short AddPoints { get; set; } // 58
+        [WZMember(24)] public short MaxAddPoints { get; set; } // 60
+        [WZMember(25)] public ushort Cmd { get; set; } // 62
+        [WZMember(26)] public short MinusPoints { get; set; }  // 64
+        [WZMember(27)] public short MaxMinusPoints { get; set; }  // 66
+        [WZMember(28)] public byte ExpandedInv { get; set; }  // 68
+        [WZMember(29)] public byte unk2 { get; set; } // 69
+        [WZMember(30)] public byte unk3 { get; set; } // 70
+        [WZMember(31)] public byte unk4 { get; set; } // 71
+        [WZMember(32)] public int Ruud { get; set; } // 72
+
+        public SCharacterMapJoin2S16Kor() { }
+
+        public SCharacterMapJoin2S16Kor(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint money, int ruud, byte ctlCode)
+        {
+            Map = mapID;
+            MapX = x;
+            MapY = y;
+            Direction = direction;
+            Str = strength;
+            Agi = agility;
+            Vit = vitality;
+            Ene = energy;
+            Cmd = comm;
+            Experience = experience;
+            NextExperience = nextExperience;
+            Life = hp;
+            MaxLife = hpMax;
+            Mana = mp;
+            MaxMana = mpMax;
+            Shield = shield;
+            MaxShield = maxShield;
+            Stamina = bp;
+            MaxStamina = bpMax;
+            PKLevel = pk;
+            AddPoints = addPoints;
+            MaxAddPoints = maxAddPoints;
+            MinusPoints = minusPoints;
+            MaxMinusPoints = maxMinusPoints;
+            LevelUpPoints = levelUpPoints;
+            ExpandedInv = expandedInventory;
+            Zen = money;
+            Ruud = ruud;
+        }
+    }
+
+    [WZContract]
+    public class ServerDto
+    {
+        [WZMember(0)] public ushort server { get; set; }
+        [WZMember(1)] public ushort data1 { get; set; }
+        [WZMember(2)] public ushort data2 { get; set; }
+        [WZMember(3)] public byte type { get; set; }
+        [WZMember(4)] public byte gold { get; set; }
+}
+
+    [WZContract(LongMessage = true)]
+    public class SServerList : IAuthMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<ushort>))] public ServerDto[] List { get; set; }
     }
 
     [WZContract]

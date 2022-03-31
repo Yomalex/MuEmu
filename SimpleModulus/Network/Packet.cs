@@ -388,9 +388,10 @@ namespace WebZen.Network
                     Serializer.Serialize(data, new WZBPacket(0xC1, (byte)data.Length, opCode));
                 }
 
+                var dataStart = (att.LongMessage ? 3 : 2) + opCodeSize;
                 try
                 {
-                    data.Position = (att.LongMessage ? 3 : 2) + opCodeSize;
+                    data.Position = dataStart;
                     Serializer.Serialize(data, message);
                 }
                 catch (Exception e)

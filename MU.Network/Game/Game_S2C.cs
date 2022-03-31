@@ -2765,5 +2765,11 @@ namespace MU.Network.Game
         [WZMember(1)] public ushort ObjIndex { get; set; } // 4
         [WZMember(2)] public ushort TargetObjIndex { get; set; }	// 6
     }
+    [WZContract]
+    public class SEventNotificationS16Kor : IGameMessage
+    {
+        [WZMember(0)] public byte EventID { get; set; }  // 3
+        [WZMember(1)] public byte Active { get; set; } // 4
+    }
 }
 
