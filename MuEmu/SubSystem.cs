@@ -478,7 +478,7 @@ namespace MuEmu
             var addObj = new List<object>();
             var baseType = Program.Season switch
             {
-                ServerSeason.Season16Kor => typeof(VPMCreateS12Dto),
+                ServerSeason.Season16Kor => typeof(VPMCreateS16KorDto),
                 ServerSeason.Season12Eng => typeof(VPMCreateS12Dto),
                 ServerSeason.Season9Eng => typeof(VPMCreateS9Dto),
                 _ => typeof(VPMCreateDto),
@@ -545,6 +545,12 @@ namespace MuEmu
             obj.Set("Level", new ushortle(x.Level));
             obj.Set("Life", (uint)x.Life);
             obj.Set("MaxLife", (uint)x.MaxLife);
+
+            obj.Set("CriticalDMGResistance", (byte)0);
+            obj.Set("ExcellentDMGResistance", (byte)0);
+            obj.Set("DebuffResistance", new ushortle(0));
+            obj.Set("DamageAbsorb", (byte)0);
+            obj.Set("Elite", (byte)0);
         }
 
         private static async void PlayerItemViewPort(MapInfo Map, Character plr)

@@ -357,8 +357,8 @@ BOOL ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
         }
         else
         {
-            DecBuff[1] = DecSize & 0xFF;
-            DecBuff[2] = (DecSize & 0xFF00) >> 8;
+            DecBuff[2] = DecSize & 0xFF;
+            DecBuff[1] = (DecSize & 0xFF00) >> 8;
         }
         Size = DecSize;
         buff = DecBuff;
@@ -367,7 +367,7 @@ BOOL ProtocolCoreBEx(BYTE head, BYTE* buff, DWORD size, int enc)
 
     PacketPrint(fp, buff, Size, Encode ? "RecvDec" : "Recv");
     Print(fp, "%p %02X\n", buff, OPCode);
-    return ProtocolCoreBDll(OPCode, buff, size, 1);
+    return ProtocolCoreBDll(OPCode, buff, size, Encode);
 }
 
 void ParsePacket(void* PackStream, int unk1, int unk2)

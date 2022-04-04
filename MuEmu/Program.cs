@@ -102,6 +102,7 @@ namespace MuEmu
             Predicate<GSSession> MustBePlaying = session => session.Player.Status == LoginStatus.Playing;
             Predicate<GSSession> MustBeLoggedOrPlaying = session => session.Player.Status == LoginStatus.Logged || session.Player.Status == LoginStatus.Playing;
             Predicate<GSSession> MustBeGameMaster = session => (session.Player.Character.CtlCode&ControlCode.GameMaster) != 0;
+            Predicate<GSSession> MustBeInTrade = session => session.Player.Window is GSSession;
 
             string output = "{Timestamp: HH:mm:ss} [{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}";
 
@@ -171,6 +172,7 @@ namespace MuEmu
                     .RegisterRule<CDataLoadOK>(MustBePlaying)
                     .RegisterRule<CAction>(MustBePlaying)
                     .RegisterRule<CWarehouseMoney>(MustBePlaying)
+                    .RegisterRule<CTradeResponce>(MustBeInTrade)
             };
             var mf = new MessageFactory[]
             {

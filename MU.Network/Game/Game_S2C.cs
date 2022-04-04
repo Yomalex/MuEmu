@@ -355,6 +355,26 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true)]
+    public class SVPortMonCreateS16Kor : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public VPMCreateS16KorDto[] ViewPort { get; set; }
+
+        public SVPortMonCreateS16Kor()
+        {
+            ViewPort = Array.Empty<VPMCreateS16KorDto>();
+        }
+        public SVPortMonCreateS16Kor(IEnumerable<object> vp)
+        {
+            ViewPort = new VPMCreateS16KorDto[vp.Count()];
+            for(var n =0; n < vp.Count(); n++)
+            {
+                ViewPort[n] = (VPMCreateS16KorDto)vp.ElementAt(n);
+            }
+        }
+    }
+
+    [WZContract(LongMessage = true)]
     public class SViewPortItemCreate : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
@@ -780,29 +800,21 @@ namespace MU.Network.Game
     [WZContract(Serialized = true)]
     public class STalk : IGameMessage
     {
-        [WZMember(0)]
-        public NPCWindow Result { get; set; }
+        [WZMember(0)] public NPCWindow Result { get; set; }
 
-        [WZMember(1)]
-        public byte Level1 { get; set; }
+        [WZMember(1)] public byte Level1 { get; set; }
 
-        [WZMember(2)]
-        public byte Level2 { get; set; }
+        [WZMember(2)] public byte Level2 { get; set; }
 
-        [WZMember(3)]
-        public byte Level3 { get; set; }
+        [WZMember(3)] public byte Level3 { get; set; }
 
-        [WZMember(4)]
-        public byte Level4 { get; set; }
+        [WZMember(4)] public byte Level4 { get; set; }
 
-        [WZMember(5)]
-        public byte Level5 { get; set; }
+        [WZMember(5)] public byte Level5 { get; set; }
 
-        [WZMember(6)]
-        public byte Level6 { get; set; }
+        [WZMember(6)] public byte Level6 { get; set; }
 
-        [WZMember(7)]
-        public byte Level7 { get; set; }
+        [WZMember(7)] public byte Level7 { get; set; }
     }
 
     [WZContract]
@@ -926,7 +938,7 @@ namespace MU.Network.Game
             ItemInfo = BitConverter.GetBytes(money).Reverse().ToArray();
         }
 
-        public SItemGet(byte result, byte[] info)
+        public SItemGet(byte result, byte[] info, ushort itIndex)
         {
             ItemInfo = info;
             Result = result;
@@ -940,7 +952,7 @@ namespace MU.Network.Game
         /// 0xFE: Zen
         /// </summary>
         [WZMember(0)] public byte Result { get; set; }
-        [WZMember(1)] public ushort ItemRes { get; set; }
+        [WZMember(1)] public ushortle ItemRes { get; set; }
 
         [WZMember(2, 12)] public byte[] ItemInfo { get; set; }
         public SItemGetS12Eng()
@@ -949,15 +961,51 @@ namespace MU.Network.Game
             ItemInfo = Array.Empty<byte>();
         }
 
-        public SItemGetS12Eng(uint money)
+        public SItemGetS12Eng(uint money, ushort itIndex)
         {
-            ItemRes = 0xffff;
+            ItemRes = itIndex;
             Result = 0xFE;
             ItemInfo = BitConverter.GetBytes(money).Reverse().ToArray();
         }
 
-        public SItemGetS12Eng(byte result, byte[] info)
+        public SItemGetS12Eng(byte result, byte[] info, ushort itIndex)
         {
+            ItemInfo = info;
+            ItemRes = itIndex;
+            Result = result;
+        }
+    }
+
+    [WZContract]
+    public class SItemGetS16Kor : IGameMessage
+    {
+        /// <summary>
+        /// 0xFE: Zen
+        /// </summary>
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte ItemResH { get; set; }
+        [WZMember(2)] public byte unk { get; set; }
+        [WZMember(3)] public byte ItemResL { get; set; }
+        [WZMember(4, 12)] public byte[] ItemInfo { get; set; }
+        public SItemGetS16Kor()
+        {
+            ItemResH = 0xff;
+            ItemResL = 0xff;
+            ItemInfo = Array.Empty<byte>();
+        }
+
+        public SItemGetS16Kor(uint money, ushort itIndex)
+        {
+            ItemResH = (byte)(itIndex >> 8);
+            ItemResL = (byte)(itIndex & 0xff);
+            Result = 0xFE;
+            ItemInfo = BitConverter.GetBytes(money).Reverse().ToArray();
+        }
+
+        public SItemGetS16Kor(byte result, byte[] info, ushort itIndex)
+        {
+            ItemResH = (byte)(itIndex >> 8);
+            ItemResL = (byte)(itIndex & 0xff);
             ItemInfo = info;
             Result = result;
         }
@@ -1393,6 +1441,28 @@ namespace MU.Network.Game
         public SAttackResultS12Eng() { }
 
         public SAttackResultS12Eng(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
+        {
+            Number = number;
+            Damage = dmg;
+            DamageShield = dmgShield;
+            DamageType = (ushort)dmgType;
+        }
+    }
+
+    [WZContract]
+    public class SAttackResultS16Kor : IGameMessage
+    {
+
+        [WZMember(0)] public ushortle Number { get; set; }
+        [WZMember(1, typeof(ArraySerializer))] public byte[] unk1 { get; set; } = new byte[3];
+        [WZMember(2)] public int Damage { get; set; }
+        [WZMember(3)] public ushortle DamageType { get; set; }
+        [WZMember(4)] public ushortle DamageShield { get; set; }
+        [WZMember(5)] public Element Attribute { get; set; }
+
+        public SAttackResultS16Kor() { }
+
+        public SAttackResultS16Kor(ushort number, ushort dmg, DamageType dmgType, ushort dmgShield)
         {
             Number = number;
             Damage = dmg;

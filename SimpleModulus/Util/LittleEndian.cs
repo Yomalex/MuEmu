@@ -9,7 +9,7 @@ namespace WebZen.Util
     [WZContract]
     public class ushortle
     {
-        [WZMember(0, typeof(ArraySerializer))] public byte[] data { get; set; }
+        [WZMember(0, typeof(ArraySerializer))] public byte[] data { get; set; } = new byte[2] { 0, 0 };
         public ushortle()
         {
             Set(0);

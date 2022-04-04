@@ -50,7 +50,6 @@ namespace MU.Network.Game
             Register<CChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
             Register<CChaosBoxUseEnd>(GameOpCode.ChaosBoxUseEnd);
             Register<CItemThrow>(GameOpCode.ItemThrow);
-            Register<CItemGet>(GameOpCode.ItemGet);
             Register<CItemModify>(GameOpCode.ItemModify);
 
             #region Client PersonalShopMessages
@@ -74,8 +73,17 @@ namespace MU.Network.Game
             VersionSelector.Register<SMagicAttackS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicAttack);
             VersionSelector.Register<SMagicAttackS12Eng>(ServerSeason.Season12Eng, GameOpCode.MagicAttack);
 
+            Register<CItemGet>(GameOpCode.ItemGet);
             switch (Season)
             {
+                case ServerSeason.Season16Kor:
+                    Register<SMove>(GameOpCode.Move12Eng);
+                    Register<CAttack>(GameOpCode.Attack12Eng);
+                    Register<CMagicAttackS9>(GameOpCode.MagicAttack);
+                    Register<SMagicAttackS12Eng>(GameOpCode.MagicAttack);
+                    Register<CMagicDurationS16>(GameOpCode.MagicDuration);
+                    Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
+                    break;
                 case ServerSeason.Season12Eng:
                     Register<SMove>(GameOpCode.Move12Eng);
                     Register<CAttack>(GameOpCode.Attack12Eng);
@@ -108,12 +116,14 @@ namespace MU.Network.Game
                     break;
             }
 
+            Register<SAttackResultS16Kor>(GameOpCode.Attack12Eng);
             Register<SAttackResultS12Eng>(GameOpCode.Attack12Eng);
             Register<SAttackResultS9Eng>(GameOpCode.AttackEng);
             Register<SAttackResult>(GameOpCode.Attack);
             VersionSelector.Register<SAttackResult>(ServerSeason.Season6Kor, GameOpCode.Attack);
             VersionSelector.Register<SAttackResultS9Eng>(ServerSeason.Season9Eng, GameOpCode.Attack);
             VersionSelector.Register<SAttackResultS12Eng>(ServerSeason.Season12Eng, GameOpCode.Attack);
+            VersionSelector.Register<SAttackResultS16Kor>(ServerSeason.Season16Kor, GameOpCode.Attack);
             #endregion
 
             #region Client PartyMessages
@@ -172,9 +182,11 @@ namespace MU.Network.Game
             Register<SViewPortMonCreateS6Kor>(GameOpCode.ViewPortMCreate);
             Register<SViewPortMonCreateS9Eng>(GameOpCode.ViewPortMCreate);
             Register<SViewPortMonCreateS12Eng>(GameOpCode.ViewPortMCreate);
+            Register<SVPortMonCreateS16Kor>(GameOpCode.ViewPortMCreate);
             VersionSelector.Register<SViewPortMonCreateS6Kor>(ServerSeason.Season6Kor, GameOpCode.ViewPortMCreate);
             VersionSelector.Register<SViewPortMonCreateS9Eng>(ServerSeason.Season9Eng, GameOpCode.ViewPortMCreate);
             VersionSelector.Register<SViewPortMonCreateS12Eng>(ServerSeason.Season12Eng, GameOpCode.ViewPortMCreate);
+            VersionSelector.Register<SVPortMonCreateS16Kor>(ServerSeason.Season16Kor, GameOpCode.ViewPortMCreate);
             Register<SViewPortDestroy>(GameOpCode.ViewPortDestroy);
             Register<SViewPortItemDestroy>(GameOpCode.ViewPortItemDestroy);
             #endregion
@@ -208,6 +220,7 @@ namespace MU.Network.Game
             Register<SSell>(GameOpCode.Sell);
             Register<SItemGet>(GameOpCode.ItemGet);
             Register<SItemGetS12Eng>(GameOpCode.ItemGet);
+            Register<SItemGetS16Kor>(GameOpCode.ItemGet);
             Register<STeleport>(GameOpCode.Teleport);
             Register<STeleportS12Eng>(GameOpCode.Teleport);
             VersionSelector.Register<STeleport>(ServerSeason.Season6Kor, GameOpCode.Teleport);
@@ -232,6 +245,7 @@ namespace MU.Network.Game
             Register<SItemModify>(GameOpCode.ItemModify);
             Register<SItemUseSpecialTime>(GameOpCode.ItemUseSpecialTime);
 
+            VersionSelector.Register<SItemGetS16Kor>(ServerSeason.Season16Kor, GameOpCode.ItemGet);
             VersionSelector.Register<SItemGetS12Eng>(ServerSeason.Season12Eng, GameOpCode.ItemGet);
             VersionSelector.Register<SItemGet>(ServerSeason.Season6Kor, GameOpCode.ItemGet);
             VersionSelector.Register<SPShopRequestList>(ServerSeason.Season6Kor, GameOpCode.PShopRequestList);

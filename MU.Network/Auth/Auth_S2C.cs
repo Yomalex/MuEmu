@@ -629,7 +629,7 @@ namespace MU.Network.Auth
         }
     }
 
-    [WZContract(Serialized = false)] // 0xC3
+    [WZContract(Serialized = true)] // 0xC3
     public class SCharacterMapJoin2S16Kor : IAuthMessage
     {
         [WZMember(0)] public byte MapX { get; set; }//4

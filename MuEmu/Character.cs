@@ -1012,7 +1012,7 @@ namespace MuEmu
         }
         private async void OnMoneyChange()
         {
-            var msg = VersionSelector.CreateMessage<SItemGet>(Money);
+            var msg = VersionSelector.CreateMessage<SItemGet>(Money, (ushort)0xffff);
             await Player.Session.SendAsync(msg);
         }
         internal void DisposeKalimaGate()
@@ -1136,6 +1136,7 @@ namespace MuEmu
 
             switch(BaseClass)
             {
+                case HeroClass.RuneWizard:
                 case HeroClass.DarkWizard:
                     _leftAttackMin = (StrengthTotal / 8);
                     _leftAttackMax = (StrengthTotal / 4);
@@ -1190,6 +1191,12 @@ namespace MuEmu
                     _rightAttackMin = (StrengthTotal / 8) + (AgilityTotal / 10);
                     _rightAttackMax = (StrengthTotal / 4) + (AgilityTotal / 6);
                     break;
+                case HeroClass.Slayer:
+                    _leftAttackMin = (StrengthTotal / 9);
+                    _leftAttackMax = (StrengthTotal / 4);
+                    _rightAttackMin = (StrengthTotal / 9);
+                    _rightAttackMax = (StrengthTotal / 4);
+                    break;
                 default:
                     _leftAttackMin = (StrengthTotal / 8);
                     _leftAttackMax = (StrengthTotal / 4);
@@ -1233,6 +1240,7 @@ namespace MuEmu
                     _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
                     _attackSpeed = AgilityTotal / 15.0f;
                     break;
+                case HeroClass.RuneWizard:
                 case HeroClass.DarkWizard:
                     _defense = AgilityTotal / 5.0f;
                     _defenseRatePvM = AgilityTotal / 3.0f;
@@ -1240,6 +1248,16 @@ namespace MuEmu
                     _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
                     _attackRatePvP = Level * 3 + AgilityTotal * 4.0f;
                     _attackSpeed = AgilityTotal / 10.0f;
+                    _magicAttackMin = EnergyTotal / 9.0f;
+                    _magicAttackMax = EnergyTotal / 4.0f;
+                    break;
+                case HeroClass.Slayer:
+                    _defense = AgilityTotal / 5.0f;
+                    _defenseRatePvM = AgilityTotal / 3.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal / 0.25f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 3 + AgilityTotal * 4.0f;
+                    _attackSpeed = AgilityTotal / 12.0f;
                     _magicAttackMin = EnergyTotal / 9.0f;
                     _magicAttackMax = EnergyTotal / 4.0f;
                     break;
@@ -1566,7 +1584,9 @@ namespace MuEmu
             if (attack < 0)
                 attack = 0;
 
-            attack -= target.Defense;
+            if(_rand.Next(3)!=0)
+                attack -= target.Defense;
+            
             WeaponDurDown(target.Defense);
             return (int)attack;
         }
@@ -1958,8 +1978,8 @@ namespace MuEmu
             var left = Inventory.Get(Equipament.LeftHand);
             var right = Inventory.Get(Equipament.RightHand);
 
-            var bl = left.Number.Type == ItemType.BowOrCrossbow && left != Inventory.Arrows;
-            var br = right.Number.Type == ItemType.BowOrCrossbow && right != Inventory.Arrows;
+            var bl = left?.Number.Type == ItemType.BowOrCrossbow && left != Inventory.Arrows;
+            var br = right?.Number.Type == ItemType.BowOrCrossbow && right != Inventory.Arrows;
 
             var bow = bl ? left : (br ? right : null);
 

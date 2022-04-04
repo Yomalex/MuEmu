@@ -802,10 +802,10 @@ namespace MuEmu.Network.GameServices
             {
                 pos = @char.Inventory.Add(pickup);
                 pickup = @char.Inventory.Get(pos);
+                var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes() ?? Array.Empty<byte>(), message.Number);
+                await session.SendAsync(msg);
             }
-
-            var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes()??Array.Empty<byte>());
-            await session.SendAsync(msg);
+            
 
             /*if (Item.Number != ItemNumber.Zen)
             {
@@ -1959,6 +1959,7 @@ namespace MuEmu.Network.GameServices
         public async Task CTradeResponce(GSSession session, CTradeResponce message)
         {
             var tgt = session.Player.Window as GSSession;
+
             if (message.Result == 0)
             {
                 session.Player.Window = null;

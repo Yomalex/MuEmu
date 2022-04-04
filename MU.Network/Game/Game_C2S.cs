@@ -355,33 +355,46 @@ namespace MU.Network.Game
     [WZContract]
     public class CMagicDurationS9 : IGameMessage
     {
-        [WZMember(0)]
-        public byte X { get; set; }
-        [WZMember(1)]
-        public byte MagicNumberH { get; set; }
-        [WZMember(2)]
-        public byte Y { get; set; }
-        [WZMember(3)]
-        public byte MagicNumberL { get; set; }
-        [WZMember(4)]
-        public byte Dir { get; set; }
+        [WZMember(0)] public byte X { get; set; }
+        [WZMember(1)] public byte MagicNumberH { get; set; }
+        [WZMember(2)] public byte Y { get; set; }
+        [WZMember(3)] public byte MagicNumberL { get; set; }
+        [WZMember(4)] public byte Dir { get; set; }
 
-        [WZMember(5)]
-        public byte TargetH { get; set; }
-        [WZMember(6)]
-        public byte Dis { get; set; }
+        [WZMember(5)] public byte TargetH { get; set; }
+        [WZMember(6)] public byte Dis { get; set; }
 
-        [WZMember(7)]
-        public byte TargetL { get; set; }
+        [WZMember(7)] public byte TargetL { get; set; }
 
-        [WZMember(8)]
-        public byte TargetPos { get; set; }
+        [WZMember(8)] public byte TargetPos { get; set; }
 
-        [WZMember(9)]
-        public byte MagicKey { get; set; }
+        [WZMember(9)] public byte MagicKey { get; set; }
 
         public ushort Target => (ushort)(TargetH << 8 | TargetL);
         public Spell MagicNumber => (Spell)(MagicNumberH<<8|MagicNumberL);
+    }
+
+    [WZContract]
+    public class CMagicDurationS16 : IGameMessage
+    {
+        [WZMember(0)] public int X { get; set; }
+        [WZMember(1)] public byte MagicNumberH { get; set; }
+        [WZMember(2)] public int Y { get; set; }
+        [WZMember(3)] public byte MagicNumberL { get; set; }
+        [WZMember(4)] public byte Dir { get; set; }
+
+        [WZMember(5)] public byte TargetH { get; set; }
+        [WZMember(6)] public byte Dis { get; set; }
+
+        [WZMember(7)] public byte TargetL { get; set; }
+
+        [WZMember(8)] public byte TargetPos { get; set; }
+
+        [WZMember(9)] public byte MagicKey { get; set; }
+        //[WZMember(10)] public uint AttackTime { get; set; }
+
+        public ushort Target => (ushort)(TargetH << 8 | TargetL);
+        public Spell MagicNumber => (Spell)(MagicNumberH << 8 | MagicNumberL);
     }
 
     [WZContract]

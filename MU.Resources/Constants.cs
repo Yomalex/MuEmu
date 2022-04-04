@@ -837,7 +837,16 @@ namespace MU.Resources
         ShinningLancer, //4TH
         RuneWizard = 0x80,
         RuneSpellMaster,
-        GrandRuneMaster, //4TH
+        GrandRuneMaster,
+        MajesticRuneWizard, //4TH
+        Slayer = 0x90,
+        RoyalSlayer,
+        MasterSlayer,
+        Slaughterer,
+        GunCrusher = 0xA0,
+        GunBreaker,
+        MasterGunBreaker,
+        HeistGunCrasher, //4TH
         End = 0xff,
     }
 

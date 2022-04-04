@@ -358,6 +358,18 @@ namespace MuEmu.Network.GameServices
             X = message.X,
             Y = message.Y,
         });
+        [MessageHandler(typeof(CMagicDurationS16))]
+        public async Task CMagicDurationS16(GSSession session, CMagicDurationS16 message) => await CMagicDuration(session, new CMagicDuration
+        {
+            MagicNumber = message.MagicNumber,
+            Target = message.Target,
+            Dir = message.Dir,
+            Dis = message.Dis,
+            MagicKey = message.MagicKey,
+            TargetPos = message.TargetPos,
+            X = (byte)message.X,
+            Y = (byte)message.Y,
+        });
 
         [MessageHandler(typeof(CMagicDuration))]
         public async Task CMagicDuration(GSSession session, CMagicDuration message)

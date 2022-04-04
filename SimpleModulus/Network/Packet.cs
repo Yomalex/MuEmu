@@ -389,15 +389,8 @@ namespace WebZen.Network
                 }
 
                 var dataStart = (att.LongMessage ? 3 : 2) + opCodeSize;
-                try
-                {
-                    data.Position = dataStart;
-                    Serializer.Serialize(data, message);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "");
-                }
+                data.Position = dataStart;
+                Serializer.Serialize(data, message);
 
                 if (att.Serialized)
                 {
