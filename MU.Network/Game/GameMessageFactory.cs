@@ -27,6 +27,9 @@ namespace MU.Network.Game
             Register<CMoveEng>(GameOpCode.MoveEng);
             Register<CMove12Eng>(GameOpCode.Move12Eng);
 
+            Register<COpenBox>(GameOpCode.OpenBox);
+            Register<SOpenBox>(GameOpCode.OpenBox);
+
             #region Client ChatMessages
             Register<CChatNickname>(GameOpCode.GeneralChat0);
             Register<CChatNumber>(GameOpCode.GeneralChat1);
@@ -208,6 +211,9 @@ namespace MU.Network.Game
             Register<SLevelUp>(GameOpCode.LevelUp);
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);
+            Register<SMoveItemS16Kor>(GameOpCode.MoveItem);
+            VersionSelector.Register<SMoveItem>(ServerSeason.Season6Kor, GameOpCode.MoveItem);
+            VersionSelector.Register<SMoveItemS16Kor>(ServerSeason.Season16Kor, GameOpCode.MoveItem);
             Register<SEventEnterCount>(GameOpCode.EventEnterCount);
             Register<SCloseMsg>(GameOpCode.ClientClose);
             Register<STalk>(GameOpCode.Talk);

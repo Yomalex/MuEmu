@@ -760,6 +760,19 @@ namespace MU.Network.Game
         public byte[] ItemInfo { get; set; }
     }
 
+    [WZContract(Serialized = true/*, ExtraEncode = typeof(WZExtraPacketEncodeS16Kor)*/)]
+    public class SMoveItemS16Kor : IGameMessage
+    {
+        [WZMember(0)] public byte junk1 { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public byte junk2 { get; set; }
+
+        [WZMember(3)] public byte Position { get; set; }
+
+        [WZMember(4, 12)]
+        public byte[] ItemInfo { get; set; }
+    }
+
     [WZContract]
     public class SEventEnterCount : IGameMessage
     {
@@ -976,7 +989,7 @@ namespace MU.Network.Game
         }
     }
 
-    [WZContract]
+    [WZContract(/*ExtraEncode = typeof(WZExtraPacketEncodeS16Kor)*/)]
     public class SItemGetS16Kor : IGameMessage
     {
         /// <summary>
@@ -2840,6 +2853,13 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte EventID { get; set; }  // 3
         [WZMember(1)] public byte Active { get; set; } // 4
+    }
+
+    [WZContract]
+    public class SOpenBox : IGameMessage
+    {
+        [WZMember(0)] public OBResult Result { get; set; }  // 3
+        [WZMember(1)] public int Slot { get; set; } // 4
     }
 }
 

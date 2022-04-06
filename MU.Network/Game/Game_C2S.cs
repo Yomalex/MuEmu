@@ -1030,4 +1030,12 @@ namespace MU.Network.Game
         //0x6D,0x01
         [WZMember(1, typeof(ArrayWithScalarSerializer<uint>))] public uint[] Region { get; set; }
     }
+
+    [WZContract]
+    public class COpenBox : IGameMessage
+    {
+        [WZMember(0)] public byte Slot { get; set; }
+        [WZMember(1)] public byte data2 { get; set; }
+        [WZMember(2)] public byte type { get; set; }
+    }
 }

@@ -558,6 +558,7 @@ namespace MuEmu.Resources
             foreach(var @char in xml.Character)
             {
                 var eq = new Dictionary<ushort, Item>();
+                if(@char.Equipament != null)
                 foreach(var e in @char.Equipament)
                 {
                     eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), new { Plus = (byte)e.Level }));

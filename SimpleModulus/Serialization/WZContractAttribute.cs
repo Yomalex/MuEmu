@@ -11,7 +11,7 @@ namespace WebZen.Serialization
 
         public bool LongMessage { get; set; }
 
-        public bool ExtraEncode { get; set; }
+        public Type ExtraEncode { get; set; }
 
         public WZContractAttribute()
             : base()

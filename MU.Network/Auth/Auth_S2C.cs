@@ -40,7 +40,7 @@ namespace MU.Network.Auth
         }
     }
 
-    [WZContract] // 0xC1
+    [WZContract(/*ExtraEncode = typeof(WZExtraPacketEncodeS16Kor)*/)] // 0xC1
     public class SJoinResultS16Kor : IAuthMessage
     {
         [WZMember(0)]

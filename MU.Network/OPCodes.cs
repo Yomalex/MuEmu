@@ -171,6 +171,8 @@ namespace MU.Network
         LetterDel = 0xC8,
         LetterList = 0xC9,
 
+        OpenBox = 0xF2D0,
+
         Move = 0xFFD3,
         MoveEng = 0xFFD4,
         Move12Eng = 0xFFD7,

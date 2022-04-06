@@ -14,6 +14,15 @@ namespace MU.Resources
         Warning2,
         Murderer,
     }
+
+    public enum OBResult : int
+    {
+        OKInvent = 2,
+        OKEvent,
+        FullZen = 0xFD,
+        FullInventory,
+        UnableToUse,
+    }
     public enum GERepeatType
     {
         None,

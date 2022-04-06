@@ -914,21 +914,6 @@ namespace MuEmu
             if (Class >= HeroClass.MuseElf && BaseClass == HeroClass.FaryElf)
                 Spells.TryAdd(Spell.InfinityArrow).Wait();
 
-            _=plr.Session.SendAsync(new SXUpPront
-            {
-                AddDex = AgilityAdd,
-                AddEne = EnergyAdd,
-                AddLeadership = CommandAdd,
-                AddStr = StrengthAdd,
-                AddVit = VitalityAdd,
-                Dex = Agility,
-                Ene = Energy,
-                Leadership = Command,
-                Str = Strength,
-                Vit = Vitality,
-                mPrec = MaxMana / 27.5f,
-            });
-
             Spells.SendList();
             MasterLevel.SendInfo();
             Gens.SendMemberInfo();
@@ -1123,6 +1108,21 @@ namespace MuEmu
             _mpMax = (att.Mana + att.LevelMana * (Level - 1 + (MasterLevel.Level - 1)) + att.EnergyToMana * Energy)* (1.0f + Inventory.IncreaseMP);
             _bpMax = ((att.StrToBP * StrengthTotal) + (att.AgiToBP * AgilityTotal) + (att.VitToBP * VitalityTotal) + (att.EneToBP * EnergyTotal)) * (1.0f + Spells.IncreaseMaxAG);
             _sdMax = TotalPoints * 3 + (Level * Level) / 30/* + Defense*/ + Inventory.IncreaseSD;
+
+            _ = Player.Session.SendAsync(new SXUpPront
+            {
+                AddDex = AgilityAdd,
+                AddEne = EnergyAdd,
+                AddLeadership = CommandAdd,
+                AddStr = StrengthAdd,
+                AddVit = VitalityAdd,
+                Dex = Agility,
+                Ene = Energy,
+                Leadership = Command,
+                Str = Strength,
+                Vit = Vitality,
+                mPrec = MaxMana / 27.5f,
+            });
 
             Inventory.CalcStats();
             ObjCalc();

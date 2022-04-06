@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!--Item list supported by server-->
 <Items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <!-- Type 0 - Swords -->
   <Item Number="0" Name="Kris" Skill="None" Size="1,2" Option="True" Drop="True" Level="6" Defense="0" DefenseRate="0" Dmg="6-11" Speed="50" Durability="20" MagicDur="0" MagicPower="0" NeededLevel="0" NeededStr="40" NeededAgi="40" NeededVit="0" NeededEne="0" NeededCmd="0" ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner" Zen="0" Attributes="" />
@@ -42,6 +43,10 @@
   <Item Number="39" Attributes="" Skill="Cyclone" Size="1,3" Option="True" Drop="False" Level="59" Dmg="59-67" Speed="35" Durability="50" MagicDurability="0" MagicPower="0" NeededLevel="0" NeededStr="90" NeededAgi="50" NeededEne="0" NeededVit="0" NeededCmd="0" ReqClass="DarkKnight,FaryElf,MagicGladiator" Name="Lighting Sword-J" />
   <Item Number="40" Attributes="" Skill="KillingBlow" Size="1,2" Option="True" Drop="False" Level="52" Dmg="52-58" Speed="30" Durability="65" MagicDurability="0" MagicPower="0" NeededLevel="0" NeededStr="85" NeededAgi="35" NeededEne="0" NeededVit="0" NeededCmd="0" ReqClass="RageFighter" Name="Sacred Glove-J" />
   <Item Number="41" Attributes="" Skill="None" Size="2,2" Option="False" Drop="False" Level="0" Dmg="0-0" Speed="0" Durability="255" MagicDurability="0" MagicPower="0" NeededLevel="0" NeededStr="0" NeededAgi="0" NeededEne="0" NeededVit="0" NeededCmd="0" ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter" Name="Pandora Pick (two-handed)" />
+	<!-- Yomalex -->
+  <Item Number="42" Attributes="" Skill="None" Size="1,4" Option="False" Drop="False" Level="0" Dmg="252-263" Speed="0" Durability="255" MagicDurability="0" MagicPower="0" NeededLevel="0" NeededStr="0" NeededAgi="0" NeededEne="0" NeededVit="0" NeededCmd="0" ReqClass="BladeMaster" Name="Bloodangel Sword" />
+  <Item Number="44" Attributes="" Skill="None" Size="1,4" Option="False" Drop="False" Level="0" Dmg="246-257" Speed="0" Durability="255" MagicDurability="0" MagicPower="0" NeededLevel="0" NeededStr="0" NeededAgi="0" NeededEne="0" NeededVit="0" NeededCmd="0" ReqClass="MagicGladiator" Name="Bloodangel Magic Sword" />
+  <Item Number="46" Attributes="" Skill="None" Size="1,2" Option="False" Drop="False" Level="0" Dmg="147-157" Speed="0" Durability="255" MagicDurability="0" MagicPower="0" NeededLevel="0" NeededStr="0" NeededAgi="0" NeededEne="0" NeededVit="0" NeededCmd="0" ReqClass="RageFighter" Name="Bloodangel Claw" />
   <!-- Type 1 - Axes -->
   <Item Number="512" Name="Small Axe" Skill="None" Size="1,3" Option="True" Drop="True" Level="1" Defense="0" DefenseRate="0" Dmg="1-6" Speed="20" Durability="18" MagicDur="0" MagicPower="0" NeededLevel="0" NeededStr="50" NeededAgi="0" NeededVit="0" NeededEne="0" NeededCmd="0" ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner" Zen="0" Attributes="" />
   <Item Number="513" Name="Hand Axe" Skill="None" Size="1,3" Option="True" Drop="True" Level="4" Defense="0" DefenseRate="0" Dmg="4-9" Speed="30" Durability="20" MagicDur="0" MagicPower="0" NeededLevel="0" NeededStr="70" NeededAgi="0" NeededVit="0" NeededEne="0" NeededCmd="0" ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner" Zen="0" Attributes="" />

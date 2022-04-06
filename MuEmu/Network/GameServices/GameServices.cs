@@ -262,24 +262,19 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CMoveItem))]
         public async Task CMoveItem(GSSession session, CMoveItem message)
         {
+            var msg = VersionSelector.CreateMessage<SMoveItem>();
+            msg.Set("ItemInfo", message.ItemInfo);
             if (session.Player.Character.Inventory.Move(message.sFlag, message.Source, message.tFlag, message.Dest))
             {
-                await session.SendAsync(new SMoveItem
-                {
-                    ItemInfo = message.ItemInfo,
-                    Position = message.Dest,
-                    Result = (byte)message.tFlag
-                });
+                msg.Set("Position", message.Dest);
+                msg.Set("Result", (byte)message.tFlag);
             }
             else
             {
-                await session.SendAsync(new SMoveItem
-                {
-                    ItemInfo = message.ItemInfo,
-                    Position = message.Source,
-                    Result = (byte)message.sFlag
-                });
+                msg.Set("Position", message.Source);
+                msg.Set("Result", (byte)message.sFlag);
             }
+            await session.SendAsync(msg);
         }
 
         [MessageHandler(typeof(CPointAdd))]
@@ -685,18 +680,9 @@ namespace MuEmu.Network.GameServices
             }
         }
 
-        [MessageHandler(typeof(CItemThrow))]
-        public static async Task CItemThrow(GSSession session, CItemThrow message)
+        private static Item[] ExecuteBag(Player plr, Item item)
         {
-            var logger = Logger.ForAccount(session);
             var itemBags = ResourceCache.Instance.GetItemBags();
-            var plr = session.Player;
-            var inv = plr.Character.Inventory;
-            var item = inv.Get(message.Source);
-            if (item == null)
-                return;
-            DateTimeOffset date = DateTimeOffset.Now;
-
             var bag = (from b in itemBags
                        where b.Number == item.Number && (b.Plus == item.Plus || b.Plus == 0xffff)
                        select b).FirstOrDefault();
@@ -705,24 +691,36 @@ namespace MuEmu.Network.GameServices
             {
                 if (bag.LevelMin <= plr.Character.Level)
                 {
-                    await inv.Delete(message.Source);
-                    foreach (var reward in bag.GetReward())
-                    {
-                        date = plr.Character.Map.AddItem(message.MapX, message.MapY, reward, plr.Character);
-                    }
-                    var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
-                    await plr.Session.SendAsync(msg);
-                    plr.SendV2Message(msg);
+                    return bag.GetReward();
                 }
-                else
-                {
-                    date = await item.Drop(message.MapX, message.MapY);
-                    return;
-                }
+            }
+            return null;
+        }
+
+        [MessageHandler(typeof(CItemThrow))]
+        public static async Task CItemThrow(GSSession session, CItemThrow message)
+        {
+            var logger = Logger.ForAccount(session);
+            var plr = session.Player;
+            var inv = plr.Character.Inventory;
+            var item = inv.Get(message.Source);
+            if (item == null)
+                return;
+            DateTimeOffset date = DateTimeOffset.Now;
+
+            var bag = ExecuteBag(plr, item);
+            await inv.Delete(message.Source);
+            if (bag != null)
+            {
+                foreach (var reward in bag)
+                    date = plr.Character.Map.AddItem(message.MapX, message.MapY, reward, plr.Character);
+
+                var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
+                await plr.Session.SendAsync(msg);
+                plr.SendV2Message(msg);
             }
             else
             {
-                await inv.Delete(message.Source);
                 switch (item.Number.Number)
                 {
                     case 7196://lost map
@@ -2524,6 +2522,70 @@ namespace MuEmu.Network.GameServices
         public async Task CFavoritesList(GSSession session, CFavoritesList message)
         {
             //lackting
+        }
+
+        [MessageHandler(typeof(COpenBox))]
+        public async Task COpenBox(GSSession session, COpenBox message)
+        {
+            Item it = null;
+            var result = new SOpenBox { Result = OBResult.UnableToUse };
+            switch(message.type)
+            {
+                case 0x00:
+                    it = session.Player.Character.Inventory.Get(message.Slot);
+                    result.Result = OBResult.OKInvent;
+                    break;
+                case 0x15:
+                    it = session.Player.Character.Inventory.GetEvent(message.Slot);
+                    result.Result = OBResult.OKEvent;
+                    break;
+                default:
+                    break;
+            }
+
+            if(it==null)
+            {
+                result.Result = OBResult.UnableToUse;
+                goto SendResult;
+            }
+
+            if(!session.Player.Character.Inventory.TryAdd(new Size(4, 4)))
+            {
+                result.Result = OBResult.FullInventory;
+                goto SendResult;
+            }
+
+            var plr = session.Player;
+            var bag = ExecuteBag(plr, it);
+            if (bag != null)
+            {
+                var reward = bag.First();
+                switch(message.type)
+                {
+                    case 0x00:
+                        await plr.Character.Inventory.Delete(it);
+                        break;
+                    case 0x15:
+                        plr.Character.Inventory.DeleteEvent(message.Slot);
+                        break;
+                }
+                result.Result = OBResult.OKInvent;
+                result.Slot = reward.Number.Number;
+
+                if (!reward.IsZen)
+                    plr.Character.Inventory.Add(reward);
+                else
+                    plr.Character.Money += reward.BuyPrice;
+
+                plr.Character.Inventory.SendInventory();
+
+                var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
+                await plr.Session.SendAsync(msg);
+                plr.SendV2Message(msg);
+            }
+
+        SendResult:
+            await session.SendAsync(result);
         }
     }
 }

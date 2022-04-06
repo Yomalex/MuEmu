@@ -392,6 +392,13 @@ namespace WebZen.Network
                 data.Position = dataStart;
                 Serializer.Serialize(data, message);
 
+                data.Position = dataStart;
+                if (att.ExtraEncode != null)
+                {
+                    var encoder = (IExtraEncoder)Activator.CreateInstance(att.ExtraEncode);
+                    encoder.Encoder(data); 
+                }
+
                 if (att.Serialized)
                 {
                     data.Position = (att.LongMessage ? 3 : 2);
@@ -418,8 +425,6 @@ namespace WebZen.Network
                     data.Write(BitConverter.GetBytes((byte)data.Length), 0, 1);
                 }
                 res = data.ToArray();
-
-                //if(!att.Serialized)
                     return res;
             }
         }

@@ -98,5 +98,10 @@
   <Map Map="113" AttributteFile="./Data/Terrains/113_NixieLake.att" />
   <Map Map="114" AttributteFile="./Data/Terrains/114_Terrain115.att" />
   <Map Map="115" AttributteFile="./Data/Terrains/115_Terrain116.att" />
+	<Map Map="116" AttributteFile="./Data/Terrains/DeepDugeon1.att" />
+	<Map Map="117" AttributteFile="./Data/Terrains/DeepDugeon2.att" />
+	<Map Map="118" AttributteFile="./Data/Terrains/DeepDugeon3.att" />
+	<Map Map="119" AttributteFile="./Data/Terrains/DeepDugeon4.att" />
+	<Map Map="120" AttributteFile="./Data/Terrains/DeepDugeon5.att" />
 </Maps>
 

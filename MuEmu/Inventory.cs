@@ -330,9 +330,9 @@ namespace MuEmu
         /// Try add by default an item with size 5x3 (min free space for ChaosBox mixes)
         /// </summary>
         /// <returns>True: it can</returns>
-        public bool TryAdd()
+        public bool TryAdd(System.Drawing.Size sz = new System.Drawing.Size())
         {
-            var freeSpace = new System.Drawing.Size(5, 3);
+            var freeSpace = sz.IsEmpty?new System.Drawing.Size(5, 3):sz;
             return _inventory.TryAdd(freeSpace) | (_exInventory1?.TryAdd(freeSpace)??false) | (_exInventory2?.TryAdd(freeSpace) ?? false);
         }
 
