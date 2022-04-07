@@ -453,15 +453,17 @@ namespace MuEmu
 
                 if (BaseClass == HeroClass.DarkLord)
                 {
-                    var darkRaven = Inventory.Get(Equipament.LeftHand);
-                    var darkHorse = Mount;//Inventory.Get(Equipament.Pet);
+
+                    var pets = Inventory.FindAllItems(6661);
+                    pets.AddRange(Inventory.FindAllItems(6660));
+                    pets = pets.Where(x => x.SlotId <= (int)Equipament.End).ToList();
+                    pets.AddRange(_mounts.Where(x => (int)x.Number == 6661 || (int)x.Number == 6660));
 
                     gain /= 5;
-                    if (darkRaven?.Number == 6661 && darkHorse?.Number == 6660)
+                    if (pets.Count > 1)
                         gain /= 2;
 
-                    darkRaven?.AddExperience((int)gain);
-                    darkHorse?.AddExperience((int)gain);
+                    pets.ForEach(x => x.AddExperience((int)gain));
                 }
 
                 _needSave = true;
@@ -684,14 +686,47 @@ namespace MuEmu
         public PetMode PetMode { get; set; }
         public ushort PetTarget { get; set; }
         public DateTime PetLastAttack { get; set; }
-        public Item Mount { get; set; }
+
+        private List<Item> _mounts = new List<Item>();
+        public UseItemFlag ApplyMount(Item it, UseItemFlag flag)
+        {
+            switch(flag)
+            {
+                case UseItemFlag.Apply:
+                    if (!_mounts.Contains(it))
+                    {
+                        _mounts.Add(it);
+                        it.Harmony.Option = 1;
+                    }
+                    else
+                        break;
+                    return flag;
+                case UseItemFlag.Remove:
+                    _mounts.Remove(it);
+                    it.Harmony.Option = 0;
+                    return flag;
+            }
+            return UseItemFlag.Remove;
+        }
         public bool DataLoaded { get; internal set; }
 
         public List<SelfDefense> SelfDefense { get; set; } = new List<SelfDefense>();
+        public bool HaveMount => _mounts.Any();
 
+        private Item getDarkRaven()
+        {
+            var item = _mounts.FirstOrDefault(x => (int)x.Number == 6661);
+            if(item == null)
+                item = Inventory.Get(Equipament.LeftHand);
+
+            if (item?.Number.Number != 6661)
+                return null;
+
+            return item;
+        }
         internal void AttackPet(ushort targetNumber)
         {
-            var pet = Inventory.Get(Equipament.LeftHand);
+            var pet = getDarkRaven();
             //var rh = Inventory.Get(Equipament.RightHand);
             var attack = Program.RandomProvider(pet.AttackMax, pet.AttackMin);
 
@@ -731,7 +766,7 @@ namespace MuEmu
             if (Map.GetAttributes(Position).Contains(MapAttributes.Safe))
                 return;
 
-            var pet = Inventory.Get(Equipament.LeftHand);
+            var pet = getDarkRaven();
 
             if (pet == null || PetLastAttack > DateTime.Now)
                 return;

@@ -82,6 +82,7 @@ namespace MuEmu.Resources
                         ReqLevel = i.NeededLevel,
                         MaxStack = i.MaxStack,
                         OnMaxStack = i.OnMaxStack,
+                        IsMount = bool.Parse(i.IsMount),
                     };
 
                     result.Add(tmp);

@@ -1001,8 +1001,8 @@ namespace MU.Network.Game
     [WZContract]
     public class CInventoryEquipament : IGameMessage
     {
-        [WZMember(0)] public byte btItemPos { get; set; }
-        [WZMember(1)] public byte btValue { get; set; }
+        [WZMember(0)] public byte ItemPos { get; set; }
+        [WZMember(1)] public UseItemFlag Type { get; set; }
     }
 
     [WZContract]

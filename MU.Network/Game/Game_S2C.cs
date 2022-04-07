@@ -234,7 +234,7 @@ namespace MU.Network.Game
         }
         public SViewPortCreate(IEnumerable<VPCreateAbs> viewPort)
         {
-            ViewPort = viewPort.Select(x => (VPCreateDto)viewPort).ToArray();
+            ViewPort = viewPort.Select(x => (VPCreateDto)x).ToArray();
         }
     }
 
@@ -250,7 +250,7 @@ namespace MU.Network.Game
         }
         public SViewPortCreateS9(IEnumerable<VPCreateAbs> viewPort)
         {
-            ViewPort = viewPort.Select(x => (VPCreateS9Dto)viewPort).ToArray();
+            ViewPort = viewPort.Select(x => (VPCreateS9Dto)x).ToArray();
         }
     }
 
@@ -266,7 +266,22 @@ namespace MU.Network.Game
         }
         public SViewPortCreateS12(IEnumerable<VPCreateAbs> viewPort)
         {
-            ViewPort = viewPort.Select(x => (VPCreateS12Dto)viewPort).ToArray();
+            ViewPort = viewPort.Select(x => (VPCreateS12Dto)x).ToArray();
+        }
+    }
+    [WZContract(LongMessage = true)]
+    public class SViewPortCreateS16Kor : IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public VPCreateS16KorDto[] ViewPort { get; set; }
+
+        public SViewPortCreateS16Kor()
+        {
+            ViewPort = Array.Empty<VPCreateS16KorDto>();
+        }
+        public SViewPortCreateS16Kor(IEnumerable<VPCreateAbs> viewPort)
+        {
+            ViewPort = viewPort.Select(x => (VPCreateS16KorDto)x).ToArray();
         }
     }
 
@@ -1700,6 +1715,11 @@ namespace MU.Network.Game
         {
             PartyMembers = Array.Empty<PartyDto>();
         }
+
+        public SPartyList(IEnumerable<IPartyDto> vs)
+        {
+            PartyMembers = vs.Select(x => (PartyDto)x).ToArray();
+        }
     }
 
     //0xC1 0x42
@@ -1715,6 +1735,31 @@ namespace MU.Network.Game
         public SPartyListS9()
         {
             PartyMembers = Array.Empty<PartyS9Dto>();
+        }
+
+        public SPartyListS9(IEnumerable<IPartyDto> vs)
+        {
+            PartyMembers = vs.Select(x => (PartyS9Dto)x).ToArray();
+        }
+    }
+    //0xC1 0x42
+    [WZContract]
+    public class SPartyListS16 : IGameMessage
+    {
+        [WZMember(0)]
+        public PartyResults Result { get; set; }
+
+        [WZMember(1, typeof(ArrayWithScalarSerializer<byte>))]
+        public PartyS16Dto[] PartyMembers { get; set; }
+
+        public SPartyListS16()
+        {
+            PartyMembers = Array.Empty<PartyS16Dto>();
+        }
+
+        public SPartyListS16(IEnumerable<IPartyDto> vs)
+        {
+            PartyMembers = vs.Select(x => (PartyS16Dto)x).ToArray();
         }
     }
 

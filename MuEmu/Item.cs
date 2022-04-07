@@ -259,6 +259,7 @@ namespace MuEmu
         }
 
         public int AttackSpeed { get; internal set; }
+        public bool IsMount => BasicInfo.IsMount;
 
         public static Item Zen(uint BuyPrice)
         {

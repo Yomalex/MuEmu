@@ -476,6 +476,11 @@ namespace MuEmu
             }
         }
 
+        internal Item GetMuun(byte v)
+        {
+            return _muun.Get(v);
+        }
+
         /// <summary>
         /// Add item to the firts free space in Inventory including Expanded
         /// </summary>
@@ -978,7 +983,7 @@ namespace MuEmu
         /// <returns></returns>
         public static byte[] GetCharset(HeroClass @class, Inventory inv, byte ActionNumber)
         {
-            var CharSet = new byte[18];
+            var CharSet = new byte[20];
             var equip = inv._equipament;
 
             CharSet[0] = Character.GetClientClass(@class);
@@ -1261,7 +1266,7 @@ namespace MuEmu
                 }
             }
 
-            if(inv.Character != null && inv.Character.Mount != null)
+            if(inv.Character != null && inv.Character.HaveMount)
             {
                 CharSet[12] |= 0x01;
             }

@@ -176,9 +176,11 @@ namespace MU.Network.Game
             Register<SViewPortCreate>(GameOpCode.ViewPortCreate);
             Register<SViewPortCreateS9>(GameOpCode.ViewPortCreate);
             Register<SViewPortCreateS12>(GameOpCode.ViewPortCreate);
+            Register<SViewPortCreateS16Kor>(GameOpCode.ViewPortCreate);
             VersionSelector.Register<SViewPortCreate>(ServerSeason.Season6Kor, GameOpCode.ViewPortCreate);
             VersionSelector.Register<SViewPortCreateS9>(ServerSeason.Season9Eng, GameOpCode.ViewPortCreate);
             VersionSelector.Register<SViewPortCreateS12>(ServerSeason.Season12Eng, GameOpCode.ViewPortCreate);
+            VersionSelector.Register<SViewPortCreateS16Kor>(ServerSeason.Season16Kor, GameOpCode.ViewPortCreate);
             Register<SViewPortChange>(GameOpCode.ViewPortChange);
             Register<SViewPortChangeS9>(GameOpCode.ViewPortChange);
             Register<SViewPortChangeS12>(GameOpCode.ViewPortChange);
@@ -269,6 +271,10 @@ namespace MU.Network.Game
             Register<SPartyResult>(GameOpCode.PartyResult);
             Register<SPartyList>(GameOpCode.PartyList);
             Register<SPartyListS9>(GameOpCode.PartyList);
+            Register<SPartyListS16>(GameOpCode.PartyList);
+            VersionSelector.Register<SPartyList>(ServerSeason.Season6Kor, GameOpCode.PartyList);
+            VersionSelector.Register<SPartyListS9>(ServerSeason.Season9Eng, GameOpCode.PartyList);
+            VersionSelector.Register<SPartyListS16>(ServerSeason.Season16Kor, GameOpCode.PartyList);
             Register<SPartyDelUser>(GameOpCode.PartyDelUser);
             Register<SPartyLifeAll>(GameOpCode.PartyLifeUpdate);
             #endregion

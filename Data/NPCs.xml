@@ -50,7 +50,9 @@
   <NPC NPC="369" Type="Window" Icon="Conversation" Data="18" />
   <NPC NPC="370" Type="Window" Icon="Conversation" Data="19" />
   <!-- Elite Soldier -->
-  <NPC NPC="371" Type="Window" Icon="Conversation" Data="38" />                                                  
+  <NPC NPC="371" Type="Window" Icon="Conversation" Data="38" />
+  <!-- Lucky -->
+  <NPC NPC="579" Type="Window" Icon="Conversation" Data="38" />
   <!-- ChaosCard Dealer -->
   <NPC NPC="375" Type="Window" Icon="Conversation" Data="21" />
   <NPC NPC="376" Type="Shop" Icon="Elixir" Data="21" />
@@ -72,7 +74,9 @@
   <NPC NPC="478" Type="Window" Icon="Conversation" Data="32" />
   <!-- GateKeeper Titus -->
   <NPC NPC="479" Type="Window" Icon="Conversation" Data="33" />
-  <NPC NPC="492" Type="Shop" Icon="Elixir" Data="16" />
+  <!-- Moss Merchant -->
+  <NPC NPC="492" Type="Window" Icon="Elixir" Data="56" />
+  <!--<NPC NPC="492" Type="Shop" Icon="Elixir" Data="16" />-->
   <!-- Jerry The Adviseru -->
   <NPC NPC="522" Type="Window" Icon="Conversation" Data="36" />
   <!-- Sartigan the Angel -->
@@ -97,4 +101,8 @@
   <NPC NPC="584" Type="Window" Icon="Conversation" Data="40" />
   <!-- NPC Private Store Bulletin Board -->
   <NPC NPC="651" Type="Window" Icon="Conversation" Data="48" />
+  <!-- NPC Muun Exchange -->
+  <NPC NPC="682" Type="Window" Icon="Conversation" Data="51" />
+  <!-- NPC Ruud Shop -->
+  <NPC NPC="725" Type="Shop" Icon="Elixir" Data="50" />
 </NPCs>

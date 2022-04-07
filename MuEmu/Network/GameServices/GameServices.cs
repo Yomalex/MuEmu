@@ -857,6 +857,7 @@ namespace MuEmu.Network.GameServices
             var ObjectIndex = message.Number.ShufleEnding();
             var obj = MonstersMng.Instance.GetMonster(ObjectIndex);
             var @char = session.Player.Character;
+
             if (npcs.TryGetValue(obj.Info.Monster, out var npc))
             {
                 session.Player.Window = obj;
@@ -1451,25 +1452,7 @@ namespace MuEmu.Network.GameServices
         public async Task CPartyList(GSSession session)
         {
             var party = session.Player.Character.Party;
-
-            switch (Program.Season)
-            {
-                case ServerSeason.Season9Eng:
-                    await session.SendAsync(new SPartyListS9
-                    {
-                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
-                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
-                    });
-                    break;
-                default:
-                    await session.SendAsync(new SPartyList
-                    {
-                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
-                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
-                    });
-                    break;
-            }
-
+            PartyManager.SendAll(party);
         }
 
         [MessageHandler(typeof(CPartyDelUser))]
@@ -2453,40 +2436,18 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CInventoryEquipament))]
         public void CInventoryEquipament(GSSession session, CInventoryEquipament message)
         {
-            var item = session.Player.Character.Inventory.Get(message.btItemPos);
-            switch(item.Number)
+            var item = session.Player.Character.Inventory.Get(message.ItemPos);
+            if(item.IsMount)
             {
-                case 6658:// Horn of Uniria
-                    if (session.Player.Character.Mount != null)
-                    {
-                        session.Player.Character.Mount = null;
-                        item.Harmony.Option = 0;
-                        message.btValue = 0xff;
-                        break;
-                    }
-                    session.Player.Character.Mount = item;
-                    item.Harmony.Option = 1;
-                    message.btValue = 0xfe;
-                    break;
-                case 6660://13,4 DarkHorse
-                    if(session.Player.Character.Mount != null)
-                    {
-                        session.Player.Character.Mount = null;
-                        item.Harmony.Option = 0;
-                        message.btValue = 0xff;
-                        break;
-                    }
-                    session.Player.Character.Mount = item;
-                    item.Harmony.Option = 1;
-                    message.btValue = 0xfe;
-                    break;
-                default:
-                    message.btValue = 0xff;
-                    break;
+                message.Type = session.Player.Character.ApplyMount(item, message.Type);
+            }
+            else
+            {
+                return;
             }
 
             var itemBytes = item.GetBytes();
-            itemBytes[1] = (byte)(message.btItemPos << 4);
+            itemBytes[1] = (byte)(message.ItemPos << 4);
             itemBytes[1] |= item.SmallPlus;
 
             _ = session.SendAsync(message);

@@ -350,6 +350,7 @@ namespace MuEmu
             var addPlr = new List<VPCreateAbs>();
             var typeBase = Program.Season switch
             {
+                ServerSeason.Season16Kor => typeof(VPCreateS16KorDto),
                 ServerSeason.Season12Eng => typeof(VPCreateS12Dto),
                 ServerSeason.Season9Eng => typeof(VPCreateS9Dto),
                 _ => typeof(VPCreateDto),
@@ -387,28 +388,29 @@ namespace MuEmu
 
         private static void AssignVP(VPCreateAbs obj, Character x, bool create)
         {
-            obj.CharSet = x.Inventory.GetCharset();
-            obj.DirAndPkLevel = (byte)((x.Direction << 4) | (byte)x.PKLevel);
-            obj.Name = x.Name;
+            obj.Set("CharSet", x.Inventory.GetCharset());
+            obj.Set("DirAndPkLevel", (byte)((x.Direction << 4) | (byte)x.PKLevel));
+            obj.Set("Name", x.Name);
             obj.Number = (ushort)(x.Player.Session.ID | (create ? 0x8000 : 0));
             obj.Position = x.Position;
-            obj.TPosition = x.TPosition;
+            obj.Set("TPosition", x.TPosition);
             try
             {
-                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(x => (ushort)x).ToArray());
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(y => (ushort)y).ToArray());
             }
-            catch(InvalidCastException)
+            catch(Exception)
             {
-                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(x => (byte)x).ToArray());
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(y => (byte)y).ToArray());
             }
             obj.Player = x.Player;
             obj.Set("PentagramMainAttribute", (byte)(x.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute ?? 0));
             obj.Set("CurLife", (uint)x.Health);
             obj.Set("MaxLife", (uint)x.MaxHealth);
-            obj.Set("Level", x.Level);
-            obj.Set("MuunItem", (ushort)0xffff);
-            obj.Set("MuunRideItem", (ushort)0xffff);
-            obj.Set("MuunSubItem", (ushort)0xffff);
+            obj.Set("Level", new ushortle(x.Level));
+            obj.Set("MuunItem", new ushortle(0xffff));
+            obj.Set("MuunRideItem", new ushortle(x.Inventory.GetMuun(0)?.Number.Number??0xffff));
+            obj.Set("MuunSubItem", new ushortle(x.Inventory.GetMuun(1)?.Number.Number??0xffff));
+            obj.Set("Mount", new ushortle(0xffff));
             obj.Set("ServerCodeOfHomeWorld", (ushort)0);
         }
 
@@ -539,7 +541,7 @@ namespace MuEmu
                 obj.Set("ViewSkillState", x.Spells.ViewSkillStates);
             }catch(Exception)
             {
-                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(x => (byte)x).ToArray());
+                obj.Set("ViewSkillState", x.Spells.ViewSkillStates.Select(y => (byte)y).ToArray());
             }
             obj.Set("PentagramMainAttribute", x.Element);
             obj.Set("Level", new ushortle(x.Level));

@@ -25,8 +25,8 @@
   <Shop Shop="22" ItemList="Shops/Thompson_Merchant(231).txt" />
   <Shop Shop="23" ItemList="Shops/Zienna_Merchant(246).txt" />
   <Shop Shop="24" ItemList="Shops/Zienna_Merchant(246).txt" />
-  <!-- <Shop Shop="25" ItemList="Shops/" />
-  <Shop Shop="26" ItemList="Shops/" />
+  <Shop Shop="50" ItemList="Shops/Zienna_Merchant(246).txt" />
+  <!-- <Shop Shop="26" ItemList="Shops/" />
   <Shop Shop="27" ItemList="Shops/" />
   <Shop Shop="28" ItemList="Shops/" />
   <Shop Shop="29" ItemList="Shops/" />

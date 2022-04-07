@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MU.Resources;
+using MU.Network;
 
 namespace MuEmu
 {
@@ -61,24 +62,16 @@ namespace MuEmu
                 return;
 
             var members = party.Members.Select(x => x.Session);
-
-            switch (Program.Season)
+            var basetype = Program.Season switch
             {
-                case ServerSeason.Season9Eng:
-                    members.SendAsync(new SPartyListS9
-                    {
-                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
-                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
-                    }).Wait();
-                    break;
-                default:
-                    members.SendAsync(new SPartyList
-                    {
-                        Result = party == null ? PartyResults.Fail : PartyResults.Success,
-                        PartyMembers = party?.List() ?? Array.Empty<PartyS9Dto>(),
-                    }).Wait();
-                    break;
-            }
+                ServerSeason.Season9Eng => typeof(PartyS9Dto),
+                ServerSeason.Season16Kor => typeof(PartyS16Dto),
+                _ => typeof(PartyDto),
+            };
+
+            var list = party.List(basetype);
+            var msg = VersionSelector.CreateMessage<SPartyList>(list);
+            members.SendAsync(msg);
         }
 
         public static void Remove(Player plr)
@@ -164,24 +157,26 @@ namespace MuEmu
             _members.Clear();
         }
 
-        public PartyS9Dto[] List()
+        public IEnumerable<IPartyDto> List(Type baseType)
         {
             byte i = 0;
-            var data = _members.Select(x => new Network.Data.PartyS9Dto
+            foreach(var m in _members)
             {
-                Number = i++,
-                Id = x.Character.Name,
-                Life = (int)(x.Character.Health/x.Character.MaxHealth*255.0f),
-                MaxLife = (int)255,
-                Map = x.Character.MapID,
-                X = (byte)x.Character.Position.X,
-                Y = (byte)x.Character.Position.Y,
-                ServerChannel = Program.ServerCode + 1,
-                Mana = (int)x.Character.Mana,
-                MaxMana = (int)x.Character.MaxMana,
-            });
-
-            return data.ToArray();
+                var @char = m.Character;
+                var obj = Activator.CreateInstance(baseType) as IPartyDto;
+                obj.Set(i++,
+                    @char.Name,
+                    @char.MapID,
+                    (byte)@char.Position.X,
+                    (byte)@char.Position.Y,
+                    (int)@char.Health,
+                    (int)@char.MaxHealth,
+                    (int)@char.Mana,
+                    (int)@char.MaxMana,
+                    Program.ServerCode + 1,
+                    0);
+                yield return obj;
+            }
         }
 
         public async void LifeUpdate()

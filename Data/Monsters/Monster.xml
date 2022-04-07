@@ -5767,6 +5767,9 @@
   <Info Monster="706" ExpType="0" Name="Darkness Transformation Ring"	Level="0"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
 <PentagramDefense>7</PentagramDefense>
 </Info>
+  <Info Monster="725" ExpType="0" Name="RuudShop"	Level="0"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
   <Info Monster="726" ExpType="0" Name="Green Goat"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
 <PentagramDefense>7</PentagramDefense>
 </Info>
@@ -5777,6 +5780,33 @@
 <PentagramDefense>7</PentagramDefense>
 </Info>
   <Info Monster="729" ExpType="0" Name="Red Goat"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="730" ExpType="0" Name="Ferea Knight"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="731" ExpType="0" Name="Ferea Archer"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="732" ExpType="0" Name="Ferea Fighter"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="733" ExpType="0" Name="Ferea General"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="734" ExpType="0" Name="Lord of Ferea"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="735" ExpType="0" Name="Ferea Crystal Orb"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="736" ExpType="0" Name="Ferea Knight"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="737" ExpType="0" Name="Ferea Archer"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="738" ExpType="0" Name="Ferea Fighter"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
 <PentagramDefense>7</PentagramDefense>
 </Info>
 </Monster>

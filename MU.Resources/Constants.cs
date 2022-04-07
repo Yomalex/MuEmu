@@ -15,6 +15,12 @@ namespace MU.Resources
         Murderer,
     }
 
+    public enum UseItemFlag : byte
+    {
+        Apply = 0xFE,
+        Remove = 0xFF,
+    }
+
     public enum OBResult : int
     {
         OKInvent = 2,

@@ -112,8 +112,13 @@
   <NPC Type="257" Map="Elbeland" Radio="0" PosX="100" PosY="218" Dir="1">//Elf Soldier</NPC>
   <NPC Type="257" Map="Elbeland" Radio="0" PosX="45" PosY="164" Dir="1">//Elf Soldier</NPC>
   <NPC Type="540" Map="Elbeland" Radio="0" PosX="49" PosY="216" Dir="2">//Double Goer</NPC>
-	<NPC Type="452" Map="Elbeland" Radio="0" PosX="45" PosY="242" Dir="1">//Seed Jewel creator</NPC>
-	<NPC Type="453" Map="Elbeland" Radio="0" PosX="50" PosY="242" Dir="1">//Seed Jewel creator</NPC>
+  <NPC Type="452" Map="Elbeland" Radio="0" PosX="45" PosY="242" Dir="1">//Seed Jewel creator</NPC>
+  <NPC Type="453" Map="Elbeland" Radio="0" PosX="50" PosY="242" Dir="1">//Seed Jewel creator</NPC>
+  <NPC Type="492" Map="Elbeland" Radio="0" PosX="22" PosY="225" Dir="2">//MossMerchant</NPC>
+  <NPC Type="579" Map="Elbeland" Radio="0" PosX="20" PosY="214" Dir="3">//Lucky</NPC>
+  <NPC Type="682" Map="Elbeland" Radio="0" PosX="24" PosY="229" Dir="3">//Muun</NPC>
+  <NPC Type="725" Map="Elbeland" Radio="0" PosX="33" PosY="239" Dir="3">//Ruud</NPC>
+  <NPC Type="582" Map="Elbeland" Radio="0" PosX="51" PosY="37" Dir="3">//Adniel</NPC>
 	
   <NPC Type="368" Map="Kantru3" Radio="0" PosX="77" PosY="175" Dir="2">//Elpis</NPC>
 	

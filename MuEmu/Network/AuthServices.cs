@@ -181,7 +181,22 @@ namespace MuEmu.Network
 
                 var resetList = new SResetCharList();
 
-                var charList = VersionSelector.CreateMessage<SCharacterList>((byte)5, (byte)0, (byte)5, (byte)3) as CharList;
+
+                byte mClass = 0;
+
+                var maxLevel = acc.Characters.Max(x => x.Value.Level);
+
+                if (maxLevel > 200)
+                    mClass = 1;
+                else if (maxLevel > 210)
+                    mClass = 2;
+                else if (maxLevel > 220)
+                    mClass = 3;
+                else if (maxLevel > 250)
+                    mClass = 4;
+
+
+                var charList = VersionSelector.CreateMessage<SCharacterList>(mClass, (byte)0, (byte)5, (byte)3) as CharList;
 
                 foreach (var @char in acc.Characters)
                 {
@@ -227,7 +242,15 @@ namespace MuEmu.Network
                 gold = 0,
                 server = 20,
                 type = 0,
-            } }
+            },
+                new ServerDto {
+                data1 = 1,
+                data2 = 0,
+                gold = 0,
+                server = 21,
+                type = 0,
+                }
+                }
             });
         }
 
@@ -334,7 +357,7 @@ namespace MuEmu.Network
             session.Player.Character.Inventory.SendJewelsInfo();
 
             await session.SendAsync(new SUBFInfo { Result = 1 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 0 });
+            await session.SendAsync(new SEventNotificationS16Kor { Active = 1, EventID = 0 });
             await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 1 });
             await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 2 });
             await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 3 });
