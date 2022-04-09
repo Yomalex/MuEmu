@@ -1,9 +1,17 @@
-﻿[![Discord](https://img.shields.io/discord/591914197219016707.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/Yfwu8hQ)
+﻿[![Discord](https://img.shields.io/discord/419270829562396672)](https://discord.gg/Yfwu8hQ)
+ [![Issues](https://img.shields.io/github/issues/Yomalex/MuEmu)](https://github.com/Yomalex/MuEmu/issues)
+ [![Commits](https://img.shields.io/github/commit-activity/m/Yomalex/MuEmu)](https://github.com/Yomalex/MuEmu/commits/master)
 [Client](https://github.com/Yomalex/IGCN-v9.5-MuServer-S9EP2/tree/master/zClient)
 
 # Mu Online Server Emulator C#
 
 It is a version of the MU Online Server written in C # NetCore3.1 for compatibility on all platforms
+Now is listed to support:
+- Season 6 Korean
+- Season 9 English
+- Season 12 Korean
+- Season 16 Korean
+- Season 17 Korean
 
 
 # Servers included
