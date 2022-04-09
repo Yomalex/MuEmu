@@ -10,10 +10,51 @@ using MU.Network;
 
 namespace MuEmu
 {
+    internal class PartyMatching
+    {
+        public Player Player { get; set; }
+        public string Text { get; set; }
+        public string Password { get; set; }
+        public bool AutAccept { get; set; }
+        public ushort MinLevel { get; set; }
+        public ushort MaxLevel { get; set; }
+        public bool EnergyElf { get; set; }
+        public List<Player> Waiting { get; set; } = new List<Player>();
+
+        public bool CanJoin(Character @char)
+        {
+            if (@char.Level < MinLevel || @char.Level > MaxLevel)
+                return false;
+
+            if (Player.Character.Party != null && Player.Character.Party.Count >= 5)
+                return false;
+
+            return true;
+        }
+
+        internal int TryJoin(Player plr, string password)
+        {
+            if (Password != password)
+                return -1;
+
+            if (AutAccept)
+            {
+                PartyManager.CreateLink(Player, plr);
+            }
+            else
+            {
+                Waiting.Add(plr);
+                _ = Player.Session.SendAsync(new SPartyMJoinNotify());
+            }
+
+            return 0;
+        }
+    }
     public class PartyManager
     {
         private static PartyManager _instance;
         private List<Party> _parties = new List<Party>();
+        private List<PartyMatching> _partyMatchings = new List<PartyMatching>();
         public static ushort MaxLevelDiff { get; private set; }
 
         public static void Initialzie(ushort maxLevelDiff)
@@ -89,6 +130,52 @@ namespace MuEmu
             }
 
             SendAll(party);
+        }
+
+        internal static void CreateMatching(Player plr, string text, string password, bool autAccept, ushort minLevel, ushort maxLevel, bool energyElf)
+        {
+            _instance._partyMatchings.Add(new PartyMatching
+            {
+                AutAccept = autAccept,
+                EnergyElf = energyElf,
+                MaxLevel = maxLevel,
+                MinLevel = minLevel,
+                Password = password,
+                Player = plr,
+                Text = text
+            });
+        }
+
+        internal static bool ExistsMatching(Player plr)
+        {
+            return _instance._partyMatchings.Any(x => x.Player == plr);
+        }
+
+        internal static List<PartyMatching> GetMatchings()
+        {
+            return _instance._partyMatchings;
+        }
+
+        internal static int CancelMatching(Player player)
+        {
+            try
+            {
+                if (!_instance._partyMatchings.Any(x => x.Player == player))
+                {
+                    var matching = _instance._partyMatchings.First(x => x.Waiting.Any(y => y == player));
+                    matching.Waiting.Remove(player);
+                    _=matching.Player.Session.SendAsync(new SPartyMJoinNotify());
+                }
+                else
+                {
+                    var matching = _instance._partyMatchings.First(x => x.Player == player);
+                    _instance._partyMatchings.Remove(matching);
+                }
+                return 0;
+            }catch(Exception)
+            {
+                return -1;
+            }
         }
     }
 

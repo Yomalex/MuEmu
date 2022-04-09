@@ -19,7 +19,7 @@ namespace CSEmu.Network.Services
         {
             var servers = ServerManager.Instance.Servers
                 .Where(x => x.Visible)
-                .Select(x => new ServerDto { Index = x.Index, Load = x.Load, Type = 0 })
+                .Select(x => new ServerDto { Index = x.Index, Load = x.Load, Type = x.Type })
                 .ToArray();
             Logger.Information("Sending Server list {0} servers", servers.Length);
             session.SendAsync(new SServerList(servers));
@@ -40,7 +40,9 @@ namespace CSEmu.Network.Services
         [MessageHandler(typeof(CRegistryReq))]
         public void RegistryHandler(CSSession session, CRegistryReq message)
         {
-            ServerManager.Instance.Register(session, (byte)message.Index, message.Address, message.Port, message.Show != 0, message.Token, message.Name);
+            ServerManager.Instance.Register(session, (byte)message.Index, message.Address, message.Port, message.Show != 0, message.Token, message.Name, message.Type);
+            var arg = new CServerList();
+            Program.server.Clients.ToList().ForEach(x => ServerListHandler(x, arg));
         }
 
         [MessageHandler(typeof(CKeepAlive))]

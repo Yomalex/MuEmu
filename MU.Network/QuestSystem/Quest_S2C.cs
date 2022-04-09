@@ -138,4 +138,19 @@ namespace MU.Network.QuestSystem
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public uint[] QuestInfoIndexID { get; set; }
     }
+
+    [WZContract]
+    public class QuestNPCTalkDto : IQuestMessage
+    {
+        [WZMember(0)] public ushort Chapter { get; set; }
+        [WZMember(1)] public ushort QuestID { get; set; }
+        [WZMember(2)] public byte State { get; set; }
+        [WZMember(3)] public byte padding { get; set; }
+    }
+
+    [WZContract]
+    public class SQuestNPCTalk : IQuestMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<ushort>))] public QuestNPCTalkDto[] QuestList { get; set; }
+    }
 }

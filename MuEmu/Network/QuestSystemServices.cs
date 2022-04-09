@@ -193,5 +193,17 @@ namespace MuEmu.Network
                 });
             }
         }
+
+        [MessageHandler(typeof(CQuestNPCTalk))]
+        public async Task CQuestNPCTalk(GSSession session, CQuestNPCTalk message)
+        {
+            await session.SendAsync(new SQuestNPCTalk
+            {
+                QuestList = new QuestNPCTalkDto[] { 
+                    new QuestNPCTalkDto { Chapter = 1, QuestID = 0, State = 1 },
+                    new QuestNPCTalkDto { Chapter = 1, QuestID = 1, State = 2 }
+                }
+            });
+        }
     }
 }

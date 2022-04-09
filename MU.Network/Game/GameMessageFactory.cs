@@ -30,6 +30,9 @@ namespace MU.Network.Game
             Register<COpenBox>(GameOpCode.OpenBox);
             Register<SOpenBox>(GameOpCode.OpenBox);
 
+            Register<CItemSplit>(GameOpCode.ItemSplit);
+            Register<SItemSplit>(GameOpCode.ItemSplit);
+
             #region Client ChatMessages
             Register<CChatNickname>(GameOpCode.GeneralChat0);
             Register<CChatNumber>(GameOpCode.GeneralChat1);
@@ -389,7 +392,27 @@ namespace MU.Network.Game
             Register<SMonsterSkillS9Eng>(GameOpCode.MonsterSkill);
 
             Register<CFavoritesList>(GameOpCode.FavoritesList);
+            if(Season == ServerSeason.Season16Kor)
+            {
+                ChangeOPCode<CFavoritesList>(GameOpCode.FavoritesListS16Kor);
+            }
             Register<SEventNotificationS16Kor>(GameOpCode.Eventnotification);
+
+
+            Register<CPartyMRegister>(GameOpCode.PartyMatchingRegister);
+            Register<SPartyMRegister>(GameOpCode.PartyMatchingRegister);
+            Register<CPartyMSearch>(GameOpCode.PartyMatchingSearch);
+            Register<SPartyMSearch>(GameOpCode.PartyMatchingSearch);
+            Register<CPartyMJoin>(GameOpCode.PartyMatchingJoin);
+            Register<SPartyMJoin>(GameOpCode.PartyMatchingJoin);
+            Register<CPartyMJoinData>(GameOpCode.PartyMatchingJoinData);
+            Register<CPartyMJoinList>(GameOpCode.PartyMatchingJoinList);
+            Register<SPartyMJoinList>(GameOpCode.PartyMatchingJoinList);
+            Register<CPartyMAccept>(GameOpCode.PartyMatchingAccept);
+            Register<CPartyMCancel>(GameOpCode.PartyMatchingCancel);
+            Register<SPartyMCancel>(GameOpCode.PartyMatchingCancel);
+            Register<CPartyLeaderChange>(GameOpCode.PartyLeaderChange);
+            Register<SPartyMJoinNotify>(GameOpCode.PartyJoinNotify);
         }
     }
 }

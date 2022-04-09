@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MU.Network.Game;
+using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -98,6 +100,11 @@ namespace MuEmu.Events.ChaosCastle
                     Trigger(EventState.Closed, _playingTime);
                     break;
             }
+            Program.NoEventMapSendAsync(new SEventNotificationS16Kor
+            {
+                Active = (byte)(NextState == EventState.Open?1:0),
+                EventID = EventIcon.ChaosCastle
+            });
         }
 
         public override void Update()
@@ -110,6 +117,11 @@ namespace MuEmu.Events.ChaosCastle
                         Program
                             .NoEventMapAnoucement($"Chaos Castle Will start in {(int)TimeLeft.TotalMinutes} minute(s).")
                             .Wait();
+                        Program.NoEventMapSendAsync(new SEventNotificationS16Kor
+                        {
+                            Active = 1,
+                            EventID = EventIcon.ChaosCastle
+                        });
                     }
                     break;
             }

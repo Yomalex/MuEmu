@@ -70,7 +70,14 @@ namespace MuEmu.Events.BloodCastle
                     break;
                 case EventState.Open:
                     if (((int)TimeLeft.TotalSeconds) % 60 == 0 && TimeLeft.TotalSeconds >= 60)
+                    {
                         Program.NoEventMapAnoucement(ServerMessages.GetMessage(Messages.BC_Open, (int)Math.Ceiling(TimeLeft.TotalMinutes))).Wait();
+                        Program.NoEventMapSendAsync(new SEventNotificationS16Kor
+                        {
+                            Active = 1,
+                            EventID = EventIcon.BloodCastle
+                        });
+                    }
                     break;
                 case EventState.Playing:
                     break;
@@ -150,6 +157,11 @@ namespace MuEmu.Events.BloodCastle
                     Trigger(EventState.Closed, _playingTime);
                     break;
             }
+            Program.NoEventMapSendAsync(new SEventNotificationS16Kor
+            {
+                Active = (byte)(NextState == EventState.Open ? 1 : 0),
+                EventID = EventIcon.BloodCastle
+            });
         }
     }
 }

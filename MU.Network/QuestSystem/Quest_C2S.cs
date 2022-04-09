@@ -43,4 +43,10 @@ namespace MU.Network.QuestSystem
         [WZMember(0)]
         public uint dwQuestInfoIndexID { get; set; }
     }
+
+    [WZContract]
+    public class CQuestNPCTalk : IQuestMessage
+    {
+        [WZMember(0)] public ushort NPC { get;set; }
+    }
 }

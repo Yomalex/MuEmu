@@ -234,24 +234,13 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CServerList))]
         public async Task CServerList(GSSession session)
         {
+            //Program.client.
+            Program.client.SendAsync(new SCServerList());
             await session.SendAsync(new SServerList
             {
-                List = new ServerDto[] { new ServerDto {
-                data1 = 1,
-                data2 = 0,
-                gold = 0,
-                server = 20,
-                type = 0,
-            },
-                new ServerDto {
-                data1 = 1,
-                data2 = 0,
-                gold = 0,
-                server = 21,
-                type = 0,
-                }
-                }
+                List = Program.ServerList?.ToArray()??Array.Empty<MU.Network.Auth.ServerDto>()
             });
+            //type:1nopvp,2pvp
         }
 
         [MessageHandler(typeof(CCharacterMapJoin2))]
@@ -286,6 +275,10 @@ namespace MuEmu.Network
                                     where config.SkillKeyId == charDto.CharacterId
                                     select config).FirstOrDefault();
 
+                charDto.Favorites = (from config in db.Favorites
+                                    where config.CharacterId == charDto.CharacterId
+                                    select config).FirstOrDefault();
+
                 charDto.Friends = (from friend in db.Friends
                                  where (friend.FriendId == charDto.CharacterId || friend.CharacterId == charDto.CharacterId) && friend.State == 1
                                  select friend).ToList();
@@ -311,22 +304,6 @@ namespace MuEmu.Network
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
 
-            //GCSendAllItemInfo
-            //#if (ENABLETEST_MUUN == 1)
-            //g_CMuunSystem.GDReqLoadMuunInvenItem(*lpObj);
-            //#endif
-            //await session.SendAsync(new SMuunInventory());
-
-
-
-            //#if (ENABLETEST_RUMMY == 1)
-            //g_CMuRummyMng.GDReqCardInfo(lpObj);
-            //#endif
-            //this->IsMuRummyEventOn()
-
-            // packet for skill tree list
-            //await session.Send(new byte[] { 0xC2, 0x00, 0x06, 0xF3, 0x53, 0x00 });
-
             await session.SendAsync(new SPeriodItemCount());
             
             await session.SendAsync(new SKillCount { KillCount = 1 });
@@ -349,6 +326,22 @@ namespace MuEmu.Network
                 }
                 await session.SendAsync(skillKey);
             }
+            if(charDto.Favorites != null)
+            {
+                var fav = new CFavoritesList
+                {
+                    Region = new int[]
+                    {
+                        charDto.Favorites.Fav01,
+                        charDto.Favorites.Fav02,
+                        charDto.Favorites.Fav03,
+                        charDto.Favorites.Fav04,
+                        charDto.Favorites.Fav05,
+                    }
+                };
+
+                await session.SendAsync(fav);
+            }
             session.Player.Status = LoginStatus.Playing;
 
             GuildManager.Instance.AddPlayer(session.Player);
@@ -357,15 +350,6 @@ namespace MuEmu.Network
             session.Player.Character.Inventory.SendJewelsInfo();
 
             await session.SendAsync(new SUBFInfo { Result = 1 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 1, EventID = 0 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 1 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 2 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 3 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 4 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 5 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 6 });
-            await session.SendAsync(new SEventNotificationS16Kor { Active = 0, EventID = 7 });
-
             await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
 
             //ConnectServer dataSend

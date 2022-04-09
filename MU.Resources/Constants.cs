@@ -15,6 +15,15 @@ namespace MU.Resources
         Murderer,
     }
 
+    public enum EventIcon : byte
+    {
+        ChaosCastle = 1,
+        BloodCastle = 2,
+        DevilSquare = 3,
+        IllusionTemple = 6,
+        Doppelganger = 7,
+    }
+
     public enum UseItemFlag : byte
     {
         Apply = 0xFE,

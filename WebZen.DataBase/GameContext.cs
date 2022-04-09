@@ -121,7 +121,12 @@ namespace MuEmu.Entity
 
             /*modelBuilder.Entity<ItemDto>()
                 .HasOne(x => x.Character)
-                .WithMany(x => x.Items);*/
+                .WithMany(x => x.Items);
+
+            modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.Favorites)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();*/
         }
 
         public DbSet<AccountDto> Accounts { get; set; }
@@ -135,6 +140,7 @@ namespace MuEmu.Entity
         public DbSet<QuestDto> Quests { get; set; }
         public DbSet<QuestEXDto> QuestsEX { get; set; }
         public DbSet<SkillKeyDto> Config { get; set; }
+        public DbSet<FavoritesDto> Favorites { get; set; }
         public DbSet<MasterInfoDto> MasterLevel { get; set; }
         public DbSet<GremoryCaseDto> GremoryCase { get; set; }
 

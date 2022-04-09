@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using MU.Network.Auth;
+using Serilog;
 using Serilog.Core;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,18 @@ namespace MuEmu.Network.ConnectServer
                     }
                 }                
             }
+        }
+
+        [MessageHandler(typeof(CSServerList))]
+        public void SServerList(CSClient session, CSServerList message)
+        {
+            Program.ServerList = message.List.Take((message.CountH<<8)+message.CountL).Select(x => new MU.Network.Auth.ServerDto {
+                type = x.Type,
+                data1 = 32,
+                data2 = 0,
+                gold = 0,
+                server = x.Index,
+            });
         }
     }
 }

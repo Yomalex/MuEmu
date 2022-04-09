@@ -91,6 +91,8 @@ namespace MU.DataBase
 
         public MasterInfoDto MasterInfo { get; set; } = new MasterInfoDto { Experience = 0, Level = 1, Points = 0 };
 
+        public FavoritesDto Favorites { get; set; } = new FavoritesDto();
+
         public int AccountId { get; set; }
         public AccountDto Account { get; set; }
 

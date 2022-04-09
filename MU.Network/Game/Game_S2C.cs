@@ -2896,7 +2896,7 @@ namespace MU.Network.Game
     [WZContract]
     public class SEventNotificationS16Kor : IGameMessage
     {
-        [WZMember(0)] public byte EventID { get; set; }  // 3
+        [WZMember(0)] public EventIcon EventID { get; set; }  // 3
         [WZMember(1)] public byte Active { get; set; } // 4
     }
 
@@ -2905,6 +2905,87 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public OBResult Result { get; set; }  // 3
         [WZMember(1)] public int Slot { get; set; } // 4
+    }
+
+    [WZContract]
+    public class SItemSplit : IGameMessage
+    {
+        [WZMember(0)] public byte Id { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+    }
+
+    [WZContract]
+    public class SPartyMRegister : IGameMessage
+    {
+        [WZMember(0)] public int Result { get; set; }
+    }
+
+    [WZContract]
+    public class PartyMSearchMemberDto
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Name { get; set; } //0
+        [WZMember(1)] public ushort Level { get; set; } //0
+        [WZMember(2)] public ushort Race { get; set; } //0
+    }
+
+    [WZContract]
+    public class PartyMSearchDto
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 41)] public string Text { get; set; } //0
+        [WZMember(1)] public byte Gens { get; set; } //0
+        [WZMember(2)] public bool Password { get; set; } //0
+        [WZMember(3)] public byte Count { get; set; } //0
+        [WZMember(4)] public ushort MinLevel { get; set; } //0
+        [WZMember(5)] public ushort MaxLevel { get; set; } //0
+        [WZMember(6, typeof(ArraySerializer))] public PartyMSearchMemberDto[] Members { get; set; } //0
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPartyMSearch : IGameMessage
+    {
+        [WZMember(0)] public uint Count { get; set; }
+        [WZMember(1)] public uint Page { get; set; }
+        [WZMember(2)] public uint MaxPage { get; set; }
+        [WZMember(3)] public int Result { get; set; }
+        [WZMember(4, typeof(ArraySerializer))] public PartyMSearchDto[] List { get; set; }
+    }
+    [WZContract]
+    public class SPartyMJoin : IGameMessage
+    {
+        [WZMember(0)] public int Result { get; set; }
+        [WZMember(1)] public bool UsePassword { get; set; }
+        [WZMember(2)] public byte Gens { get; set; }
+        [WZMember(3, typeof(BinaryStringSerializer), 11)] public string Name{ get; set; }
+        [WZMember(4, typeof(BinaryStringSerializer), 41)] public string Text{ get; set; }
+    }
+    [WZContract]
+    public class SPartyMJoinNotify : IGameMessage
+    { }
+
+    [WZContract]
+    public class PartyMJoinListDto : IGameMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }
+        [WZMember(1)] public byte Race { get; set; }
+        [WZMember(2)] public int Level { get; set; }
+        [WZMember(3)] public int Data { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPartyMJoinList : IGameMessage
+    {
+        [WZMember(0)] public byte unk5 { get; set; }
+        [WZMember(1)] public ushort unk6 { get; set; }
+        [WZMember(2)] public int Count { get; set; }
+        [WZMember(3)] public int Result { get; set; }
+        [WZMember(4, typeof(ArraySerializer))] public PartyMJoinListDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class SPartyMCancel : IGameMessage
+    {
+        [WZMember(1)] public int Type { get; set; }
+        [WZMember(2)] public int Result { get; set; }
     }
 }
 

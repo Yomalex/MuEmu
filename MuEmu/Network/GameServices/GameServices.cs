@@ -1,4 +1,5 @@
-﻿using MU.Network;
+﻿using MU.DataBase;
+using MU.Network;
 using MU.Network.Game;
 using MU.Network.MuunSystem;
 using MU.Network.QuestSystem;
@@ -2482,7 +2483,35 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CFavoritesList))]
         public async Task CFavoritesList(GSSession session, CFavoritesList message)
         {
-            //lackting
+            Logger.Debug("CFavoritesList:"+message.Region.Length.ToString());
+            using (var db = new GameContext())
+            {
+                var tmp = new int[5] { -1, -1, -1, -1, -1 };
+                message.Region.CopyTo(tmp, 0);
+                var fav = db.Favorites.FirstOrDefault(x => x.CharacterId == session.Player.Character.Id);
+                bool newRow = false;
+                if (fav == null)
+                {
+                    fav = new FavoritesDto
+                    {
+                        CharacterId = session.Player.Character.Id,
+                    };
+                    newRow = true;
+                }
+
+                fav.Fav01 = tmp[0];
+                fav.Fav02 = tmp[1];
+                fav.Fav03 = tmp[2];
+                fav.Fav04 = tmp[3];
+                fav.Fav05 = tmp[4];
+
+                if (newRow)
+                    db.Favorites.Add(fav);
+                else
+                    db.Favorites.Update(fav);
+
+                await db.SaveChangesAsync();
+            }
         }
 
         [MessageHandler(typeof(COpenBox))]
@@ -2547,6 +2576,206 @@ namespace MuEmu.Network.GameServices
 
         SendResult:
             await session.SendAsync(result);
+        }
+
+        [MessageHandler(typeof(CItemSplit))]
+        public async Task CItemSplit(GSSession session, CItemSplit message)
+        {
+            var msg = new SItemSplit();
+            Item it = null;
+
+            switch(message.Type)
+            {
+                case 0:
+                    it = session.Player.Character.Inventory.Get(message.Slot);
+                    break;
+                case 1:
+                    it = session.Player.Character.Inventory.GetEvent(message.Slot);
+                    break;
+                default:
+                    await session.SendAsync(msg);
+                    return;
+            }
+
+            if(it == null || it.Durability <= message.Amount)
+            {
+                await session.SendAsync(msg);
+                return;
+            }
+
+            if(!session.Player.Character.Inventory.TryAdd(it.BasicInfo.Size))
+            {
+                msg.Result = 6;
+                await session.SendAsync(msg);
+                return;
+            }
+
+            it.Durability -= message.Amount;
+            session.Player.Character.Inventory.Add(new Item(it.Number, new { Durability = message.Amount, it.Plus }));
+            session.Player.Character.Inventory.SendInventory();
+        }
+        [MessageHandler(typeof(CPartyMRegister))]
+        public async Task CPartyMRegister(GSSession session, CPartyMRegister message)
+        {
+            var result = new SPartyMRegister();
+
+            var plr = session.Player;
+            var @char = plr.Character;
+            if(@char.Party != null)
+            {
+                if(@char.Party.Master != plr)
+                {
+                    result.Result = -3;
+                    await session.SendAsync(result);
+                    return;
+                }
+            }
+
+            if(PartyManager.ExistsMatching(plr))
+            {
+                result.Result = -2;
+                await session.SendAsync(result);
+                return;
+            }
+
+            PartyManager.CreateMatching(
+                plr,
+                message.Text,
+                message.NeedPassword ? message.Password : "",
+                message.AutAccept,
+                message.MinLevel,
+                message.MaxLevel,
+                message.EnergyElf
+                );
+
+            await session.SendAsync(result);
+        }
+
+        [MessageHandler(typeof(CPartyMSearch))]
+        public async Task CPartyMSearch(GSSession session, CPartyMSearch message)
+        {
+            var msg = new SPartyMSearch();
+            msg.Page = message.Page;
+            msg.Result = 0;
+
+            var matchings = PartyManager.GetMatchings();
+
+            msg.MaxPage = (uint)Math.Ceiling(matchings.Count / 6.0f);
+            var matchingPage = matchings.Skip((int)((message.Page - 1) * 6)).Take(6);
+            msg.List = matchingPage.Select(x => new PartyMSearchDto
+            {
+                MaxLevel = x.MaxLevel,
+                MinLevel = x.MinLevel,
+                Text = x.Text,
+                Password = !string.IsNullOrEmpty(x.Password),
+                Members = x.Player.Character.Party?.Members.Select(y => new PartyMSearchMemberDto
+                {
+                    Name = y.Character.Name,
+                    Level = y.Character.Level,
+                    Race = (ushort)y.Character.Class
+                }).ToArray()??new PartyMSearchMemberDto[] { new PartyMSearchMemberDto { Name = x.Player.Character.Name, Level = x.Player.Character.Level } },
+                Count = (byte)(x.Player.Character.Party?.Members.Count()??1)
+            }).ToArray();
+
+            msg.Count = (uint)matchingPage.Count();
+            await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CPartyMJoin))]
+        public async Task CPartyMJoin(GSSession session, CPartyMJoin message)
+        {
+            var msg = new SPartyMJoin();
+
+            if(PartyManager.ExistsMatching(session.Player))
+            {
+                msg.Result = -4;
+                goto sendmsg;
+            }
+
+            if(session.Player.Character.Party != null)
+            {
+                msg.Result = -6;
+                goto sendmsg;
+            }
+
+            var matchings = PartyManager.GetMatchings();
+            PartyMatching matching = null;
+            if(message.Random)
+            {
+                var pool = matchings.Where(x => x.CanJoin(session.Player.Character));
+                if (pool.Any())
+                {
+                    var matchNum = Program.RandomProvider(pool.Count());
+                    matching = pool.ElementAtOrDefault(matchNum);
+                }
+                if (matching == null)
+                {
+                    msg.Result = -3;
+                    goto sendmsg;
+                }
+            }
+            else
+            {
+                matching = matchings.FirstOrDefault(x => x.Player.Character.Name == message.Leader);
+                if(matching == null)
+                {
+                    msg.Result = -2;
+                    goto sendmsg;
+                }
+            }
+
+            msg.Result = matching.TryJoin(session.Player, message.Password);
+            msg.Text = matching.Text;
+            msg.Gens = 0;
+            msg.Name = matching.Player.Character.Name;
+            msg.UsePassword = !string.IsNullOrEmpty(matching.Password);
+
+            sendmsg:
+            await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CPartyMJoinList))]
+        public async Task CPartyMJoinList(GSSession session)
+        {
+            var matching = PartyManager.GetMatchings().First(x => x.Player == session.Player);
+            var msg = new SPartyMJoinList();
+
+            msg.List = matching.Waiting.Select(x => new PartyMJoinListDto
+            {
+                Name = x.Character.Name,
+                Level = x.Character.Level,
+                Data = 0,
+                Race = (byte)x.Character.BaseClass
+            }).ToArray();
+            msg.Count = msg.List.Count();
+
+            await session.SendAsync(msg);
+        }
+        [MessageHandler(typeof(CPartyMAccept))]
+        public async Task CPartyMAccept(GSSession session, CPartyMAccept message)
+        {
+            var matching = PartyManager.GetMatchings().First(x => x.Player == session.Player);
+            var applicant = matching.Waiting.First(x => x.Character.Name == message.Applicant);
+            matching.Waiting.Remove(applicant);
+
+            if (message.Accept)
+            {
+                PartyManager.CreateLink(matching.Player, applicant);
+            }
+            else
+            {
+
+            }
+            await session.SendAsync(new SPartyMJoinNotify());
+        }
+
+        [MessageHandler(typeof(CPartyMCancel))]
+        public async Task CPartyMCancel(GSSession session, CPartyMCancel message)
+        {
+            var msg = new SPartyMCancel();
+            msg.Result = PartyManager.CancelMatching(session.Player);
+            msg.Type = message.Type;
+            await session.SendAsync(msg);
         }
     }
 }

@@ -20,6 +20,8 @@ namespace MU.Network.QuestSystem
             Register<CQuestEXPComplete>(QuestOpCode.QuestExpComplete); 
             Register<CNewQuestInfo>(QuestOpCode.QuestEXPProgress);
             Register<CQuestEXPEventItemEPList>(QuestOpCode.QuestEXPEventItemEPList);
+            Register<CQuestNPCTalk>(QuestOpCode.QuestMUTalk);
+            Register<SQuestNPCTalk>(QuestOpCode.QuestMUTalk);
 
             // S2C
             Register<SSetQuest>(QuestOpCode.SetQuest);

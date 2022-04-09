@@ -12,6 +12,7 @@ namespace MU.Network
         GSClientAdd = 0xFF12,
         GSClientChat = 0xFF13,
         GSClientRem = 0xFF14,
+        ServerList = 0x06F4,
     }
 
 
@@ -64,6 +65,8 @@ namespace MU.Network
         DuelRoomObserversBroadcast = 0x0BAA,
         DuelResultBroadcast = 0x0CAA,
         DuelRoundBroadcast = 0x0DAA,
+
+        ItemSplit = 0x00E8,
 
         Tax = 0x1AB2,
         KillCount = 0x01B8,
@@ -236,6 +239,17 @@ namespace MU.Network
         PKLevel = 0x08F3,
         MonsterSkill = 0x0069,
         FavoritesList = 0x016D,
+        FavoritesListS16Kor = 0x0459,
+
+        PartyMatchingRegister = 0x00EF,
+        PartyMatchingSearch = 0x01EF,
+        PartyMatchingJoin = 0x02EF,
+        PartyMatchingJoinData = 0x03EF,
+        PartyMatchingJoinList = 0x04EF,
+        PartyMatchingAccept = 0x05EF,
+        PartyMatchingCancel = 0x06EF,
+        PartyLeaderChange = 0x07EF,
+        PartyJoinNotify = 0x08EF,
     }
 
     public enum GensOpCode
@@ -371,5 +385,6 @@ namespace MU.Network
         QuestEXPEventItemEPList = 0x21F6,
         QuestSwitchListEvent = 0x03F6,
         QuestSwitchListItem = 0x04F6,
+        QuestMUTalk = 0x71F6,
     }
 }

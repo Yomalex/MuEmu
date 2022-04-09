@@ -413,7 +413,7 @@
   <Gate Number="414" GateType="0" Map="90" X1="123" Y1="126" X2="134" Y2="132" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
   <Gate Number="415" GateType="0" Map="90" X1="127" Y1="121" X2="133" Y2="133" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
   <Gate Number="416" GateType="0" Map="90" X1="123" Y1="121" X2="133" Y2="128" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
-  <Gate Number="417" GateType="0" Map="Acheron" X1="51" Y1="190" X2="60" Y2="197" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
+  <Gate Number="417" GateType="0" Map="Acheron" X1="51" Y1="190" X2="60" Y2="197" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="49" />
   <Gate Number="418" GateType="1" Map="Acheron" X1="26" Y1="168" X2="28" Y2="172" Target="419" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
   <Gate Number="419" GateType="2" Map="Acheron" X1="112" Y1="161" X2="114" Y2="166" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
   <Gate Number="420" GateType="1" Map="Acheron" X1="115" Y1="168" X2="118" Y2="170" Target="421" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
@@ -479,9 +479,52 @@
   <Gate Number="480" GateType="2" Map="Dugeon" X1="241" Y1="85" X2="242" Y2="89" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
   <Gate Number="481" GateType="1" Map="Dugeon" X1="244" Y1="86" X2="245" Y2="89" Target="482" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
   <Gate Number="482" GateType="2" Map="Dugeon" X1="229" Y1="108" X2="231" Y2="110" Target="0" Dir="0" ReqLevel="0" Name="" ReqZen="0" Move="-1" />
-  <Gate Number="483" GateType="0" Map="Aida" X1="50" Y1="66" X2="50" Y2="66" Target="0" Dir="0" ReqLevel="190" Name="Aida 3 M" ReqZen="0" Move="30" />
-  <Gate Number="484" GateType="0" Map="Dugeon" X1="243" Y1="21" X2="243" Y2="21" Target="0" Dir="0" ReqLevel="40" Name="Dungeon 3 M" ReqZen="0" Move="-1" />
-  <Gate Number="485" GateType="0" Map="Raklion" X1="84" Y1="115" X2="84" Y2="115" Target="0" Dir="0" ReqLevel="290" Name="Raklion 2 M" ReqZen="0" Move="42" />
-  <Gate Number="486" GateType="0" Map="Crywolf" X1="112" Y1="198" X2="112" Y2="198" Target="0" Dir="0" ReqLevel="180" Name="Crywolf 2 M" ReqZen="0" Move="39" />
-  <Gate Number="487" GateType="0" Map="Kantru1" X1="120" Y1="54" X2="120" Y2="54" Target="0" Dir="0" ReqLevel="170" Name="Kanturu 3 M" ReqZen="0" Move="35" />
+  <Gate Number="483" GateType="0" Map="TormentedSquare1" X1="50" Y1="66" X2="50" Y2="66" Target="0" Dir="0" ReqLevel="10" Name="Aida 3 M" ReqZen="0" Move="-1" />
+  <Gate Number="484" GateType="0" Map="TormentedSquare2" X1="243" Y1="21" X2="243" Y2="21" Target="0" Dir="0" ReqLevel="10" Name="Dungeon 3 M" ReqZen="0" Move="-1" />
+  <Gate Number="485" GateType="0" Map="TormentedSquare3" X1="84" Y1="115" X2="84" Y2="115" Target="0" Dir="0" ReqLevel="10" Name="Raklion 2 M" ReqZen="0" Move="-1" />
+  <Gate Number="486" GateType="0" Map="TormentedSquare4" X1="112" Y1="198" X2="112" Y2="198" Target="0" Dir="0" ReqLevel="10" Name="Crywolf 2 M" ReqZen="0" Move="-1" />
+  <Gate Number="487" GateType="1" Map="Acheron" X1="120" Y1="54" X2="120" Y2="54" Target="488" Dir="3" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	
+	<Gate Number="488" GateType="2" Map="Nars" X1="213" Y1="193" X2="214" Y2="196" Target="0" Dir="5" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="489" GateType="1" Map="Nars" X1="211" Y1="190" X2="212" Y2="191" Target="490" Dir="5" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="490" GateType="2" Map="Acheron" X1="94" Y1="184" X2="95" Y2="187" Target="0" Dir="3" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="491" GateType="1" Map="Nars" X1="179" Y1="148" X2="180" Y2="149" Target="492" Dir="3" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="492" GateType="2" Map="Nars" X1="133" Y1="166" X2="136" Y2="167" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="493" GateType="1" Map="Nars" X1="131" Y1="170" X2="133" Y2="171" Target="494" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="494" GateType="2" Map="Nars" X1="213" Y1="193" X2="214" Y2="196" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="495" GateType="1" Map="Nars" X1="179" Y1="185" X2="180" Y2="187" Target="496" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="496" GateType="2" Map="Nars" X1="127" Y1="29" X2="128" Y2="30" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="497" GateType="1" Map="Nars" X1="126" Y1="33" X2="127" Y2="34" Target="498" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="498" GateType="2" Map="Nars" X1="181" Y1="188" X2="183" Y2="188" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="499" GateType="1" Map="Nars" X1="179" Y1="210" X2="180" Y2="211" Target="500" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="500" GateType="2" Map="Nars" X1="34" Y1="198" X2="35" Y2="199" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="501" GateType="1" Map="Nars" X1="36" Y1="195" X2="37" Y2="196" Target="502" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="502" GateType="2" Map="Nars" X1="181" Y1="208" X2="183" Y2="209" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	
+	<Gate Number="503" GateType="0" Map="LorenMarket" X1="203" Y1="56" X2="207" Y2="59" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="48" />
+	<Gate Number="504" GateType="0" Map="LorenMarket" X1="188" Y1="90" X2="192" Y2="91" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="505" GateType="0" Map="LorenMarket" X1="221" Y1="91" X2="227" Y2="92" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="506" GateType="0" Map="LorenMarket" X1="191" Y1="20" X2="194" Y2="23" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="507" GateType="0" Map="LorenMarket" X1="170" Y1="55" X2="173" Y2="59" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="508" GateType="0" Map="LorenMarket" X1="230" Y1="28" X2="236" Y2="29" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	
+	<Gate Number="509" GateType="0" Map="Ferea" X1="236" Y1="152" X2="237" Y2="153" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="50" />
+	<Gate Number="510" GateType="1" Map="Tarkan" X1="176" Y1="38" X2="178" Y2="40" Target="511" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="511" GateType="2" Map="Ferea" X1="236" Y1="152" X2="237" Y2="153" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="512" GateType="1" Map="Ferea" X1="198" Y1="173" X2="199" Y2="175" Target="513" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="513" GateType="2" Map="Ferea" X1="107" Y1="67" X2="108" Y2="68" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="514" GateType="1" Map="Ferea" X1="80" Y1="233" X2="81" Y2="235" Target="515" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="515" GateType="2" Map="Ferea" X1="201" Y1="155" X2="202" Y2="156" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="516" GateType="1" Map="Ferea" X1="199" Y1="137" X2="200" Y2="138" Target="517" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="517" GateType="2" Map="Ferea" X1="82" Y1="226" X2="83" Y2="227" Target="517" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="518" GateType="1" Map="Ferea" X1="100" Y1="66" X2="101" Y2="68" Target="519" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="519" GateType="2" Map="Ferea" X1="201" Y1="155" X2="202" Y2="156" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="520" GateType="1" Map="Ferea" X1="236" Y1="175" X2="239" Y2="176" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="521" GateType="2" Map="Tarkan" X1="187" Y1="54" X2="189" Y2="55" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+
+	<Gate Number="522" GateType="0" Map="NixieLake" X1="24" Y1="118" X2="27" Y2="121" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="51" />
+	<Gate Number="523" GateType="1" Map="Raklion" X1="208" Y1="219" X2="211" Y2="221" Target="524" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="524" GateType="2" Map="NixieLake" X1="208" Y1="219" X2="211" Y2="221" Target="524" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	
+	<Gate Number="537" GateType="0" Map="LabyrinthEntrance" X1="187" Y1="54" X2="189" Y2="55" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
 </Warp>

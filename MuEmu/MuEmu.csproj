@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CSEmu\CSEmu.csproj" />
     <ProjectReference Include="..\MU.Network\MU.Network.csproj" />
   </ItemGroup>
 

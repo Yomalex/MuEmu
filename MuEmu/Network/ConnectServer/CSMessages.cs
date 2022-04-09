@@ -30,6 +30,7 @@ namespace MuEmu.Network.ConnectServer
 
         [WZMember(5, 16)]
         public byte[] btName { get; set; }
+        [WZMember(6)] public byte Type { get; internal set; }
 
         public string Address { get => btAddress.MakeString(); set => btAddress = value.GetBytes(); }
         public string Token { get => btToken.MakeString(); set => btToken = value.GetBytes(); }
@@ -58,6 +59,47 @@ namespace MuEmu.Network.ConnectServer
 
         [WZMember(1, 10)]
         public byte[] btName { get; set; }
+    }
+
+    [WZContract]
+    public class SCServerList : ICSMessage
+    {
+    }
+    
+    [WZContract]
+    public class ServerDto
+    {
+        [WZMember(0)]
+        public ushort Index { get; set; }
+
+        [WZMember(1)]
+        public byte Load { get; set; }
+
+        [WZMember(2)]
+        public byte Type { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CSServerList : ICSMessage
+    {
+        [WZMember(0)]
+        public byte CountH { get; set; }
+
+        [WZMember(1)]
+        public byte CountL { get; set; }
+
+        [WZMember(2, SerializerType = typeof(ArraySerializer))]
+        public ServerDto[] List { get; set; }
+
+        public CSServerList()
+        { }
+
+        public CSServerList(ServerDto[] list)
+        {
+            CountH = (byte)(list.Length >> 8);
+            CountL = (byte)(list.Length & 0xff);
+            List = list;
+        }
     }
 
     [WZContract]

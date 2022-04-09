@@ -83,8 +83,8 @@ namespace MuEmu.Network
             using(var db = new GameContext())
             {
                 var info = db.Gens.Find(session.Player.Character.Id);
-                gens.UpdateInfo(info);
-                gens.SendMemberInfo();
+                gens?.UpdateInfo(info);
+                gens?.SendMemberInfo();
             }
         }
     }

@@ -78,6 +78,7 @@ namespace MuEmu
         public static int DropRate { get; set; }
         public static ServerSeason Season { get; set; }
         public static string Name { get; set; }
+        public static IEnumerable<MU.Network.Auth.ServerDto> ServerList { get; internal set; }
 
         public static EventManagement EventManager;
         public static GlobalEvents GlobalEventsManager;

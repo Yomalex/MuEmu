@@ -1028,7 +1028,7 @@ namespace MU.Network.Game
         //0xC1
         //0x1C
         //0x6D,0x01
-        [WZMember(1, typeof(ArrayWithScalarSerializer<uint>))] public uint[] Region { get; set; }
+        [WZMember(1, typeof(ArrayWithScalarSerializer<int>))] public int[] Region { get; set; }
     }
 
     [WZContract]
@@ -1037,5 +1037,72 @@ namespace MU.Network.Game
         [WZMember(0)] public byte Slot { get; set; }
         [WZMember(1)] public byte data2 { get; set; }
         [WZMember(2)] public byte type { get; set; }
+    }
+
+    [WZContract]
+    public class CItemSplit : IGameMessage
+    {
+        [WZMember(1)] public byte Slot { get; set; }
+        [WZMember(2)] public byte Type { get; set; }
+        [WZMember(3)] public byte Amount { get; set; }
+    }
+
+
+
+    [WZContract]
+    public class CPartyMRegister : IGameMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 41)] public string Text { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 5)] public string Password { get; set; }
+        [WZMember(2)] public ushort MinLevel { get; set; }
+        [WZMember(3)] public ushort MaxLevel { get; set; }
+        [WZMember(4)] public bool NeedPassword { get; set; }
+        [WZMember(5)] public bool AutAccept { get; set; }
+        [WZMember(6)] public bool EnergyElf { get; set; }
+        [WZMember(7)] public byte padding { get; set; }
+    }
+    [WZContract]
+    public class CPartyMSearch : IGameMessage
+    {
+        [WZMember(1)] public uint Page { get; set; }
+        [WZMember(2, typeof(BinaryStringSerializer), 11)] public string Search { get; set; }
+        [WZMember(3)] public byte Flags { get; set; }
+    }
+    [WZContract]
+    public class CPartyMJoin : IGameMessage
+    {
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Leader { get; set; }
+        [WZMember(2, typeof(BinaryStringSerializer), 5)] public string Password { get; set; }
+        [WZMember(3)] public bool NeedsPassword { get; set; }
+        [WZMember(4)] public bool Random { get; set; }
+        [WZMember(5)] public byte AutomaticHelper { get; set; }
+    }
+    [WZContract]
+    public class CPartyMJoinData : IGameMessage
+    {
+        [WZMember(1)] public byte Slot { get; set; }
+        [WZMember(2)] public byte Type { get; set; }
+        [WZMember(3)] public byte Amount { get; set; }
+    }
+    [WZContract]
+    public class CPartyMJoinList : IGameMessage
+    { }
+    [WZContract]
+    public class CPartyMAccept : IGameMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Applicant { get; set; }
+        [WZMember(1)] public bool Accept { get; set; }
+    }
+    [WZContract]
+    public class CPartyMCancel : IGameMessage
+    {
+        [WZMember(1)] public byte Type { get; set; }
+    }
+    [WZContract]
+    public class CPartyLeaderChange : IGameMessage
+    {
+        [WZMember(1)] public byte Slot { get; set; }
+        [WZMember(2)] public byte Type { get; set; }
+        [WZMember(3)] public byte Amount { get; set; }
     }
 }

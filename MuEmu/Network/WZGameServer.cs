@@ -69,6 +69,8 @@ namespace MuEmu.Network
                                 }
                             }
                         });
+
+                    PartyManager.CancelMatching(Session.Player);
                 }
                 Session.Player.Status = LoginStatus.NotLogged;
 
