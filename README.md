@@ -1,7 +1,7 @@
 ﻿[![Discord](https://img.shields.io/discord/419270829562396672)](https://discord.gg/Yfwu8hQ)
  [![Issues](https://img.shields.io/github/issues/Yomalex/MuEmu)](https://github.com/Yomalex/MuEmu/issues)
  [![Commits](https://img.shields.io/github/commit-activity/m/Yomalex/MuEmu)](https://github.com/Yomalex/MuEmu/commits/master)
-[Client](https://github.com/Yomalex/IGCN-v9.5-MuServer-S9EP2/tree/master/zClient)
+[Client Season 9](https://github.com/Yomalex/IGCN-v9.5-MuServer-S9EP2/tree/master/zClient)
 
 # Mu Online Server Emulator C#
 
