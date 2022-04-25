@@ -2766,8 +2766,14 @@ namespace MU.Network.Game
     {
         //0-3
         /*237*/
+        /// <summary>
+        /// CriticalDamage Is %
+        /// </summary>
         [WZMember(0)] public ushort CriticalDamage{ get; set; }//ÐÒÔËÒ»»÷Ôö¼ÓÉËº¦
         /*239*/
+        /// <summary>
+        /// ExcellentDamage Is +DMG
+        /// </summary>
         [WZMember(1)] public ushort ExcellentDamage{ get; set; }//×¿Ô½Ò»»÷Ôö¼ÓÉËº¦
         /*241*/
         [WZMember(2)] public ushort SkillDamageBonus{ get; set; }//¼¼ÄÜ¹¥»÷Á¦Ôö¼Ó
@@ -2853,14 +2859,16 @@ namespace MU.Network.Game
         [WZMember(42)] public float ExcellentDamageRate{ get; set; }//×¿Ô½Ò»»÷ÉËº¦¼¸ÂÊ
         /*373*/
         [WZMember(43)] public float DoubleDamageRate{ get; set; }//Ë«±¶ÉËº¦¼¸ÂÊ
-                               // /*377*/	public float  unk5{ get; set; }
+        /*377*/
+        [WZMember(44)] public float  unk5{ get; set; }
         /*381*/
-        [WZMember(44)] public byte DamageReduction{ get; set; }//ÉËº¦¼õÉÙÂÊ
+        [WZMember(45)] public byte DamageReduction{ get; set; }//ÉËº¦¼õÉÙÂÊ
         /*382*/
-        [WZMember(45)] public byte BPConsumptionRate{ get; set; }//AGÊ¹ÓÃ¼õÉÙÂÊ
+        [WZMember(46)] public byte BPConsumptionRate{ get; set; }//AGÊ¹ÓÃ¼õÉÙÂÊ
         /*383*/
-        [WZMember(46)] public byte DamageReflect{ get; set; }//ÉËº¦·´ÉäÂÊ
-        ///*384*/	[WZMember()] public byte  unk36{ get; set; }
+        [WZMember(47)] public byte DamageReflect{ get; set; }//ÉËº¦·´ÉäÂÊ
+        /*384*/	
+        [WZMember(48)] public byte  unk36{ get; set; }
     }
     [WZContract]
     public class SNQWorldLoad : IGameMessage

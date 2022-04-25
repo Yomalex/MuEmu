@@ -2170,7 +2170,12 @@ namespace MuEmu.Network.GameServices
         {
             var npc = session.Player.Window as Monster;
 
-            session.Player.Character.Quests.SendEXPListNPC(npc.Info.Monster);
+            var list = session.Player.Character.Quests.EXPListNPC(npc.Info.Monster);
+            _ = session.SendAsync(new SQuestSwitchListNPC
+            {
+                NPC = npc.Info.Monster,
+                QuestList = list.Select(x => (uint)x).ToArray()
+            });
         }
 
         [MessageHandler(typeof(CShadowBuff))]
@@ -2462,21 +2467,59 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CSXInfo))]
         public async Task CSXInfo(GSSession session)
         {
+            var @char = session.Player.Character;
+            var inv = @char.Inventory;
             await session.SendAsync(new SXCharacterInfo
             {
-                CriticalDamageRate = session.Player.Character.Inventory.CriticalRate,
-                ExcellentDamageRate = session.Player.Character.Inventory.ExcellentRate,
-                Defense = session.Player.Character.Defense,
-                Dex = session.Player.Character.Agility,
-                Vit = session.Player.Character.Vitality,
-                AddDex = session.Player.Character.AgilityAdd,
-                AddStr = session.Player.Character.StrengthAdd,
-                AddVit = session.Player.Character.VitalityAdd,
-                AddEnergy = session.Player.Character.EnergyAdd,
-                AddLeadership = session.Player.Character.CommandAdd,
-                Energy = session.Player.Character.Energy,
-                Leadership = session.Player.Character.Command,
-                Str = session.Player.Character.Strength,
+                CriticalDamageRate = inv.CriticalRate,
+                ExcellentDamageRate = inv.ExcellentRate,
+                Defense = @char.Defense,
+                Dex = @char.Agility,
+                Vit = @char.Vitality,
+                AddDex = @char.AgilityAdd,
+                AddStr = @char.StrengthAdd,
+                AddVit = @char.VitalityAdd,
+                AddEnergy = @char.EnergyAdd,
+                AddLeadership = @char.CommandAdd,
+                Energy = @char.Energy,
+                Leadership = @char.Command,
+                Str = @char.Strength,
+                fMonsterDieGetHP_info = inv.IncreaseLifeRate,
+                fMonsterDieGetMana_info = inv.IncreaseManaRate,
+                fWingDamageAbsorb_info = inv.WingDmgAbsorb,
+                fWingDamageIncRate_info = inv.WingDmgIncrease,
+                DamageReflect = (byte)(inv.Reflect*100.0f),
+                SDRecovery = @char.Spells.IncreaseAutoSDRegeneration + inv.IncreaseSDRecovery,
+                MoneyAmountDropRate = (ushort)(inv.DropZen*100.0f),
+                CriticalDamage = @char.CriticalDamage,
+                ExcellentDamage = @char.ExcellentDamage,
+                fTripleDamageRationInfo = 0,
+                AbsorbLife = 0,
+                AbsorbSD = 0,
+                SDAttack = 0,
+                SDAttack1 = 0,
+                BlockRate = 0,
+                BPConsumptionRate = 0,
+                BPRecovery = 0,
+                DamageReduction = 0,
+                DefensiveFullHPRestoreRate = 0,
+                DefensiveFullMPRestoreRate = 0,
+                DoubleDamageRate = 0,
+                fMonsterDieGetSD_info = 0,
+                FullDamageReflectRate = 0,
+                HPRecovery = 0,
+                IgnoreDefenseRate = 0,
+                IgnoreShieldGaugeRate = 0,
+                MPConsumptionRate = 0,
+                MPRecovery = 0,
+                OffensiveFullSDRestoreRate = 0,
+                ParryRate = 0,
+                ResistStunRate = 0,
+                ShieldDamageReduction = 0,
+                SkillDamageBonus = 0,
+                StunRate = 0,
+                unk36 = 36,// AGUsageRate
+                unk5 = 5,//TripleDamageRate
             });
         }
 

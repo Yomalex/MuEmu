@@ -49,4 +49,11 @@ namespace MU.Network.QuestSystem
     {
         [WZMember(0)] public ushort NPC { get;set; }
     }
+
+
+    [WZContract]
+    public class CQuestNPCAccept : IQuestMessage
+    {
+        [WZMember(0)] public uint QuestInfoIndex { get; set; }
+    }
 }

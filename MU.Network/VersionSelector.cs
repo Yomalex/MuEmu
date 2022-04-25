@@ -73,7 +73,7 @@ namespace MU.Network
                             .Value[result];
 
                 return Activator.CreateInstance(subType, args);
-            }catch (Exception ex)
+            }catch (Exception)
             {
                 return Activator.CreateInstance(typeof(_T), args);
             }            

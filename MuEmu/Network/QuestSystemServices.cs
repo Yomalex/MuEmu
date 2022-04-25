@@ -11,6 +11,7 @@ using WebZen.Handlers;
 using MU.Network.QuestSystem;
 using MU.Resources;
 using MU.Network.Game;
+using MuEmu.Monsters;
 
 namespace MuEmu.Network
 {
@@ -165,7 +166,10 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CQuestEXPProgressList))]
         public async Task CQuestEXPProgressList(GSSession session)
         {
-            await session.Player.Character.Quests.QuestEXPProgressList();
+            await session.SendAsync(new SQuestEXPProgressList
+            {
+                QuestInfoIndexID = session.Player.Character.Quests.QuestEXPProgressList()
+            });
         }
 
         [MessageHandler(typeof(CQuestEXPEventItemEPList))]
@@ -197,13 +201,26 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CQuestNPCTalk))]
         public async Task CQuestNPCTalk(GSSession session, CQuestNPCTalk message)
         {
+            var npc = session.Player.Window as Monster;
+            var list = session.Player.Character.Quests
+                .EXPListNPC(npc.Info.Monster)
+                .Select(x => new QuestNPCTalkDto { QuestInfoIndex = x, State = (QuestState)x.Switch })
+                .ToList();
+
+            list.Add(new QuestNPCTalkDto { QuestInfoIndex = 0 });
+
             await session.SendAsync(new SQuestNPCTalk
             {
-                QuestList = new QuestNPCTalkDto[] { 
-                    new QuestNPCTalkDto { Chapter = 1, QuestID = 0, State = 1 },
-                    new QuestNPCTalkDto { Chapter = 1, QuestID = 1, State = 2 }
-                }
+                QuestList = list.ToArray()
             });
+        }
+
+        [MessageHandler(typeof(CQuestNPCAccept))]
+        public async Task CQuestNPCAccept(GSSession session, CQuestNPCAccept message)
+        {
+            var @char = session.Player.Character;
+            @char.Quests.QuestEXPSetProgress(message.QuestInfoIndex, 1);
+            await session.SendAsync(new SQuestNPCAccept { QuestInfoIndex = message.QuestInfoIndex, Result = 0 });
         }
     }
 }

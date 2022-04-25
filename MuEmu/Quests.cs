@@ -57,7 +57,7 @@ namespace MuEmu
         private static Random _rand = new Random();
         private List<Quest> _quests;
         private Dictionary<int, QuestInfoIndex> _episodes = new Dictionary<int, QuestInfoIndex>();
-        private QuestEXPDto _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>("./Data/QuestEXP.xml");
+        private QuestEXPDto _questEXP;
         private QuestInfoIndex _currentQuest;
         private ushort _currentNpc;
 
@@ -68,6 +68,20 @@ namespace MuEmu
         public Player Player { get; set; }
         public Quests(Character @char, CharacterDto characterDto)
         {
+            if(_questEXP == null)
+            {
+                try
+                {
+                    string file = Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
+                    _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>(file);
+                }catch(Exception)
+                {
+                    _questEXP = new QuestEXPDto()
+                    {
+                        QuestList = Array.Empty<QuestNPCDto>()
+                    };
+                }
+            }
             QuestStates =  new byte[20];
             _quests = new List<Quest>();
             Array.Fill<byte>(QuestStates, 0xff);
@@ -143,7 +157,7 @@ namespace MuEmu
             await Player.Session.SendAsync(new SNQWorldList { Quest = new SNQWorldListDto { QuestIndex = 11, TagetNumber = 0, QuestState = 1 } });
         }
 
-        public async void SendEXPListNPC(ushort npc)
+        public IEnumerable<QuestInfoIndex> EXPListNPC(ushort npc)
         {
             var session = Player.Session;
             var list = _questEXP.QuestList.FirstOrDefault(x => x.Index == npc)?.QuestInfo??null;
@@ -167,11 +181,7 @@ namespace MuEmu
                     }
                 }
             }
-            await session.SendAsync(new SQuestSwitchListNPC
-            {
-                NPC = npc,
-                QuestList = quest.Where(x => x.Switch < 65535).Select(x => (uint)x).ToArray()
-            });
+            return quest.Where(x => x.Switch < 65535);
         }
 
         private QuestNPCStateDto GetQuestEXPStateInfo(uint Episode, uint state)
@@ -358,12 +368,9 @@ namespace MuEmu
             });
         }
 
-        public async Task QuestEXPProgressList()
+        public uint[] QuestEXPProgressList()
         {
-            await Player.Session.SendAsync(new SQuestEXPProgressList
-            {
-                QuestInfoIndexID = _episodes.Select(x => x.Value.Index).ToArray()
-            });
+            return _episodes.Select(x => x.Value.Index).ToArray();
         }
 
         public void OnMonsterDie(Monster monster)

@@ -79,6 +79,8 @@ namespace MuEmu
         public float IncreaseSDRecovery => _increaseSDRecovery;
         public float IncreaseMP => _increaseMP;
         public float DmgDecrease => _dmgDecrease;
+        public float WingDmgAbsorb => (Get(Equipament.Wings)?.WingDmgAbsorb ?? 0.0f)+ Character.Spells.WingsDefensePowUp / 100.0f;
+        public float WingDmgIncrease => (Get(Equipament.Wings)?.WingDmgAdd ?? 0.0f) + Character.Spells.WingsAttackPowUp / 100.0f;
 
         public Storage ChaosBox => _chaosBox;
         public Storage PersonalShop => _personalShop;

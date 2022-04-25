@@ -386,5 +386,6 @@ namespace MU.Network
         QuestSwitchListEvent = 0x03F6,
         QuestSwitchListItem = 0x04F6,
         QuestMUTalk = 0x71F6,
+        QuestMUAccept = 0x72F6,
     }
 }

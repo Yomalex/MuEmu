@@ -679,6 +679,9 @@ namespace MuEmu
         public ushort DefenseRatePvM => (ushort)(_defenseRatePvM + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
         public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.PvPDefenceSuccessRate + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
 
+        public ushort CriticalDamage => (ushort)(_rightAttackMax + _leftAttackMax);
+        public ushort ExcellentDamage => (ushort)(CriticalDamage * 2);
+
         public ObjectState State { get; set; }
         public DateTimeOffset RegenTime { get; private set; }
         public byte ClientClass => GetClientClass(Class);
@@ -1496,7 +1499,7 @@ namespace MuEmu
         public int GetDefense()
         {
             var _base = Inventory.Defense+Spells.IncreaseDefense;
-            var dmgAbsorb = (ushort)(Inventory.Get(Equipament.Wings)?.WingDmgAbsorb??0.0f)+1.0f + Spells.WingsDefensePowUp/100.0f;
+            var dmgAbsorb = 1.0f + Inventory.WingDmgAbsorb;
             var guardian = Inventory.Get(Equipament.Pet)?.Number ?? ItemNumber.Invalid;
 
             // Guardian Angel
