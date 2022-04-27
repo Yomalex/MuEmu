@@ -194,6 +194,7 @@ namespace MuEmu
         public CharacterInfo BaseInfo { get; private set; }
         public ushort Resets { get; set; }
         public GremoryCase GremoryCase { get; private set; }
+        internal HuntingRecord HuntingRecord { get; }
         public string Name { get; set; }
         public ushort Level { get => _level; set { _level = value; _needSave = true; } }
         public float Health {
@@ -450,6 +451,8 @@ namespace MuEmu
 
                 if (_exp < BaseExperience)
                     _exp = BaseExperience;
+
+                HuntingRecord.GainExperience(gain);
 
                 if (BaseClass == HeroClass.DarkLord)
                 {
@@ -843,16 +846,6 @@ namespace MuEmu
             result <<= Program.Season == ServerSeason.Season12Eng ? 0 : 1;
             result &= 0xFF;
             return (byte)result;
-
-            /*if (Program.Season12)
-            {
-                return (byte)((@class & 0xF0) | ((@class << 3) & 0x08) | (((@class << 1) & 0x04) != 0?0x0C:0x00));
-            }
-            else
-            {
-                // CCC1 2000
-                return (byte)(((@class & 0x70) << 1) | ((@class) == 1 ? 0x10 : (((@class & 0x03) == 2) ? 0x18 : 0x00)));
-            }*/
         }
 
         public Character(Player plr, CharacterDto characterDto)
@@ -880,6 +873,7 @@ namespace MuEmu
             CtlCode = (ControlCode)characterDto.CtlCode;
             Resets = characterDto.Resets;
             GremoryCase = new GremoryCase(this, characterDto);
+            HuntingRecord = new HuntingRecord(this, characterDto);
 
             _position = new Point(characterDto.X, characterDto.Y);
             TPosition = _position;
@@ -1626,6 +1620,7 @@ namespace MuEmu
                 attack -= target.Defense;
             
             WeaponDurDown(target.Defense);
+            HuntingRecord.AttackPVM(attack);
             return (int)attack;
         }
 
@@ -1955,6 +1950,7 @@ namespace MuEmu
                 Target = Player.ID,
             };
 
+            HuntingRecord.ElementalAttackPVM(dmg);
             await Player.Session.SendAsync(eMessage);
 
             return (int)dmg;

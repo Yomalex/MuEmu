@@ -1105,4 +1105,12 @@ namespace MU.Network.Game
         [WZMember(2)] public byte Type { get; set; }
         [WZMember(3)] public byte Amount { get; set; }
     }
+
+    [WZContract]
+    public class CHuntingRecordRequest : IGameMessage
+    {
+        [WZMember(1)] public byte Map { get; set; }
+        [WZMember(2)] public ushort index { get; set; }
+        [WZMember(3)] public ushort unk { get; set; }
+    }
 }

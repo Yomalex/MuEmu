@@ -250,6 +250,8 @@ namespace MU.Network
         PartyMatchingCancel = 0x06EF,
         PartyLeaderChange = 0x07EF,
         PartyJoinNotify = 0x08EF,
+        HuntingRecordRequest = 0x50EC,
+        HuntingRecordDay = 0x53EC,
     }
 
     public enum GensOpCode

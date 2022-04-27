@@ -406,6 +406,7 @@ namespace MuEmu.Network.GameServices
                         Source.Durability--;
 
                     @char.Health += AddLife;
+                    @char.HuntingRecord.HealingUse(AddLife);
                     break;
                 case 14 * 512 + 4:// Small MP Potion
                 case 14 * 512 + 5:// Medium MP Potion
@@ -2819,6 +2820,44 @@ namespace MuEmu.Network.GameServices
             msg.Result = PartyManager.CancelMatching(session.Player);
             msg.Type = message.Type;
             await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CHuntingRecordRequest))]
+        public async Task CHuntingRecordRequest(GSSession session, CHuntingRecordRequest message)
+        {
+            var target = Program.server.Clients.First(x => x.ID == message.index);
+            var hrDay = new SHuntingRecordDay();
+            var tHR = target.Player.Character.HuntingRecord;
+
+            if (message.Map == (byte)target.Player.Character.MapID)
+            {
+                hrDay.SetDT(tHR.Hunting?.DateTime??DateTime.Now);
+            }
+
+            await session.SendAsync(hrDay);
+
+            List<HuntingDto> list = tHR.GetRecordList((Maps)message.Map);
+            var hrList = list.Select(x => new HuntingRecordListDto
+            {
+                Damage = x.AttackPVM,
+                Duration = 10,
+                ElementalDamage = x.ElementalAttackPVM,
+                Experience = x.Experience,
+                Healing = (uint)x.HealingUse,
+                KilledCount = (uint)x.KilledMonsters,
+                Level = x.Level,
+                Unk1 = 0,
+                Year = (uint)x.DateTime.Year,
+                Month = (byte)x.DateTime.Month,
+                Day = (byte)x.DateTime.Day,
+            });
+
+            await session.SendAsync(new SHuntingRecordList
+            {
+                Count = hrList.Count(),
+                List = hrList.ToArray(),
+                Result = 1,
+            });
         }
     }
 }

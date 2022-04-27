@@ -2995,5 +2995,52 @@ namespace MU.Network.Game
         [WZMember(1)] public int Type { get; set; }
         [WZMember(2)] public int Result { get; set; }
     }
+
+    [WZContract]
+    public class SHuntingRecordDay : IGameMessage
+    {
+        [WZMember(1)] public byte Id { get; set; }
+        [WZMember(2)] public int Year { get; set; }
+        [WZMember(3)] public byte Month { get; set; }
+        [WZMember(4)] public byte Day { get; set; }
+        [WZMember(5)] public int Level { get; set; }
+        [WZMember(6)] public int Duration { get; set; }
+        [WZMember(7)] public long Damage { get; set; }
+        [WZMember(8)] public long ElementalDamage { get; set; }
+        [WZMember(9)] public int Healing { get; set; }
+        [WZMember(10)] public int KilledCount { get; set; }
+        [WZMember(11)] public long Experience { get; set; }
+
+        public void SetDT(DateTime dt)
+        {
+            Year = dt.Year;
+            Month = (byte)dt.Month;
+            Day = (byte)dt.Day;
+        }
+    }
+
+    [WZContract]
+    public class HuntingRecordListDto
+    {
+        [WZMember(0)] public uint Unk1 { get; set; }
+        [WZMember(1)] public uint Year { get; set; }
+        [WZMember(2)] public byte Month { get; set; }
+        [WZMember(3)] public byte Day { get; set; }
+        [WZMember(4)] public uint Level { get; set; }
+        [WZMember(5)] public uint Duration { get; set; }
+        [WZMember(6)] public long Damage { get; set; }
+        [WZMember(7)] public long ElementalDamage { get; set; }
+        [WZMember(8)] public uint Healing { get; set; }
+        [WZMember(9)] public uint KilledCount { get; set; }
+        [WZMember(10)] public long Experience { get; set; }
+    }
+
+    [WZContract]
+    public class SHuntingRecordList : IGameMessage
+    {
+        [WZMember(0)] public ushortle Count { get; set; } = new ushortle();
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public HuntingRecordListDto[] List { get; set; }
+    }
 }
 

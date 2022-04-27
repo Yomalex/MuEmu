@@ -413,6 +413,10 @@ namespace MU.Network.Game
             Register<SPartyMCancel>(GameOpCode.PartyMatchingCancel);
             Register<CPartyLeaderChange>(GameOpCode.PartyLeaderChange);
             Register<SPartyMJoinNotify>(GameOpCode.PartyJoinNotify);
+
+            Register<CHuntingRecordRequest>(GameOpCode.HuntingRecordRequest);
+            Register<SHuntingRecordList>(GameOpCode.HuntingRecordRequest);
+            Register<SHuntingRecordDay>(GameOpCode.HuntingRecordDay);
         }
     }
 }

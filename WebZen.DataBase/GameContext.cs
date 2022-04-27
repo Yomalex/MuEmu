@@ -113,20 +113,6 @@ namespace MuEmu.Entity
                 .Navigation(x => x.Memb)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
-
-            /*modelBuilder.Entity<GremoryCaseDto>()
-                .Navigation(x => x.Account)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();*/
-
-            /*modelBuilder.Entity<ItemDto>()
-                .HasOne(x => x.Character)
-                .WithMany(x => x.Items);
-
-            modelBuilder.Entity<CharacterDto>()
-                .Navigation(x => x.Favorites)
-                .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();*/
         }
 
         public DbSet<AccountDto> Accounts { get; set; }
@@ -143,7 +129,7 @@ namespace MuEmu.Entity
         public DbSet<FavoritesDto> Favorites { get; set; }
         public DbSet<MasterInfoDto> MasterLevel { get; set; }
         public DbSet<GremoryCaseDto> GremoryCase { get; set; }
-
+        public DbSet<HuntingDto> HuntingRecords { get; set; }
         public DbSet<GensDto> Gens { get; set; }
         public DbSet<BloodCastleDto> BloodCastles { get; set; }
     }

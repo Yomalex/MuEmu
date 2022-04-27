@@ -9,6 +9,7 @@ namespace MuEmu
     {
         private bool _state;
         private DateTime _start;
+        private uint TotalMinutes => (uint)(DateTime.Now - _start).TotalMinutes;
 
         public Player Player { get; private set; }
         public MuBot(Player player)
@@ -31,48 +32,46 @@ namespace MuEmu
         public void Enable(bool state = true)
         {
             _start = DateTime.Now;
+
+            if (!_state && state)
+                Player.Character.HuntingRecord.Start();
+
+            if (_state && !state)
+                Player.Character.HuntingRecord.Save();
+
             _state = state;
 
-            Player.Session.SendAsync(new SMuHelperState {
+            _ = Player.Session.SendAsync(new SMuHelperState {
                 Status = (byte)(state ? 0 : 1),
                 Money = 0,
                 usTime = 0
-            }).Wait();
+            });
         }
 
         public void Update()
         {
-            var time = DateTime.Now - _start;
+            if (!_state)
+                return;
 
+            var time = DateTime.Now - _start;
             var minutes = (int)time.TotalMinutes;
 
-            if(_state && minutes > 0 && (minutes%5) == 0)
+            if (minutes <= 0 || (minutes % 5) != 0)
+                return;
+
+            uint money = (uint)(10 * Player.Character.Level);
+            if (money > Player.Character.Money)
             {
-                uint money = (uint)(10 * Player.Character.Level);
-
-                if(money > Player.Character.Money)
-                {
-                    Enable(false);
-                    return;
-                }
-
-                Player.Character.Money -= money;
-
-                Player.Session.SendAsync(new SMuHelperState
-                {
-                    Status = 0,
-                    Money = money,
-                    usTime = (ushort)minutes
-                }).Wait();
-            }else if(_state)
-            {
-                Player.Session.SendAsync(new SMuHelperState
-                {
-                    Status = 0,
-                    Money = 0,
-                    usTime = (ushort)minutes
-                }).Wait();
+                _state = false;
+                Player.Character.Money = 0;
             }
+
+            _ = Player.Session.SendAsync(new SMuHelperState
+            {
+                Status = (byte)(_state ? 0 : 1),
+                Money = money,
+                usTime = (ushort)minutes
+            });
         }
     }
 }
