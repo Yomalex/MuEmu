@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading;
 using MuEmu.Entity;
 using System.Collections.Generic;
+using CSEmu.XML;
+using System.ComponentModel;
 
 namespace CSEmu
 {
@@ -48,28 +50,15 @@ namespace CSEmu
                 .CreateLogger();
             Log.Logger = logger;
 
-            var name = Dns.GetHostName();
-            var ipaddrs = Dns.GetHostEntry(name).AddressList
-                .Where(x => x.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                .Select(x => x)
-                .ToList();
+            CSConfigDto xml;
 
-            var ipaddr = ipaddrs.FirstOrDefault();
-
-            if(ipaddrs.Count() > 1)
+            try
             {
-                logger.Information("Found {0} Ip's", ipaddrs.Count());
-
-                var id = 0;
-                foreach(var i in ipaddrs)
-                {
-                    logger.Information("{0}). {1}", id++, i.ToString());
-                }
-
-                logger.Information("Select:");
-                var l = Console.ReadLine();
-
-                ipaddr = ipaddrs[int.Parse(l)];
+                xml = XmlManagement.XmlLoader<CSConfigDto>("configuration.xml");
+            }catch(Exception)
+            {
+                xml = fillFile(typeof(CSConfigDto), "xml") as CSConfigDto;
+                XmlManagement.XmlSaver("configuration.xml", xml);
             }
 
             var mh = new MessageHandler[] {
@@ -82,25 +71,16 @@ namespace CSEmu
                 new MainMessageFactory()
             };
 
-            string apiKey;
-            if (args.Length > 0)
-                apiKey = "api-" + args[0].Substring(0, 10);
-            else
-            {
-                logger.Information("Please write a apiKey for use on ConnectServer auth");
-                var line = Console.ReadLine();
-                apiKey = "api-" + line.Substring(0, 10);
-            }
-            logger.Information("API Key for GameServers is {0}", apiKey);
-            GameContext.ConnectionString = $"Server={args[1]};port=3306;Database={args[2]};user={args[3]};password={args[4]};Convert Zero Datetime=True;";
+            logger.Information("API Key for GameServers is {0}", xml.apiKey);
+            GameContext.ConnectionString = $"Server={xml.DataBase.IP};port=3306;Database={xml.DataBase.Name};user={xml.DataBase.User};password={xml.DataBase.Password};Convert Zero Datetime=True;";
             logger.Information("Connection String is {0}", GameContext.ConnectionString);
 
 
-            var Connip = new IPEndPoint(ipaddr, 44405);
-            var Chatip = new IPEndPoint(ipaddr, 55980);
+            var Connip = new IPEndPoint(IPAddress.Parse(xml.IP), 44405);
+            var Chatip = new IPEndPoint(IPAddress.Parse(xml.IPChat), 55980);
             server = new WZConnectServer(Connip, mh, mf, false);
             WZChatServer = new WZChatServer(Chatip, mh, mf, false);
-            ServerManager.Initialize(apiKey);
+            ServerManager.Initialize(xml.apiKey);
             Clients = new ClientManager();
 
             var thread = new Thread(SubSytem);
@@ -119,6 +99,32 @@ namespace CSEmu
             }
 
             thread.Abort();
+        }
+
+        public static object fillFile(Type tType, string propParent = "")
+        {
+            //var tType = typeof(T);
+            var file = Activator.CreateInstance(tType);
+
+            var membs = tType.GetProperties();
+            foreach(var mem in membs)
+            {
+                var prop = tType.GetProperty(mem.Name);
+                if(prop.PropertyType.IsClass && typeof(string) != prop.PropertyType)
+                {
+                    prop.SetValue(file, fillFile(prop.PropertyType, propParent + "." + prop.Name));
+                    continue;
+                }
+                var defaultv = prop.GetValue(file);
+                var converter = TypeDescriptor.GetConverter(prop.PropertyType);
+                Log.Information("Set Value for {0} type {1}, Default value {2}", propParent+"."+mem.Name, prop.PropertyType.Name, defaultv);
+                Log.Information("Clear for default");
+                var read = Console.ReadLine();
+                if (!string.IsNullOrEmpty(read))
+                    prop.SetValue(file, converter.ConvertFrom(read));
+            }
+
+            return file;
         }
 
         private static void SubSytem()
