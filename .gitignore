@@ -300,3 +300,4 @@ __pycache__/
 *.xsd.cs
 *.lnk
 /Data/Monsters/MonsterSetBaseCS2.txt
+/Server.xml
