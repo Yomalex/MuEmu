@@ -281,6 +281,18 @@ namespace MU.Network
         GuildRelationShip = 0xFFE5,
         GuildRelationShipAns = 0xFFE6,
         GuildUnionList = 0xFFE9,
+
+        GuildMatchingList = 0x00ED,
+        GuildMatchingListSearch = 0x01ED,
+        GuildMatchingRegister = 0x02ED,
+        GuildMatchingRegisterCancel = 0x03ED,
+        GuildMatchingJoin = 0x04ED,
+        GuildMatchingJoinAccept = 0x06ED,
+        GuildMatchingJoinCancel = 0x05ED,
+        GuildMatchingJoinList = 0x07ED,
+        GuildMatchingJoinInfo = 0x08ED,
+        GUildMatchingNotify = 0x09ED,
+        GUildMatchingNotifyMaster = 0x10ED,
     }
 
     public enum EventOpCode

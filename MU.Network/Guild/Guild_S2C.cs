@@ -226,4 +226,88 @@ namespace MU.Network.Guild
         [WZMember(3)] public byte UnionMemberNum { get; set; }	// 7
         [WZMember(4, typeof(ArraySerializer))] public UnionListDto[] List { get; set; }
     };
+
+    [WZContract]
+    public class SGuildMatchingRegister : IGuildMessage
+    {
+        [WZMember(0)] public uint Result { get; set; }
+    }
+
+    [WZContract]
+    public class SGuildMatchingRegisterCancel : IGuildMessage
+    {
+        [WZMember(0)] public uint Result { get; set; }
+    }
+
+
+    [WZContract]
+    public class SGuildMatchingJoin : IGuildMessage
+    {
+        [WZMember(0)] public int Result { get; set; }
+    }
+
+    [WZContract]
+    public class SGuildMatchingAccept : IGuildMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 12)] public string Name { get; set; }
+        [WZMember(1)] public int Type { get; set; }
+        [WZMember(2)] public int Result { get; set; }
+    }
+
+    [WZContract]
+    public class SGuildMatchingJoinList : IGuildMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public byte[] padding { get; set; } = new byte[3];
+        [WZMember(1)] public uint Count { get; set; }
+        [WZMember(2)] public uint Result { get; set; }
+        [WZMember(3)] public GuildMatchingJoinListDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class GuildMatchingJoinListDto : IGuildMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }
+        [WZMember(1)] public uint Level { get; set; }
+        [WZMember(2)] public uint Padding { get; set; }
+
+    }
+
+    [WZContract]
+    public class SGuildMatchingNotify : IGuildMessage
+    {
+        [WZMember(0)] public uint Result { get; set; }
+    }
+
+    [WZContract]
+    public class SGuildMatchingNotifyMaster : IGuildMessage
+    {
+        [WZMember(0)] public uint Result { get; set; }
+    }
+    [WZContract(LongMessage = true)]
+    public class SGuildMatchingList : IGuildMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public byte[] Padding { get; set; } = new byte[3];
+        [WZMember(1)] public int CurrentPage { get; set; }
+        [WZMember(2)] public int MaxPage { get; set; }
+        [WZMember(3)] public int Count { get; set; }
+        [WZMember(4)] public uint Result { get; set; }
+        [WZMember(5, typeof(ArraySerializer))] public GuildMatchingListDto[] List { get; set; }
+    }
+    [WZContract]
+    public class GuildMatchingListDto
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 41)] public string Text { get; set; }// [GUILD_MATCHING_TEXT_LENGTH + 1]; //0
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }//[MAX_CHARACTER_LENGTH + 1]; //41
+        [WZMember(2, typeof(BinaryStringSerializer), 9)] public string GuildName { get; set; }//[MAX_GUILD_NAME_LENGTH + 1]; //52
+        [WZMember(3)] public byte MembersCount { get; set; } //61
+        [WZMember(4)] public byte MasterClass { get; set; } //62
+        [WZMember(5)] public byte InterestType { get; set; } //63
+        [WZMember(6)] public byte LevelRange { get; set; } //64
+        [WZMember(7)] public byte Padding { get; set; } //65
+        [WZMember(8)] public ushort ClassType { get; set; } //66
+        [WZMember(9)] public uint MasterLevel { get; set; } //68
+        [WZMember(10)] public uint BoardNumber { get; set; } //72
+        [WZMember(11)] public int GuildId { get; set; } //76
+        [WZMember(12)] public int Gens { get; set; } //80
+    }
 }

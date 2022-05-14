@@ -40,6 +40,22 @@ namespace MU.Network.Guild
             Register<CRelationShipJoinBreakOff>(GuildOpCode.GuildRelationShip);
             Register<SRelationShipJoinBreakOff>(GuildOpCode.GuildRelationShipAns);
             Register<SUnionList>(GuildOpCode.GuildUnionList);
+
+            Register<CGuildMatchingList>(GuildOpCode.GuildMatchingList);
+            Register<CGuildMatchingListSearch>(GuildOpCode.GuildMatchingListSearch);
+            Register<SGuildMatchingList>(GuildOpCode.GuildMatchingList);
+            Register<CGuildMatchingRegister>(GuildOpCode.GuildMatchingRegister);
+            Register<SGuildMatchingRegister>(GuildOpCode.GuildMatchingRegister);
+            Register<CGuildMatchingRegisterCancel>(GuildOpCode.GuildMatchingRegisterCancel);
+            Register<SGuildMatchingRegisterCancel>(GuildOpCode.GuildMatchingRegisterCancel);
+            Register<CGuildMatchingJoin>(GuildOpCode.GuildMatchingJoin);
+            Register<SGuildMatchingJoin>(GuildOpCode.GuildMatchingJoin);
+            Register<CGuildMatchingJoinAccept>(GuildOpCode.GuildMatchingJoinAccept);
+            Register<CGuildMatchingJoinCancel>(GuildOpCode.GuildMatchingJoinCancel);
+            Register<CGuildMatchingJoinList>(GuildOpCode.GuildMatchingJoinList);
+            Register<CGuildMatchingJoinInfo>(GuildOpCode.GuildMatchingJoinInfo);
+            Register<SGuildMatchingNotify>(GuildOpCode.GUildMatchingNotify);
+            Register<SGuildMatchingNotifyMaster>(GuildOpCode.GUildMatchingNotifyMaster);
         }
     }
 }

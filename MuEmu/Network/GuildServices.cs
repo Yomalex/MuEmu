@@ -372,5 +372,55 @@ namespace MuEmu.Network
                 UnionMemberNum = 0,
             });
         }
+
+        [MessageHandler(typeof(CGuildMatchingList))]
+        public async Task GuildMatchingList(GSSession session, CGuildMatchingList message)
+        {
+            await GuildMatchingListSearch(session, new CGuildMatchingListSearch { Page = message.Page, Text = null });
+        }
+        [MessageHandler(typeof(CGuildMatchingListSearch))]
+        public async Task GuildMatchingListSearch(GSSession session, CGuildMatchingListSearch message)
+        {
+            var result = new SGuildMatchingList();
+            var maxPage = 0;
+
+            result.List = GuildManager.GuildMatchingList(session.Player.Character, message.Page, message.Text, out maxPage)
+                .ToArray();
+            result.Count = result.List.Length;
+            result.CurrentPage = message.Page;
+            result.MaxPage = maxPage;
+
+            await session.SendAsync(result);
+        }
+        [MessageHandler(typeof(CGuildMatchingRegister))]
+        public async Task GuildMatchingRegister(GSSession session, CGuildMatchingRegister message)
+        {
+            if(session.Player.Character.Guild.Master.Name != session.Player.Character.Name)
+            {
+                return;
+            }
+
+            await GuildManager.GuildMatchingRegister(session.Player.Character, message.Text, message.InterestType, message.LevelRange, message.Class);
+            await session.SendAsync(new SGuildMatchingRegister { Result = 0 });
+        }
+        [MessageHandler(typeof(CGuildMatchingRegisterCancel))]
+        public async Task GuildMatchingRegisterCancel(GSSession session)
+        {
+            await GuildManager.GuildMatchingRegisterCancel(session.Player.Character);
+            await session.SendAsync(new SGuildMatchingRegisterCancel { Result = 0 });
+        }
+        [MessageHandler(typeof(CGuildMatchingJoin))]
+        public async Task GuildMatchingJoin(GSSession session, CGuildMatchingJoin message)
+        {
+            int result = await GuildManager.GuildMatchingJoin(session.Player.Character, message.GuildID);
+            await session.SendAsync(new SGuildMatchingJoin { Result = result });
+        }
+        [MessageHandler(typeof(CGuildMatchingJoinAccept))]
+        public async Task GuildMatchingJoinAccept(GSSession session, CGuildMatchingJoinAccept message)
+        {
+            int result = await GuildManager.GuildMatchingJoin(session.Player.Character, message.Type, message.Name);
+            await session.SendAsync(new SGuildMatchingAccept { Name = message.Name, Type = message.Type, Result = result });
+            //await .SendAsync(new SGuildMatchingNotify());
+        }
     }
 }

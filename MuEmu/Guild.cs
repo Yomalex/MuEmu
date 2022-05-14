@@ -14,15 +14,119 @@ using MuEmu.Monsters;
 using MU.Resources;
 using WebZen.Util;
 using MU.Network;
+using System.Threading.Tasks;
 
 namespace MuEmu
 {
+    internal class GuildMatching
+    {
+        public Guild Guild { get; set; }
+        public string Title { get; set; }
+        public byte InterestType { get; set; }
+        public byte LevelRange { get; set; }
+    }
     public class GuildManager
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(GuildManager));
         public static GuildManager Instance { get; set; }
 
         public Dictionary<int,Guild> Guilds { get; set; }
+
+        internal static IEnumerable<GuildMatchingListDto> GuildMatchingList(Character character, int page, string search, out int maxPage)
+        {
+            IEnumerable<GuildMatchingDto> info;
+            using (var game = new GameContext())
+            {
+                maxPage = (int)Math.Ceiling(game.GuildMatching.Count()/5.0f);
+                if (!string.IsNullOrEmpty(search))
+                {
+                    info = (from gm in game.GuildMatching
+                    where gm.Title.Contains(search)
+                    select gm)
+                    .Skip(page * 5)
+                    .Take(5);
+                }
+                else
+                {
+                    info = (from gm in game.GuildMatching
+                            select gm)
+                    .Skip(page * 5)
+                    .Take(5);
+                }
+
+                return info.Select(x => new GuildMatchingListDto
+                {
+                    GuildId = x.GuildId,
+                    GuildName = x.Guild.Name,
+                    InterestType = x.InterstType,
+                    Name = x.Guild.MembersInfo.First().Memb.Name,
+                    LevelRange = x.LevelRange,
+                    MasterClass = (byte)x.Guild.MembersInfo.First().Memb.Class,
+                    MasterLevel = x.Guild.MembersInfo.First().Memb.Level,
+                    MembersCount = (byte)x.Guild.MembersInfo.Count,
+                    Gens = x.Guild.MembersInfo.First().Memb.Gens.Influence,
+                    Text = x.Title,
+                    ClassType = x.Class,
+                    BoardNumber = 0,
+                });
+            }
+        }
+
+        internal static async Task GuildMatchingRegister(Character character, string Title, byte interest, byte levelRange, ushort @class)
+        {
+            using(var game = new GameContext())
+            {
+                game.GuildMatching.Add(new GuildMatchingDto
+                {
+                    GuildId = character.Guild.Index,
+                    InterstType = interest,
+                    LevelRange = levelRange,
+                    Title = Title,
+                    Class = @class
+                });
+                await game.SaveChangesAsync();
+            }
+        }
+        internal static async Task GuildMatchingRegisterCancel(Character character)
+        {
+            using(var game = new GameContext())
+            {
+                var gm = game.GuildMatching.First(x => x.GuildId == character.Guild.Index);
+                game.GuildMatching.Remove(gm);
+                await game.SaveChangesAsync();
+            }
+        }
+        internal static async Task<int> GuildMatchingJoin(Character character, int guildID)
+        {
+            using (var game = new GameContext())
+            {
+                var result = game.GuildMatching.First(x => x.GuildId == guildID);
+                
+                game.GuildMatchingJoin.Add(new GuildMatchingJoinDto
+                {
+                    CharacterId = character.Id,
+                    GuildMatchingId = result.Id,
+                    State = 0,
+                });
+                await game.SaveChangesAsync();
+
+                var guild = Get(guildID);
+                guild.Master.Player?.Session.SendAsync(new SGuildMatchingNotifyMaster { Result = 0 });
+                return 0;
+            }
+        }
+
+        internal static async Task<int> GuildMatchingJoin(Character character, int type, string name)
+        {
+            using(var game = new GameContext())
+            {
+                var data = game.GuildMatchingJoin.First(x => x.Character.Name == name);
+                var guild = character.Guild.Add(data.Character.Name, GuildStatus.Member);
+                data.State = (byte)type;
+                await game.SaveChangesAsync();
+                return 0;
+            }
+        }
 
         GuildManager()
         {
@@ -246,6 +350,19 @@ namespace MuEmu
             plr.Character.Guild = this;
             memb.ViewPort();
 
+            return memb;
+        }
+
+        public GuildMember Add(string name, GuildStatus rank)
+        {
+            var memb = Members.Where(x => x.Name == name).FirstOrDefault();
+            if (memb == null)
+            {
+                memb = new GuildMember(this, name, rank);
+                Members.Add(memb);
+            }
+
+            memb.ViewPort();
             return memb;
         }
 

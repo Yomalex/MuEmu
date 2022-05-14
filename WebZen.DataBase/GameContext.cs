@@ -132,5 +132,7 @@ namespace MuEmu.Entity
         public DbSet<HuntingDto> HuntingRecords { get; set; }
         public DbSet<GensDto> Gens { get; set; }
         public DbSet<BloodCastleDto> BloodCastles { get; set; }
+        public DbSet<GuildMatchingDto> GuildMatching { get; set; }
+        public DbSet<GuildMatchingJoinDto> GuildMatchingJoin { get; set; }
     }
 }

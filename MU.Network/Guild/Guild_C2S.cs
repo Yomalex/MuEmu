@@ -78,4 +78,60 @@ namespace MU.Network.Guild
     [WZContract]
     public class CUnionList : IGuildMessage
     { };
+
+    [WZContract]
+    public class CGuildMatchingList : IGuildMessage
+    {
+        [WZMember(0)] public int Page { get; set; }
+    }
+
+    [WZContract]
+    public class CGuildMatchingListSearch : IGuildMessage
+    {
+        [WZMember(0)] public int Page { get; set; }
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Text { get; set; }
+    }
+
+    [WZContract]
+    public class CGuildMatchingRegister : IGuildMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 41)] public string Text { get; set; }
+        [WZMember(1)] public byte InterestType { get; set; }
+        [WZMember(2)] public byte LevelRange { get; set; }
+        [WZMember(3)] public ushortle Class { get; set; }
+    }
+    
+    [WZContract]
+    public class CGuildMatchingRegisterCancel : IGuildMessage
+    {
+
+    }
+
+    [WZContract]
+    public class CGuildMatchingJoin : IGuildMessage
+    {
+        [WZMember(0)] public int GuildID { get; set; }
+    }
+
+    [WZContract]
+    public class CGuildMatchingJoinCancel : IGuildMessage
+    {
+    }
+
+    [WZContract]
+    public class CGuildMatchingJoinAccept : IGuildMessage
+    {
+        [WZMember(0)] public int Type { get; set; }
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }
+    }
+
+    [WZContract]
+    public class CGuildMatchingJoinList : IGuildMessage
+    {
+    }
+
+    [WZContract]
+    public class CGuildMatchingJoinInfo : IGuildMessage
+    {
+    }
 }
