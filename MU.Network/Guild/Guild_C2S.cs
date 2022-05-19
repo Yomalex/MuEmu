@@ -89,15 +89,15 @@ namespace MU.Network.Guild
     public class CGuildMatchingListSearch : IGuildMessage
     {
         [WZMember(0)] public int Page { get; set; }
-        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Text { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Text { get; set; }
     }
 
     [WZContract]
     public class CGuildMatchingRegister : IGuildMessage
     {
         [WZMember(0, typeof(BinaryStringSerializer), 41)] public string Text { get; set; }
-        [WZMember(1)] public byte InterestType { get; set; }
-        [WZMember(2)] public byte LevelRange { get; set; }
+        [WZMember(1)] public GMInterestType InterestType { get; set; }
+        [WZMember(2)] public GMLevelRange LevelRange { get; set; }
         [WZMember(3)] public ushortle Class { get; set; }
     }
     
@@ -122,7 +122,7 @@ namespace MU.Network.Guild
     public class CGuildMatchingJoinAccept : IGuildMessage
     {
         [WZMember(0)] public int Type { get; set; }
-        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }
     }
 
     [WZContract]

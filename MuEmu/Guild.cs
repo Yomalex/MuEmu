@@ -43,44 +43,48 @@ namespace MuEmu
                     info = (from gm in game.GuildMatching
                     where gm.Title.Contains(search)
                     select gm)
-                    .Skip(page * 5)
+                    .Skip((page-1) * 5)
                     .Take(5);
                 }
                 else
                 {
                     info = (from gm in game.GuildMatching
                             select gm)
-                    .Skip(page * 5)
+                    .Skip((page-1) * 5)
                     .Take(5);
                 }
 
-                return info.Select(x => new GuildMatchingListDto
+                var result = info
+                    .ToList()
+                    .Select(x => new GuildMatchingListDto
                 {
                     GuildId = x.GuildId,
                     GuildName = x.Guild.Name,
-                    InterestType = x.InterstType,
+                    InterestType = (GMInterestType)x.InterestType,
                     Name = x.Guild.MembersInfo.First().Memb.Name,
-                    LevelRange = x.LevelRange,
-                    MasterClass = (byte)x.Guild.MembersInfo.First().Memb.Class,
+                    LevelRange = (GMLevelRange)x.LevelRange,
+                    MasterClass = Character.GetClientClass((HeroClass)x.Guild.MembersInfo.First().Memb.Class),
                     MasterLevel = x.Guild.MembersInfo.First().Memb.Level,
                     MembersCount = (byte)x.Guild.MembersInfo.Count,
                     Gens = x.Guild.MembersInfo.First().Memb.Gens.Influence,
                     Text = x.Title,
-                    ClassType = x.Class,
-                    BoardNumber = 0,
+                    ClassType = (GMClass)x.Class,
+                    BoardNumber = 1,
                 });
+
+                return result;
             }
         }
 
-        internal static async Task GuildMatchingRegister(Character character, string Title, byte interest, byte levelRange, ushort @class)
+        internal static async Task GuildMatchingRegister(Character character, string Title, GMInterestType interest, GMLevelRange levelRange, ushort @class)
         {
             using(var game = new GameContext())
             {
                 game.GuildMatching.Add(new GuildMatchingDto
                 {
                     GuildId = character.Guild.Index,
-                    InterstType = interest,
-                    LevelRange = levelRange,
+                    InterestType = (short)interest,
+                    LevelRange = (short)levelRange,
                     Title = Title,
                     Class = @class
                 });
@@ -92,21 +96,35 @@ namespace MuEmu
             using(var game = new GameContext())
             {
                 var gm = game.GuildMatching.First(x => x.GuildId == character.Guild.Index);
+                var gmj = game.GuildMatchingJoin.Where(x => x.GuildMatchingId == gm.Id);
+                foreach(var j in gmj)
+                {
+                    j.State = 3;
+                }
+
+                game.GuildMatchingJoin.UpdateRange(gmj);
                 game.GuildMatching.Remove(gm);
                 await game.SaveChangesAsync();
             }
         }
         internal static async Task<int> GuildMatchingJoin(Character character, int guildID)
         {
+            if(character.Guild != null)
+                throw new Exception("You already have guild");
+
             using (var game = new GameContext())
             {
                 var result = game.GuildMatching.First(x => x.GuildId == guildID);
-                
+                var prev = game.GuildMatchingJoin.Any(x => x.CharacterId == character.Id);
+
+                if(prev)
+                    throw new Exception("You already have guild request");
+
                 game.GuildMatchingJoin.Add(new GuildMatchingJoinDto
                 {
                     CharacterId = character.Id,
                     GuildMatchingId = result.Id,
-                    State = 0,
+                    State = 4,
                 });
                 await game.SaveChangesAsync();
 
@@ -115,16 +133,109 @@ namespace MuEmu
                 return 0;
             }
         }
-
         internal static async Task<int> GuildMatchingJoin(Character character, int type, string name)
         {
             using(var game = new GameContext())
             {
                 var data = game.GuildMatchingJoin.First(x => x.Character.Name == name);
-                var guild = character.Guild.Add(data.Character.Name, GuildStatus.Member);
-                data.State = (byte)type;
+                data.Character = game.Characters.Single(x => x.CharacterId == data.CharacterId);
+
+                if (type == 1)
+                {
+                    var guild = character.Guild.Add(data.Character.Name, GuildStatus.Member);
+                    data.State = 1;
+                }
+                else
+                {
+                    data.State = 2;
+                }
                 await game.SaveChangesAsync();
                 return 0;
+            }
+        }
+        internal static async Task<IEnumerable<GuildMatchingJoinListDto>> GuildMatchingJoinList(Character character)
+        {
+            using (var game = new GameContext())
+            {
+                var GuildMatchingId = (from gm in game.GuildMatching
+                                       where gm.GuildId == character.Guild.Index
+                                       select gm.Id).Single();
+
+                var waiting = (from gm in game.GuildMatchingJoin
+                              where gm.GuildMatchingId == GuildMatchingId && gm.State == 4
+                              select gm);
+
+                var result = waiting.Select(x => new
+                {
+                    Name = x.Character.Name,
+                    Level = (x.Character.Level),
+                    Class = x.Character.Class,
+                }).ToList();
+
+                return result.Select(x => new GuildMatchingJoinListDto { Level = (uint)x.Level, Class = (byte)x.Class, Name = x.Name });
+            }
+        }
+        internal static int GuildMatchingJoinInfo(Character character, out string gName, out string gMaster)
+        {
+            using (var game = new GameContext())
+            {
+                var info = (from gmj in game.GuildMatchingJoin
+                            where gmj.CharacterId == character.Id
+                            select gmj).Single();
+
+                info.GuildMatching = (from gm in game.GuildMatching
+                                      where gm.Id == info.GuildMatchingId
+                                      select gm).Single();
+
+                gName = info.GuildMatching.Guild.Name;
+                gMaster = info.GuildMatching.Guild.MembersInfo.First().Memb.Name;
+
+                return 0;
+            }
+        }
+        internal static void GuildMatchingNotifications(Character character, GuildStatus rank)
+        {
+            using (var game = new GameContext())
+            {
+                if (rank == GuildStatus.GuildMaster)
+                {
+                    var gMatching = (from gm in game.GuildMatching
+                                     where gm.GuildId == character.Guild.Index
+                                     select gm).Single();
+
+                    var list = from gmj in game.GuildMatchingJoin
+                               where gmj.GuildMatchingId == gMatching.Id && gmj.State == 4
+                               select gmj;
+
+                    if (list.Any())
+                    {
+                        character.Player.Session
+                            .SendAsync(new SGuildMatchingNotifyMaster())
+                            .Wait();
+                    }
+                }
+                else
+                {
+                    var info = (from gmj in game.GuildMatchingJoin
+                               where gmj.CharacterId == character.Id
+                               select gmj).SingleOrDefault();
+
+                    if(info == null)
+                    {
+                        return;
+                    }
+
+                    if(info.State != 4)
+                    {
+                        character.Player.Session.SendAsync(new SGuildMatchingNotify
+                        {
+                            Result = info.State
+                        }).Wait();
+
+                        game.GuildMatchingJoin.Remove(info);
+                        game.SaveChanges();
+                    }
+                }
             }
         }
 
@@ -208,7 +319,14 @@ namespace MuEmu
                         where m.Name == plr.Character.Name
                         select g).FirstOrDefault();
 
-            Guild?.ConnectMember(plr);
+            if (Guild == null)
+            {
+                GuildMatchingNotifications(plr.Character, GuildStatus.NoMember);
+            }
+            else
+            {
+                Guild.ConnectMember(plr);
+            }
         }
         public void RemovePlayer(Player plr)
         {
@@ -276,6 +394,18 @@ namespace MuEmu
         internal static Guild Get(string v)
         {
             return Instance.Guilds.First(x => x.Value.Name == v).Value;
+        }
+
+        internal static async Task<int> GuildMatchingJoin(Character character)
+        {
+            using(var game = new GameContext())
+            {
+                var info = game.GuildMatchingJoin.First(x => x.CharacterId == character.Id);
+                game.GuildMatchingJoin.Remove(info);
+                await game.SaveChangesAsync();
+
+                return 0;
+            }
         }
     }
 
@@ -379,6 +509,7 @@ namespace MuEmu
             conMemb.Server = (byte)Program.ServerCode;
             plr.Character.Guild = this;
 
+            GuildManager.GuildMatchingNotifications(plr.Character, conMemb.Rank);
             var notice = new SNotice(NoticeType.Guild, $"Welcome back {plr.Character.Name}");
 
             ActiveMembers
@@ -554,10 +685,14 @@ namespace MuEmu
             Name = name;
             Rank = rank;
             Guild = guild;
+            Player = Program.server.Clients.FirstOrDefault(x => x.Player.Character.Name == name)?.Player??null;
         }
 
         public void ViewPort()
         {
+            if (Player == null)
+                return;
+
             var vp = new SGuildViewPort
             {
                 Guilds = new GuildViewPortDto[] { new GuildViewPortDto {

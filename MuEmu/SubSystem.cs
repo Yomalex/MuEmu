@@ -719,6 +719,18 @@ namespace MuEmu
 
                                 plrLog.Information("Saving for {0}", plr.Character?.Name ?? "UNK");
 
+                            if(plr.Character != null)
+                            {
+                                if(plr.Character.Guild != null && plr.Character.Guild.Master.Player == plr)
+                                {
+                                    GuildManager.GuildMatchingNotifications(plr.Character, GuildStatus.GuildMaster);
+                                }
+                                else
+                                {
+                                    GuildManager.GuildMatchingNotifications(plr.Character, GuildStatus.NoMember);
+                                }
+                            }
+
                                 try
                                 {
                                     await plr.Save(db);

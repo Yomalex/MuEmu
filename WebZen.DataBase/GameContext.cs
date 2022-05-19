@@ -113,6 +113,16 @@ namespace MuEmu.Entity
                 .Navigation(x => x.Memb)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
+
+            modelBuilder.Entity<GuildMatchingDto>()
+                .Navigation(x => x.Guild)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
+
+            modelBuilder.Entity<GuildMatchingJoinDto>()
+                .Navigation(x => x.Character)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
         }
 
         public DbSet<AccountDto> Accounts { get; set; }

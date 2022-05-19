@@ -3,6 +3,7 @@ using MU.Network.Guild;
 using MU.Resources;
 using MuEmu.Events.CastleSiege;
 using MuEmu.Resources;
+using MuEmu.Util;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -395,13 +396,17 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CGuildMatchingRegister))]
         public async Task GuildMatchingRegister(GSSession session, CGuildMatchingRegister message)
         {
+            var result = 0u;
             if(session.Player.Character.Guild.Master.Name != session.Player.Character.Name)
             {
-                return;
+                result = 1;
+            }
+            else
+            {
+                await GuildManager.GuildMatchingRegister(session.Player.Character, message.Text, message.InterestType, message.LevelRange, message.Class);
             }
 
-            await GuildManager.GuildMatchingRegister(session.Player.Character, message.Text, message.InterestType, message.LevelRange, message.Class);
-            await session.SendAsync(new SGuildMatchingRegister { Result = 0 });
+            await session.SendAsync(new SGuildMatchingRegister { Result = result });
         }
         [MessageHandler(typeof(CGuildMatchingRegisterCancel))]
         public async Task GuildMatchingRegisterCancel(GSSession session)
@@ -420,7 +425,64 @@ namespace MuEmu.Network
         {
             int result = await GuildManager.GuildMatchingJoin(session.Player.Character, message.Type, message.Name);
             await session.SendAsync(new SGuildMatchingAccept { Name = message.Name, Type = message.Type, Result = result });
-            //await .SendAsync(new SGuildMatchingNotify());
+
+            var tgtSession = Program.server.Clients.FirstOrDefault(x => x.Player.Character.Name == message.Name);
+
+            if(tgtSession != null)
+            {
+                await tgtSession.SendAsync(new SGuildMatchingNotify
+                {
+                    Result = 1
+                });
+            }
+        }
+        [MessageHandler(typeof(CGuildMatchingJoinList))]
+        public async Task GuildMatchingJoinList(GSSession session)
+        {
+            try
+            {
+                var list = await GuildManager.GuildMatchingJoinList(session.Player.Character);
+                await session.SendAsync(new SGuildMatchingJoinList
+                {
+                    Result = 0,
+                    List = list.ToArray(),
+                    Count = list.Count(),
+                });
+            }catch(Exception ex)
+            {
+                session.Exception(ex);
+                await session.SendAsync(new SGuildMatchingJoinList
+                {
+                    Result = 1,
+                    List = Array.Empty<GuildMatchingJoinListDto>(),
+                    Count = 0,
+                });
+            }
+        }
+        [MessageHandler(typeof(CGuildMatchingJoinInfo))]
+        public async Task GuildMatchingJoinInfo(GSSession session)
+        {
+            var result = new SGuildMatchingJoinInfo();
+            try
+            {
+                string gName = "";
+                string gMaster = "";
+                result.Result = GuildManager.GuildMatchingJoinInfo(session.Player.Character, out gName, out gMaster);
+                result.MasterName = gMaster;
+                result.GuildName = gName;
+            }
+            catch (Exception ex)
+            {
+                result.Result = 1;
+            }
+
+            await session.SendAsync(result);
+        }
+        [MessageHandler(typeof(CGuildMatchingJoinCancel))]
+        public async Task GuildMatchingJoinCancel(GSSession session)
+        {
+            int result = await GuildManager.GuildMatchingJoin(session.Player.Character);
+            await session.SendAsync(new SGuildMatchingJoin { Result = result });
         }
     }
 }

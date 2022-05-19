@@ -4,6 +4,38 @@ using System.Text;
 
 namespace MU.Resources
 {
+    [Flags]
+    public enum GMInterestType : byte
+    {
+        LevelUp = 1,
+        EventMap,
+        PvP = 4,
+        ArcaWar = 8,
+        CastleSiege = 16,
+    }
+    [Flags]
+    public enum GMLevelRange : byte
+    {
+        L1T100 = 1,
+        L101T200 = 2,
+        L201T300 = 4,
+        L301T400 = 8,
+        L400 = 16,
+    }
+    [Flags]
+    public enum GMClass : ushort
+    {
+        DarkKnight = 1,
+        Elf = 2,
+        DarkWizard = 4,
+        MagicGladiator = 8,
+        DarkLord = 16,
+        Summoner = 32,
+        RageFighter = 64,
+        GrowLancer = 128,
+        RuneWizard = 256,
+        Slayer = 512,
+    }
     public enum PKLevel : byte
     {
         Hero2,

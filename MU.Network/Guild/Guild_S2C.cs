@@ -255,20 +255,29 @@ namespace MU.Network.Guild
     }
 
     [WZContract]
+    public class SGuildMatchingJoinInfo : IGuildMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)] public string MasterName { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 9)] public string GuildName { get; set; }
+        [WZMember(2)] public int Result { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
     public class SGuildMatchingJoinList : IGuildMessage
     {
         [WZMember(0, typeof(ArraySerializer))] public byte[] padding { get; set; } = new byte[3];
-        [WZMember(1)] public uint Count { get; set; }
-        [WZMember(2)] public uint Result { get; set; }
-        [WZMember(3)] public GuildMatchingJoinListDto[] List { get; set; }
+        [WZMember(1)] public int Count { get; set; }
+        [WZMember(2)] public int Result { get; set; }
+        [WZMember(3, typeof(ArraySerializer))] public GuildMatchingJoinListDto[] List { get; set; }
     }
 
     [WZContract]
     public class GuildMatchingJoinListDto : IGuildMessage
     {
         [WZMember(0, typeof(BinaryStringSerializer), 11)] public string Name { get; set; }
-        [WZMember(1)] public uint Level { get; set; }
-        [WZMember(2)] public uint Padding { get; set; }
+        [WZMember(1)] public byte Class { get; set; }
+        [WZMember(2)] public uint Level { get; set; }
+        [WZMember(3)] public uint Padding { get; set; }
 
     }
 
@@ -301,10 +310,10 @@ namespace MU.Network.Guild
         [WZMember(2, typeof(BinaryStringSerializer), 9)] public string GuildName { get; set; }//[MAX_GUILD_NAME_LENGTH + 1]; //52
         [WZMember(3)] public byte MembersCount { get; set; } //61
         [WZMember(4)] public byte MasterClass { get; set; } //62
-        [WZMember(5)] public byte InterestType { get; set; } //63
-        [WZMember(6)] public byte LevelRange { get; set; } //64
+        [WZMember(5)] public GMInterestType InterestType { get; set; } //63
+        [WZMember(6)] public GMLevelRange LevelRange { get; set; } //64
         [WZMember(7)] public byte Padding { get; set; } //65
-        [WZMember(8)] public ushort ClassType { get; set; } //66
+        [WZMember(8)] public GMClass ClassType { get; set; } //66
         [WZMember(9)] public uint MasterLevel { get; set; } //68
         [WZMember(10)] public uint BoardNumber { get; set; } //72
         [WZMember(11)] public int GuildId { get; set; } //76

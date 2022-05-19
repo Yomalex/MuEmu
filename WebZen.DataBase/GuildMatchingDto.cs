@@ -10,6 +10,7 @@ namespace MU.DataBase
     public class GuildMatchingDto
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]
@@ -17,14 +18,16 @@ namespace MU.DataBase
         public GuildDto Guild { get; set; }
 
         public string Title { get; set; }
-        public byte InterstType { get; set; }
-        public byte LevelRange { get; set; }
+        public short InterestType { get; set; }
+        public short LevelRange { get; set; }
+        [Column(TypeName = "SMALLINT(5)")]
         public ushort Class { get; set; }
     }
     [Table("GuildMatchingJoin")]
     public class GuildMatchingJoinDto
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required]

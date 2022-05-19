@@ -51,9 +51,12 @@ namespace MU.Network.Guild
             Register<CGuildMatchingJoin>(GuildOpCode.GuildMatchingJoin);
             Register<SGuildMatchingJoin>(GuildOpCode.GuildMatchingJoin);
             Register<CGuildMatchingJoinAccept>(GuildOpCode.GuildMatchingJoinAccept);
+            Register<SGuildMatchingAccept>(GuildOpCode.GuildMatchingJoinAccept);
             Register<CGuildMatchingJoinCancel>(GuildOpCode.GuildMatchingJoinCancel);
             Register<CGuildMatchingJoinList>(GuildOpCode.GuildMatchingJoinList);
+            Register<SGuildMatchingJoinList>(GuildOpCode.GuildMatchingJoinList);
             Register<CGuildMatchingJoinInfo>(GuildOpCode.GuildMatchingJoinInfo);
+            Register<SGuildMatchingJoinInfo>(GuildOpCode.GuildMatchingJoinInfo);
             Register<SGuildMatchingNotify>(GuildOpCode.GUildMatchingNotify);
             Register<SGuildMatchingNotifyMaster>(GuildOpCode.GUildMatchingNotifyMaster);
         }

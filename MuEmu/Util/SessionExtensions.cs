@@ -10,10 +10,10 @@ namespace MuEmu.Util
 {
     public static class SessionExtensions
     {
-        public static async void Exception(this GSSession session, Exception exception)
+        public static async void Exception(this GSSession session, Exception exception, string messageTemplate = "")
         {
             await session.SendAsync(new SNotice(MU.Resources.NoticeType.Blue, exception.Message));
-            Log.Logger.ForAccount(session).Error(exception, "");
+            Log.Logger.ForAccount(session).Error(exception, messageTemplate);
         }
     }
 }
