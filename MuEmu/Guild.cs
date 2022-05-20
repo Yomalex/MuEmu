@@ -201,7 +201,10 @@ namespace MuEmu
                 {
                     var gMatching = (from gm in game.GuildMatching
                                      where gm.GuildId == character.Guild.Index
-                                     select gm).Single();
+                                     select gm).SingleOrDefault();
+
+                    if (gMatching == null)
+                        return;
 
                     var list = from gmj in game.GuildMatchingJoin
                                where gmj.GuildMatchingId == gMatching.Id && gmj.State == 4

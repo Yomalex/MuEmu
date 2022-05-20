@@ -227,11 +227,23 @@ namespace MuEmu.Monsters
                 DamageSum[plr] += dmg;
             else
                 DamageSum.Add(plr, dmg);
+            Killer = plr;
+            if (Life < dmg + eDmg)
+            {
+                var tot = dmg + eDmg;
+                dmg = (int)(dmg * Life / tot);
+                eDmg = (int)(eDmg * Life / tot);
+                Life = 0;
+            }
+            else
+            {
+                Life -= dmg + eDmg;
+            }
 
             var dmgSend = dmg < ushort.MaxValue ? (ushort)dmg : ushort.MaxValue;
             DeadlyDmg = dmgSend;
-            Killer = plr;
-            Life -= dmg + eDmg;
+            plr.Character.HuntingRecord.AttackPVM(dmg);
+            plr.Character.HuntingRecord.ElementalAttackPVM(eDmg);
 
             if (State != ObjectState.Dying)
             {

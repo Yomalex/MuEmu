@@ -1620,7 +1620,6 @@ namespace MuEmu
                 attack -= target.Defense;
             
             WeaponDurDown(target.Defense);
-            HuntingRecord.AttackPVM(attack);
             return (int)attack;
         }
 
@@ -1950,7 +1949,6 @@ namespace MuEmu
                 Target = Player.ID,
             };
 
-            HuntingRecord.ElementalAttackPVM(dmg);
             await Player.Session.SendAsync(eMessage);
 
             return (int)dmg;

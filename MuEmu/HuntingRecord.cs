@@ -18,6 +18,7 @@ namespace MuEmu
         public HuntingRecord(Character character, CharacterDto characterDto)
         {
             Character = character;
+            Hunting = new HuntingDto();
         }
 
         internal void GainExperience(long gain)
@@ -47,30 +48,49 @@ namespace MuEmu
 
         internal void Start()
         {
-            Hunting = new HuntingDto();
-            Hunting.CharacterId = Character.Id;
-            Hunting.Character.Map = (ushort)Character.MapID;
-            Hunting.Level = Character.Level;
-            Hunting.DateTime = DateTime.Now;
+            using (var db = new GameContext())
+            {
+                Hunting = (from hr in db.HuntingRecords
+                          where 
+                          hr.CharacterId == Character.Id && 
+                          hr.DateTime.Date == DateTime.Now.Date &&
+                          hr.Map == (ushort)Character.MapID
+                           select hr).SingleOrDefault();
+
+                if(Hunting == null)
+                {
+                    Hunting = new HuntingDto();
+                    Hunting.CharacterId = Character.Id;
+                    Hunting.Map = (ushort)Character.MapID;
+                    Hunting.Level = Character.Level;
+                    Hunting.DateTime = DateTime.Now;
+                }
+            }            
         }
 
         internal void Save()
         {
             using(var db = new GameContext())
             {
-                db.HuntingRecords.Add(Hunting);
+                Hunting.Duration = (int)(DateTime.Now - Hunting.DateTime).TotalSeconds;
+
+                if (Hunting.Id == 0)
+                    db.HuntingRecords.Add(Hunting);
+                else
+                    db.HuntingRecords.Update(Hunting);
+
                 db.SaveChanges();
             }
-            Hunting = null;
         }
 
-        internal List<HuntingDto> GetRecordList(Maps map)
+        internal Dictionary<int, HuntingDto> GetRecordList(Maps map)
         {
+            var id = 1;
             using (var db = new GameContext())
             {
                 return db.HuntingRecords
                     .Where(x => x.CharacterId == Character.Id && x.Map == (ushort)map)
-                    .ToList();
+                    .ToDictionary(x => id++);
             }
         }
     }

@@ -2829,34 +2829,41 @@ namespace MuEmu.Network.GameServices
             var hrDay = new SHuntingRecordDay();
             var tHR = target.Player.Character.HuntingRecord;
 
-            if (message.Map == (byte)target.Player.Character.MapID)
+            var list = tHR.GetRecordList((Maps)message.Map);
+            var today = list.SingleOrDefault(x => x.Value.DateTime.Date == DateTime.Now.Date);
+
+            if (today.Value != null)
             {
-                hrDay.SetDT(tHR.Hunting?.DateTime??DateTime.Now);
+                var tod = tHR.Hunting;
+                hrDay.Id = (byte)today.Key;
+                hrDay.Duration = tod.Duration;
+                hrDay.KilledCount = tod.KilledMonsters;
+                hrDay.Damage = tod.AttackPVM;
+                hrDay.ElementalDamage = tod.ElementalAttackPVM;
+                hrDay.Experience = tod.Experience.ShufleEnding();
+                hrDay.Level = tod.Level;
+                hrDay.SetDT(tod.DateTime);
             }
 
             await session.SendAsync(hrDay);
-
-            List<HuntingDto> list = tHR.GetRecordList((Maps)message.Map);
             var hrList = list.Select(x => new HuntingRecordListDto
             {
-                Damage = x.AttackPVM,
-                Duration = 10,
-                ElementalDamage = x.ElementalAttackPVM,
-                Experience = x.Experience,
-                Healing = (uint)x.HealingUse,
-                KilledCount = (uint)x.KilledMonsters,
-                Level = x.Level,
-                Unk1 = 0,
-                Year = (uint)x.DateTime.Year,
-                Month = (byte)x.DateTime.Month,
-                Day = (byte)x.DateTime.Day,
+                Damage = x.Value.AttackPVM,
+                Duration = (uint)x.Value.Duration,
+                ElementalDamage = x.Value.ElementalAttackPVM,
+                Experience = (ulong)(x.Value.Experience).ShufleEnding(),
+                Healing = (uint)x.Value.HealingUse,
+                KilledCount = (uint)x.Value.KilledMonsters,
+                Level = x.Value.Level,
+                Id = (uint)(x.Key),
+                Year = (uint)x.Value.DateTime.Year,
+                Month = (byte)x.Value.DateTime.Month,
+                Day = (byte)x.Value.DateTime.Day,
             });
 
             await session.SendAsync(new SHuntingRecordList
             {
-                Count = hrList.Count(),
                 List = hrList.ToArray(),
-                Result = 1,
             });
         }
     }

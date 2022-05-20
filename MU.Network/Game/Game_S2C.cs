@@ -3022,25 +3022,27 @@ namespace MU.Network.Game
     [WZContract]
     public class HuntingRecordListDto
     {
-        [WZMember(0)] public uint Unk1 { get; set; }
-        [WZMember(1)] public uint Year { get; set; }
-        [WZMember(2)] public byte Month { get; set; }
-        [WZMember(3)] public byte Day { get; set; }
-        [WZMember(4)] public uint Level { get; set; }
-        [WZMember(5)] public uint Duration { get; set; }
-        [WZMember(6)] public long Damage { get; set; }
-        [WZMember(7)] public long ElementalDamage { get; set; }
-        [WZMember(8)] public uint Healing { get; set; }
-        [WZMember(9)] public uint KilledCount { get; set; }
-        [WZMember(10)] public long Experience { get; set; }
+        //[WZMember(0, typeof(ArraySerializer))] public byte[] Unk1 { get; set; } = new byte[4] { 1,2,3,4 }; //0
+        [WZMember(1)] public uint Id { get; set; } //6,7
+        [WZMember(2)] public uint Year { get; set; } //3
+        [WZMember(3)] public byte Month { get; set; } //4
+        [WZMember(4)] public byte Day { get; set; } //5
+        [WZMember(5)] public uint Level { get; set; } //8, 00 05 00 00
+        [WZMember(6)] public uint Duration { get; set; }
+        [WZMember(7)] public long Damage { get; set; }
+        [WZMember(8)] public long ElementalDamage { get; set; }
+        [WZMember(9)] public uint Healing { get; set; }
+        [WZMember(10)] public uint KilledCount { get; set; }
+        [WZMember(11)] public ulong Experience { get; set; }
+        //[WZMember(12, typeof(ArraySerializer))] public byte[] Unk1 { get; set; } = new byte[3] { 1, 2, 3 };
     }
 
     [WZContract]
     public class SHuntingRecordList : IGameMessage
     {
-        [WZMember(0)] public ushortle Count { get; set; } = new ushortle();
-        [WZMember(1)] public byte Result { get; set; }
-        [WZMember(2)] public HuntingRecordListDto[] List { get; set; }
+        [WZMember(0)] public ushortle Unk { get; set; } = new ushortle();
+        //[WZMember(1)] public ushort Count { get; set; }
+        [WZMember(3, typeof(ArrayWithScalarSerializer<ushort>))] public HuntingRecordListDto[] List { get; set; }
     }
 }
 

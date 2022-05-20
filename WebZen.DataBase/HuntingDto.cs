@@ -26,7 +26,7 @@ namespace MU.DataBase
         public long AttackPVM { get; set; }
         public long ElementalAttackPVM { get; set; }
         public int KilledMonsters { get; set; }
-        public int Durarion { get; set; }
+        public int Duration { get; set; }
 
     }
 }
