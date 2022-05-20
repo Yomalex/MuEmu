@@ -66,8 +66,8 @@ namespace MuEmu
                     Hunting.CharacterId = Character.Id;
                     Hunting.Map = (ushort)Character.MapID;
                     Hunting.Level = Character.Level;
-                    Hunting.DateTime = DateTime.Now;
                 }
+                Hunting.DateTime = DateTime.Now;
             }            
         }
 
@@ -76,7 +76,7 @@ namespace MuEmu
             Active = false;
             using(var db = new GameContext())
             {
-                Hunting.Duration = (int)(DateTime.Now - Hunting.DateTime).TotalSeconds;
+                Hunting.Duration += (int)(DateTime.Now - Hunting.DateTime).TotalSeconds;
 
                 if (Hunting.Id == 0)
                     db.HuntingRecords.Add(Hunting);
@@ -110,7 +110,7 @@ namespace MuEmu
                 Experience = Hunting.Experience.ShufleEnding(),
                 Healing = (int)Hunting.HealingUse,
                 KilledCount = Hunting.KilledMonsters,
-                Time = (int)(DateTime.Now - Hunting.DateTime).TotalSeconds,
+                Time = (int)(DateTime.Now - Hunting.DateTime).TotalSeconds + Hunting.Duration,
             }).Wait();
         }
     }

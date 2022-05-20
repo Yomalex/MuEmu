@@ -778,7 +778,7 @@ namespace MuEmu.Network.GameServices
             }
             catch(Exception ex)
             {
-                var msgex = VersionSelector.CreateMessage<SItemGet>((byte)0xff, Array.Empty<byte>());
+                var msgex = VersionSelector.CreateMessage<SItemGet>((byte)0xff, Array.Empty<byte>(), message.Number);
                 session.SendAsync(msgex).Wait();
                 session.Exception(ex);
                 return;
@@ -788,7 +788,7 @@ namespace MuEmu.Network.GameServices
             {
                 if(session.Player.Character.Money == uint.MaxValue)
                 {
-                    var msgex = VersionSelector.CreateMessage<SItemGet>((byte)0xff, Array.Empty<byte>());
+                    var msgex = VersionSelector.CreateMessage<SItemGet>((byte)0xff, Array.Empty<byte>(), message.Number);
                     session.SendAsync(msgex).Wait();
                     return;
                 }
@@ -805,45 +805,6 @@ namespace MuEmu.Network.GameServices
                 var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes() ?? Array.Empty<byte>(), message.Number);
                 await session.SendAsync(msg);
             }
-            
-
-            /*if (Item.Number != ItemNumber.Zen)
-            {
-                if (item.Character != null && item.Character != @char && item.OwnedTime > DateTimeOffset.Now)
-                {
-                    Logger.ForAccount(session)
-                    .Error("Item {0} owned by {1}", item.Item.ToString(), item.Character?.Name);
-                    return;
-                }
-                if (item.Item.BasicInfo.OnMaxStack != ItemNumber.Invalid)
-                {
-                    var result = @char.Inventory.FindAllItems(item.Item.Number);
-                    var firts = (from r in result
-                                 where r.Plus == item.Item.Plus && r.Durability < item.Item.BasicInfo.MaxStack
-                                 select r).FirstOrDefault();
-                    if (firts != null)
-                    {
-                        try
-                        {
-                            firts.Overlap(item.Item);
-                            await session.SendAsync(new SItemGet { ItemInfo = firts.GetBytes(), Result = (byte)firts.SlotId });
-                            goto _end;
-                        }
-                        catch (Exception) { }
-                    }
-                }
-                pos = @char.Inventory.Add(item.Item);
-                if (pos == 0xff)
-                {
-                    await session.SendAsync(new SItemGet { Result = 0xff });
-                    return;
-                }
-                await session.SendAsync(new SItemGet { ItemInfo = item.Item.GetBytes(), Result = pos });
-            }
-            else
-            {
-                session.Player.Character.Money += item.Item.BuyPrice;
-            }*/
         }
 
         [MessageHandler(typeof(CEventEnterCount))]
