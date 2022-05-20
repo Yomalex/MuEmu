@@ -1957,6 +1957,8 @@ namespace MuEmu
 
         public void Autorecovery()
         {
+            HuntingRecord.Update();
+
             var elapsed = DateTime.Now - _autoRecuperationTime;
 
             var add = (elapsed.TotalSeconds > 25)? 10 : (elapsed.TotalSeconds > 15)? 5 : (elapsed.TotalSeconds > 10)? 1 : 0;

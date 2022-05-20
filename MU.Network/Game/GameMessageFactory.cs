@@ -417,6 +417,7 @@ namespace MU.Network.Game
             Register<CHuntingRecordRequest>(GameOpCode.HuntingRecordRequest);
             Register<SHuntingRecordList>(GameOpCode.HuntingRecordRequest);
             Register<SHuntingRecordDay>(GameOpCode.HuntingRecordDay);
+            Register<SHuntingRecordTime>(GameOpCode.HuntingRecordCurrent);
         }
     }
 }

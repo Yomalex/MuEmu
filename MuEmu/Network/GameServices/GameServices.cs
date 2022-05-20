@@ -2832,7 +2832,7 @@ namespace MuEmu.Network.GameServices
             var list = tHR.GetRecordList((Maps)message.Map);
             var today = list.SingleOrDefault(x => x.Value.DateTime.Date == DateTime.Now.Date);
 
-            if (today.Value != null)
+            if (tHR.Hunting.Map == message.Map)
             {
                 var tod = tHR.Hunting;
                 hrDay.Id = (byte)today.Key;

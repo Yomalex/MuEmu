@@ -3044,5 +3044,16 @@ namespace MU.Network.Game
         //[WZMember(1)] public ushort Count { get; set; }
         [WZMember(3, typeof(ArrayWithScalarSerializer<ushort>))] public HuntingRecordListDto[] List { get; set; }
     }
+
+    [WZContract]
+    public class SHuntingRecordTime : IGameMessage
+    {
+        [WZMember(0)] public int Time { get; set; }
+        [WZMember(1)] public long Damage { get; set; }
+        [WZMember(2)] public long ElementalDamage { get; set; }
+        [WZMember(3)] public int Healing { get; set; }
+        [WZMember(4)] public int KilledCount { get; set; }
+        [WZMember(5)] public long Experience { get; set; }
+    }
 }
 

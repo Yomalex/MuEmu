@@ -252,6 +252,7 @@ namespace MU.Network
         PartyJoinNotify = 0x08EF,
         HuntingRecordRequest = 0x50EC,
         HuntingRecordDay = 0x53EC,
+        HuntingRecordCurrent = 0x55EC,
     }
 
     public enum GensOpCode

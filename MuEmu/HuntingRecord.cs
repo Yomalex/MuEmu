@@ -1,4 +1,5 @@
 ﻿using MU.DataBase;
+using MU.Network.Game;
 using MU.Resources;
 using MuEmu.Entity;
 using MuEmu.Monsters;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WebZen.Util;
 
 namespace MuEmu
 {
@@ -50,6 +52,7 @@ namespace MuEmu
         {
             using (var db = new GameContext())
             {
+                Active = true;
                 Hunting = (from hr in db.HuntingRecords
                           where 
                           hr.CharacterId == Character.Id && 
@@ -70,6 +73,7 @@ namespace MuEmu
 
         internal void Save()
         {
+            Active = false;
             using(var db = new GameContext())
             {
                 Hunting.Duration = (int)(DateTime.Now - Hunting.DateTime).TotalSeconds;
@@ -92,6 +96,22 @@ namespace MuEmu
                     .Where(x => x.CharacterId == Character.Id && x.Map == (ushort)map)
                     .ToDictionary(x => id++);
             }
+        }
+
+        internal void Update()
+        {
+            if (Active == false)
+                return;
+
+            Character.Player.Session.SendAsync(new SHuntingRecordTime
+            {
+                Damage = Hunting.AttackPVM,
+                ElementalDamage = Hunting.ElementalAttackPVM,
+                Experience = Hunting.Experience.ShufleEnding(),
+                Healing = (int)Hunting.HealingUse,
+                KilledCount = Hunting.KilledMonsters,
+                Time = (int)(DateTime.Now - Hunting.DateTime).TotalSeconds,
+            }).Wait();
         }
     }
 }
