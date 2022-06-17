@@ -253,6 +253,9 @@ namespace MU.Network
         HuntingRecordRequest = 0x50EC,
         HuntingRecordDay = 0x53EC,
         HuntingRecordCurrent = 0x55EC,
+        MossMerchant = 0x1170,
+        MossMerchantOpenBox = 0x1070,
+        MossMerchantOpenBoxReward = 0x1270,
     }
 
     public enum GensOpCode

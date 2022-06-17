@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemList Monster="492" Plus="4" LevelMin="0" DropItemCount="1" DropItemRate="100" DropZenRate="0" MinZen="0" MaxZen="0">
+    <!-- Ancient Staff -->
+    <Item Number="2577" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+	<Item Number="2577" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="4" MinExcellent="2" MaxExcellent="3" />
+	<!-- Black Rose Staff -->
+	<Item Number="2578" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="0" />
+	<Item Number="2578" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="4" MinExcellent="2" MaxExcellent="3" />
+	<!-- Chaos Talisman -->
+	<Item Number="7264" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+</ItemList>

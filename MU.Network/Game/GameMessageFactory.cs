@@ -418,6 +418,10 @@ namespace MU.Network.Game
             Register<SHuntingRecordList>(GameOpCode.HuntingRecordRequest);
             Register<SHuntingRecordDay>(GameOpCode.HuntingRecordDay);
             Register<SHuntingRecordTime>(GameOpCode.HuntingRecordCurrent);
+
+            Register<SMossMerchantOpen>(GameOpCode.MossMerchant);
+            Register<CMossMerchantOpenBox>(GameOpCode.MossMerchantOpenBox);
+            Register<SMossMerchantOpenBox>(GameOpCode.MossMerchantOpenBoxReward);
         }
     }
 }

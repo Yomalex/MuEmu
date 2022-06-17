@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemList Monster="492" Plus="0" LevelMin="0" DropItemCount="1" DropItemRate="100" DropZenRate="0" MinZen="0" MaxZen="0">
+	<!--Any SWORD-->
+	<Item Number="0" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="2" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="3" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="4" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="5" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="6" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="7" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="8" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="9" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="10" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="11" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="12" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="13" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="14" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="15" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="16" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="17" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="18" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="19" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="20" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="21" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="22" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="23" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="24" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="25" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="26" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="27" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<!--Any MACE-->
+	<Item Number="1024" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1025" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1026" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1027" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1028" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1029" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1030" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1031" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1032" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1033" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1034" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1035" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1036" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1037" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1038" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1039" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1040" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<!--Any SPEAR-->
+	<Item Number="1536" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1537" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1538" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1539" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1540" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1541" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1542" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1543" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1544" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1545" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<Item Number="1546" MinLevel="0" MaxLevel="4" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="0" MaxExcellent="3" />
+	<!--Excellent Beuroba-->
+	<Item Number="1547" MinLevel="0" MaxLevel="0" Luck="1" Skill="1" MinOption="0" MaxOption="4" MinExcellent="1" MaxExcellent="3" />
+	<!-- Chaos Talisman -->
+	<Item Number="7264" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+	<!--Talisman of Luck-->
+	<Item Number="7221" MinLevel="0" MaxLevel="0" Luck="0" Skill="0" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
+</ItemList>

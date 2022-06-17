@@ -30,7 +30,13 @@ namespace WebZen.Network
             var old = _opCodeLookup[type];
             _typeLookup.Remove(old);
             _opCodeLookup[type] = opCode;
-            _typeLookup.Add(opCode, type);
+            try
+            {
+                _typeLookup.Add(opCode, type);
+            }catch(Exception)
+            {
+
+            }
         }
 
         protected void ChangeType<T>(ushort opCode, object oldType)

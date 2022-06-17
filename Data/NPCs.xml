@@ -75,7 +75,8 @@
   <!-- GateKeeper Titus -->
   <NPC NPC="479" Type="Window" Icon="Conversation" Data="33" />
   <!-- Moss Merchant -->
-  <NPC NPC="492" Type="Window" Icon="Elixir" Data="56" />
+  <NPC NPC="492" Type="MossMerchant" Icon="Elixir" Data="56" />
+  <!--<NPC NPC="492" Type="Window" Icon="Elixir" Data="56" />-->
   <!--<NPC NPC="492" Type="Shop" Icon="Elixir" Data="16" />-->
   <!-- Jerry The Adviseru -->
   <NPC NPC="522" Type="Window" Icon="Conversation" Data="36" />

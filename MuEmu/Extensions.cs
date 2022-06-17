@@ -23,7 +23,7 @@ namespace MuEmu
             return logger.ForAccount(session.ID, acc?.Nickname??"");
         }
 
-        public static void AnonymousMap(object dest, object src)
+        public static T AnonymousMap<T>(T dest, object src)
         {
             foreach (var ip in src.GetType().GetProperties())
             {
@@ -39,6 +39,8 @@ namespace MuEmu
                 }catch(Exception)
                 { }
             }
+
+            return dest;
         }
     }
 }

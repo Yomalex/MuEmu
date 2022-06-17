@@ -1113,4 +1113,10 @@ namespace MU.Network.Game
         [WZMember(2)] public ushort index { get; set; }
         [WZMember(3)] public ushort unk { get; set; }
     }
+
+    [WZContract]
+    public class CMossMerchantOpenBox : IGameMessage
+    {
+        [WZMember(0)] public byte Section {get; set;}
+    }
 }

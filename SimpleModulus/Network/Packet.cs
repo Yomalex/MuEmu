@@ -316,7 +316,7 @@ namespace WebZen.Network
                     }
                     else
                     {
-                        Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X4}", orgOpCode, opCode);
+                        Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X4} {posPacket:X2}", orgOpCode, opCode, posPacket.GetBuffer().Take(pkSize));
                     }
                 }
 
@@ -425,6 +425,11 @@ namespace WebZen.Network
                     data.Write(BitConverter.GetBytes((byte)data.Length), 0, 1);
                 }
                 res = data.ToArray();
+
+                if(att.Dump)
+                {
+                    Logger.Debug($"Message({message.GetType().Name}):{string.Join(" ", res.Select(x => x.ToString("X")))}");
+                }
                     return res;
             }
         }

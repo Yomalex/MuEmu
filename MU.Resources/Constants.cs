@@ -1143,6 +1143,7 @@ namespace MU.Resources
         CastleSiege,
         CastleSiegeCrown,
         CastleSiegeCrownSwitch,
+        MossMerchant,
     }
 
     public enum NPCWindow : byte

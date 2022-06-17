@@ -88,7 +88,7 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                if (value > DurabilityBase)
+                if (value > DurabilityBase && DurabilityBase > 0)
                     value = DurabilityBase;
 
                 _durability = value;

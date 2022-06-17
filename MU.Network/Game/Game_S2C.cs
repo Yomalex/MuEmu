@@ -960,7 +960,7 @@ namespace MU.Network.Game
             ItemInfo = Array.Empty<byte>();
         }
 
-        public SItemGet(uint money)
+        public SItemGet(uint money, ushort itIndex)
         {
             Result = 0xFE;
             ItemInfo = BitConverter.GetBytes(money).Reverse().ToArray();
@@ -3054,6 +3054,18 @@ namespace MU.Network.Game
         [WZMember(3)] public int Healing { get; set; }
         [WZMember(4)] public int KilledCount { get; set; }
         [WZMember(5)] public long Experience { get; set; }
+    }
+
+    [WZContract(Dump = true)]
+    public class SMossMerchantOpen : IGameMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public byte[] List { get; set; }
+    }
+
+    [WZContract]
+    public class SMossMerchantOpenBox : IGameMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public byte[] ItemInfo { get; set; }
     }
 }
 

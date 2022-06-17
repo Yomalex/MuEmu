@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using MU.Resources;
 using MU.Resources.Game;
+using MU.Resources.XML;
 using MuEmu.Data;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
@@ -44,52 +45,67 @@ namespace MuEmu.Resources
                 s.Serialize(ts, xml);
         }
 
-        public IEnumerable<ItemInfo> LoadItems()
+        private IEnumerable<ItemInfo> LoadItemsXML()
         {
             var result = new List<ItemInfo>();
+            var dir = Path.Combine(_root, "Items.xml");            
+            var xml = XmlLoader<ItemDbDto>(dir);
+
+            foreach (var i in xml.items)
+            {
+                var Size = i.Size.Split(",").Select(x => int.Parse(x)).ToArray();
+                var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
+                var tmp = new ItemInfo
+                {
+                    Number = i.Number,
+                    Size = new Size(Size[0], Size[1]),
+                    Option = bool.Parse(i.Option),
+                    Drop = bool.Parse(i.Drop),
+                    Damage = new Point(Dmg[0], Dmg[1]),
+                    Speed = i.Speed,
+                    Str = i.NeededStr,
+                    Agi = i.NeededAgi,
+                    Vit = i.NeededVit,
+                    Ene = i.NeededEne,
+                    Cmd = i.NeededCmd,
+                    Level = i.Level,
+                    Def = i.Defense,
+                    DefRate = i.DefenseRate,
+                    Attributes = i.Attributes.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<AttributeType>(x)).ToList(),
+                    Zen = i.Zen,
+                    Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<HeroClass>(x)).ToList(),
+                    Skill = System.Enum.Parse<Spell>(i.Skill),
+                    Durability = i.Durability,
+                    MagicDur = i.MagicDur,
+                    MagicPower = i.MagicPower,
+                    Name = i.Name,
+                    ReqLevel = i.NeededLevel,
+                    MaxStack = i.MaxStack,
+                    OnMaxStack = i.OnMaxStack,
+                    IsMount = bool.Parse(i.IsMount),
+                };
+
+                result.Add(tmp);
+            }
+
+            return result;
+        }
+        public IEnumerable<ItemInfo> LoadItems()
+        {
             try
             {
-                var xml = XmlLoader<ItemDbDto>(Path.Combine(_root, "Items.xml"));
-
-                foreach (var i in xml.items)
-                {
-                    var Size = i.Size.Split(",").Select(x => int.Parse(x)).ToArray();
-                    var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
-                    var tmp = new ItemInfo
-                    {
-                        Number = i.Number,
-                        Size = new Size(Size[0], Size[1]),
-                        Option = bool.Parse(i.Option),
-                        Drop = bool.Parse(i.Drop),
-                        Damage = new Point(Dmg[0], Dmg[1]),
-                        Speed = i.Speed,
-                        Str = i.NeededStr,
-                        Agi = i.NeededAgi,
-                        Vit = i.NeededVit,
-                        Ene = i.NeededEne,
-                        Cmd = i.NeededCmd,
-                        Level = i.Level,
-                        Def = i.Defense,
-                        DefRate = i.DefenseRate,
-                        Attributes = i.Attributes.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<AttributeType>(x)).ToList(),
-                        Zen = i.Zen,
-                        Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<HeroClass>(x)).ToList(),
-                        Skill = System.Enum.Parse<Spell>(i.Skill),
-                        Durability = i.Durability,
-                        MagicDur = i.MagicDur,
-                        MagicPower = i.MagicPower,
-                        Name = i.Name,
-                        ReqLevel = i.NeededLevel,
-                        MaxStack = i.MaxStack,
-                        OnMaxStack = i.OnMaxStack,
-                        IsMount = bool.Parse(i.IsMount),
-                    };
-
-                    result.Add(tmp);
-                }
+                return LoadItemsXML();
             }
             catch (FileNotFoundException)
-            { 
+            {
+                var result = new List<ItemInfo>();
+                if(File.Exists(Path.Combine(_root, "ItemS16.txt")))
+                {
+                    var loaderS16 = new LoadWZSectionTXT<ItemBMDS16GroupBasic>();
+                    var info = loaderS16.Load(File.ReadAllText(Path.Combine(_root, "ItemS16.txt")));
+                    result = info.Select(x => Extensions.AnonymousMap(new ItemInfo(), x)).ToList();
+                }
+                else
                 using (var tr = File.OpenText(Path.Combine(_root, "Item.txt")))
                 {
                     var ItemRegex = new Regex(@"([0-9]+)\s*\n+(?s)(.*?)\nend");
@@ -368,9 +384,8 @@ namespace MuEmu.Resources
                 }).ToArray();
 
                 XmlSaver(Path.Combine(_root, "Items.xml"), xml);
-            }
-
-            return result;            
+                return result;
+            }           
         }
 
         public IEnumerable<SpellInfo> LoadSkills()

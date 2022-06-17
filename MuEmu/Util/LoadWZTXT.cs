@@ -45,9 +45,7 @@ namespace MuEmu.Util
 
                 if (prop.PropertyType == typeof(string))
                 {
-                    tmpString += "\"";
-                    tmpString += "(.*)";
-                    tmpString += "\"";
+                    tmpString += "\"(.*)\"";
                 }
                 else if (prop.PropertyType.IsPrimitive || prop.PropertyType.IsEnum)
                 {

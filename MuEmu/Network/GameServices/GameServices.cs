@@ -932,6 +932,9 @@ namespace MuEmu.Network.GameServices
                             .GetEvent<CastleSiege>()
                             .CrownSwitchTalk(obj, session.Player);
                         break;
+                    case NPCAttributeType.MossMerchant:
+                        MossMerchant.Talk(session.Player);
+                        break;
                 }
             }
             else
@@ -2826,6 +2829,112 @@ namespace MuEmu.Network.GameServices
             {
                 List = hrList.ToArray(),
             });
+        }
+
+        [MessageHandler(typeof(CMossMerchantOpenBox))]
+        public async Task CMossMerchantOpenBox(GSSession session, CMossMerchantOpenBox message)
+        {
+            var @char = session.Player.Character;
+            if(!@char.Inventory.TryAdd(new Size(2, 4)))
+            {
+                await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = ChaosBoxMixResult.TooManyItems, ItemInfo = Array.Empty<byte>() });
+                return;
+            }
+            switch (message.Section)
+            {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    if (@char.Money < 1000000)
+                    {
+                        Logger.Error("MossMerchantOpenBox 1000000zen > {0}zen", @char.Money);
+                        return;
+                    }
+                    @char.Money -= 1000000;
+                    break;
+                case 5://Jewel of Bless
+                case 8:
+                case 9:
+                    {
+                        var jewelList = @char.Inventory.FindAllItems(7181);
+                        if(!jewelList.Any())
+                        {
+                            Logger.Error("MossMerchantOpenBox needs 1JOB");
+                            return;
+                        }
+
+                        var jewel = jewelList.First();
+                        if(jewel.Durability > 1)
+                        {
+                            jewel.Durability--;
+                        }
+                        else
+                        {
+                            @char.Inventory.Delete(jewel);
+                        }
+                    }
+                    break;
+                case 6:// Jewel of Soul
+                    {
+                        var jewelList = @char.Inventory.FindAllItems(7182);
+                        if (!jewelList.Any())
+                        {
+                            Logger.Error("MossMerchantOpenBox needs 1JOS");
+                            return;
+                        }
+                        var jewel = jewelList.First();
+                        if (jewel.Durability > 1)
+                        {
+                            jewel.Durability--;
+                        }
+                        else
+                        {
+                            @char.Inventory.Delete(jewel);
+                        }
+                    }
+                    break;
+                case 7:// Miracle Coin
+                    {
+                        var miracleCoinList = @char.Inventory.FindAllItems(7581);
+                        if (!miracleCoinList.Any())
+                        {
+                            Logger.Error("MossMerchantOpenBox needs 1MC");
+                            return;
+                        }
+                        var jewel = miracleCoinList.First();
+                        if (jewel.Durability > 1)
+                        {
+                            jewel.Durability--;
+                        }
+                        else
+                        {
+                            @char.Inventory.Delete(jewel);
+                        }
+                    }
+                    break;
+                case 10://  Miracle Coinx3 && Jewel of Blessx10
+                    {
+                        var miracleCoinList = @char.Inventory.FindAllItems(7581);
+                        var jewelList = @char.Inventory.FindAllItems(7181);
+                        if (!jewelList.Any() || jewelList.Sum(x => x.Durability) < 10)
+                        {
+                            Logger.Error("MossMerchantOpenBox needs 10JOB");
+                            return;
+                        }
+                        if (!miracleCoinList.Any() || miracleCoinList.Sum(x => x.Durability) < 3)
+                        {
+                            Logger.Error("MossMerchantOpenBox needs 3MC");
+                            return;
+                        }
+                    }
+                    break;
+            }
+            var reward = MossMerchant.Gamble(session.Player, message.Section);
+            @char.Inventory.Add(reward);
+            @char.Inventory.SendInventory();
+            await session.SendAsync(new SMossMerchantOpenBox { ItemInfo = reward.GetBytes() });
         }
     }
 }

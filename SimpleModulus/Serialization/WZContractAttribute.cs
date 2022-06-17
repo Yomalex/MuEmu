@@ -13,6 +13,8 @@ namespace WebZen.Serialization
 
         public Type ExtraEncode { get; set; }
 
+        public bool Dump { get; set; }
+
         public WZContractAttribute()
             : base()
         { }

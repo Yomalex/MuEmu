@@ -21,7 +21,7 @@ namespace MU.Network.Auth
                     ChangeType<CIDAndPass>(CSOpCode.Login, typeof(CIDAndPassS12));
                     break;
                 case ServerSeason.Season17Kor:
-                    //Register<CIDAndPassS12>(CSOpCode.LoginS17Kor);
+                    ChangeOPCode<CIDAndPassS12>(CSOpCode.LoginS17Kor);
                     //ChangeOPCode<SLoginResult>(CSOpCode.LoginS17Kor);
                     break;
                 case ServerSeason.Season16Kor:

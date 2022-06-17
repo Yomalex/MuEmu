@@ -57,20 +57,27 @@ The configuration comes in XML, in the server.xml file, generated automatically 
         <CashShopVersion>512.2014.124</CashShopVersion>
       </Client>
       <GamePlay>
-        <Experience>10</Experience>
+        <Experience>9000</Experience>
+        <GoldExperience>0</GoldExperience>
         <Zen>10</Zen>
         <DropRate>60</DropRate>
         <MaxPartyLevelDifference>400</MaxPartyLevelDifference>
       </GamePlay>
       <Files>
         <Monsters>./Data/Monsters/Monster</Monsters>
-        <MonsterSetBase>./Data/Monsters/MonsterSetBase</MonsterSetBase>
+    	<MonsterSetBase>./Data/Monsters/MonsterSetBase</MonsterSetBase>
+    	<SelupanPatterns>./Data/Monsters/PatternSelupan.xml</SelupanPatterns>
+    	<MayaLeftHandPatterns>./Data/Monsters/PatternMayaLeftHand.xml</MayaLeftHandPatterns>
+    	<MayaRightHandPatterns>./Data/Monsters/PatternMayaRightHand.xml</MayaRightHandPatterns>
+    	<NightmarePatterns>./Data/Monsters/PatternNightmare.xml</NightmarePatterns>
         <MapServer>./Data/MapServer.xml</MapServer>
       </Files>
 
       <!-- Events -->
-      <Event name="Sphere" active="1" rate="15">
-        <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
+      <Event name="Sphere" active="1" rate="6">
+        <Condition item="6214" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
+    	  <!--Sphere (Tetra)-->
+        <Condition item="6217" itemLevel="0" mobMinLevel="136" mobMaxLevel="1000" map="InvalidMap" />
       </Event>
       <Event name="Acheron Spirit Map Fragment" active="1" rate="15">
         <Condition item="6801" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="InvalidMap" />
@@ -80,12 +87,13 @@ The configuration comes in XML, in the server.xml file, generated automatically 
         <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru1" />
         <Condition item="7209" itemLevel="0" mobMinLevel="1" mobMaxLevel="1000" map="Kantru2" />
       </Event>
-      <Event name="Special Item drop" active="1" rate="10">
-        <!--DarkHorse Spirit-->
+      <Event name="DarkHorse Spirit" active="1" rate="10">
         <Condition item="6687" itemLevel="0" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
-        <!--DarkRaven Spirit-->
+      </Event>
+    	<Event name="DarkRaven Spirit" active="1" rate="10">
         <Condition item="6687" itemLevel="1" mobMinLevel="60" mobMaxLevel="150" map="InvalidMap" />
-        <!--Sing of lord-->
+      </Event>
+      <Event name="Sing of lord" active="1" rate="10">
         <Condition item="7189" itemLevel="3" mobMinLevel="95" mobMaxLevel="150" map="InvalidMap" />
       </Event>
       <Event name="Kalima" active="1" rate="10">
@@ -109,24 +117,29 @@ The configuration comes in XML, in the server.xml file, generated automatically 
         <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="Atlans" />
         <Condition item="7179" itemLevel="6" mobMinLevel="0" mobMaxLevel="1000" map="Tarkan" />
       </Event>
-      <Event name="HeartOfLove" active="1" rate="10">
+    	<!-- start every 15-feb for a week -->
+      <Event name="Heart" active="1" rate="10" start="15/02/2021" duration="432000" repeat="Annually">
+        <Condition item="7179" itemLevel="3" mobMinLevel="15" mobMaxLevel="1000" map="InvalidMap" />
+        <Condition item="7180" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
+      </Event>
+      <!--<Event name="HeartOfLove" active="1" rate="10">
         <Condition item="7179" itemLevel="3" mobMinLevel="15" mobMaxLevel="1000" map="InvalidMap" />
       </Event>
       <Event name="EventChip" active="1" rate="10">
         <Condition item="7179" itemLevel="7" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
-      </Event>
-      <Event name="FireCracker" active="1" rate="10">
+      </Event>-->
+    	<!-- NewYear start every 1-jan for a week -->
+      <Event name="FireCracker" active="1" rate="10" start="1/01/2021" duration="432000" repeat="Annually">
         <Condition item="7179" itemLevel="2" mobMinLevel="17" mobMaxLevel="1000" map="InvalidMap" />
       </Event>
-      <Event name="Heart" active="1" rate="10">
-        <Condition item="7180" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="InvalidMap" />
-      </Event>
-      <Event name="StarOfXMas" active="1" rate="10">
+    	<!-- Xmas start every 1-dic ends 31-dic -->
+      <Event name="StarOfXMas" active="1" rate="10" start="1/12/2021" duration="2678400" repeat="Annually">
         <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Davias" />
         <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Raklion" />
         <Condition item="7179" itemLevel="1" mobMinLevel="0" mobMaxLevel="1000" map="Selupan" />
       </Event>
-      <Event name="Halloween" active="1" rate="10">
+      <!-- Halloween start every 31-oct for a week and adds 50% of exp -->
+      <Event name="Halloween" active="1" rate="10" start="31/10/2021" duration="432000" repeat="Annually" experienceAdd="0.5">
         <Condition item="7213" itemLevel="0" mobMinLevel="50" mobMaxLevel="1000" map="InvalidMap" />
       </Event>
     </Server>
