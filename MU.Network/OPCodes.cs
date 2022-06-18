@@ -363,6 +363,14 @@ namespace MU.Network
 
         AcheronEnterReq = 0x4BF8,
         AcheronEnter = 0x4CF8,
+
+        MineSweeper = 0x274D,
+        MineSweeperStart = 0x234D,
+        MineSweeperCreateCell = 0x294D,
+        MineSweeperReveal = 0x244D,
+        MineSweeperMark = 0x254D,
+        MineSweeperEnd = 0x264D,
+        MineSweeperGetReward = 0x284D,
     }
     public enum CashOpCode : ushort
     {

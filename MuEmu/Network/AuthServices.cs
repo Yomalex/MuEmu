@@ -352,6 +352,11 @@ namespace MuEmu.Network
             await session.SendAsync(new SUBFInfo { Result = 1 });
             await session.SendAsync(new SMapMoveCheckSum { key = 0x0010 });
 
+            if(Program.GlobalEventsManager.AnyEvent)
+                await session.SendAsync(new SSendBanner { Type = BannerType.EvenInven });
+            
+            await session.SendAsync(new SSendBanner { Type = BannerType.MineSweeper });
+
             //ConnectServer dataSend
             Program.client.SendAsync(new SCAdd { Server = (byte)Program.ServerCode, btName = @charDto.Name.GetBytes() });
 

@@ -57,5 +57,6 @@ namespace MuEmu.Events
         }
 
         public double ExpAdd => _events.Values.Where(x => x.Active).Sum(x => x.ExpAdd);
+        public bool AnyEvent => _events.Values.Any(x => x.Active);
     }
 }

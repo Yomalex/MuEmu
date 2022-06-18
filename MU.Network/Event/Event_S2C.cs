@@ -417,4 +417,65 @@ namespace MU.Network.Event
     {
         [WZMember(0)] public byte Result { get; set; }
     }
+
+    [WZContract]
+    public class SMineSweeperOpen : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte RemainBombs { get; set; }
+        [WZMember(2)] public ushort Count { get; set; }
+        [WZMember(3)] public ushort CurrentScore { get; set; }
+        [WZMember(4, typeof(ArraySerializer))] public ushort[] Cells { get; set; }
+    }
+
+    [WZContract]
+    public class SMineSweeperStart : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
+
+    [WZContract]
+    public class SMineSweeperCreateCell : IEventMessage
+    {
+        [WZMember(0)] public uint Time { get; set; }
+        [WZMember(1)] public byte X { get; set; }
+        [WZMember(2)] public byte Y { get; set; }
+        [WZMember(3)] public byte Effect { get; set; }
+    }
+
+    [WZContract]
+    public class SMineSweeperReveal : IEventMessage
+    {
+        [WZMember(0)] public byte Cell { get; set; }
+        [WZMember(1)] public ushortle Score { get; set; }
+        [WZMember(4, typeof(ArrayWithScalarSerializer<byte>))] public ushort[] Cells { get; set; }
+    }
+
+    [WZContract]
+    public class SMineSweeperMark : IEventMessage
+    {
+        [WZMember(0)] public byte Cell { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public byte RemainBombs { get; set; }
+    }
+
+    [WZContract]
+    public class SMineSweeperEnd : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte Count { get; set; }
+        [WZMember(2)] public ushort Score { get; set; }
+        [WZMember(3)] public ushort BombsFound { get; set; }
+        [WZMember(4)] public ushort BombsFailure { get; set; }
+        [WZMember(5)] public ushort SteppedOnBomb { get; set; }
+        [WZMember(6)] public ushort Clear { get; set; }
+        [WZMember(7)] public ushort TotalScore { get; set; }
+        [WZMember(8, typeof(ArraySerializer))] public ushort[] Cells { get; set; }
+    }
+
+    [WZContract]
+    public class SMineSweeperGetReward : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
 }

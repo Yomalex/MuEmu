@@ -1621,6 +1621,11 @@ namespace MuEmu
             var it = new Item(Number, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
             Extensions.AnonymousMap(it, this);
             it.Serial = 0;
+            it.Durability = Durability;
+            if(it.DurabilityBase == 0 && Durability == 0)
+            {
+                it.Durability = 1;
+            }
             return it;
         }
 

@@ -104,4 +104,28 @@ namespace MU.Network.Event
     [WZContract]
     public class CAcheronEventEnter : IEventMessage
     { }
+
+    [WZContract]
+    public class CMineSweeperOpen : IEventMessage
+    { }
+
+    [WZContract]
+    public class CMineSweeperStart : IEventMessage
+    { }
+
+    [WZContract]
+    public class CMineSweeperReveal : IEventMessage
+    {
+        [WZMember(0)] public byte Cell { get; set; }
+    }
+
+    [WZContract]
+    public class CMineSweeperMark : IEventMessage
+    {
+        [WZMember(0)] public byte Cell { get; set; }
+    }
+
+    [WZContract]
+    public class CMineSweeperGetReward : IEventMessage
+    { }
 }

@@ -84,6 +84,20 @@ namespace MU.Network.Event
             Register<CMuRummyOpen>(EventOpCode.MuRummyOpen);
             Register<SMuRummyOpen>(EventOpCode.MuRummyOpen);
 
+            //MineSweeper
+            Register<CMineSweeperOpen>(EventOpCode.MineSweeper);
+            Register<SMineSweeperOpen>(EventOpCode.MineSweeper);
+            Register<CMineSweeperStart>(EventOpCode.MineSweeperStart);
+            Register<SMineSweeperStart>(EventOpCode.MineSweeperStart);
+            Register<SMineSweeperCreateCell>(EventOpCode.MineSweeperCreateCell);
+            Register<CMineSweeperReveal>(EventOpCode.MineSweeperReveal);
+            Register<SMineSweeperReveal>(EventOpCode.MineSweeperReveal);
+            Register<CMineSweeperMark>(EventOpCode.MineSweeperMark);
+            Register<SMineSweeperMark>(EventOpCode.MineSweeperMark);
+            Register<SMineSweeperEnd>(EventOpCode.MineSweeperEnd);
+            Register<CMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
+            Register<SMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
+
             //
             Register<CEventItemGet>(EventOpCode.EventItemGet);
             Register<SEventItemGet>(EventOpCode.EventItemGet);

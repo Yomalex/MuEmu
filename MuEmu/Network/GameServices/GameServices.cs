@@ -980,6 +980,7 @@ namespace MuEmu.Network.GameServices
                 }
 
                 var item = npc.Shop.Storage.Items[message.Position].Clone() as Item;
+                
                 bResult.ItemInfo = item.GetBytes();
 
                 session.SendAsync(new SNotice(NoticeType.Blue, $"Item: {item.BasicInfo.Name} Price: {item.BuyPrice}zen")).Wait();

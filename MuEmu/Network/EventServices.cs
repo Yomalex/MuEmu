@@ -13,6 +13,7 @@ using MuEmu.Events.Event_Egg;
 using MuEmu.Events.ImperialGuardian;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
+using MuEmu.Events.MineSweeper;
 using MuEmu.Events.Rummy;
 using MuEmu.Monsters;
 using MuEmu.Resources;
@@ -216,6 +217,129 @@ namespace MuEmu.Network
             _ = session.SendAsync(msg);
 
             //session.Player.Character.Inventory.SendEventInventory();
+        }
+
+        [MessageHandler(typeof(CMineSweeperOpen))]
+        public void CMineSweeperOpen(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<MineSweeper>();
+            var msg = new SMineSweeperOpen
+            {
+                Result = (byte)(@event.CurrentState==EventState.Open?1:1),
+                Cells = Array.Empty<ushort>(),
+            };
+            _ = session.SendAsync(msg);
+
+            //session.Player.Character.Inventory.SendEventInventory();
+        }
+
+        [MessageHandler(typeof(CMineSweeperStart))]
+        public void CMineSweeperStart(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<MineSweeper>();
+            var game = @event.GetGame(session.Player);
+            var msg = new SMineSweeperStart
+            {
+                Result = 0,
+            };
+            var board = game.GetBoard();
+            var msg2 = new SMineSweeperOpen
+            {
+                Result = 2,
+                Cells = board.ToArray(),
+                Count = (byte)board.Count(),
+                CurrentScore = game.Score,
+                RemainBombs = game.RemainMines,
+            };
+            _ = session.SendAsync(msg);
+            _ = session.SendAsync(new SMineSweeperCreateCell { Effect = 11, X = 8, Y = 6 });
+            _ = session.SendAsync(msg2);
+        }
+
+        [MessageHandler(typeof(CMineSweeperReveal))]
+        public void CMineSweeperReveal(GSSession session, CMineSweeperReveal message)
+        {
+            var @event = Program.EventManager.GetEvent<MineSweeper>();
+            var game = @event.GetGame(session.Player);
+
+            var result = game.Reveal(message.Cell).ToArray();
+
+            _ = session.SendAsync(new SMineSweeperReveal
+            {
+                Cell = message.Cell,
+                Cells = result,
+                Score = game.Score,
+            });
+
+            if(!result.Any())
+            {
+                game.Finish(true);
+            }
+
+            if(game.IsClear())
+            {
+                MineSweeperSendScore(session, game);
+            }
+        }
+
+        private void MineSweeperSendScore(GSSession session, MineSweeperGame game)
+        {
+            var cells = game.FailedBomb.Select(x => x.Cell);
+            _ = session.SendAsync(new SMineSweeperEnd
+            {
+                SteppedOnBomb = (byte)(game.Losed ? 50 : 0),
+                Cells = cells.ToArray(),
+                Count = (byte)cells.Count(),
+                BombsFound = (ushort)(game.Correct * 50),
+                BombsFailure = (ushort)(game.Incorrect * 20),
+                Clear = (byte)(game.Losed ? 0 : 500),
+                Result = (byte)(game.Losed ? 1 : 0),
+                Score = game.Score,
+                TotalScore = game.TotalScore,
+            });
+        }
+        [MessageHandler(typeof(CMineSweeperMark))]
+        public void CMineSweeperMark(GSSession session, CMineSweeperMark message)
+        {
+            var @event = Program.EventManager.GetEvent<MineSweeper>();
+            var game = @event.GetGame(session.Player);
+
+            var result = game.Mark(message.Cell);
+
+            _ = session.SendAsync(new SMineSweeperMark
+            {
+                Cell = message.Cell,
+                RemainBombs = game.RemainMines,
+                Result = result,
+            });
+
+            if(game.Finished)
+            {
+                MineSweeperSendScore(session, game);
+            }
+        }
+
+        [MessageHandler(typeof(CMineSweeperGetReward))]
+        public void CMineSweeperGetReward(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<MineSweeper>();
+            var game = @event.GetGame(session.Player);
+
+            if(!game.Finished)
+            {
+                return;
+            }
+
+            var reward = game.GetReward();
+            @event.Clear(session.Player);
+
+            session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.GMReward);
+            session.Player.Character.GremoryCase.SendList();
+
+            _ = session.SendAsync(new SMineSweeperGetReward
+            {
+                Result = 0,
+            });
         }
 
         [MessageHandler(typeof(CEventItemGet))]

@@ -192,6 +192,7 @@ namespace MU.Resources
         ChaosCastleSurvival2 = 8,
         TormentedSquareLeague = 9,
         ChaosCastleUBF = 10,
+        Event = 17,
         GMReward = 100
     }
     public enum GremoryNotice : byte
@@ -672,7 +673,14 @@ namespace MU.Resources
         Evomon,
         UnityBattleField,
         UnityBattleField2,
-        Unk,
+        MerryXMas,
+        NewYear = 6,
+        MuRummySpecial = 7,
+        MineSweeper = 8,
+        JeweldryBingo = 9,
+        BallsAndCows = 11,
+        Unk = 12,
+        MULite = 13,
     }
 
     public enum TradeResult : byte

@@ -180,10 +180,7 @@ namespace WebZen.Network
                         else
                         {
                             Logger.Error("Invalid OpCoder {opCodea:X4}|{opCode:X2} Size:{pkSize}", orgOpCode, opCode & 0xff, pkSize);
-                            using(var fs = File.OpenWrite("unknowPacket_"+ orgOpCode+".bin"))
-                            {
-                                fs.Write(posPacket.GetBuffer(), 0, pkSize);
-                            }
+                            Logger.Error("Packet " + string.Join(" ", posPacket.GetBuffer().Take(pkSize).Select(x => x.ToString("X2"))));
                         }
                     }
                 }catch(Exception ex)
