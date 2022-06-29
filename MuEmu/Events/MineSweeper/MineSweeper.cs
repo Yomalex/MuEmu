@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using MU.Resources;
+using MU.Network.Event;
 
 namespace MuEmu.Events.MineSweeper
 {
@@ -177,6 +179,31 @@ namespace MuEmu.Events.MineSweeper
     internal class MineSweeper : Event
     {
         private Dictionary<Player, MineSweeperGame> _games = new Dictionary<Player, MineSweeperGame>();
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            Trigger(EventState.Open);
+            Program.server.Connect += Server_Connect;
+        }
+
+        private void Server_Connect(object sender, Network.WZServerEventArgs e)
+        {
+            e.session.Player.OnStatusChange += Player_OnStatusChange;
+        }
+
+        private void Player_OnStatusChange(object sender, EventArgs e)
+        {
+            var plr = sender as Player;
+            if (plr.Status == LoginStatus.Playing && CurrentState != EventState.None)
+            {
+                _ = plr.Session.SendAsync(new SSendBanner { Type = BannerType.JeweldryBingo });
+            }
+            if (plr.Status == LoginStatus.NotLogged)
+            {
+                plr.OnStatusChange -= Player_OnStatusChange;
+            }
+        }
         public override void NPCTalk(Player plr)
         {
             throw new NotImplementedException();

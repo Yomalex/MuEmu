@@ -4,6 +4,30 @@ using System.Text;
 
 namespace MU.Resources
 {
+    // JewelBingo State
+    public enum JBState : byte
+    {
+        Open,
+        State1,
+        State2,
+        BoxSelect,
+        Playing,
+        State5,
+        State6,
+        InsuficientCardDeck = 0x0E,
+    }
+
+    public enum JBType : byte
+    {
+        Bless,
+        Soul,
+        Life,
+        Creation,
+        Harmony,
+        Chaos,
+        Empty = 0xff,
+    }
+
     [Flags]
     public enum GMInterestType : byte
     {

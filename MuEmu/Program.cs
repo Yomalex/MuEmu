@@ -59,6 +59,7 @@ using MuEmu.Events.CastleSiege;
 using MuEmu.Events.Raklion;
 using MuEmu.Events.AcheronGuardian;
 using MuEmu.Events.MineSweeper;
+using MuEmu.Events.JeweldryBingo;
 
 namespace MuEmu
 {
@@ -662,7 +663,8 @@ namespace MuEmu
                 .AddEvent(Events.Events.Raklion, new BattleOfSelupan())
                 .AddEvent(Events.Events.AcheronGuardian, new AcheronGuardian())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
-                .AddEvent(Events.Events.DoubleGoer, new MineSweeper())
+                .AddEvent(Events.Events.MineSweeper, new MineSweeper())
+                .AddEvent(Events.Events.JeweldryBingo, new JeweldryBingo())
                 ;
             LuckyCoins.Initialize();
             EventChips.Initialize();

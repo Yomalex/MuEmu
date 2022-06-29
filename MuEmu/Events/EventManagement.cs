@@ -22,6 +22,8 @@ namespace MuEmu.Events
         CastleSiege,
         Raklion,
         AcheronGuardian,
+        JeweldryBingo,
+        MineSweeper,
     }
     internal class EventInfo
     {

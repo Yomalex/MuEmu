@@ -11,6 +11,7 @@ using MuEmu.Events.Crywolf;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events.Event_Egg;
 using MuEmu.Events.ImperialGuardian;
+using MuEmu.Events.JeweldryBingo;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
 using MuEmu.Events.MineSweeper;
@@ -186,9 +187,10 @@ namespace MuEmu.Network
         }
 
         [MessageHandler(typeof(CMuRummyOpen))]
-        public void CMuRummyOpen(GSSession session)
+        public async Task CMuRummyOpen(GSSession session)
         {
             var muRummy = Program.EventManager.GetEvent<MuRummy>();
+            var JewelBingo = Program.EventManager.GetEvent<JeweldryBingo>();
             var eventEgg = Program.EventManager.GetEvent<EventEgg>();
             DateTime end;
             byte result;
@@ -198,11 +200,17 @@ namespace MuEmu.Network
                 end = DateTime.UtcNow.Add(muRummy.TimeLeft);
                 result = 1;
             }
-            else
+            else if(JewelBingo.CurrentState != EventState.None)
             {
-                end = DateTime.UtcNow.Add(eventEgg.TimeLeft);
-                result = 3;
+                await session.SendAsync(new SJewelBingoState
+                {
+                    State = JBState.Open,
+                });
+                return;
             }
+
+            end = DateTime.UtcNow.Add(eventEgg.TimeLeft);
+            result = 3;
             
             var unixTimestamp = (int)(end.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             var bytes = BitConverter.GetBytes(unixTimestamp);
@@ -214,7 +222,7 @@ namespace MuEmu.Network
                 btEventTime3 = bytes[1],
                 btEventTime4 = bytes[0],
             };
-            _ = session.SendAsync(msg);
+            await session.SendAsync(msg);
 
             //session.Player.Character.Inventory.SendEventInventory();
         }
@@ -340,6 +348,160 @@ namespace MuEmu.Network
             {
                 Result = 0,
             });
+        }
+
+        [MessageHandler(typeof(CJewelBingoStart))]
+        public async Task CJewelBingoStart(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<JeweldryBingo>();
+            var game = @event.GetGame(session.Player);
+
+            if(game.State == JBState.Open)
+                game.State = JBState.State1;
+
+            await session.SendAsync(new SJewelBingoState
+            {
+                State = game.State,
+            });
+
+            if (game.State == JBState.State1)
+            {
+                await session.SendAsync(new SJewelBingoInfo
+                {
+                    CurrentJewel = game.AvailableJewels,
+                    Grid = game.GetGrid(),
+                    Result = 0,
+                });
+            }else if(game.State == JBState.BoxSelect)
+            {
+                _= session.SendAsync(new SJewelBingoBox());
+            }else if(game.State == JBState.Playing)
+            {
+                _= session.SendAsync(new SJewelBingoPlayInfo
+                {
+                    CurrentBox = game.Box,
+                    CurrentJewel = game.CurrentJewel,
+                    Grid = game.GetGrid(),
+                    JewelCount = game.LeftJewels,
+                    MatchingJewel = game.GetMatching(),
+                    Result = 0
+                });
+            }else if(game.State == JBState.State6)
+            {
+                _= session.SendAsync(new SJewelBingoPlayResult
+                {
+                    Grid = game.GetGrid(),
+                    MatchingJewel = game.GetMatching(),
+                    Result = 0,
+                    LuckyClear = game.LuckyScore,
+                    NormalClear = game.NormalScore,
+                    JewelryClear = game.JewelryScore,
+                });
+            }
+        }
+
+        [MessageHandler(typeof(CJewelBingoMove))]
+        public async Task CJewelBingoMove(GSSession session, CJewelBingoMove message)
+        {
+            var @event = Program.EventManager.GetEvent<JeweldryBingo>();
+            var game = @event.GetGame(session.Player);
+
+            if (message.Type == 0)
+                game.Place(message.Slot, message.JewelType);
+            else
+                game.AutoPlace();
+
+            await session.SendAsync(new SJewelBingoInfo
+            {
+                CurrentJewel = game.AvailableJewels,
+                Grid = game.GetGrid(),
+                Result = 0,
+            });
+
+            if(game.AvailableJewels.Sum(x => x) == 0)
+            {
+                game.State = JBState.BoxSelect;
+                await session.SendAsync(new SJewelBingoState
+                {
+                    State = game.State,
+                });
+                await session.SendAsync(new SJewelBingoBox());
+            }
+        }
+
+        [MessageHandler(typeof(CJewelBingoBox))]
+        public async Task CJewelBingoBox(GSSession session, CJewelBingoBox message)
+        {
+            var @event = Program.EventManager.GetEvent<JeweldryBingo>();
+            var game = @event.GetGame(session.Player);
+
+            game.SelectBox(message.Box);
+            game.State = JBState.Playing;
+            await session.SendAsync(new SJewelBingoState
+            {
+                State = game.State,
+            });
+            await session.SendAsync(new SJewelBingoPlayInfo
+            {
+                CurrentBox = game.Box,
+                CurrentJewel = game.CurrentJewel,
+                Grid = game.GetGrid(),
+                JewelCount = game.LeftJewels,
+                MatchingJewel = game.GetMatching(),
+                Result = 0
+            });
+        }
+        [MessageHandler(typeof(CJewelBingoSelect))]
+        public async Task CJewelBingoSelect(GSSession session, CJewelBingoSelect message)
+        {
+            var @event = Program.EventManager.GetEvent<JeweldryBingo>();
+            var game = @event.GetGame(session.Player);
+
+            game.SelectJewel(message.Slot, message.JewelType);
+            await session.SendAsync(message);
+            if (game.LeftJewels > 0)
+            {
+                await session.SendAsync(new SJewelBingoPlayInfo
+                {
+                    CurrentBox = game.Box,
+                    CurrentJewel = game.CurrentJewel,
+                    Grid = game.GetGrid(),
+                    JewelCount = game.LeftJewels,
+                    MatchingJewel = game.GetMatching(),
+                    Result = 0
+                });
+            }
+            else
+            {
+                game.State = JBState.Playing;
+                await session.SendAsync(new SJewelBingoState
+                {
+                    State = game.State,
+                });
+                await session.SendAsync(new SJewelBingoPlayResult
+                {
+                    Grid = game.GetGrid(),
+                    MatchingJewel = game.GetMatching(),
+                    Result = 0,
+                    LuckyClear = game.LuckyScore,
+                    NormalClear = game.NormalScore,
+                    JewelryClear = game.JewelryScore,
+                });
+            }
+        }
+
+        [MessageHandler(typeof(CJewelBingoGetReward))]
+        public async Task CJewelBingoGetReward(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<JeweldryBingo>();
+            var game = @event.GetGame(session.Player);
+
+            var reward = game.GetReward();
+            @event.Clear(session.Player);
+
+            session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.GMReward);
+            session.Player.Character.GremoryCase.SendList();
+            await session.SendAsync(new SJewelBingoState { State = JBState.Open });
         }
 
         [MessageHandler(typeof(CEventItemGet))]

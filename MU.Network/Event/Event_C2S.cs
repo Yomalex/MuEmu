@@ -128,4 +128,33 @@ namespace MU.Network.Event
     [WZContract]
     public class CMineSweeperGetReward : IEventMessage
     { }
+
+    [WZContract]
+    public class CJewelBingoMove : IEventMessage
+    {
+        [WZMember(0)] public byte Type { get; set; }
+        [WZMember(1)] public JBType JewelType { get; set; }
+        [WZMember(2)] public byte Slot { get; set; }
+    }
+
+    [WZContract]
+    public class CJewelBingoBox : IEventMessage
+    {
+        [WZMember(0)] public byte Box { get; set; }
+    }
+
+    [WZContract]
+    public class CJewelBingoStart : IEventMessage
+    { }
+
+    [WZContract]
+    public class CJewelBingoSelect : IEventMessage
+    {
+        [WZMember(0)] public JBType JewelType { get; set; }
+        [WZMember(1)] public byte Slot { get; set; }
+    }
+
+    [WZContract]
+    public class CJewelBingoGetReward : IEventMessage
+    { }
 }

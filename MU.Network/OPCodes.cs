@@ -364,13 +364,20 @@ namespace MU.Network
         AcheronEnterReq = 0x4BF8,
         AcheronEnter = 0x4CF8,
 
-        MineSweeper = 0x274D,
+        // MiniGames
         MineSweeperStart = 0x234D,
-        MineSweeperCreateCell = 0x294D,
         MineSweeperReveal = 0x244D,
         MineSweeperMark = 0x254D,
         MineSweeperEnd = 0x264D,
+        MineSweeper = 0x274D,
         MineSweeperGetReward = 0x284D,
+        MineSweeperCreateCell = 0x294D,
+
+        JeweldryBingoState = 0x2A4D,
+        JeweldryBingoInfo = 0x2B4D,
+        JeweldryBingoBox = 0x2C4D,
+        JeweldryBingoPlayInfo = 0x2D4D,
+        JeweldryBingoPlayResult = 0x2E4D,
     }
     public enum CashOpCode : ushort
     {

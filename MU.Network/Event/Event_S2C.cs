@@ -478,4 +478,45 @@ namespace MU.Network.Event
     {
         [WZMember(0)] public byte Result { get; set; }
     }
+
+    [WZContract]
+    public class SJewelBingoState : IEventMessage
+    {
+        [WZMember(0)] public JBState State { get; set; }
+    }
+
+    [WZContract]
+    public class SJewelBingoInfo : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, typeof(ArraySerializer))] public JBType[] Grid { get; set; } // 25 (5*5)
+        [WZMember(2, typeof(ArraySerializer))] public byte[] CurrentJewel { get; set; }// 6
+    }
+
+    [WZContract]
+    public class SJewelBingoPlayInfo : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, typeof(ArraySerializer))] public JBType[] Grid { get; set; } // 25 (5*5)
+        [WZMember(2, typeof(ArraySerializer))] public byte[] MatchingJewel { get; set; }// 12
+        [WZMember(3)] public JBType CurrentJewel { get; set; }
+        [WZMember(4)] public byte JewelCount { get; set; }
+        [WZMember(5)] public byte CurrentBox { get; set; }
+    }
+
+    [WZContract]
+    public class SJewelBingoPlayResult : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, typeof(ArraySerializer))] public JBType[] Grid { get; set; } // 25 (5*5)
+        [WZMember(2, typeof(ArraySerializer))] public byte[] MatchingJewel { get; set; }// 12
+        //[WZMember(3)] public byte unk { get; set; }
+        [WZMember(4)] public ushort LuckyClear { get; set; }
+        [WZMember(5)] public ushort NormalClear { get; set; }
+        [WZMember(6)] public ushort JewelryClear { get; set; }
+    }
+
+    [WZContract]
+    public class SJewelBingoBox : IEventMessage
+    { }
 }
