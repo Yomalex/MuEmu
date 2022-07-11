@@ -98,6 +98,19 @@ namespace MU.Network.Event
             Register<CMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
             Register<SMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
 
+            //JewelBingo
+            //Register<CJewelBingoMove>(EventOpCode.JeweldryBingoState);
+            Register<CJewelBingoStart>(EventOpCode.JeweldryBingoState);
+            Register<SJewelBingoState>(EventOpCode.JeweldryBingoState);
+            Register<CJewelBingoMove>(EventOpCode.JeweldryBingoInfo);
+            Register<SJewelBingoInfo>(EventOpCode.JeweldryBingoInfo);
+            Register<CJewelBingoBox>(EventOpCode.JeweldryBingoBox);
+            Register<SJewelBingoBox>(EventOpCode.JeweldryBingoBox);
+            Register<CJewelBingoSelect>(EventOpCode.JeweldryBingoPlayInfo);
+            Register<SJewelBingoPlayInfo>(EventOpCode.JeweldryBingoPlayInfo);
+            Register<CJewelBingoGetReward>(EventOpCode.JeweldryBingoPlayResult);
+            Register<SJewelBingoPlayResult>(EventOpCode.JeweldryBingoPlayResult);
+
             //
             Register<CEventItemGet>(EventOpCode.EventItemGet);
             Register<SEventItemGet>(EventOpCode.EventItemGet);

@@ -112,4 +112,9 @@
 	<!--<ItemBag Monster="492" Plus="6" Bag="Moss Merchant\Section6.xml" />-->
 	<!--<ItemBag Monster="492" Plus="7" Bag="Moss Merchant\Section7.xml" />-->
 	<!--<ItemBag Monster="492" Plus="10" Bag="Moss Merchant\Section10.xml" />-->
+	<!--Jewelry Bingo-->
+	<ItemBag Item="7576" Bag="Jewelry Bingo\LowerBox.xml" />
+	<ItemBag Item="7577" Bag="Jewelry Bingo\IntermediateBox.xml" />
+	<ItemBag Item="7578" Bag="Jewelry Bingo\AdvancedBox.xml" />
+	<ItemBag Item="7579" Bag="Jewelry Bingo\PremiumBox.xml" />
 </ItemBags>
