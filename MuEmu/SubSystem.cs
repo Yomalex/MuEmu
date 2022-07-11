@@ -64,6 +64,11 @@ namespace MuEmu
 
         public static void CSSystem(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, byte show, string token)
         {
+            if(Instance == null)
+            {
+                Logger.Error("Invalid Instance");
+                return;
+            }
             Instance._csIp = ip;
             Instance._workerCS = new Thread(WorkerCS);
             Instance._handlers = handlers;

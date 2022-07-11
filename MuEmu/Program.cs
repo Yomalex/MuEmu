@@ -349,6 +349,20 @@ namespace MuEmu
 
             try
             {
+                Log.Information(ServerMessages.GetMessage(Messages.Server_Disconnecting_Accounts));
+                using (var db = new GameContext())
+                {
+                    var accs = from acc in db.Accounts
+                               where acc.IsConnected && acc.ServerCode == xml.Code
+                               select acc;
+
+                    foreach (var acc in accs)
+                        acc.IsConnected = false;
+
+                    db.Accounts.UpdateRange(accs);
+                    db.SaveChanges();
+                }
+
                 ResourceCache.Initialize(".\\Data");
                 MasterLevel.Initialize();
                 GuildManager.Initialize();
@@ -367,43 +381,19 @@ namespace MuEmu
                 MonstersMng.Instance.LoadSetBase(xml.Files.MonsterSetBase);
                 SubSystem.Initialize();
                 Marlon.Initialize();
+                SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.Connection.APIKey);
+                Log.Information(ServerMessages.GetMessage(Messages.Server_Ready));
             }
             catch(MySql.Data.MySqlClient.MySqlException ex)
             {
-                Log.Error(ex, ServerMessages.GetMessage(Messages.Server_MySQL_Error));
-                //Migrate(null, new EventArgs());
-                //Log.Information("Server needs restart to reload all changes");
-                Task.Delay(10000);
+                Log.Error(ServerMessages.GetMessage(Messages.Server_MySQL_Error));
+                Log.Error(ex.Message);
+                Task.Delay(15000);
             }
             catch (Exception ex)
             {
                 Log.Error(ex, ServerMessages.GetMessage(Messages.Server_Error));
             }
-
-            SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.Connection.APIKey);
-
-            Log.Information(ServerMessages.GetMessage(Messages.Server_Disconnecting_Accounts));
-            try
-            {
-                using (var db = new GameContext())
-                {
-                    var accs = from acc in db.Accounts
-                               where acc.IsConnected && acc.ServerCode == xml.Code
-                               select acc;
-
-                    foreach (var acc in accs)
-                        acc.IsConnected = false;
-
-                    db.Accounts.UpdateRange(accs);
-                    db.SaveChanges();
-                }
-            }catch(Exception)
-            {
-                Log.Error("MySQL unavailable. please use \"db create\" or \"db migrate\" command");
-                Task.Delay(15000);
-            }
-
-            Log.Information(ServerMessages.GetMessage(Messages.Server_Ready));
 
             Handler
                 .AddCommand(new Command<GSSession>("help", Help, help:"Use help <cmd> for get help on any command"))
