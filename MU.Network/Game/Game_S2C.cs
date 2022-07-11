@@ -2572,6 +2572,12 @@ namespace MU.Network.Game
         [WZMember(0)] public byte Result { get; set; }
     }
 
+    [WZContract]
+    public class SGremoryCaseOpenS16 : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
+
     [WZContract(LongMessage = true)]
     public class SGremoryCaseList : IGameMessage
     {
@@ -2603,14 +2609,49 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class SGremoryCaseDeleteS16 : IGameMessage
+    {
+        [WZMember(0)] public GremoryStorage StorageType { get; set; }
+        [WZMember(1)] public byte Unk { get; set; }
+        [WZMember(2)] public ushort ItemNumber { get; set; }
+        [WZMember(3)] public uint AuthCode { get; set; }
+        [WZMember(4)] public uint ItemGUID { get; set; }
+        [WZMember(5)] public uint Slot { get; set; }
+    }
+
+    [WZContract]
     public class GCItemDto
     {
         [WZMember(0)] public GremoryStorage RewardInventory { get; set; }
         [WZMember(1)] public GremorySource RewardSource { get; set; }
-        [WZMember(2)] public uint ItemGUID { get; set; }
-        [WZMember(3, 12)] public byte[] ItemInfo { get; set; }
-        [WZMember(4)] public uint AuthCode { get; set; }
-        [WZMember(5)] public uint ExpireTime { get; set; }
+        [WZMember(2)] public ushort Padding { get; set; }
+        [WZMember(3)] public uint ItemGUID { get; set; }
+        [WZMember(4, 12)] public byte[] ItemInfo { get; set; }
+        [WZMember(5)] public uint AuthCode { get; set; }
+        [WZMember(6)] public uint ExpireTime { get; set; }
+        [WZMember(7)] public uint Unk { get; set; }
+        [WZMember(8)] public uint Unk1 { get; set; }
+        [WZMember(9)] public uint Unk2 { get; set; }
+        [WZMember(10)] public uint Unk3 { get; set; }
+    }
+
+    [WZContract]
+    public class SGremoryCaseUseItem : IGameMessage
+    {
+        public enum GCResult : byte {
+            Success,
+            Error,
+            Error2,
+            DatabaseError,
+            NotEnoughtSpace,
+            ClosingGremoryCaseError,
+        }
+        [WZMember(0)] public GCResult Result { get; set; }
+        [WZMember(1)] public GremoryStorage Inventory { get; set; }
+        [WZMember(2)] public ushort Item { get; set; }
+        [WZMember(3)] public uint Unk { get; set; }
+        [WZMember(4)] public uint Serial { get; set; }
+        [WZMember(5)] public uint Slot { get; set; }
     }
 
     [WZContract(LongMessage = true)]

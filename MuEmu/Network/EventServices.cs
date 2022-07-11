@@ -206,7 +206,6 @@ namespace MuEmu.Network
                 {
                     State = JBState.Open,
                 });
-                return;
             }
 
             end = DateTime.UtcNow.Add(eventEgg.TimeLeft);
@@ -341,7 +340,7 @@ namespace MuEmu.Network
             var reward = game.GetReward();
             @event.Clear(session.Player);
 
-            session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.GMReward);
+            session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.Event);
             session.Player.Character.GremoryCase.SendList();
 
             _ = session.SendAsync(new SMineSweeperGetReward
@@ -499,7 +498,7 @@ namespace MuEmu.Network
             var reward = game.GetReward();
             @event.Clear(session.Player);
 
-            session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.GMReward);
+            session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.Event);
             session.Player.Character.GremoryCase.SendList();
             await session.SendAsync(new SJewelBingoState { State = JBState.Open });
         }

@@ -83,6 +83,7 @@ namespace MuEmu.Resources
                     MaxStack = i.MaxStack,
                     OnMaxStack = i.OnMaxStack,
                     IsMount = bool.Parse(i.IsMount),
+                    Inventory = System.Enum.Parse<StorageID>(i.Inventory),
                 };
 
                 result.Add(tmp);

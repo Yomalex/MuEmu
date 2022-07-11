@@ -957,6 +957,23 @@ namespace MU.Network.Game
     { }
 
     [WZContract]
+    public class CGremoryCaseOpenS16 : IGameMessage
+    {
+        [WZMember(0)] public byte Unk { get; set; }
+    }
+
+    [WZContract]
+    public class CGremoryCaseUseItem : IGameMessage
+    {
+        //Packet C1 11 4F 02 [98 1D] [00 00] [2B 00 00 00] [00 00 00 00] 02
+        [WZMember(0)] public ushort Item { get; set; }
+        [WZMember(1)] public ushort Unk { get; set; }
+        [WZMember(3)] public uint Serial { get; set; }
+        [WZMember(4)] public uint Slot { get; set; }
+        [WZMember(5)] public GremoryStorage Inventory { get; set; }
+    }
+
+    [WZContract]
     public class CAcheronEnterReq : IGameMessage
     { }
 

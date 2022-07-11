@@ -351,12 +351,19 @@ namespace MU.Network.Game
             Register<CShadowBuff>(GameOpCode.ShadowBuff);
             Register<SChainMagic>(GameOpCode.ChainMagic);
 
+            Register<CGremoryCaseOpenS16>(GameOpCode.GremoryCaseOpenS16);
             Register<CGremoryCaseOpen>(GameOpCode.GremoryCaseOpen);
+            Register<SGremoryCaseOpenS16>(GameOpCode.GremoryCaseOpenS16);
             Register<SGremoryCaseOpen>(GameOpCode.GremoryCaseOpen);
             Register<SGremoryCaseReceiveItem>(GameOpCode.GremoryCaseReceive);
             Register<SGremoryCaseNotice>(GameOpCode.GremoryCaseNotice);
             Register<SGremoryCaseDelete>(GameOpCode.GremoryCaseDelete);
+            Register<SGremoryCaseDeleteS16>(GameOpCode.GremoryCaseDelete);
+            VersionSelector.Register<SGremoryCaseDelete>(ServerSeason.Season6Kor, GameOpCode.GremoryCaseDelete);
+            VersionSelector.Register<SGremoryCaseDeleteS16>(ServerSeason.Season16Kor, GameOpCode.GremoryCaseDelete);
             Register<SGremoryCaseList>(GameOpCode.GremoryCaseList);
+            Register<CGremoryCaseUseItem>(GameOpCode.GremoryCaseUse);
+            Register<SGremoryCaseUseItem>(GameOpCode.GremoryCaseUse);
 
             Register<CPShopSearchItem>(GameOpCode.PShopSearchItem);
             Register<SPShopSearchItem>(GameOpCode.PShopSearchItem);

@@ -223,5 +223,11 @@ namespace MuEmu.Resources
             _cache.Remove("ChaosMix");
             GetChaosMixInfo();
         }
+
+        internal void ReloadItembags()
+        {
+            _cache.Remove("ItemBags");
+            GetItemBags();
+        }
     }
 }

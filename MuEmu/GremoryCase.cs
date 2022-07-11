@@ -22,6 +22,7 @@ namespace MuEmu
     public class GremoryCase
     {
         public const int MaxItems = 50;
+        private bool _sended = false;
 
         private List<GremoryCaseItem> _items = new List<GremoryCaseItem>();
         public Character Character { get; private set; }
@@ -29,7 +30,7 @@ namespace MuEmu
         public GremoryCase(Character @char, CharacterDto dto)
         {
             Character = @char;
-            dto.GremoryCases.Select(x => new GremoryCaseItem
+            _items = dto.GremoryCases.Select(x => new GremoryCaseItem
             {
                 AuthCode = x.Auth,
                 ExpireTime = x.ExpireTime,
@@ -37,8 +38,11 @@ namespace MuEmu
                 RewardInventory = (GremoryStorage)x.Inventory,
                 RewardSource = (GremorySource)x.Source,
                 Item = new Item(x.ItemNumber, Options: new { x.Luck, Option28 = x.Option, x.Skill, x.Plus, x.OptionExe }),
-            });
-            SendList();
+            }).ToList();
+
+            CheckIsInStorageItemAboutToExpire();
+            CheckStorageExpiredItems();
+            CheckInventoryCount();
         }
 
         public void CheckStorageExpiredItems()
@@ -86,10 +90,15 @@ namespace MuEmu
 
         public async void SendList()
         {
+            if (_sended)
+                return;
+
+            _sended = true;
+
             await Character.Player.Session.SendAsync(new SGremoryCaseList 
             { 
                 List = _items.Select(x => new GCItemDto 
-                { 
+                {
                     AuthCode = x.AuthCode, 
                     ExpireTime = (uint)x.ExpireTime.ToTimeT(), 
                     ItemGUID = x.ItemGUID, 
@@ -98,10 +107,6 @@ namespace MuEmu
                     RewardSource = x.RewardSource 
                 }).ToArray() 
             });
-
-            CheckIsInStorageItemAboutToExpire();
-            CheckStorageExpiredItems();
-            CheckInventoryCount();
         }
 
         public async void AddItem(Item it, DateTime ExpireTime, GremoryStorage storage, GremorySource source)
@@ -115,7 +120,7 @@ namespace MuEmu
                     CharacterId = null,
                     Durability = it.Durability,
                     ExpireTime = ExpireTime,
-                    //HarmonyOption = it.Harmony
+                    HarmonyOption = it.Harmony,
                     Inventory = (byte)storage,
                     ItemNumber = it.Number,
                     Luck = it.Luck,
@@ -146,6 +151,16 @@ namespace MuEmu
                         ItemInfo = it.GetBytes()
                     }
                 });
+
+                _items.Add(new GremoryCaseItem
+                {
+                    AuthCode = tmp.Auth,
+                    ExpireTime = tmp.ExpireTime,
+                    Item = it,
+                    ItemGUID = (uint)tmp.GiftId,
+                    RewardInventory = storage,
+                    RewardSource = source,
+                });
             }
         }
 
@@ -168,6 +183,11 @@ namespace MuEmu
                 db.GremoryCase.Remove(itDB);
                 db.SaveChanges();
             }
+        }
+
+        internal Item GetItem(GremoryStorage inventory, uint slot)
+        {
+            return _items.FirstOrDefault(x => x.RewardInventory == inventory && slot == x.ItemGUID)?.Item??null;
         }
     }
 }

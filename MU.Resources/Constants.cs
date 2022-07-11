@@ -203,6 +203,8 @@ namespace MU.Resources
     {
         Server = 1,
         Character,
+        //Mobil,
+        //PersonalStore,
     }
     public enum GremorySource : byte
     {
@@ -216,7 +218,15 @@ namespace MU.Resources
         ChaosCastleSurvival2 = 8,
         TormentedSquareLeague = 9,
         ChaosCastleUBF = 10,
+        EvomonReward = 12,
+        DevilSquare = 13,
+        ImperialFortress = 14,
+        HYESUNG = 15,
+        ProvidedElementalCombination = 16,
         Event = 17,
+        LaberythOfDimensions = 18,
+        Quest = 19,
+        Mobil = 20,
         GMReward = 100
     }
     public enum GremoryNotice : byte

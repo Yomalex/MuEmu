@@ -292,7 +292,7 @@ namespace MuEmu.Network
                                      select mi).FirstOrDefault();
 
                 charDto.GremoryCases = (from gc in db.GremoryCase
-                                        where gc.CharacterId == charDto.CharacterId && (gc.AccountId == charDto.AccountId && gc.Inventory == 1)
+                                        where gc.CharacterId == charDto.CharacterId && gc.AccountId == charDto.AccountId && (gc.Inventory == (byte)GremoryStorage.Character || gc.Inventory == (byte)GremoryStorage.Server)
                                         select gc).ToList();
             }
 
@@ -354,6 +354,8 @@ namespace MuEmu.Network
 
             if(Program.GlobalEventsManager.AnyEvent)
                 await session.SendAsync(new SSendBanner { Type = BannerType.EvenInven });
+
+            await session.SendAsync(new SSendBanner { Type = BannerType.Evomon });
 
             //ConnectServer dataSend
             Program.client.SendAsync(new SCAdd { Server = (byte)Program.ServerCode, btName = @charDto.Name.GetBytes() });

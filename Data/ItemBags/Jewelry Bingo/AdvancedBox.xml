@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="0" Monster="161" Plus="0" LevelMin="1" DropItemCount="1" DropItemRate="10" DropZenRate="90" MinZen="30000000" MaxZen="30000000">
+<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="7578" Plus="0" LevelMin="1" DropItemCount="1" DropItemRate="10" DropZenRate="90" MinZen="30000000" MaxZen="30000000">
   <Item Number="22" MinLevel="0" MaxLevel="9" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
   <Item Number="24" MinLevel="0" MaxLevel="9" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />
   <Item Number="23" MinLevel="0" MaxLevel="9" Luck="true" Skill="true" MinOption="0" MaxOption="2" MinExcellent="0" MaxExcellent="2" />

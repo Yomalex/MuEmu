@@ -34,5 +34,6 @@ namespace MuEmu.Data
         public byte MaxStack { get; set; }
         public ItemNumber OnMaxStack { get; internal set; } = ItemNumber.Invalid;
         public bool IsMount { get; set; }
+        public StorageID Inventory { get; internal set; } = StorageID.Inventory;
     }
 }

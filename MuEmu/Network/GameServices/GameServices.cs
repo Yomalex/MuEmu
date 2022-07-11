@@ -2154,7 +2154,65 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CGremoryCaseOpen))]
         public async Task CGremoryCaseOpen(GSSession session)
         {
+            session.Player.Character.GremoryCase.SendList();
             await session.SendAsync(new SGremoryCaseOpen { Result = 0 });
+        }
+
+        [MessageHandler(typeof(CGremoryCaseOpenS16))]
+        public async Task CGremoryCaseOpenS16(GSSession session, CGremoryCaseOpenS16 message)
+        {
+            session.Player.Character.GremoryCase.SendList();
+            await session.SendAsync(new SGremoryCaseOpenS16 { Result = 3 });
+        }
+
+        [MessageHandler(typeof(CGremoryCaseUseItem))]
+        public async Task CGremoryCaseUseItem(GSSession session, CGremoryCaseUseItem message)
+        {
+            var @char = session.Player.Character;
+            Item item = @char.GremoryCase.GetItem(message.Inventory, message.Serial);
+            if(item == null)
+            {
+                await session.SendAsync(new SGremoryCaseUseItem {
+                    Result = SGremoryCaseUseItem.GCResult.DatabaseError
+                });
+                return;
+            }
+            byte pos = 0xff;
+            switch ((item.BasicInfo.Inventory)
+)
+            {
+                case StorageID.EventInventory:
+                    pos = @char.Inventory.AddEvent(item);
+                    @char.Inventory.SendEventInventory();
+                    break;
+                case StorageID.MuunInventory:
+                    pos = @char.Inventory.AddMuun(item);
+                    @char.Inventory.SendMuunInventory();
+                    break;
+                case StorageID.PersonalShop:
+                    break;
+                case StorageID.Inventory:
+                default:
+                    pos = @char.Inventory.Add(item);
+                    @char.Inventory.SendInventory();
+                    break;
+            }
+            await session.SendAsync(new SGremoryCaseUseItem
+            {
+                Result = pos==0xff ? SGremoryCaseUseItem.GCResult.NotEnoughtSpace : SGremoryCaseUseItem.GCResult.Success,
+                Inventory = message.Inventory,
+                Item = item.Number.Number,
+                Serial = (uint)item.Serial,
+                Slot = message.Slot,
+            });
+            var msg = VersionSelector.CreateMessage<SGremoryCaseDelete>();
+            msg.Set("StorageType", message.Inventory);
+            msg.Set("ItemNumber", (ushort)message.Item);
+            msg.Set("ItemGUID", message.Serial);
+            msg.Set("Slot", message.Slot);
+            await session.SendAsync(msg);
+            
+            @char.GremoryCase.RemoveItem(message.Serial);
         }
 
         [MessageHandler(typeof(CPShopSearchItem))]
@@ -2566,6 +2624,7 @@ namespace MuEmu.Network.GameServices
                         break;
                     case 0x15:
                         plr.Character.Inventory.DeleteEvent(message.Slot);
+                        plr.Character.Inventory.SendEventInventory();
                         break;
                 }
                 result.Result = OBResult.OKInvent;
@@ -2581,6 +2640,9 @@ namespace MuEmu.Network.GameServices
                 var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
                 await plr.Session.SendAsync(msg);
                 plr.SendV2Message(msg);
+            }else
+            {
+                result.Result = OBResult.UnableToUse;
             }
 
         SendResult:

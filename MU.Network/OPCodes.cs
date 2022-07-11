@@ -206,6 +206,7 @@ namespace MU.Network
 
         GremoryCaseList = 0x004F,
         GremoryCaseReceive = 0x014F,
+        GremoryCaseUse = 0x024F,
         GremoryCaseDelete = 0x034F,
         GremoryCaseNotice = 0x044F,
         GremoryCaseOpen = 0x054F,
@@ -256,6 +257,7 @@ namespace MU.Network
         MossMerchant = 0x1170,
         MossMerchantOpenBox = 0x1070,
         MossMerchantOpenBoxReward = 0x1270,
+        GremoryCaseOpenS16 = 0x06CD,
     }
 
     public enum GensOpCode
