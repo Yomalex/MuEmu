@@ -1315,6 +1315,9 @@ namespace MuEmu
 
         private void OnDurabilityChange(bool flag)
         {
+            if (Storage != StorageID.Inventory)
+                return;
+
             var p = new SInventoryItemDurSend
             {
                 IPos = (byte)SlotId,

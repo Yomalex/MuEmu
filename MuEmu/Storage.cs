@@ -47,6 +47,17 @@ namespace MuEmu
 
         public byte Add(Item it, byte offset = 0)
         {
+            if (it.BasicInfo.MaxStack != 0)
+            {
+                var firts = (from r in _items.Values.Where(x => x.Number == it.Number)
+                             where r.Plus == it.Plus && r.Durability < it.BasicInfo.MaxStack
+                             select r).FirstOrDefault();
+                if (firts != null)
+                {
+                    firts.Overlap(it);
+                    return 0xfd;// (byte)firts.SlotId;
+                }
+            }
             for (var i = offset; i < Size; i++)
             {
                 var itemRect = new RectangleF(new Point(i % 8, i / 8), it.BasicInfo.Size);

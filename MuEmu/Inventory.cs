@@ -310,6 +310,16 @@ namespace MuEmu
         }
 
         /// <summary>
+        /// Get item by address from Event Inventory
+        /// </summary>
+        /// <param name="ipos"></param>
+        /// <returns></returns>
+        internal IEnumerable<byte> FindAllEvent(ItemNumber item)
+        {
+            return _event.Items.Where(x => x.Value.Number == item).Select(x => x.Key);
+        }
+
+        /// <summary>
         /// Find all items in main inventory with the TypeIndex number
         /// </summary>
         /// <param name="num"></param>
@@ -490,25 +500,6 @@ namespace MuEmu
         /// <returns>void</returns>
         public byte Add(Item it)
         {
-            if(it.BasicInfo.OnMaxStack != ItemNumber.Invalid)
-            {
-                var firts = (from r in FindAllItems(it.Number)
-                             where r.Plus == it.Plus && r.Durability < it.BasicInfo.MaxStack
-                             select r).FirstOrDefault();
-                if (firts != null)
-                {
-                    try
-                    {
-                        firts.Overlap(it);
-                        return 0xfd;// (byte)firts.SlotId;
-                    }
-                    catch (Exception ex)
-                    {
-                        Character.Player.Session.Exception(ex);
-                    }
-                }
-            }
-
             if (Character != null)
             {
                 it.Account = Character.Account;

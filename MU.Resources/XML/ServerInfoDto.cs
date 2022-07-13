@@ -73,6 +73,10 @@ namespace MuEmu.Resources.XML
         [XmlElement] public string MayaRightHandPatterns { get; set; } = "./Data/Monsters/PatternMayaRightHand.xml";
         [XmlElement] public string NightmarePatterns { get; set; } = "./Data/Monsters/PatternNightmare.xml";
         [XmlElement] public string QuestWorld { get; set; } = "./Data/QuestWorld/";
+        [XmlElement] public string MGMuRummy { get; set; } = "./Data/MiniGames/MuRummy.xml";
+        [XmlElement] public string MGFindBombs { get; set; } = "./Data/MiniGames/FindBombs.xml";
+        [XmlElement] public string MGJewelBingo { get; set; } = "./Data/MiniGames/JewelBingo.xml";
+        [XmlElement] public string MGBallsAndCows { get; set; } = "./Data/MiniGames/BallsAndCows.xml";
     }
 
     [XmlType(AnonymousType = true)]

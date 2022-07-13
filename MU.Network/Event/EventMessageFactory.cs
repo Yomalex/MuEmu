@@ -81,8 +81,22 @@ namespace MU.Network.Event
             Register<SSendBanner>(EventOpCode.Banner);
 
             // MuRummy
-            Register<CMuRummyOpen>(EventOpCode.MuRummyOpen);
-            Register<SMuRummyOpen>(EventOpCode.MuRummyOpen);
+            Register<CEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
+            Register<SEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
+            Register<CMuRummyStart>(EventOpCode.MuRummyStart);
+            Register<SMuRummyStart>(EventOpCode.MuRummyStart);
+            Register<SMuRummyMessage>(EventOpCode.MuRummyMessage);
+            Register<CMuRummyPlayCard>(EventOpCode.MuRummyPlayCard);
+            Register<SMuRummyPlayCard>(EventOpCode.MuRummyPlayCard);
+            Register<CMuRummyMatch>(EventOpCode.MuRummyMatch);
+            Register<CMuRummySpecialMatch>(EventOpCode.MuRummySpecialMatch);
+            Register<SMuRummyMatch>(EventOpCode.MuRummyMatch);
+            Register<SMuRummyCardList>(EventOpCode.MuRummyCardList);
+            Register<CMuRummyThrow>(EventOpCode.MuRummyThrow);
+            Register<CMuRummyReveal>(EventOpCode.MuRummyReveal);
+            Register<SMuRummyReveal>(EventOpCode.MuRummyReveal);
+            Register<CMuRummyExit>(EventOpCode.MuRummyExit);
+            Register<SMuRummyExit>(EventOpCode.MuRummyExit);
 
             //MineSweeper
             Register<CMineSweeperOpen>(EventOpCode.MineSweeper);

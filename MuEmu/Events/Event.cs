@@ -93,6 +93,10 @@ namespace MuEmu.Events
         {
             return null;
         }
+        public virtual BannerType GetBanner()
+        {
+            return (BannerType)0xff;
+        }
 
         public PlayerEventInfo GetPlayerEventInfo(Player plr)
         {

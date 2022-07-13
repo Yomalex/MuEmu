@@ -355,7 +355,13 @@ namespace MuEmu.Network
             if(Program.GlobalEventsManager.AnyEvent)
                 await session.SendAsync(new SSendBanner { Type = BannerType.EvenInven });
 
-            await session.SendAsync(new SSendBanner { Type = BannerType.Evomon });
+            var bannerList = Program.EventManager.GetEvents()
+                .Where(x => x.CurrentState != EventState.None && x.GetBanner() != (BannerType)0xff)
+                .Select(x => x.GetBanner())
+                .ToList();
+
+            foreach( var banner in bannerList)
+                await session.SendAsync(new SSendBanner { Type = banner });
 
             //ConnectServer dataSend
             Program.client.SendAsync(new SCAdd { Server = (byte)Program.ServerCode, btName = @charDto.Name.GetBytes() });

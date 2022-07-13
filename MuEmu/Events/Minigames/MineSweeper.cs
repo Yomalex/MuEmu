@@ -5,7 +5,7 @@ using System.Linq;
 using MU.Resources;
 using MU.Network.Event;
 
-namespace MuEmu.Events.MineSweeper
+namespace MuEmu.Events.Minigames
 {
     internal class MineSweeperCell
     {
@@ -14,7 +14,7 @@ namespace MuEmu.Events.MineSweeper
         private int _proximity = 0xff;
         public int X { get; private set; }
         public int Y { get; private set; }
-        public int Proximity => Mark?0xFE:Mine?9:GetProximity();
+        public int Proximity => Mark ? 0xFE : Mine ? 9 : GetProximity();
         public bool Mine { get; set; }
         public bool Hide { get; set; }
         public bool Mark { get; set; }
@@ -31,14 +31,14 @@ namespace MuEmu.Events.MineSweeper
             if (Mine)
                 return 0;
 
-            if(_proximity != 0xff)
+            if (_proximity != 0xff)
                 return _proximity;
 
             _proximity = 0;
-            for(var i = 0; i < 9; i++)
+            for (var i = 0; i < 9; i++)
             {
-                var x = (X + (i % 3) - 1);
-                var y = (Y + (i / 3) - 1);
+                var x = X + i % 3 - 1;
+                var y = Y + i / 3 - 1;
                 if (x >= 0 && y >= 0 && x < 8 && y < 6)
                 {
                     var index = x + y * 8;
@@ -59,11 +59,11 @@ namespace MuEmu.Events.MineSweeper
 
             Hide = false;
             result.Add(this);
-            if(Proximity==0)
+            if (Proximity == 0)
             {
                 result.AddRange(EmptyCell.Where(x => x.Proximity < 9).SelectMany(x => x.PropagateReveal()));
             }
-            else if(Proximity<9)
+            else if (Proximity < 9)
             {
                 result.AddRange(EmptyCell.Where(x => x.Proximity == 0).SelectMany(x => x.PropagateReveal()));
             }
@@ -71,7 +71,7 @@ namespace MuEmu.Events.MineSweeper
             return result;
         }
 
-        public ushort Cell => (ushort)((Proximity << 8) + (X + Y * 8));
+        public ushort Cell => (ushort)((Proximity << 8) + X + Y * 8);
         public ushort Score => (ushort)(Proximity * 10);
     }
     internal class MineSweeperGame
@@ -86,22 +86,22 @@ namespace MuEmu.Events.MineSweeper
         public byte RemainMines => (byte)(_totalBombs - _board.Count(x => x.Mark));
         public ushort Correct => (ushort)_board.Where(x => x.Mark && x.Mine).Count();
         public ushort Incorrect => (ushort)_board.Where(x => x.Mark && !x.Mine).Count();
-        public ushort TotalScore => (ushort)(Math.Max(Score + (Correct * 50) + (Incorrect * -20) + (Losed ? -50 : 500),0));
+        public ushort TotalScore => (ushort)Math.Max(Score + Correct * 50 + Incorrect * -20 + (Losed ? -50 : 500), 0);
 
         public IEnumerable<MineSweeperCell> FailedBomb => _board.Where(x => x.Mark && !x.Mine);
 
         public MineSweeperGame(Player plr)
         {
             _player = plr;
-            for(var i = 0; i < (6 * 8); i++)
+            for (var i = 0; i < 6 * 8; i++)
             {
                 _board.Add(new MineSweeperCell(this, i));
             }
 
-            for(_totalBombs = 0; _totalBombs < 11; )
+            for (_totalBombs = 0; _totalBombs < 11;)
             {
                 var pos = Program.RandomProvider(6 * 8);
-                if(!_board[pos].Mine)
+                if (!_board[pos].Mine)
                 {
                     _board[pos].Mine = true;
                     _totalBombs++;
@@ -111,7 +111,7 @@ namespace MuEmu.Events.MineSweeper
 
         public IEnumerable<ushort> GetBoard()
         {
-            for(var i = 0; i < _board.Count; i++)
+            for (var i = 0; i < _board.Count; i++)
             {
                 if (_board[i].Hide)
                     continue;
@@ -122,7 +122,7 @@ namespace MuEmu.Events.MineSweeper
 
         internal IEnumerable<ushort> Reveal(byte cell)
         {
-            if(_board[cell].Mine)
+            if (_board[cell].Mine)
             {
                 return Array.Empty<ushort>();
             }
@@ -136,11 +136,11 @@ namespace MuEmu.Events.MineSweeper
         internal byte Mark(byte cell)
         {
             _board[cell].Mark = !_board[cell].Mark;
-            if(Correct == _totalBombs && Incorrect==0)
+            if (Correct == _totalBombs && Incorrect == 0)
             {
                 Finish();
             }
-            return (byte)(_board[cell].Mark?1:0);
+            return (byte)(_board[cell].Mark ? 1 : 0);
         }
 
         internal ushort Finish(bool lose = false)
@@ -148,7 +148,7 @@ namespace MuEmu.Events.MineSweeper
             Finished = true;
             Losed = lose;
             _board.ForEach(x => x.Hide = false);
-            return (ushort)(Score + (Correct * 50) + (Incorrect * -20) + (lose ? -50 : 500));
+            return (ushort)(Score + Correct * 50 + Incorrect * -20 + (lose ? -50 : 500));
         }
 
         internal bool IsClear()
@@ -176,80 +176,9 @@ namespace MuEmu.Events.MineSweeper
             return new Item(7544);
         }
     }
-    internal class MineSweeper : Event
+    internal class MineSweeper : MiniGame<MineSweeperGame>
     {
-        private Dictionary<Player, MineSweeperGame> _games = new Dictionary<Player, MineSweeperGame>();
-
-        public override void Initialize()
-        {
-            base.Initialize();
-            Trigger(EventState.Open);
-            Program.server.Connect += Server_Connect;
-        }
-
-        private void Server_Connect(object sender, Network.WZServerEventArgs e)
-        {
-            e.session.Player.OnStatusChange += Player_OnStatusChange;
-        }
-
-        private void Player_OnStatusChange(object sender, EventArgs e)
-        {
-            var plr = sender as Player;
-            if (plr.Status == LoginStatus.Playing && CurrentState != EventState.None)
-            {
-                _ = plr.Session.SendAsync(new SSendBanner { Type = BannerType.JeweldryBingo });
-            }
-            if (plr.Status == LoginStatus.NotLogged)
-            {
-                plr.OnStatusChange -= Player_OnStatusChange;
-            }
-        }
-        public override void NPCTalk(Player plr)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnMonsterDead(object sender, EventArgs eventArgs)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnPlayerDead(object sender, EventArgs eventArgs)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnPlayerLeave(object sender, EventArgs eventArgs)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void OnTransition(EventState NextState)
-        {
-            switch(NextState)
-            {
-
-            }
-        }
-
-        public override bool TryAdd(Player plr)
-        {
-            throw new NotImplementedException();
-        }
-
-        public MineSweeperGame GetGame(Player plr)
-        {
-            if(!_games.ContainsKey(plr))
-            {
-                _games.Add(plr, new MineSweeperGame(plr));
-            }
-
-            return _games[plr];
-        }
-
-        internal void Clear(Player player)
-        {
-            _games.Remove(player);
-        }
+        public override BannerType GetBanner() => BannerType.MineSweeper;
+        public MineSweeper(string file) : base(file) { }
     }
 }

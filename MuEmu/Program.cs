@@ -54,12 +54,10 @@ using MuEmu.Game;
 using MuEmu.Events.WhiteWizard;
 using MuEmu.Network.GameServices;
 using MuEmu.Events.Event_Egg;
-using MuEmu.Events.Rummy;
+using MuEmu.Events.Minigames;
 using MuEmu.Events.CastleSiege;
 using MuEmu.Events.Raklion;
 using MuEmu.Events.AcheronGuardian;
-using MuEmu.Events.MineSweeper;
-using MuEmu.Events.JeweldryBingo;
 
 namespace MuEmu
 {
@@ -252,7 +250,7 @@ namespace MuEmu
                     .RegisterRule<CMoveItem>(MustBePlaying)
                     .RegisterRule<CMUBotData>(MustBePlaying)
                     .RegisterRule<CMuHelperState>(MustBePlaying)
-                    .RegisterRule<CMuRummyOpen>(MustBePlaying)
+                    .RegisterRule<CEventInventoryOpenS16>(MustBePlaying)
                     .RegisterRule<CNewQuest>(MustBePlaying)
                     .RegisterRule<CNewQuestInfo>(MustBePlaying)
                     .RegisterRule<CNPCJulia>(MustBePlaying)
@@ -650,13 +648,14 @@ namespace MuEmu
                 .AddEvent(Events.Events.MoonRabbit, new MoonRabbit())
                 .AddEvent(Events.Events.WhiteWizard, new WhiteWizard())
                 .AddEvent(Events.Events.EventEgg, new EventEgg())
-                .AddEvent(Events.Events.MuRummy, new MuRummy())
+                .AddEvent(Events.Events.MuRummy, new MuRummy(Program.XMLConfiguration.Files.MGMuRummy))
                 .AddEvent(Events.Events.CastleSiege, new CastleSiege())
                 .AddEvent(Events.Events.Raklion, new BattleOfSelupan())
                 .AddEvent(Events.Events.AcheronGuardian, new AcheronGuardian())
                 //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
-                .AddEvent(Events.Events.MineSweeper, new MineSweeper())
-                .AddEvent(Events.Events.JeweldryBingo, new JeweldryBingo())
+                .AddEvent(Events.Events.MineSweeper, new MineSweeper(Program.XMLConfiguration.Files.MGFindBombs))
+                .AddEvent(Events.Events.JeweldryBingo, new JeweldryBingo(Program.XMLConfiguration.Files.MGJewelBingo))
+                .AddEvent(Events.Events.BallsAndCows, new BallsAndCows(Program.XMLConfiguration.Files.MGBallsAndCows))
                 ;
             LuckyCoins.Initialize();
             EventChips.Initialize();

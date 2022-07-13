@@ -84,8 +84,10 @@ namespace MU.Network.Event
     { }
 
     [WZContract]
-    public class CMuRummyOpen : IEventMessage
-    { }
+    public class CEventInventoryOpenS16 : IEventMessage
+    {
+        [WZMember(0)] public byte Event { get; set; }
+    }
 
     [WZContract(Serialized = true)]
     public class CEventItemGet : IEventMessage
@@ -104,6 +106,45 @@ namespace MU.Network.Event
     [WZContract]
     public class CAcheronEventEnter : IEventMessage
     { }
+
+    [WZContract]
+    public class CMuRummyStart : IEventMessage
+    {
+        [WZMember(0)] public byte Type { get; set; }
+    }
+
+    [WZContract]
+    public class CMuRummyPlayCard : IEventMessage
+    {
+        [WZMember(0)] public byte From { get; set; }
+        [WZMember(1)] public byte To { get; set; }
+    }
+    [WZContract]
+    public class CMuRummyMatch : IEventMessage
+    {
+        //C1 04 4D 14
+    }
+    [WZContract]
+    public class CMuRummySpecialMatch : IEventMessage
+    {
+        //C1 04 4D 14
+    }
+    [WZContract]
+    public class CMuRummyExit : IEventMessage
+    {
+        //C1 04 4D 15
+    }
+    [WZContract]
+    public class CMuRummyReveal : IEventMessage
+    {
+        //C1 04 4D 11
+    }
+    [WZContract]
+    public class CMuRummyThrow : IEventMessage
+    {
+        [WZMember(0)] public byte From { get; set; }
+        //C1 04 4D 14
+    }
 
     [WZContract]
     public class CMineSweeperOpen : IEventMessage

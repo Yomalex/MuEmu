@@ -1,4 +1,5 @@
-﻿using MuEmu.Util;
+﻿using MuEmu.Events.Minigames;
+using MuEmu.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace MuEmu.Events
         AcheronGuardian,
         JeweldryBingo,
         MineSweeper,
+        BallsAndCows,
     }
     internal class EventInfo
     {

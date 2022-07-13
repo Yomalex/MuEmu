@@ -383,13 +383,12 @@ namespace MU.Network.Event
     }
 
     [WZContract]
-    public class SMuRummyOpen :IEventMessage
+    public class SEventInventoryOpenS16 : IEventMessage
     {
-        [WZMember(0)] public byte btResult { get; set; }
-        [WZMember(1)] public byte btEventTime1 { get; set; }
-        [WZMember(2)] public byte btEventTime2 { get; set; }
-        [WZMember(3)] public byte btEventTime3 { get; set; }
-        [WZMember(4)] public byte btEventTime4 { get; set; }
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public EventInventoryType Id { get; set; }
+        [WZMember(2)] public int EventTime { get; set; }
+        [WZMember(3)] public byte Data { get; set; }
     }
 
     [WZContract(Serialized = true)]
@@ -416,6 +415,70 @@ namespace MU.Network.Event
     public class SAcheronEventEnter : IEventMessage
     {
         [WZMember(0)] public byte Result { get; set; }
+    }
+
+    [WZContract]
+    public class MuRummyCardInfo
+    {
+        [WZMember(0)] public byte Color { get; set; }
+        [WZMember(1)] public byte Number { get; set; }
+        [WZMember(2)] public byte Slot { get; set; }
+    }
+
+    [WZContract]
+    public class SMuRummyStart : IEventMessage
+    {
+        [WZMember(0)] public ushortle Score { get; set; }
+        [WZMember(1)] public byte CardCount { get; set; }
+        [WZMember(2)] public byte SpecialCardCount { get; set; }
+        [WZMember(3)] public byte Unk { get; set; }
+        [WZMember(4)] public byte Type { get; set; }
+        [WZMember(5, typeof(ArraySerializer))] public byte[] SlotStatus { get; set; } //10
+        [WZMember(6, typeof(ArraySerializer))] public MuRummyCardInfo[] CardInfo { get; set; } //6
+    }
+
+    [WZContract]
+    public class SMuRummyCardList : IEventMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public MuRummyCardInfo[] CardInfo { get; set; } //6
+    }
+
+    [WZContract]
+    public class SMuRummyReveal : IEventMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public MuRummyCardInfo[] CardInfo { get; set; } //6
+        [WZMember(1)] public byte CardCount { get; set; }
+        [WZMember(2)] public byte SpecialCardCount { get; set; }
+    }
+
+    [WZContract]
+    public class SMuRummyPlayCard : IEventMessage
+    {
+        [WZMember(0)] public byte From { get; set; }
+        [WZMember(1)] public byte To { get; set; }
+        [WZMember(2)] public byte Color { get; set; }
+        [WZMember(3)] public byte Number { get; set; }
+    }
+
+    [WZContract]
+    public class SMuRummyMatch : IEventMessage
+    {
+        [WZMember(0)] public ushortle Score { get; set; } = new ushortle(0);
+        [WZMember(1)] public ushortle TotalScore { get; set; } = new ushortle(0);
+        [WZMember(2)] public byte Result { get; set; }
+    }
+    [WZContract]
+    public class SMuRummyExit : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        //C1 04 4D 15
+    }
+
+    [WZContract]
+    public class SMuRummyMessage : IEventMessage
+    {
+        [WZMember(0)] public byte Index { get; set; }
+        [WZMember(1)] public ushortle Value { get; set; } = new ushortle(0);
     }
 
     [WZContract]

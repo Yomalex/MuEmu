@@ -4,6 +4,22 @@ using System.Text;
 
 namespace MU.Resources
 {
+    // Event Inventory Flags
+    public enum EventInventoryType : byte
+    {
+        None = 0,
+        BattleCore = 1,
+        Egg = 2,
+        Evomon = 3,
+        LunarRabbit = 4,
+        XMas = 5,
+        NewYear = 6,
+        MuRummy = 7,
+        FindBombs = 8,
+        JeweldryBingo = 9,
+        Blossom = 10,
+        BallsAndCows = 11,
+    };
     // JewelBingo State
     public enum JBState : byte
     {

@@ -1,5 +1,6 @@
 ﻿using MU.DataBase;
 using MU.Network;
+using MU.Network.Event;
 using MU.Network.Game;
 using MU.Network.MuunSystem;
 using MU.Network.QuestSystem;
@@ -800,10 +801,24 @@ namespace MuEmu.Network.GameServices
             }
             else
             {
-                pos = @char.Inventory.Add(pickup);
-                pickup = @char.Inventory.Get(pos);
-                var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes() ?? Array.Empty<byte>(), message.Number);
-                await session.SendAsync(msg);
+                switch(pickup.BasicInfo.Inventory)
+                {
+                    case StorageID.Inventory:
+                        pos = @char.Inventory.Add(pickup);
+                        pickup = @char.Inventory.Get(pos);
+                        var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes() ?? Array.Empty<byte>(), message.Number);
+                        await session.SendAsync(msg);
+                        break;
+                    case StorageID.EventInventory:
+                        pos = @char.Inventory.AddEvent(pickup);
+                        pickup = @char.Inventory.GetEvent(pos);
+                        await session.SendAsync(new SEventItemGet { Result = pos, Item = pickup?.GetBytes() ?? Array.Empty<byte>() });
+                        break;
+                    case StorageID.MuunInventory:
+                        pos = @char.Inventory.AddMuun(pickup);
+                        pickup = @char.Inventory.GetMuun(pos);
+                        break;
+                }
             }
         }
 

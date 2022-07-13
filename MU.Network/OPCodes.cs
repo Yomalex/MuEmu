@@ -345,10 +345,6 @@ namespace MU.Network
         ArcaBattleState = 0x38F8,
         Banner = 0x184D,
 
-        MuRummyOpen = 0x0F4D,
-        EventItemGet = 0x004D,
-        EventItemThrow = 0x014D,
-        EventInventory = 0x024D,
         CastleSiegeLeftTimeAlarm = 0x1EB2,
         CastleSiegeState = 0x00B2,
         CastleSiegeRegiste = 0x01B2,
@@ -366,7 +362,22 @@ namespace MU.Network
         AcheronEnterReq = 0x4BF8,
         AcheronEnter = 0x4CF8,
 
+        EventInventoryOpen = 0x0F4D,
+        EventItemGet = 0x004D,
+        EventItemThrow = 0x014D,
+        EventInventory = 0x024D,
+
         // MiniGames
+        MuRummyStart = 0x104D,
+        MuRummyReveal = 0x114D,
+        MuRummyPlayCard = 0x124D,
+        MuRummyThrow = 0x134D,
+        MuRummyMatch = 0x144D,
+        MuRummySpecialMatch = 0x194D,
+        MuRummyExit = 0x154D,
+        MuRummyCardList = 0x164D,
+        MuRummyMessage = 0x174D,
+
         MineSweeperStart = 0x234D,
         MineSweeperReveal = 0x244D,
         MineSweeperMark = 0x254D,

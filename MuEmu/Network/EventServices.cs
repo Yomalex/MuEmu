@@ -11,16 +11,13 @@ using MuEmu.Events.Crywolf;
 using MuEmu.Events.DevilSquare;
 using MuEmu.Events.Event_Egg;
 using MuEmu.Events.ImperialGuardian;
-using MuEmu.Events.JeweldryBingo;
 using MuEmu.Events.Kanturu;
 using MuEmu.Events.LuckyCoins;
-using MuEmu.Events.MineSweeper;
-using MuEmu.Events.Rummy;
+using MuEmu.Events.Minigames;
 using MuEmu.Monsters;
 using MuEmu.Resources;
 using MuEmu.Util;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebZen.Handlers;
@@ -186,69 +183,260 @@ namespace MuEmu.Network
                 .TryAdd(session.Player);
         }
 
-        [MessageHandler(typeof(CMuRummyOpen))]
-        public async Task CMuRummyOpen(GSSession session)
+        [MessageHandler(typeof(CEventInventoryOpenS16))]
+        public async Task EventInventoryOpen(GSSession session, CEventInventoryOpenS16 message)
         {
+            var msg = new SEventInventoryOpenS16
+            {
+                Result = 3,
+                EventTime = 0,
+            };
+            var mineSweeper = Program.EventManager.GetEvent<MineSweeper>();
             var muRummy = Program.EventManager.GetEvent<MuRummy>();
             var JewelBingo = Program.EventManager.GetEvent<JeweldryBingo>();
             var eventEgg = Program.EventManager.GetEvent<EventEgg>();
-            DateTime end;
-            byte result;
 
-            if(muRummy.CurrentState == EventState.Playing)
+            var Banner = (BannerType)message.Event;
+            
+            switch (Banner)
             {
-                end = DateTime.UtcNow.Add(muRummy.TimeLeft);
-                result = 1;
+                case BannerType.Evomon:
+                    msg.Id = EventInventoryType.Evomon;
+                    break;
+                case BannerType.MineSweeper:
+                    await session.SendAsync(new SMineSweeperOpen
+                    {
+                        Result = (byte)(mineSweeper.CurrentState == EventState.Open ? 1 : 0),
+                        Cells = Array.Empty<ushort>(),
+                    });
+                    return;
+                case BannerType.MuRummy:
+                    if (muRummy.CurrentState == EventState.Open)
+                    {
+                        msg.EventTime = ((int)muRummy.TimeLeft.TotalSeconds).ShufleEnding();
+                        msg.Result = 1;
+                        msg.Id = EventInventoryType.MuRummy;
+                        msg.Data = 1;
+                    }
+                    break;
+                case BannerType.JeweldryBingo:
+                    if (JewelBingo.CurrentState != EventState.None)
+                    {
+                        await session.SendAsync(new SJewelBingoState
+                        {
+                            State = JBState.Open,
+                        });
+                        msg.EventTime = ((int)JewelBingo.TimeLeft.TotalSeconds).ShufleEnding();
+                        msg.Id = EventInventoryType.JeweldryBingo;
+                        }
+                    break;
+                case BannerType.MerryXMas:
+                    msg.Id = EventInventoryType.XMas;
+                    break;
+                case BannerType.NewYear:
+                    msg.Id = EventInventoryType.NewYear;
+                    break;
+                case BannerType.BallsAndCows:
+                    msg.Id = EventInventoryType.BallsAndCows;
+                    break;
+                case BannerType.UnityBattleField:
+                    msg.Id = EventInventoryType.BattleCore;
+                    break;
+                default:
+                    break;
             }
-            else if(JewelBingo.CurrentState != EventState.None)
+            await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CMuRummyStart))]
+        public async Task MuRummyStart(GSSession session, CMuRummyStart message)
+        {
+            var @event = Program.EventManager.GetEvent<MuRummy>();
+            var game = @event.GetGame(session.Player);
+
+            if (game.State == 0)
             {
-                await session.SendAsync(new SJewelBingoState
+                var cardDecks = session.Player.Character.Inventory.FindAllEvent((ushort)(message.Type == 1 ? 7445 : 7384));
+                if (cardDecks.Count() == 0)
                 {
-                    State = JBState.Open,
+                    await session.SendAsync(new SMuRummyMessage { Index = (byte)(message.Type == 1 ? 12 : 0), Value = new ushortle(0) });
+                    return;
+                }
+                session.Player.Character.Inventory.DeleteEvent(cardDecks.First());
+                session.Player.Character.Inventory.SendEventInventory();
+                game.Start(message.Type);
+            }
+
+            await session.SendAsync(new SMuRummyStart
+            {
+                CardCount = game.CardCount,
+                CardInfo = game.GetCardInfo(),
+                Score = game.Score,
+                SlotStatus = game.GetSlotStatus(),
+                SpecialCardCount = game.SpecialCardCount,
+                Type = game.Type,
+            });
+        }
+
+        [MessageHandler(typeof(CMuRummyPlayCard))]
+        public async Task MuRummyPlayCard(GSSession session, CMuRummyPlayCard message)
+        {
+            var @event = Program.EventManager.GetEvent<MuRummy>();
+            var game = @event.GetGame(session.Player);
+
+            var pc = game.MovePlayCard(message.From, message.To);
+
+            await session.SendAsync(new SMuRummyPlayCard
+            {
+                From = message.From,
+                To = message.To,
+                Color = pc.Color,
+                Number = pc.Number,
+            });
+        }
+        [MessageHandler(typeof(CMuRummyThrow))]
+        public async Task MuRummyThrow(GSSession session, CMuRummyThrow message)
+        {
+            var @event = Program.EventManager.GetEvent<MuRummy>();
+            var game = @event.GetGame(session.Player);
+
+            var newCard = game.ThrowPlayCard(message.From);
+            await session.SendAsync(message);
+            await session.SendAsync(new SMuRummyMessage { Index = 4 });
+        }
+
+        [MessageHandler(typeof(CMuRummyReveal))]
+        public async Task MuRummyReveal(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<MuRummy>();
+            var game = @event.GetGame(session.Player);
+
+            if(game.CardCount == 0 || !game.GetCardInfo().Take(5).Any(x => x.Color == 0))
+            {
+                await session.SendAsync(new SMuRummyMessage { Index = 2 });
+                return;
+            }
+
+            if(game.GetPlayedCard().Any(x => x.Color != 0))
+            {
+                await session.SendAsync(new SMuRummyMessage { Index = 3 });
+                return;
+            }
+
+            var result = game.Reveal();
+
+            await session.SendAsync(new SMuRummyReveal
+            {
+                CardCount = game.CardCount,
+                CardInfo = result.ToArray(),
+                SpecialCardCount = game.SpecialCardCount,
+            });
+        }
+
+        [MessageHandler(typeof(CMuRummyExit))]
+        public async Task MuRummyExit(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<MuRummy>();
+            var game = @event.GetGame(session.Player);
+            var @char = session.Player.Character;
+
+
+            if (game.Score < 250)
+            {
+                if(@char.Money == int.MaxValue)
+                {
+                    await session.SendAsync(new SMuRummyMessage { Index = 11 });
+                    return;
+                }
+                @char.Money += 500000;
+                await session.SendAsync(new SMuRummyMessage { Index = 10 });
+            }
+            else
+            {
+                var it = new Item(7537);
+                if(game.Score < 400)
+                {
+                    it.Number = 7535;
+                }
+                else if (game.Score < 500)
+                {
+                    it.Number = 7536;
+                }
+                @char.GremoryCase.AddItem(it, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.Event);
+                await session.SendAsync(new SMuRummyMessage { Index = 9, Value = it.Number.Number });
+            }
+
+            await session.SendAsync(new SMuRummyExit { Result = 1 });
+            await session.SendAsync(new SMuRummyMessage { Index = 8 });
+            @event.ClearGame(session.Player);
+        }
+        [MessageHandler(typeof(CMuRummySpecialMatch))]
+        public async Task MuRummySpecialMatch(GSSession session)
+        {
+            await MuRummyMatch(session);
+        }
+
+        [MessageHandler(typeof(CMuRummyMatch))]
+        public async Task MuRummyMatch(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<MuRummy>();
+            var game = @event.GetGame(session.Player);
+
+            var score = game.Match();
+            if(score == 0)
+            {
+                await session.SendAsync(new SMuRummyMessage
+                {
+                    Index = 6,
+                    Value = new ushortle(0),
+                });
+            }
+            else
+            {
+                await session.SendAsync(new SMuRummyMatch
+                {
+                    Result = 1,
+                    Score = score,
+                    TotalScore = game.Score
+                });
+                await session.SendAsync(new SMuRummyMessage
+                {
+                    Index = 5,
+                    Value = new ushortle(0),
                 });
             }
 
-            end = DateTime.UtcNow.Add(eventEgg.TimeLeft);
-            result = 3;
-            
-            var unixTimestamp = (int)(end.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            var bytes = BitConverter.GetBytes(unixTimestamp);
-            var msg = new SMuRummyOpen
+            await session.SendAsync(new SMuRummyCardList
             {
-                btResult = result,
-                btEventTime1 = bytes[3],
-                btEventTime2 = bytes[2],
-                btEventTime3 = bytes[1],
-                btEventTime4 = bytes[0],
-            };
-            await session.SendAsync(msg);
-
-            //session.Player.Character.Inventory.SendEventInventory();
+                CardInfo = game.GetCardInfo()
+            });
         }
 
         [MessageHandler(typeof(CMineSweeperOpen))]
-        public void CMineSweeperOpen(GSSession session)
+        public async Task CMineSweeperOpen(GSSession session)
         {
-            var @event = Program.EventManager.GetEvent<MineSweeper>();
-            var msg = new SMineSweeperOpen
-            {
-                Result = (byte)(@event.CurrentState==EventState.Open?1:1),
-                Cells = Array.Empty<ushort>(),
-            };
-            _ = session.SendAsync(msg);
-
-            //session.Player.Character.Inventory.SendEventInventory();
+            await EventInventoryOpen(session, new CEventInventoryOpenS16 { Event = (byte)BannerType.MineSweeper });
         }
 
         [MessageHandler(typeof(CMineSweeperStart))]
-        public void CMineSweeperStart(GSSession session)
+        public async Task CMineSweeperStart(GSSession session)
         {
             var @event = Program.EventManager.GetEvent<MineSweeper>();
             var game = @event.GetGame(session.Player);
+            var cardDecks = session.Player.Character.Inventory.FindAllEvent(7384);
             var msg = new SMineSweeperStart
             {
                 Result = 0,
             };
+            if (cardDecks.Count() == 0)
+            {
+                msg.Result = 1;
+                await session.SendAsync(msg);
+                return;
+            }
+            session.Player.Character.Inventory.DeleteEvent(cardDecks.First());
+            session.Player.Character.Inventory.SendEventInventory();
+
             var board = game.GetBoard();
             var msg2 = new SMineSweeperOpen
             {
@@ -258,9 +446,9 @@ namespace MuEmu.Network
                 CurrentScore = game.Score,
                 RemainBombs = game.RemainMines,
             };
-            _ = session.SendAsync(msg);
-            _ = session.SendAsync(new SMineSweeperCreateCell { Effect = 11, X = 8, Y = 6 });
-            _ = session.SendAsync(msg2);
+            await session.SendAsync(msg);
+            await session.SendAsync(new SMineSweeperCreateCell { Effect = 11, X = 8, Y = 6 });
+            await session.SendAsync(msg2);
         }
 
         [MessageHandler(typeof(CMineSweeperReveal))]
@@ -338,7 +526,7 @@ namespace MuEmu.Network
             }
 
             var reward = game.GetReward();
-            @event.Clear(session.Player);
+            @event.ClearGame(session.Player);
 
             session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.Event);
             session.Player.Character.GremoryCase.SendList();
@@ -355,13 +543,21 @@ namespace MuEmu.Network
             var @event = Program.EventManager.GetEvent<JeweldryBingo>();
             var game = @event.GetGame(session.Player);
 
-            if(game.State == JBState.Open)
-                game.State = JBState.State1;
-
-            await session.SendAsync(new SJewelBingoState
+            if (game.State == JBState.Open)
             {
-                State = game.State,
-            });
+                var cardDecks = session.Player.Character.Inventory.FindAllEvent(7384);
+                if(cardDecks.Count() == 0)
+                {
+                    await session.SendAsync(new SJewelBingoState
+                    {
+                        State = JBState.InsuficientCardDeck,
+                    });                    
+                    return;
+                }
+                session.Player.Character.Inventory.DeleteEvent(cardDecks.First());
+                session.Player.Character.Inventory.SendEventInventory();
+                game.State = JBState.State1;
+            }
 
             if (game.State == JBState.State1)
             {
@@ -496,7 +692,7 @@ namespace MuEmu.Network
             var game = @event.GetGame(session.Player);
 
             var reward = game.GetReward();
-            @event.Clear(session.Player);
+            @event.ClearGame(session.Player);
 
             session.Player.Character.GremoryCase.AddItem(reward, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.Event);
             session.Player.Character.GremoryCase.SendList();
@@ -520,7 +716,7 @@ namespace MuEmu.Network
             }
 
             var pos = @char.Inventory.AddEvent(item);
-            if (pos != 0xff)
+            if (pos != 0xff && pos != 0xfd)
             {
                 _ = session.SendAsync(new SEventItemGet { Result = pos, Item = item.GetBytes() });
             }
