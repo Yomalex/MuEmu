@@ -582,4 +582,33 @@ namespace MU.Network.Event
     [WZContract]
     public class SJewelBingoBox : IEventMessage
     { }
+
+    [WZContract]
+    public class SBallsAndCowsOpen : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte Junk { get; set; }
+        [WZMember(2)] public ushort Score { get; set; }
+        [WZMember(3, typeof(ArraySerializer))] public byte[] Strikes { get; set; } //5
+        [WZMember(4, typeof(ArraySerializer))] public byte[] Ball { get; set; }//5
+        [WZMember(5, typeof(ArraySerializer))] public byte[] Numbers { get; set; }//5*3
+    }
+
+    [WZContract]
+    public class SBallsAndCowsStart : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
+
+    [WZContract]
+    public class SBallsAndCowsResult : IEventMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1, typeof(ArraySerializer))] public byte[] Strikes{ get; set; } //5
+        [WZMember(2, typeof(ArraySerializer))] public byte[] Ball { get; set; } //5
+        [WZMember(3, typeof(ArraySerializer))] public byte[] Numbers { get; set; } //5*3
+        [WZMember(4)] public byte Data4 { get; set; }
+        [WZMember(5)] public byte Junk { get; set; }
+        [WZMember(6)] public ushort Score { get; set; }
+    }
 }

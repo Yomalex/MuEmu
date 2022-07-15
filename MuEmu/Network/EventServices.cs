@@ -79,13 +79,13 @@ namespace MuEmu.Network
             var evbc = Program.EventManager.GetEvent<BloodCastles>();
             var itemLevel = evbc.GetEventNumber(plr);
 
-            if(invisibleCloack.Plus != message.Bridge && invisibleCloack.Number != ItemNumber.FromTypeIndex(13,47))
+            if (invisibleCloack.Plus != message.Bridge && invisibleCloack.Number != ItemNumber.FromTypeIndex(13, 47))
             {
                 await session.SendAsync(new SBloodCastleMove(1));
                 return;
             }
 
-            if(itemLevel != invisibleCloack.Plus)
+            if (itemLevel != invisibleCloack.Plus)
             {
                 await session.SendAsync(new SBloodCastleMove((byte)(itemLevel > invisibleCloack.Plus ? 4 : 3)));
                 return;
@@ -133,11 +133,11 @@ namespace MuEmu.Network
 
             var itemPos = (byte)(message.InvitationItemPos - 12);
             var item = @char.Inventory.Get(itemPos);
-            if (item.Plus != message.SquareNumber+1)
+            if (item.Plus != message.SquareNumber + 1)
                 return;
 
             var dsm = Program.EventManager.GetEvent<DevilSquares>();
-            if (dsm.GetPlayerDS(plr) != message.SquareNumber+1)
+            if (dsm.GetPlayerDS(plr) != message.SquareNumber + 1)
                 return;
 
             if (!dsm.TryAdd(plr))
@@ -191,14 +191,13 @@ namespace MuEmu.Network
                 Result = 3,
                 EventTime = 0,
             };
-            var mineSweeper = Program.EventManager.GetEvent<MineSweeper>();
+
             var muRummy = Program.EventManager.GetEvent<MuRummy>();
             var JewelBingo = Program.EventManager.GetEvent<JeweldryBingo>();
+            var ballsAndCows = Program.EventManager.GetEvent<BallsAndCows>();
             var eventEgg = Program.EventManager.GetEvent<EventEgg>();
 
-            var Banner = (BannerType)message.Event;
-            
-            switch (Banner)
+            switch ((BannerType)message.Event)
             {
                 case BannerType.Evomon:
                     msg.Id = EventInventoryType.Evomon;
@@ -206,7 +205,7 @@ namespace MuEmu.Network
                 case BannerType.MineSweeper:
                     await session.SendAsync(new SMineSweeperOpen
                     {
-                        Result = (byte)(mineSweeper.CurrentState == EventState.Open ? 1 : 0),
+                        Result = (byte)(Program.EventManager.GetEvent<MineSweeper>().CurrentState == EventState.Open ? 1 : 0),
                         Cells = Array.Empty<ushort>(),
                     });
                     return;
@@ -228,7 +227,7 @@ namespace MuEmu.Network
                         });
                         msg.EventTime = ((int)JewelBingo.TimeLeft.TotalSeconds).ShufleEnding();
                         msg.Id = EventInventoryType.JeweldryBingo;
-                        }
+                    }
                     break;
                 case BannerType.MerryXMas:
                     msg.Id = EventInventoryType.XMas;
@@ -237,8 +236,16 @@ namespace MuEmu.Network
                     msg.Id = EventInventoryType.NewYear;
                     break;
                 case BannerType.BallsAndCows:
+                    msg.EventTime = ((int)ballsAndCows.TimeLeft.TotalSeconds).ShufleEnding();
                     msg.Id = EventInventoryType.BallsAndCows;
-                    break;
+                    await session.SendAsync(new SBallsAndCowsOpen
+                    {
+                        Result = 1,
+                        Ball = new byte[5],
+                        Strikes = new byte[5],
+                        Numbers = new byte[15],
+                    });
+                    return;
                 case BannerType.UnityBattleField:
                     msg.Id = EventInventoryType.BattleCore;
                     break;
@@ -246,6 +253,83 @@ namespace MuEmu.Network
                     break;
             }
             await session.SendAsync(msg);
+        }
+
+        [MessageHandler(typeof(CBallsAndCowsStart))]
+        public async Task BallsAndCowsStart(GSSession session)
+        {
+            var @event = Program.EventManager.GetEvent<BallsAndCows>();
+            var game = @event.GetGame(session.Player);
+
+            if (game.State == 0)
+            {
+                var cardDecks = session.Player.Character.Inventory.FindAllEvent(7384);
+                if (cardDecks.Count() == 0)
+                {
+                    await session.SendAsync(new SBallsAndCowsStart { Result = 0x0E });
+                    return;
+                }
+                session.Player.Character.Inventory.DeleteEvent(cardDecks.First());
+                session.Player.Character.Inventory.SendEventInventory();
+                game.Start();
+            }
+
+            await session.SendAsync(new SBallsAndCowsStart { Result = 0x0 });
+            if (game.State == 1)
+            {
+                await session.SendAsync(new SBallsAndCowsOpen {
+                    Result = 2,
+                    Ball = game.Ball,
+                    Strikes = game.Strikes,
+                    Numbers = game.Numbers,
+                    Score = game.Score,
+                });
+            }
+        }
+        [MessageHandler(typeof(CBallsAndCowsPick))]
+        public async Task BallsAndCowsPick(GSSession session, CBallsAndCowsPick message)
+        {
+            var @event = Program.EventManager.GetEvent<BallsAndCows>();
+            var game = @event.GetGame(session.Player);
+
+            game.SetNumber(message.Numbers);         
+
+            if(game.State == 2)
+            {
+                var result = game.Strikes.Any(x => x == 3);
+                var msg = new SBallsAndCowsResult
+                {
+                    Ball = game.Ball,
+                    Strikes = game.Strikes,
+                    Numbers = game.Hidden,
+                    Score = game.Score,
+                    Result = (byte)(result ? 3 : 2),
+                    Data4 = (byte)(result ? 3 : 2),
+                };
+                await session.SendAsync(msg);
+                var it = new Item(7591);
+                if(game.Score > 450)
+                {
+                    it.Number = 7593;
+                }
+                else if(game.Score > 300)
+                {
+                    it.Number = 7592;
+                }
+                session.Player.Character.GremoryCase.AddItem(it, DateTime.Now.AddDays(1), GremoryStorage.Character, GremorySource.Event);
+                @event.ClearGame(session.Player);
+            }
+            else
+            {
+                await session.SendAsync(new SBallsAndCowsOpen
+                {
+                    Result = 2,
+                    Ball = game.Ball,
+                    Strikes = game.Strikes,
+                    Numbers = game.Numbers,
+                    Score = game.Score,
+                });
+            }
         }
 
         [MessageHandler(typeof(CMuRummyStart))]

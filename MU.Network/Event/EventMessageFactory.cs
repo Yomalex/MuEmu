@@ -125,6 +125,13 @@ namespace MU.Network.Event
             Register<CJewelBingoGetReward>(EventOpCode.JeweldryBingoPlayResult);
             Register<SJewelBingoPlayResult>(EventOpCode.JeweldryBingoPlayResult);
 
+            //BallsAndCows
+            Register<SBallsAndCowsOpen>(EventOpCode.BallsAndCowsOpen);
+            Register<CBallsAndCowsStart>(EventOpCode.BallsAndCowsStart);
+            Register<SBallsAndCowsStart>(EventOpCode.BallsAndCowsStart);
+            Register<CBallsAndCowsPick>(EventOpCode.BallsAndCowsPick);
+            Register<SBallsAndCowsResult>(EventOpCode.BallsAndCowsResult);
+
             //
             Register<CEventItemGet>(EventOpCode.EventItemGet);
             Register<SEventItemGet>(EventOpCode.EventItemGet);

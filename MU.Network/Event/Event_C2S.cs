@@ -198,4 +198,14 @@ namespace MU.Network.Event
     [WZContract]
     public class CJewelBingoGetReward : IEventMessage
     { }
+
+    [WZContract]
+    public class CBallsAndCowsStart : IEventMessage
+    { }
+
+    [WZContract]
+    public class CBallsAndCowsPick : IEventMessage
+    {
+        [WZMember(0, typeof(ArraySerializer))] public byte[] Numbers { get; set; }//5*3
+    }
 }

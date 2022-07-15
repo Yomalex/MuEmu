@@ -386,6 +386,11 @@ namespace MU.Network
         MineSweeperGetReward = 0x284D,
         MineSweeperCreateCell = 0x294D,
 
+        BallsAndCowsStart = 0x304D,
+        BallsAndCowsPick = 0x314D,
+        BallsAndCowsOpen = 0x334D,
+        BallsAndCowsResult = 0x344D,
+
         JeweldryBingoState = 0x2A4D,
         JeweldryBingoInfo = 0x2B4D,
         JeweldryBingoBox = 0x2C4D,
