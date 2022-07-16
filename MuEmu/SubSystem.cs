@@ -246,7 +246,7 @@ namespace MuEmu
                                             it.Value.State = ItemMapState.Deleting;
                                         break;
                                     case ItemMapState.Deleting:
-                                        it.Value.State = ItemMapState.Deleted;
+                                        map.DeleteItem(it.Value);
                                         break;
                                 }
                             }

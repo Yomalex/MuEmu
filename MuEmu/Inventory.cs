@@ -498,9 +498,23 @@ namespace MuEmu
                 it.Character = Character;
             }
             _needSave = true;
-            var result = _inventory.Add(it);
+            byte result = 0xff;
 
-            if(result == 0xff && _exInventory1 != null)
+            var anyI1 = _inventory.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack);
+            var anyI2 = _exInventory1?.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack)??false;
+            var anyI3 = _exInventory2?.Items.Any(x => x.Value.Number == it.Number && x.Value.Durability < x.Value.BasicInfo.MaxStack)??false;
+
+            if(anyI1)
+                result = _inventory.Add(it);
+            else if(anyI2)
+                result = _exInventory1.Add(it);
+            else if (anyI3)
+                result = _exInventory2.Add(it);
+
+            if(result == 0xff)
+                result = _inventory.Add(it);
+
+            if (result == 0xff && _exInventory1 != null)
                 result = _exInventory1.Add(it);
 
             if (result == 0xff && _exInventory2 != null)
@@ -1262,9 +1276,9 @@ namespace MuEmu
             return CharSet;
         }
 
-        internal void Remove(Item item)
+        internal void Remove(Item item, bool send = false)
         {
-            GetStorage(item)?.Remove(item);
+            Remove((byte)item.SlotId, send);
         }
 
         /// <summary>

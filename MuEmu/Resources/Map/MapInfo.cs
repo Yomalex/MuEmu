@@ -38,6 +38,7 @@ namespace MuEmu.Resources.Map
     {
         private List<MapAttributes[]> _shadowLayer = new List<MapAttributes[]>();
         private DateTime _nextWeater;
+        private List<ushort> _reuseAddress;
 
         internal Item ItemPickUp(Character @char, ushort number)
         {
@@ -57,23 +58,18 @@ namespace MuEmu.Resources.Map
             {
                 throw new Exception("This item does not belong to you");
             }
-            var session = @char.Player.Session;
-            item.State = ItemMapState.Deleting;
             return item.Item;
         }
 
         private MapAttributes[] Layer { get; }
         private List<Point> SafePoints { get; set; }
         private IEnumerable<Monster> NPC => Monsters.Where(x => x.Type == ObjectType.NPC);
-
         public int Width { get; }
         public int Height { get; }
         public List<Monster> Monsters { get; }
         public List<Character> Players { get; }
         public Dictionary<ushort, ItemInMap> Items { get; }
-        public ushort CurIndex { get; set; }
         public int Map { get; }
-
         public bool IsEvent { get; }
         public byte Weather { get; set; }
         public bool DragonInvasion { get; set; }
@@ -111,6 +107,17 @@ namespace MuEmu.Resources.Map
             }
 
             return new Point();
+        }
+        internal ushort GetAddress()
+        {
+            if(_reuseAddress.Any())
+            {
+                var reuse = _reuseAddress[0];
+                _reuseAddress.RemoveAt(0);
+                return reuse;
+            }
+
+            return (ushort)Items.Count;
         }
 
         /// <summary>
@@ -173,6 +180,7 @@ namespace MuEmu.Resources.Map
             Monsters = new List<Monster>();
             Players = new List<Character>();
             Items = new Dictionary<ushort, ItemInMap>();
+            _reuseAddress = new List<ushort>();
             switch((Maps)Map)
             {
                 case Maps.Lorencia:
@@ -305,6 +313,12 @@ namespace MuEmu.Resources.Map
             }
         }
 
+        internal void DeleteItem(ItemInMap it)
+        {
+            it.State = ItemMapState.Deleted;
+            _reuseAddress.Add(it.Index);
+        }
+
         public void SendWeather(Character @char)
         {
             SubSystem.Instance.AddDelayedMessage(@char.Player, TimeSpan.FromSeconds(1), new SWeather(Weather));
@@ -335,7 +349,7 @@ namespace MuEmu.Resources.Map
             var own = DateTimeOffset.Now.AddSeconds(60);
 
             ItemInMap it = new ItemInMap {
-                Index = CurIndex,
+                Index = GetAddress(),
                 Item = item,
                 State = ItemMapState.Creating,
                 Position = new Point(X, Y),
@@ -346,15 +360,14 @@ namespace MuEmu.Resources.Map
 
             lock (Items)
             {
-                if (Items.ContainsKey(CurIndex))
+                if (Items.ContainsKey(it.Index))
                 {
-                    Items[CurIndex] = it;
+                    Items[it.Index] = it;
                 }
                 else
                 {
-                    Items.Add(CurIndex, it);
+                    Items.Add(it.Index, it);
                 }
-                CurIndex++;
             }
 
             return valid;
@@ -462,6 +475,13 @@ namespace MuEmu.Resources.Map
 
             Weather = (byte)(Program.RandomProvider(3) << 4 | Program.RandomProvider(10));
             await SendAsync(new SWeather(Weather));
+        }
+
+        internal SViewPortItemDestroy ItemGive(ushort number)
+        {
+            Items[number].State = ItemMapState.Deleted;
+            _reuseAddress.Add(number);
+            return new SViewPortItemDestroy { ViewPort = new VPDestroyDto[] { new VPDestroyDto(number) } };
         }
     }
 }

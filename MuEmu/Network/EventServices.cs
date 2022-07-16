@@ -1,4 +1,5 @@
-﻿using MU.Network.CastleSiege;
+﻿using MU.Network;
+using MU.Network.CastleSiege;
 using MU.Network.Event;
 using MU.Network.Game;
 using MU.Resources;
@@ -784,32 +785,31 @@ namespace MuEmu.Network
         }
 
         [MessageHandler(typeof(CEventItemGet))]
-        public void CEventItemGet(GSSession session, CEventItemGet message)
+        public async Task CEventItemGet(GSSession session, CEventItemGet message)
         {
             var @char = session.Player.Character;
             var map = @char.Map;
             Item item;
+
+            var msg = VersionSelector.CreateMessage<SEventItemGet>((byte)0xff, Array.Empty<byte>(), message.Number);
 
             try
             {
                 item = map.ItemPickUp(@char, message.Number);
             } catch (Exception ex)
             {
-                _ = session.SendAsync(new SEventItemGet { Result = 0xff, Item = Array.Empty<byte>() });
+                await session.SendAsync(msg);
                 session.Exception(ex);
                 return;
             }
 
             var pos = @char.Inventory.AddEvent(item);
-            if (pos != 0xff && pos != 0xfd)
-            {
-                _ = session.SendAsync(new SEventItemGet { Result = pos, Item = item.GetBytes() });
-            }
-            else
-            {
-                _ = session.SendAsync(new SEventItemGet { Result = 0xff, Item = item.GetBytes() });
-                session.Player.Character.Inventory.SendEventInventory();
-            }
+            msg.Set("Result", pos);
+            msg.Set("Item", item.GetBytes());
+            _ = session.SendAsync(msg);
+            var msg2 = @char.Map.ItemGive(message.Number);
+            _ = session.SendAsync(msg2);
+            session.Player.SendV2Message(msg2);
         }
 
         [MessageHandler(typeof(CEventItemThrow))]

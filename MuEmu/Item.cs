@@ -58,62 +58,55 @@ namespace MuEmu
             if (item.IsZen)
                 return;
 
-            _itemForSave.Add(item);
+            lock(_itemForSave)
+                _itemForSave.Add(item);
         }
         public static void RemReference(Item item)
         {
-            _itemForSave.Remove(item);
+            lock(_itemForSave)
+                _itemForSave.Remove(item);
         }
         public static void RemReference(Account account)
         {
-            _itemForSave.RemoveAll(x => x.Account == account);
+            lock(_itemForSave)
+                _itemForSave.RemoveAll(x => x.Account == account);
         }
         public static void Save(GameContext db)
         {
-            var logger = Log.Logger;
-            var addList = _itemForSave.Where(x => x.Serial == 0 && x.State != ItemState.Deleted && x.Account != null);
-            var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0);
-            var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted);
+            lock (_itemForSave)
+            { 
+                var logger = Log.Logger;
+                var addList = _itemForSave.Where(x => x.Serial == 0 && x.State != ItemState.Deleted && x.Account != null);
+                var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0);
+                var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted);
 
-            if(addList.Any())
-                logger.Information("New items");
-            db.Items.AddRange(addList.Select(x => x.Save(db)).Where(x => x != null));
+                db.Items.AddRange(addList.Select(x => x.Save(db)).Where(x => x != null));
+                db.Items.UpdateRange(updateList.Select(x => x.Save(db)).Where(x => x != null));
+                db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)).Where(x => x != null));
 
-            if (updateList.Any())
-                logger.Information("Updated items");
-            db.Items.UpdateRange(updateList.Select(x => x.Save(db)).Where(x => x != null));
-
-            if (removeList.Any())
-                logger.Information("Deleted items");
-            db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)).Where(x => x != null));
-
-            _itemForSave.RemoveAll(x => removeList.Contains(x));
+                _itemForSave.RemoveAll(x => removeList.Contains(x));
+            }
         }
         public static void SaveReference(Account account)
         {
-            var logger = Log.Logger.ForAccount(account.Player.Session);
-            logger.Information("Force save items");
-            using (var db = new GameContext())
+            lock (_itemForSave)
             {
-                var addList = _itemForSave.Where(x => x.Serial == 0 && x.Account == account && x.State != ItemState.Deleted);
-                var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0 && x.Account == account);
-                var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted && x.Account == account);
+                var logger = Log.Logger.ForAccount(account.Player.Session);
+                logger.Information("Force save items");
+                using (var db = new GameContext())
+                {
+                    var addList = _itemForSave.Where(x => x.Serial == 0 && x.Account == account && x.State != ItemState.Deleted);
+                    var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0 && x.Account == account);
+                    var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted && x.Account == account);
 
-                if (addList.Any())
-                    logger.Information("New items");
-                db.Items.AddRange(addList.Select(x => x.Save(db)));
+                    db.Items.AddRange(addList.Select(x => x.Save(db)));
+                    db.Items.UpdateRange(updateList.Select(x => x.Save(db)));
+                    db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)));
 
-                if (updateList.Any())
-                    logger.Information("Updated items");
-                db.Items.UpdateRange(updateList.Select(x => x.Save(db)));
-
-                if (removeList.Any())
-                    logger.Information("Deleted items");
-                db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)));
-
-                _itemForSave.RemoveAll(x => removeList.Contains(x));
-                db.SaveChanges();
-            }            
+                    _itemForSave.RemoveAll(x => removeList.Contains(x));
+                    db.SaveChanges();
+                }
+            }
         }
     }
     public enum ItemState
@@ -224,8 +217,8 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                if (value > DurabilityBase && DurabilityBase > 0)
-                    value = DurabilityBase;
+                if (BasicInfo.MaxStack < value || (value > DurabilityBase && DurabilityBase > 0 && BasicInfo.MaxStack == 0))
+                    value = Math.Max(DurabilityBase, BasicInfo.MaxStack);
 
                 _durability = value;
                 OnDurabilityChange(false);
@@ -435,8 +428,8 @@ namespace MuEmu
             if (!ItemDB.ContainsKey(dto.Number))
                 throw new Exception("Item don't exists " + dto.Number);
 
-            Account = acc;
-            Character = @char;
+            _account = acc;
+            _character = @char;
             BasicInfo = ItemDB[dto.Number];
             _slot = dto.SlotId;
             Serial = dto.ItemId;
@@ -1427,12 +1420,14 @@ namespace MuEmu
         public void OnItemChange()
         {
             CalcItemAttributes();
+            if (Character == null)
+                return;
 
-            Character?.Player.Session.SendAsync(new SInventoryItemSend
-            {
-                Pos = (byte)SlotId,
-                ItemInfo = GetBytes()
-            });
+            var session = Character.Player.Session;
+
+            //session?.SendAsync(new SInventoryItemDelete((byte)SlotId, 1));
+            session?.Player.Character.Inventory.SendInventory();
+            session?.Player.Character.Inventory.SendEventInventory();
         }
 
         private void OnDurabilityChange(bool flag)
@@ -1830,25 +1825,25 @@ namespace MuEmu
         public byte Overlap(byte count)
         {
             byte left = 0;
-            if (_durability + count <= BasicInfo.MaxStack)
+            var tmpDurability = _durability;
+            if (tmpDurability + count <= BasicInfo.MaxStack)
             {
-                _durability += count;
+                tmpDurability += count;
             }
             else
             {
-                _durability = BasicInfo.MaxStack;
-                left = (byte)(count + _durability - BasicInfo.MaxStack);
+                tmpDurability = BasicInfo.MaxStack;
+                left = (byte)(count + tmpDurability - BasicInfo.MaxStack);
             }
-            if (_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
+            if (tmpDurability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
             {
-                Number = BasicInfo.OnMaxStack;
                 _durability = 1;
+                Number = BasicInfo.OnMaxStack;
             }
             else
             {
-                OnDurabilityChange(false);
+                Durability = tmpDurability;
             }
-            State = ItemState.Changed;
             return left;
         }
         public void Overlap(Item item)

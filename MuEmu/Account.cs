@@ -36,15 +36,17 @@ namespace MuEmu
             using (var db = new GameContext())
                 for (var i = (byte)0; i < accountDto.VaultCount; i++)
                 {
-                    _vaults.Add(i, new Storage(Storage.WarehouseSize));
+                    var vault = new Storage(Storage.WarehouseSize);
+                    vault.StorageID = StorageID.Warehouse+i;
+                    _vaults.Add(i, vault);
+
                     var items = db.Items
-                        .Where(x => x.VaultId == (int)StorageID.Warehouse);
+                        .Where(x => x.VaultId == (int)vault.StorageID);
 
                     foreach (var it in items)
                     {
                         var item = new Item(it, this);
-                        item.Account = this;
-                        _vaults[i].Add(item, (byte)it.SlotId);
+                        _vaults[i].Add((byte)it.SlotId, item);
                     }
                 }
         }

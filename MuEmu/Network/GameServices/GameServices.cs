@@ -814,7 +814,7 @@ namespace MuEmu.Network.GameServices
                     case StorageID.EventInventory:
                         pos = @char.Inventory.AddEvent(pickup);
                         //pickup = @char.Inventory.GetEvent(pos);
-                        await session.SendAsync(new SEventItemGet { Result = pos, Item = pickup?.GetBytes() ?? Array.Empty<byte>() });
+                        await session.SendAsync(VersionSelector.CreateMessage<SEventItemGet>(pos, pickup?.GetBytes() ?? Array.Empty<byte>(), message.Number));
                         break;
                     case StorageID.MuunInventory:
                         pos = @char.Inventory.AddMuun(pickup);
@@ -822,6 +822,10 @@ namespace MuEmu.Network.GameServices
                         break;
                 }
             }
+
+            var msg2 = @char.Map.ItemGive(message.Number);
+            _=session.SendAsync(msg2);
+            session.Player.SendV2Message(msg2);
         }
 
         [MessageHandler(typeof(CEventEnterCount))]

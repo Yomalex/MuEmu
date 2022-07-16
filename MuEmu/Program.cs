@@ -196,7 +196,7 @@ namespace MuEmu
                     .RegisterRule<CChatNumber>(MustBePlaying)
                     .RegisterRule<CChatWhisper>(MustBePlaying)
                     .RegisterRule<CCheckSum>(MustBePlaying)
-                    .RegisterRule<CClientClose>(MustBePlaying)
+                    .RegisterRule<CClientClose>(MustBeLoggedOrPlaying)
                     .RegisterRule<CCloseWindow>(MustBePlaying)
                     .RegisterRule<CCrywolfBenefit>(MustBePlaying)
                     .RegisterRule<CCrywolfContract>(MustBePlaying)

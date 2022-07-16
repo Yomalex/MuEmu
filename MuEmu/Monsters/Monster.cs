@@ -313,7 +313,7 @@ namespace MuEmu.Monsters
             lock (ViewPort)
             {
                 ViewPort = Map.Players
-                    .Where(x => x.Player.Status == LoginStatus.Playing && Distance(x.Position, Position) <= Info.ViewRange)
+                    .Where(x => x.Player.Status == LoginStatus.Playing && Distance(x.Position, Position) <= 18)
                     .Select(x => x.Player)
                     .ToList();
             }
@@ -337,20 +337,26 @@ namespace MuEmu.Monsters
                     Position = _path[0];
                     _path.RemoveAt(0);
 
-                    if (Target != null)
+                    if (Target != null && Target.Character != null)
                     {
-                        var dis = Distance(Target.Character.Position, Position);
-                        if (dis <= Info.AttackRange)
+                        try
                         {
-                            _monsterState = MonsterState.Battle;
-                            _path.Clear();
-                            return;
-                        }
-                        else if (dis > Info.ViewRange)
+                            var dis = Distance(Target.Character.Position, Position);
+                            if (dis <= Info.AttackRange)
+                            {
+                                _monsterState = MonsterState.Battle;
+                                _path.Clear();
+                                return;
+                            }
+                            else if (dis > Info.ViewRange)
+                            {
+                                _monsterState = MonsterState.Idle;
+                                _path.Clear();
+                                return;
+                            }
+                        }catch(Exception)
                         {
-                            _monsterState = MonsterState.Idle;
-                            _path.Clear();
-                            return;
+                            Target = null;
                         }
                     }
                 }
@@ -389,29 +395,42 @@ namespace MuEmu.Monsters
             }
             if (_monsterState == MonsterState.Idle)
             {
-                var possibleTarget = from plr in ViewPort
+                var possibleTarget1 = from plr in ViewPort
                                      let dist = Distance(plr.Character?.Position ?? new Point(), Position)
                                      where dist <= Info.ViewRange
                                      orderby dist ascending
                                      select plr;
+                var possibleTarget2 = DamageSum
+                    .Where(x => possibleTarget1.Contains(x.Key))
+                    .OrderByDescending(x => x.Value);
 
-                var X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.X));
-                var Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.Y));
-                var position = new Point(X, Y);
-                var i = 0;
-                while (Map.ContainsAny(position.X, position.Y, _cantGo)
-                    && i < 10)
+                if(possibleTarget2.Any())
                 {
-                    X = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.X));
-                    Y = Math.Min(255, Math.Max(0, _rand.Next(-Info.MoveRange, Info.MoveRange) + Spawn.Y));
-                    position = new Point(X, Y);
-                    i++;
+                    Target = possibleTarget2.First().Key;
+                    TPosition = Target.Character.Position;
                 }
-                if (i == 10)
-                    position = Position;
-
-                Target = possibleTarget.FirstOrDefault();
-                TPosition = Target?.Character.Position ?? position;
+                else if(possibleTarget1.Any())
+                {
+                    Target = possibleTarget1.First();
+                    TPosition = Target.Character.Position;
+                }
+                else
+                {
+                    var minX = Math.Max(Spawn.X - Info.MoveRange, 0);
+                    var maxX = Math.Min(Spawn.X + Info.MoveRange, 255);
+                    var minY = Math.Max(Spawn.Y - Info.MoveRange, 0);
+                    var maxY = Math.Min(Spawn.Y + Info.MoveRange, 255);
+                    var i = 0;
+                    Point newPoint;
+                    do {
+                        newPoint = new Point(Program.RandomProvider(maxX, minX), Program.RandomProvider(maxY, minY));
+                        if(!Map.ContainsAny(newPoint.X, newPoint.Y, _cantGo))
+                        {
+                            TPosition = newPoint;
+                            return;
+                        }
+                    } while (i++ < 10);
+                }                
             }
         }
 
@@ -426,7 +445,7 @@ namespace MuEmu.Monsters
                 _path.RemoveAt(0);
 
                 int count = 0;
-                if (Target != null)
+                if (Target != null && Target.Character != null)
                 {
                     foreach (var pt in _path)
                     {

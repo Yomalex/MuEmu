@@ -135,6 +135,9 @@ namespace MU.Network.Event
             //
             Register<CEventItemGet>(EventOpCode.EventItemGet);
             Register<SEventItemGet>(EventOpCode.EventItemGet);
+            Register<SEventItemGetS16>(EventOpCode.EventItemGet);
+            VersionSelector.Register<SEventItemGet>(Resources.ServerSeason.Season9Eng, EventOpCode.EventItemGet);
+            VersionSelector.Register<SEventItemGetS16>(Resources.ServerSeason.Season16Kor, EventOpCode.EventItemGet);
             Register<CEventItemThrow>(EventOpCode.EventItemThrow);
             Register<SEventItemThrow>(EventOpCode.EventItemThrow);
 
