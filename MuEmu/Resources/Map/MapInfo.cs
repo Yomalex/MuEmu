@@ -15,7 +15,7 @@ using MuEmu.Network.Data;
 
 namespace MuEmu.Resources.Map
 {
-    public enum ItemState : byte
+    public enum ItemMapState : byte
     {
         Creating,
         Created,
@@ -26,7 +26,7 @@ namespace MuEmu.Resources.Map
     public class ItemInMap
     {
         public ushort Index { get; set; }
-        public ItemState State { get; set; }
+        public ItemMapState State { get; set; }
         public Point Position { get; set; }
         public Item Item { get; set; }
         public DateTimeOffset validTime { get; set; }
@@ -41,7 +41,7 @@ namespace MuEmu.Resources.Map
 
         internal Item ItemPickUp(Character @char, ushort number)
         {
-            if(!Items.ContainsKey(number) || Items[number].State != ItemState.Created)
+            if(!Items.ContainsKey(number) || Items[number].State != ItemMapState.Created)
             {
                 throw new Exception("This item don't exists.");
             }
@@ -57,12 +57,8 @@ namespace MuEmu.Resources.Map
             {
                 throw new Exception("This item does not belong to you");
             }
-
-            var msg = new SViewPortItemDestroy { ViewPort = new VPDestroyDto[] { new VPDestroyDto(item.Index) } };
             var session = @char.Player.Session;
-            item.State = ItemState.Deleting;
-            session.SendAsync(msg).Wait();
-            @char.SendV2Message(msg);
+            item.State = ItemMapState.Deleting;
             return item.Item;
         }
 
@@ -329,12 +325,11 @@ namespace MuEmu.Resources.Map
         {
             if (item == null)
                 return DateTimeOffset.Now;
-
+            item.Character?.Inventory.Remove(item);
             item.Character = null;
             item.Account = null;
             item.SlotId = 0;
             item.Storage = 0;
-            item.NeedSave = false;
 
             var valid = DateTimeOffset.Now.AddSeconds(120);
             var own = DateTimeOffset.Now.AddSeconds(60);
@@ -342,7 +337,7 @@ namespace MuEmu.Resources.Map
             ItemInMap it = new ItemInMap {
                 Index = CurIndex,
                 Item = item,
-                State = ItemState.Creating,
+                State = ItemMapState.Creating,
                 Position = new Point(X, Y),
                 validTime = valid,
                 Character = character,

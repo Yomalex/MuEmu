@@ -16,11 +16,117 @@ using MuEmu.Util;
 
 namespace MuEmu
 {
+    public static class ItemManager
+    {
+        private static List<Item> _itemForSave = new List<Item>();
+        public static void Initialize()
+        {
+            using (var db = new GameContext())
+            {
+                var lost = db.Items.Where(x => x.AccountId == 0);
+                db.Items.RemoveRange(lost);
+                db.SaveChanges();
+            }
+
+            Program.server.Connect += Server_Connect;
+        }
+
+        private static void Server_Connect(object sender, Network.WZServerEventArgs e)
+        {
+            e.session.Player.OnStatusChange += Player_OnStatusChange;
+        }
+
+        private static void Player_OnStatusChange(object sender, EventArgs e)
+        {
+            var plr = sender as Player;
+            switch(plr.Status)
+            {
+                case LoginStatus.Logged:
+                    SaveReference(plr.Account);
+                    RemReference(plr.Account);
+                    break;
+                case LoginStatus.NotLogged:
+                    plr.OnStatusChange -= Player_OnStatusChange;
+                    SaveReference(plr.Account);
+                    RemReference(plr.Account);
+                    break;
+            }
+        }
+
+        public static void AddReference(Item item)
+        {
+            if (item.IsZen)
+                return;
+
+            _itemForSave.Add(item);
+        }
+        public static void RemReference(Item item)
+        {
+            _itemForSave.Remove(item);
+        }
+        public static void RemReference(Account account)
+        {
+            _itemForSave.RemoveAll(x => x.Account == account);
+        }
+        public static void Save(GameContext db)
+        {
+            var logger = Log.Logger;
+            var addList = _itemForSave.Where(x => x.Serial == 0 && x.State != ItemState.Deleted && x.Account != null);
+            var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0);
+            var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted);
+
+            if(addList.Any())
+                logger.Information("New items");
+            db.Items.AddRange(addList.Select(x => x.Save(db)).Where(x => x != null));
+
+            if (updateList.Any())
+                logger.Information("Updated items");
+            db.Items.UpdateRange(updateList.Select(x => x.Save(db)).Where(x => x != null));
+
+            if (removeList.Any())
+                logger.Information("Deleted items");
+            db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)).Where(x => x != null));
+
+            _itemForSave.RemoveAll(x => removeList.Contains(x));
+        }
+        public static void SaveReference(Account account)
+        {
+            var logger = Log.Logger.ForAccount(account.Player.Session);
+            logger.Information("Force save items");
+            using (var db = new GameContext())
+            {
+                var addList = _itemForSave.Where(x => x.Serial == 0 && x.Account == account && x.State != ItemState.Deleted);
+                var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0 && x.Account == account);
+                var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted && x.Account == account);
+
+                if (addList.Any())
+                    logger.Information("New items");
+                db.Items.AddRange(addList.Select(x => x.Save(db)));
+
+                if (updateList.Any())
+                    logger.Information("Updated items");
+                db.Items.UpdateRange(updateList.Select(x => x.Save(db)));
+
+                if (removeList.Any())
+                    logger.Information("Deleted items");
+                db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)));
+
+                _itemForSave.RemoveAll(x => removeList.Contains(x));
+                db.SaveChanges();
+            }            
+        }
+    }
+    public enum ItemState
+    {
+        Created,
+        Unchanged,
+        Changed,
+        Deleted,
+    }
     public class Item : ICloneable
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Item));
-        //private static Random _rand = new Random();
-        private bool _deleted;
+        public static Dictionary<int, Item> s_ItemDB = new Dictionary<int, Item>();
         private byte _plus;
         private byte _durability;
         private byte _option;
@@ -29,12 +135,31 @@ namespace MuEmu
         private float _durabilityDown;
         private SocketOption[] _slots;
         private JewelOfHarmony _jewelOfHarmony = new JewelOfHarmony();
+        private byte _petLevel;
+        private ItemNumber _number;
+        private Account _account;
+        private Character _character;
 
-        public static Dictionary<int, Item> s_ItemDB = new Dictionary<int, Item>();
-        private byte petLevel;
+        public ItemState State { get; private set; }
 
-        public Account Account { get; set; }
-        public Character Character { get; set; }
+        public Account Account { get => _account; set
+            {
+                if (_account == value)
+                    return;
+                _account = value;
+                State = ItemState.Changed;
+            }
+        }
+        public Character Character
+        {
+            get => _character; set
+            {
+                if (_character == value)
+                    return;
+                _character = value;
+                State = ItemState.Changed;
+            }
+        }
         public StorageID Storage
         {
             get => _vid;
@@ -43,7 +168,7 @@ namespace MuEmu
                 if (_vid == value)
                     return;
                 _vid = value;
-                NeedSave = true;
+                State = ItemState.Changed;
             }
         }
         public int SlotId
@@ -54,13 +179,25 @@ namespace MuEmu
                 if (_slot == value)
                     return;
                 _slot = value;
-                NeedSave = true;
+                State = ItemState.Changed;
             }
         }
         public bool IsZen => ItemNumber.Zen == Number;
 
         public ItemInfo BasicInfo { get; set; }
-        public ItemNumber Number { get; set; }
+        public ItemNumber Number
+        {
+            get => _number;
+            set
+            {
+                if (_number == value)
+                    return;
+
+                _number = value;
+                State = ItemState.Changed; 
+                OnItemChange();
+            }
+        }
         public long Serial { get; private set; }
         public byte Plus
         {
@@ -71,7 +208,7 @@ namespace MuEmu
                     return;
                 _plus = value;
 
-                NeedSave = true;
+                State = ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -81,8 +218,7 @@ namespace MuEmu
         public Spell Spell { get; set; }
         public byte Durability
         {
-            get =>
-                _durability;
+            get => _durability;
             set
             {
                 if (_durability == value)
@@ -93,7 +229,7 @@ namespace MuEmu
 
                 _durability = value;
                 OnDurabilityChange(false);
-                NeedSave = true;
+                State = ItemState.Changed;
             }
         }
         public byte DurabilityBase => GetDurabilityBase();
@@ -106,6 +242,7 @@ namespace MuEmu
                     return;
 
                 _option = value;
+                State = ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -126,7 +263,7 @@ namespace MuEmu
             set
             {
                 _slots = value;
-                NeedSave = true;
+                State = ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -137,7 +274,7 @@ namespace MuEmu
             set
             {
                 _jewelOfHarmony = value;
-                NeedSave = true;
+                State = ItemState.Changed;
             }
         }
         public byte BonusSocket { get; set; }
@@ -202,14 +339,12 @@ namespace MuEmu
         public ushort PShopValueS { get; set; }
         public ushort PShopValueC { get; set; }
 
-        public bool NeedSave { get; set; }
-
         // Needed Stats
-        public int ReqStrength { get; set; }
-        public int ReqAgility { get; set; }
-        public int ReqVitality { get; set; }
-        public int ReqEnergy { get; set; }
-        public int ReqCommand { get; set; }
+        public int ReqStrength { get; private set; }
+        public int ReqAgility { get; private set; }
+        public int ReqVitality { get; private set; }
+        public int ReqEnergy { get; private set; }
+        public int ReqCommand { get; private set; }
 
         // Options
         public int CriticalDamage => Special.Contains(SpecialNumber.CriticalDamage) ? 4 : 0;
@@ -243,18 +378,20 @@ namespace MuEmu
         public int DefenseRate { get; private set; }
         public int MagicDefense { get; private set; }
         public long PetEXP { get; internal set; }
-        public long PetNextEXP => GetExperienceFromLevel(PetLevel+1);
-        public byte PetLevel { 
-            get => petLevel;
+        public long PetNextEXP => GetExperienceFromLevel(_petLevel + 1);
+        public byte PetLevel
+        {
+            get => _petLevel;
             internal set
             {
-                petLevel = value;
+                _petLevel = value;
                 if (Character == null)
                     return;
 
-                AttackMin = petLevel * 15 + Character.CommandTotal / 8 + 180;
-                AttackMax = petLevel * 15 + Character.CommandTotal / 4 + 200;
-                AttackSpeed = petLevel * 4 / 5 + Character.CommandTotal / 50 + 20;
+                AttackMin = _petLevel * 15 + Character.CommandTotal / 8 + 180;
+                AttackMax = _petLevel * 15 + Character.CommandTotal / 4 + 200;
+                AttackSpeed = _petLevel * 4 / 5 + Character.CommandTotal / 50 + 20;
+                State = ItemState.Changed;
             }
         }
 
@@ -287,6 +424,8 @@ namespace MuEmu
             Number = number;
             GetValue();
             CalcItemAttributes();
+            State = ItemState.Created;
+            ItemManager.AddReference(this);
         }
 
         public Item(ItemDto dto, Account acc = null, Character @char = null)
@@ -302,7 +441,7 @@ namespace MuEmu
             _slot = dto.SlotId;
             Serial = dto.ItemId;
             Skill = dto.Skill;
-            Number = dto.Number;
+            _number = dto.Number;
             _plus = dto.Plus;
             Luck = dto.Luck;
             _option = dto.Option;
@@ -312,6 +451,7 @@ namespace MuEmu
             BonusSocket = dto.SocketBonus;
             PetEXP = dto.PetEXP;
             SetOption = dto.SetOption;
+            _petLevel = dto.PetLevel;
 
             if (string.IsNullOrEmpty(dto.SocketOptions))
             {
@@ -334,13 +474,12 @@ namespace MuEmu
 
             GetValue();
             CalcItemAttributes();
-            NeedSave = false;
             if (_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
             {
                 Number = BasicInfo.OnMaxStack;
-                OnItemChange();
             }
-            PetLevel = dto.PetLevel;
+            State = ItemState.Unchanged;
+            ItemManager.AddReference(this);
         }
 
         internal void AddExperience(int gain)
@@ -368,7 +507,7 @@ namespace MuEmu
             {
                 PetLevel++;
                 levelUp = true;
-                NeedSave = true;
+                State = ItemState.Changed;
             }
 
             if (levelUp)
@@ -381,7 +520,8 @@ namespace MuEmu
                     nPos = (byte)SlotId,
                     PetType = type,
                 });
-            else {
+            else
+            {
                 _ = Character.Player.Session.SendAsync(new SPetInfo
                 {
                     Dur = Durability,
@@ -429,7 +569,7 @@ namespace MuEmu
                     var tmp = (Plus << 3) | (Skill ? 128 : 0) | (Luck ? 4 : 0) | Option28 & 3;
                     ms.WriteByte((byte)tmp);
                     ms.WriteByte(Durability);
-                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0) | (byte)(OptionExe&0x3f)));
+                    ms.WriteByte((byte)(((Number & 0x100) >> 1) | (Option28 > 3 ? 0x40 : 0) | (byte)(OptionExe & 0x3f)));
                     ms.WriteByte(SetOption); // Acient Option
 
                     byte itemPeriod = 0;
@@ -929,10 +1069,10 @@ namespace MuEmu
                 .SendAsync(new SItemThrow { Source = (byte)SlotId, Result = 1 });
 
             var map = Character.Map;
-            Character = null;
-            Account = null;
+            var output = map.AddItem(mapX, mapY, Clone() as Item, Character);
+            Delete();
 
-            return map.AddItem(mapX, mapY, this, Character);
+            return output;
         }
 
         public void ApplyEffects(Character tTarget)
@@ -953,11 +1093,8 @@ namespace MuEmu
             Character.CalcStats();
         }
 
-        public async Task Save(GameContext db)
+        public ItemDto Save(GameContext db)
         {
-            if (!NeedSave || _deleted || Account == null)
-                return;
-            NeedSave = false;
 
             var log = Logger;
             if (Character != null)
@@ -967,13 +1104,10 @@ namespace MuEmu
             if (_db == null)
                 _db = new ItemDto();
 
-            _db.AccountId = Account.ID;
-
-            if (Character != null)
-                _db.CharacterId = Character.Id;
-            else
-                _db.CharacterId = 0;
-
+            if (State == ItemState.Unchanged)
+                return _db;
+            _db.AccountId = Account?.ID ?? 0;
+            _db.CharacterId = Character?.Id ?? 0;
             _db.VaultId = (int)_vid;
             _db.SlotId = _slot;
             _db.Number = Number;
@@ -990,26 +1124,16 @@ namespace MuEmu
             _db.PetEXP = PetEXP;
             _db.SetOption = SetOption;
 
-            log.Information("[A{2}:{3}{4}:S{5}]Item Saved:{0} {1}", _db.Number, ToString(), _db.AccountId, _db.VaultId == 0 ? "C" : "V", _db.VaultId == 0 ? _db.CharacterId : _db.VaultId, SlotId);
-            if (_db.ItemId == 0)
-            {
-                db.Items.Add(_db);
-            }
-            else
-            {
-                db.Items.Update(_db);
-            }
-            await db.SaveChangesAsync();
+            var str = $"[A{_db.AccountId}->{_vid}:{_slot}]Item Saved:{ToString()}";
+            log.Information(str+" {0}", State);
+
+            State = ItemState.Unchanged;
+            return _db;
         }
 
-        public void Delete(GameContext db)
+        public void Delete()
         {
-            _deleted = true;
-            var _db = db.Items.Find(Serial);
-            Logger.Information("Deleting item {0}", ToString());
-            if (_db == null)
-                return;
-            db.Remove(_db);
+            State = ItemState.Deleted;
         }
 
         private void CalcItemAttributes()
@@ -1309,8 +1433,6 @@ namespace MuEmu
                 Pos = (byte)SlotId,
                 ItemInfo = GetBytes()
             });
-
-            NeedSave = true;
         }
 
         private void OnDurabilityChange(bool flag)
@@ -1326,7 +1448,7 @@ namespace MuEmu
             };
             Character?.Player.Session.SendAsync(p);
 
-            NeedSave = true;
+            State = ItemState.Changed;
         }
 
         public override string ToString()
@@ -1337,11 +1459,11 @@ namespace MuEmu
         private byte CountOfExcellent()
         {
             byte count = 0;
-            for(byte i =0; i < 8; i++)
+            for (byte i = 0; i < 8; i++)
             {
-                if(OptionExe.GetBit(i))
+                if (OptionExe.GetBit(i))
                 {
-                    count ++;
+                    count++;
                 }
             }
             return count;
@@ -1625,7 +1747,7 @@ namespace MuEmu
             Extensions.AnonymousMap(it, this);
             it.Serial = 0;
             it.Durability = Durability;
-            if(it.DurabilityBase == 0 && Durability == 0)
+            if (it.DurabilityBase == 0 && Durability == 0)
             {
                 it.Durability = 1;
             }
@@ -1690,7 +1812,7 @@ namespace MuEmu
                 (Number.Number >= 26 && Number.Number <= 28) || // Swords S4
                 Number.Number == 1040 || // Frost Mace S4
                 Number.Number == 2071 || // Dark Stinger Bow S4
-                (Number.Number >= 2590 && Number.Number <= 2592 ) || // Imperial Staff S4
+                (Number.Number >= 2590 && Number.Number <= 2592) || // Imperial Staff S4
                 (Number.Type == ItemType.Shield && Number.Number >= 3089) // Shields S4
                 )
             {
@@ -1717,13 +1839,16 @@ namespace MuEmu
                 _durability = BasicInfo.MaxStack;
                 left = (byte)(count + _durability - BasicInfo.MaxStack);
             }
-            OnDurabilityChange(false);
             if (_durability == BasicInfo.MaxStack && BasicInfo.OnMaxStack != ItemNumber.Invalid)
             {
                 Number = BasicInfo.OnMaxStack;
                 _durability = 1;
-                OnItemChange();
             }
+            else
+            {
+                OnDurabilityChange(false);
+            }
+            State = ItemState.Changed;
             return left;
         }
         public void Overlap(Item item)
@@ -1732,6 +1857,8 @@ namespace MuEmu
                 throw new Exception($"Item {item} to {this} Can't be stacked {item.Number != Number} {item.Plus != Plus} {_durability >= BasicInfo.MaxStack}");
 
             item.Durability = Overlap(item.Durability);
+            if (item.Durability == 0)
+                item.Delete();
         }
     }
 }

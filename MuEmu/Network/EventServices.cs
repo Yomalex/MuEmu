@@ -795,6 +795,7 @@ namespace MuEmu.Network
                 item = map.ItemPickUp(@char, message.Number);
             } catch (Exception ex)
             {
+                _ = session.SendAsync(new SEventItemGet { Result = 0xff, Item = Array.Empty<byte>() });
                 session.Exception(ex);
                 return;
             }
@@ -806,6 +807,7 @@ namespace MuEmu.Network
             }
             else
             {
+                _ = session.SendAsync(new SEventItemGet { Result = 0xff, Item = item.GetBytes() });
                 session.Player.Character.Inventory.SendEventInventory();
             }
         }

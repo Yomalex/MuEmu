@@ -944,7 +944,7 @@ namespace MU.Network.Game
         public uint Money { get; set; }
     }
 
-    [WZContract]
+    [WZContract(Serialized = true)]
     public class SItemGet : IGameMessage
     {
         /// <summary>
@@ -973,7 +973,7 @@ namespace MU.Network.Game
         }
     }
 
-    [WZContract]
+    [WZContract(Serialized = true)]
     public class SItemGetS12Eng : IGameMessage
     {
         /// <summary>
@@ -1004,7 +1004,7 @@ namespace MU.Network.Game
         }
     }
 
-    [WZContract(/*ExtraEncode = typeof(WZExtraPacketEncodeS16Kor)*/)]
+    [WZContract(Serialized = true)]
     public class SItemGetS16Kor : IGameMessage
     {
         /// <summary>

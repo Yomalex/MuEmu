@@ -712,7 +712,6 @@ namespace MuEmu.Network.GameServices
             DateTimeOffset date = DateTimeOffset.Now;
 
             var bag = ExecuteBag(plr, item);
-            await inv.Delete(message.Source);
             if (bag != null)
             {
                 foreach (var reward in bag)
@@ -721,6 +720,7 @@ namespace MuEmu.Network.GameServices
                 var msg = new SCommand(ServerCommandType.Fireworks, (byte)plr.Character.Position.X, (byte)plr.Character.Position.X);
                 await plr.Session.SendAsync(msg);
                 plr.SendV2Message(msg);
+                await inv.Delete(message.Source);
             }
             else
             {
@@ -756,9 +756,11 @@ namespace MuEmu.Network.GameServices
                             Params = 5,
                         };
                         MonstersMng.Instance.Monsters.Add(plr.Character.KalimaGate);
+                        await inv.Delete(message.Source);
+
                         goto throwItem;
                 }
-                date = plr.Character.Map.AddItem(message.MapX, message.MapY, item.Clone() as Item, plr.Character);
+                date = await item.Drop(message.MapX, message.MapY);
             }
         throwItem:
             await session.SendAsync(new SItemThrow { Source = message.Source, Result = 1 });
@@ -805,18 +807,18 @@ namespace MuEmu.Network.GameServices
                 {
                     case StorageID.Inventory:
                         pos = @char.Inventory.Add(pickup);
-                        pickup = @char.Inventory.Get(pos);
+                        //pickup = @char.Inventory.Get(pos);
                         var msg = VersionSelector.CreateMessage<SItemGet>(pos, pickup?.GetBytes() ?? Array.Empty<byte>(), message.Number);
                         await session.SendAsync(msg);
                         break;
                     case StorageID.EventInventory:
                         pos = @char.Inventory.AddEvent(pickup);
-                        pickup = @char.Inventory.GetEvent(pos);
+                        //pickup = @char.Inventory.GetEvent(pos);
                         await session.SendAsync(new SEventItemGet { Result = pos, Item = pickup?.GetBytes() ?? Array.Empty<byte>() });
                         break;
                     case StorageID.MuunInventory:
                         pos = @char.Inventory.AddMuun(pickup);
-                        pickup = @char.Inventory.GetMuun(pos);
+                        //pickup = @char.Inventory.GetMuun(pos);
                         break;
                 }
             }

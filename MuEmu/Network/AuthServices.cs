@@ -181,10 +181,8 @@ namespace MuEmu.Network
 
                 var resetList = new SResetCharList();
 
-
                 byte mClass = 0;
-
-                var maxLevel = acc.Characters.Max(x => x.Value.Level);
+                var maxLevel = acc.Characters.Any()?acc.Characters.Max(x => x.Value.Level):1;
 
                 if (maxLevel > 200)
                     mClass = 1;

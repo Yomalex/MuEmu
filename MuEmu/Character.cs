@@ -1123,9 +1123,7 @@ namespace MuEmu
                 if(allItems.Any())
                 {
                     var rand = Program.RandomProvider(allItems.Count);
-                    var it = allItems[rand];
-                    _ = Inventory.Remove((byte)it.SlotId, true);
-                    Map.AddItem(Position.X, Position.Y, it, this);
+                    allItems[rand].Drop((byte)Position.X, (byte)Position.Y);
                 }
             }
         }
@@ -1482,7 +1480,7 @@ namespace MuEmu
                 db.Characters.Update(charDto);
                 await db.SaveChangesAsync();
             }
-            await Inventory.Save(db);
+            //await Inventory.Save(db);
             await Spells.Save(db);
             await Quests.Save(db);
             await MasterLevel.Save(db);

@@ -16,9 +16,7 @@ namespace MU.DataBase
 
         public DateTime DateCreation { get; set; } = DateTime.Now;
 
-        [Required]
-        public int AccountId { get; set; }
-        public AccountDto Account { get; set; }
+        public int AccountId { get; set; } = 0;
 
         public int CharacterId { get; set; } = 0;
 

@@ -33,6 +33,9 @@ namespace MuEmu.Network
         /// Sender as Server, WZServerEventArgs with GSSession
         /// </summary>
         public event EventHandler<WZServerEventArgs> Connect;
+        /// <summary>
+        /// Sender as Server, WZServerEventArgs with GSSession
+        /// </summary>
         public event EventHandler<WZServerEventArgs> Disconnect;
 
         public WZGameServer(IPEndPoint address, MessageHandler[] handler, MessageFactory[] factories, bool useRijndael)

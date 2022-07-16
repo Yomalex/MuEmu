@@ -28,8 +28,8 @@ namespace MuEmu.Monsters
             {
                 List = list
             });
-            var msg = VersionSelector.CreateMessage<SItemGet>(player.Character.Money, (ushort)0xffff);
-            _ = player.Session.SendAsync(msg);
+            //var msg = VersionSelector.CreateMessage<SItemGet>(player.Character.Money, (ushort)0xffff);
+            //_ = player.Session.SendAsync(msg);
         }
 
         internal static Item Gamble(Player player, int section)

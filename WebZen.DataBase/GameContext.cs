@@ -83,9 +83,9 @@ namespace MuEmu.Entity
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();*/
 
-            modelBuilder.Entity<ItemDto>()
-                .HasOne(x => x.Account)
-                .WithMany();
+            //modelBuilder.Entity<ItemDto>()
+            //    .HasOne(x => x.Account)
+            //    .WithMany();
 
             modelBuilder.Entity<GuildDto>()
                 .HasMany(x => x.MembersInfo)

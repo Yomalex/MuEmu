@@ -155,14 +155,6 @@ namespace MuEmu
             if (_items.ContainsKey(pos))
             {
                 _items[pos].Overlap(it);
-                if(it.Durability == 0)
-                {
-                    using(var db = new GameContext())
-                    {
-                        it.Delete(db);
-                        db.SaveChanges();
-                    }
-                }
                 return;
             }
 
@@ -202,6 +194,15 @@ namespace MuEmu
                 var rect = _map.First(x => x.Location == pos2);
                 _map.Remove(rect);
             }
+        }
+
+        public void Remove(Item it)
+        {
+            if (!_items.Any(x => x.Value == it))
+                return;
+
+            var info = _items.First(x => x.Value == it);
+            Remove((byte)(IndexTranslate+info.Key));
         }
 
         public void Clear()

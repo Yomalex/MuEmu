@@ -28,6 +28,8 @@ namespace MuEmu
         /// </summary>
         public LoginStatus Status { get => _loginStatus; set
             {
+                if (_loginStatus == value)
+                    return;
                 _loginStatus = value;
                 OnStatusChange?.Invoke(this, new EventArgs());
             }

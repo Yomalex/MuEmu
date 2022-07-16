@@ -51,11 +51,11 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            foreach (var vault in _vaults.Values)
-            {
-                foreach (var it in vault.Items.Values)
-                    await it.Save(db);
-            }
+            //foreach (var vault in _vaults.Values)
+            //{
+            //    foreach (var it in vault.Items.Values)
+            //        await it.Save(db);
+            //}
 
             if (!NeedSave)
                 return;

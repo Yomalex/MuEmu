@@ -60,6 +60,7 @@ namespace MuEmu
             _workerEvents = new Thread(WorkerEvents);
             _workerSavePlayers = new Thread(WorkerSavePlayers);
             _workerIA = new Thread(WorkerIA);
+            ItemManager.Initialize();
         }
 
         public static void CSSystem(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, byte show, string token)
@@ -237,15 +238,15 @@ namespace MuEmu
                             {
                                 switch (it.Value.State)
                                 {
-                                    case ItemState.Creating:
-                                        it.Value.State = ItemState.Created;
+                                    case ItemMapState.Creating:
+                                        it.Value.State = ItemMapState.Created;
                                         break;
-                                    case ItemState.Created:
+                                    case ItemMapState.Created:
                                         if (it.Value.validTime < DateTimeOffset.Now)
-                                            it.Value.State = ItemState.Deleting;
+                                            it.Value.State = ItemMapState.Deleting;
                                         break;
-                                    case ItemState.Deleting:
-                                        it.Value.State = ItemState.Deleted;
+                                    case ItemMapState.Deleting:
+                                        it.Value.State = ItemMapState.Deleted;
                                         break;
                                 }
                             }
@@ -579,24 +580,24 @@ namespace MuEmu
             }
 
             var newObj = (from obj in playerVP
-                          where obj.State == ItemState.Creating
+                          where obj.State == ItemMapState.Creating
                           select obj).ToList();
 
             var existObj = (from obj in playerVP
-                            where !oldVP.Contains(obj.Index) && obj.State == ItemState.Created
+                            where !oldVP.Contains(obj.Index) && obj.State == ItemMapState.Created
                             select obj).ToList();
 
             var existObjVP = (from obj in playerVP
-                              where oldVP.Contains(obj.Index) && obj.State == ItemState.Created
+                              where oldVP.Contains(obj.Index) && obj.State == ItemMapState.Created
                               select obj).ToList();
 
             var deadObj = (from obj in playerVP
-                           where obj.State == ItemState.Deleting
+                           where obj.State == ItemMapState.Deleting
                            select new VPDestroyDto(obj.Index)).ToList();
 
             var lostObj = (from obj in targetVP
                            let rect = new Rectangle(obj.Position, new Size(30, 30))
-                           where !rect.Contains(pos) && oldVP.Contains(obj.Index) && obj.State == ItemState.Created
+                           where !rect.Contains(pos) && oldVP.Contains(obj.Index) && obj.State == ItemMapState.Created
                            select new VPDestroyDto(obj.Index)).ToList();
 
             // Update the old player VP
@@ -717,12 +718,12 @@ namespace MuEmu
                     try
                     {
                         Logger.Information("Saving players");
-                            foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
-                            {
-                                var plrLog = Logger
-                                        .ForAccount(plr.Session);
+                        foreach (var plr in Program.server.Clients.Where(x => x.Player != null).Select(x => x.Player))
+                        {
+                            var plrLog = Logger
+                                    .ForAccount(plr.Session);
 
-                                plrLog.Information("Saving for {0}", plr.Character?.Name ?? "UNK");
+                            plrLog.Information("Saving for {0}", plr.Character?.Name ?? "UNK");
 
                             if(plr.Character != null)
                             {
@@ -736,43 +737,31 @@ namespace MuEmu
                                 }
                             }
 
-                                try
-                                {
-                                    await plr.Save(db);
-                                    plr.Character?.MuHelper.Update();
-                                    db.SaveChanges();
-                                }catch(Exception ex)
-                                {
-                                    plrLog.Error(ex, "Player Save:");
-                                }
-                            }
-                        Logger.Information("Saved players");
-                            var maps = ResourceCache.Instance.GetMaps();
-                            foreach(var map in maps)
+                            try
                             {
-                                lock (map.Value.Items)
-                                {
-                                    using (var transaction = db.Database.BeginTransaction())
-                                    {
-                                        var fordel = map.Value.Items.Values.Where(x => x.State == ItemState.Deleting).ToList();
-                                        fordel.ForEach(x =>
-                                        {
-                                            map.Value.Items.Remove(x.Index);
-                                            x.Item.Delete(db);
-                                        });
-
-                                        try
-                                        {
-                                            db.SaveChanges();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Logger.Error(ex, "Map " + map.Key + "Save:");
-                                        }
-                                        transaction.Commit();
-                                    }
-                                }
+                                await plr.Save(db);
+                                plr.Character?.MuHelper.Update();
+                                db.SaveChanges();
+                            }catch(Exception ex)
+                            {
+                                plrLog.Error(ex, "Player Save:");
                             }
+                        }
+                        ItemManager.Save(db);
+                        Logger.Information("Saved players");
+                        var maps = ResourceCache.Instance.GetMaps();
+                        foreach(var map in maps)
+                        {
+                            lock (map.Value.Items)
+                            {
+                                var fordel = map.Value.Items.Values.Where(x => x.State == ItemMapState.Deleting).ToList();
+                                fordel.ForEach(x =>
+                                {
+                                    map.Value.Items.Remove(x.Index);
+                                    x.Item.Delete();
+                                });
+                            }
+                        }
                         if(--Interval==0)
                         {
                             Interval = news.Interval;

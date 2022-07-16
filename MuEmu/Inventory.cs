@@ -141,17 +141,6 @@ namespace MuEmu
 
             foreach (var item in characterDto.Items.Where(x => x.VaultId != 10 && x.VaultId != (int)StorageID.Warehouse))
             {
-                /*if (item.SlotId < (int)StorageID.Inventory || item.SlotId == (byte)Equipament.Pentagrama)
-                    item.VaultId = 0;
-                else if (item.SlotId < (int)StorageID.ExpandedInventory1)
-                    item.VaultId = (int)StorageID.Inventory;
-                else if (item.SlotId < (int)StorageID.ExpandedInventory2)
-                    item.VaultId = (int)StorageID.ExpandedInventory1;
-                else if (item.SlotId < (int)StorageID.PersonalShop)
-                    item.VaultId = (int)StorageID.ExpandedInventory2;
-                else
-                    item.VaultId = (int)StorageID.PersonalShop;*/
-
                 var it = new Item(item, @char?.Account, @char);
                 object st;
                 var pos = (byte)it.SlotId;
@@ -165,7 +154,10 @@ namespace MuEmu
                             if (!sto.ContainsKey((Equipament)pos))
                                 sto.Add((Equipament)pos, it);
                             else
+                            {
                                 _logger.Error(ServerMessages.GetMessage(Messages.IV_IndexAlreadyUsed, Character, (Equipament)pos));
+                                _logger.Error(it.ToString());
+                            }
 
                             if (it.Number.Type == ItemType.BowOrCrossbow && (it.Number.Index == 7 || it.Number.Index == 15))
                                 Arrows = it;
@@ -908,10 +900,9 @@ namespace MuEmu
         /// <returns></returns>
         public async Task Delete(byte target, bool send = true)
         {
-            _needSave = true;
             var st = GetStorage(target);
             var it = st?.Get(target) ?? Unequip((Equipament)target);
-            _forDelete.Add(it);
+            it.Delete();
 
             await Remove(target, send);
         }
@@ -1271,6 +1262,11 @@ namespace MuEmu
             return CharSet;
         }
 
+        internal void Remove(Item item)
+        {
+            GetStorage(item)?.Remove(item);
+        }
+
         /// <summary>
         /// Get the client charset for character previews of the current character
         /// </summary>
@@ -1280,50 +1276,7 @@ namespace MuEmu
             return GetCharset(Character.Class, this, Character.Action);
         }
 
-        /// <summary>
-        /// Update inventory in DB
-        /// </summary>
-        /// <param name="db">Database Context</param>
-        /// <returns></returns>
-        public async Task Save(GameContext db)
-        {
-            try
-            {
-                if (Lock)
-                    return;
-                var _log = _logger.ForAccount(Character.Player.Session);
-
-                if (_forDelete.Any())
-                {
-                    _forDelete.ForEach(x => x.Delete(db));
-                    _log.Information(ServerMessages.GetMessage(Messages.IV_DBSaveDeletingItem, _forDelete.Count()));
-
-                    _forDelete.Clear();
-                }
-                await db.SaveChangesAsync();
-
-                var changedItems = new List<Item>();
-                changedItems.AddRange(_equipament.Values.Where(x => x.NeedSave));
-                changedItems.AddRange(_inventory.Items.Values.Where(x => x.NeedSave));
-                if (_exInventory1 != null)
-                    changedItems.AddRange(_exInventory1.Items.Values.Where(x => x.NeedSave));
-                if (_exInventory2 != null)
-                    changedItems.AddRange(_exInventory2.Items.Values.Where(x => x.NeedSave));
-                changedItems.AddRange(_personalShop.Items.Values.Where(x => x.NeedSave));
-                changedItems.AddRange(_muun.Items.Values.Where(x => x.NeedSave));
-                changedItems.AddRange(_event.Items.Values.Where(x => x.NeedSave));
-
-                foreach (var e in changedItems)
-                {
-                    await e.Save(db);
-                    await db.SaveChangesAsync();
-                }
-            }catch(Exception ex)
-            {
-                _logger.Error(ex, "Inventory");
-            }
-        }
-
+        
         /// <summary>
         /// Clear all items in storage container and delete all from DataBase
         /// </summary>
