@@ -103,5 +103,18 @@
 	<Map Map="118" AttributteFile="./Data/Terrains/DeepDugeon3.att" />
 	<Map Map="119" AttributteFile="./Data/Terrains/DeepDugeon4.att" />
 	<Map Map="120" AttributteFile="./Data/Terrains/DeepDugeon5.att" />
+	<Map Map="121" AttributteFile="./Data/Terrains/PlaceOfQualification.att" />
+	<Map Map="122" AttributteFile="./Data/Terrains/SwampOfDarkness.att" />
+	<Map Map="123" AttributteFile="./Data/Terrains/KuberaMine1.att" />
+	<Map Map="124" AttributteFile="./Data/Terrains/KuberaMine1.att" />
+	<Map Map="125" AttributteFile="./Data/Terrains/KuberaMine1.att" />
+	<Map Map="126" AttributteFile="./Data/Terrains/KuberaMine1.att" />
+	<Map Map="127" AttributteFile="./Data/Terrains/KuberaMine1.att" />
+	<Map Map="128" AttributteFile="./Data/Terrains/World129.att" />
+	<Map Map="129" AttributteFile="./Data/Terrains/World130.att" />
+	<Map Map="130" AttributteFile="./Data/Terrains/World131.att" />
+	<Map Map="131" AttributteFile="./Data/Terrains/World132.att" />
+	<!--<Map Map="132" AttributteFile="./Data/Terrains/World133.att" />
+	<Map Map="133" AttributteFile="./Data/Terrains/World134.att" />-->
 </Maps>
 

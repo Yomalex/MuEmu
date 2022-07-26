@@ -52,6 +52,23 @@ namespace MuEmu
         public uint Current { get; set; }
         public uint Value { get; set; }
     }
+    internal struct QuestKCInfo
+    {
+        public uint Number
+        {
+            get => (uint)((Quest << 24) | (Monster << 8) | Count);
+            set
+            {
+                Quest = (value & 0xff000000) >> 24;
+                Monster = (ushort)((value & 0x00ffff00) >> 8);
+                Count = (byte)(value & 0xff);
+            }
+        }
+        
+        public uint Quest { get; set; }
+        public ushort Monster { get; set; }
+        public byte Count { get; set; }
+    }
     public class Quests
     {
         private static Random _rand = new Random();
@@ -62,7 +79,7 @@ namespace MuEmu
         private ushort _currentNpc;
 
         internal static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Quests));
-        internal Dictionary<uint, byte> _questMonsterKillCount = new Dictionary<uint, byte>();
+        internal List<QuestKCInfo> _questMonsterKillCount = new List<QuestKCInfo>();
 
         public byte[] QuestStates { get; set; }
         public Player Player { get; set; }
@@ -70,9 +87,9 @@ namespace MuEmu
         {
             if(_questEXP == null)
             {
+                string file = Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
                 try
                 {
-                    string file = Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
                     _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>(file);
                 }catch(Exception)
                 {
@@ -80,6 +97,7 @@ namespace MuEmu
                     {
                         QuestList = Array.Empty<QuestNPCDto>()
                     };
+                    ResourceLoader.XmlSaver(file, _questEXP);
                 }
             }
             QuestStates =  new byte[20];
@@ -99,18 +117,15 @@ namespace MuEmu
 
                 nq._needSave = false;
                 _quests.Add(nq);
-                var details = q.Details
+                _questMonsterKillCount = q.Details
                     .Split(";")
                     .Where(x => !string.IsNullOrEmpty(x))
-                    .Select(x => x.Split("="))
-                    .ToDictionary(x => uint.Parse(x[0]), y => byte.Parse(y[1]));
+                    .Select(x => new QuestKCInfo() { Number = uint.Parse(x) })
+                    .ToList();
 
                 _logger
                     .ForAccount(Player.Session)
                     .Information("Quest Found:{0} State:{1}", nq.Details.Name, nq.State);
-
-                foreach(var d in details)
-                    _questMonsterKillCount.Add(d.Key, d.Value);
             }
 
             foreach(var q in characterDto.QuestEX)
@@ -181,7 +196,7 @@ namespace MuEmu
                     }
                 }
             }
-            return quest.Where(x => x.Switch < 65535);
+            return quest;
         }
 
         private QuestNPCStateDto GetQuestEXPStateInfo(uint Episode, uint state)
@@ -388,21 +403,23 @@ namespace MuEmu
                             continue;
 
                         var key = (sq.Monster | (uint)(q.Index << 16));
+                        var id = _questMonsterKillCount.FindIndex(x => x.Quest == q.Index && x.Monster == sq.Monster);
+                        var info = (id == -1) ? new QuestKCInfo { Monster = sq.Monster, Quest = (uint)q.Index } : _questMonsterKillCount[id];
 
-                        if (_questMonsterKillCount.ContainsKey(key))
+                        if(info.Count < sq.Count)
+                        info.Count++;
+
+                        if (id == -1)
                         {
-                            if(_questMonsterKillCount[key] >= sq.Count)
-                            {
-                                continue;
-                            }
-                            _questMonsterKillCount[key]++;
+                            id = _questMonsterKillCount.Count;
+                            _questMonsterKillCount.Add(info);
                         }
-                        else
-                            _questMonsterKillCount.Add(key, 1);
+
+                        _questMonsterKillCount[id] = info;
 
                         Player
                             .Session
-                            .SendAsync(new SNotice(NoticeType.Blue, $"{monster.Info.Name}: {_questMonsterKillCount[key]}/{sq.Count}"))
+                            .SendAsync(new SNotice(NoticeType.Blue, $"{monster.Info.Name}: {info.Count}/{sq.Count}"))
                             .Wait();
 
                         continue;
@@ -488,20 +505,21 @@ namespace MuEmu
                         where NPCQuests.Any(x => x.Index == q.Index)
                         select q;
 
-            var running = listed.Where(x => (x.State == QuestState.Reg || x.State == QuestState.Unreg) && x.Details.CanRun(Player.Character));
-            if (running.Any())
-                return running.First();
-
-            var newQ = from q in NPCQuests
-                       where !listed.Any(x => x.Index == q.Index) && q.CanRun(Player.Character)
-                       select q;
-
-            if (newQ.Any())
+            var running = listed.Where(x => x.State != QuestState.Complete).FirstOrDefault();
+            if (running != null)
             {
-                var nq = newQ.First();
+                return running;
+            }
+
+            var newQ = (from q in NPCQuests
+                       where !listed.Any(x => x.Index == q.Index) && q.CanRun(Player.Character)
+                       select q).FirstOrDefault();
+
+            if (newQ != null)
+            {
                 var newQuest = new Quest
                 {
-                    Index = nq.Index,
+                    Index = newQ.Index,
                     Manager = this,
                 };
 
@@ -511,7 +529,7 @@ namespace MuEmu
                 return newQuest;
             }
 
-            return null;
+            return listed.FirstOrDefault();
         }
 
         public bool IsClear(int Index)
@@ -528,6 +546,13 @@ namespace MuEmu
         public byte SetState(int Index)
         {
             return GetByIndex(Index)?.NextStep() ?? 0xff;
+        }
+
+        internal IEnumerable<QuestKCInfo> GetKillCount(int Index)
+        {
+            return from q in _questMonsterKillCount
+            where q.Quest == Index
+            select q;
         }
 
         public async Task Save(GameContext db)
@@ -551,7 +576,6 @@ namespace MuEmu
             }
         }
     }
-
     public class Quest
     {
         private int _index;
@@ -574,19 +598,6 @@ namespace MuEmu
                 curState |= (byte)(((byte)value) << Shift);
                 Manager.QuestStates[_questByte] = curState;
                 _needSave = true;
-            }
-        }
-
-        public byte KillCount
-        {
-            get => _killCount;
-            set
-            {
-                if (value == _killCount)
-                    return;
-
-                _needSave = true;
-                _killCount = value;
             }
         }
 
@@ -635,74 +646,100 @@ namespace MuEmu
             }
         }
 
-        private byte canClear()
+        internal byte Clear(SubQuest sq)
         {
-            foreach(var sq in Details.Sub)
+            var session = Character.Player.Session;
+
+            byte RewardArg = 0;
+
+            switch (sq.CompensationType)
             {
-                if(sq.Allowed.Contains(Character.Class))
-                {
-                    if (sq.Monster != 0)
-                    {
+                case QuestCompensation.Changeup:
+                    Character.LevelUpPoints += sq.Amount;
+                    Character.Changeup = true;
+                    RewardArg = Character.ClientClass;
 
+                    _ = session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
+                    break;
+                case QuestCompensation.Statup:
+                case QuestCompensation.Plusstat:
+                    Character.LevelUpPoints += sq.Amount;
+                    RewardArg = sq.Amount;
+                    break;
+                case QuestCompensation.Comboskill:
+                    RewardArg = 0;
+                    break;
+                case QuestCompensation.Master:
+                    Character.LevelUpPoints += sq.Amount;
+
+                    if (!Character.Changeup && !(Character.Class == HeroClass.MagicGladiator || Character.Class == HeroClass.DarkLord))
+                    {
+                        return 1;
                     }
-                    else
+                    Character.MasterClass = true;
+                    RewardArg = Character.ClientClass;
+                    _ = session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
+                    break;
+                case QuestCompensation.AllStatsUp:
+                    Character.Strength += sq.Amount;
+                    Character.Agility += sq.Amount;
+                    Character.Vitality += sq.Amount;
+                    Character.Energy += sq.Amount;
+                    if(Character.BaseClass == HeroClass.DarkLord) Character.Command += sq.Amount;
+                    break;
+                case QuestCompensation.Majestic:
+                    Character.LevelUpPoints += sq.Amount;
+
+                    if (!Character.MasterClass)
                     {
-                        var inv = Character.Inventory;
-                        foreach (var req in sq.Requeriment)
-                        {
-                            var Items = (from it in inv.FindAllItems(req.Number)
-                                        where it.Plus == req.Plus
-                                        select it)
-                                        .Take(sq.Count);
+                        return 1;
+                    }
+                    Character.MajesticClass = true;
+                    RewardArg = (byte)(Character.ClientClass|14);
+                    _ = session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
+                    break;
+            }
 
-                            if (Items.Count() == sq.Count)
-                            {
-                                foreach (var x in Items)
-                                    inv.Delete(x);
+            _ = session.SendAsync(new SSendQuestPrize((ushort)session.ID, sq.CompensationType, RewardArg));
 
-                                var session = Character.Player.Session;
+            return 0;
+        }
 
-                                byte RewardArg = 0;
+        internal byte canClear(bool clear = true)
+        {
+            var inv = Character.Inventory;
+            var list = new List<Item>();
+            var total = 0;
+            var mobFinish = true;
+            foreach(var sq in Details.Sub.Where(x => x.Allowed.Contains(Character.Class)))
+            {
+                if (sq.Monster != 0)
+                {
+                    var kcInfo = Manager.GetKillCount(Index).FirstOrDefault(x => x.Monster == sq.Monster);
+                    mobFinish &= sq.Count <= kcInfo.Count;
+                }
+                else
+                {
+                    foreach (var req in sq.Requeriment)
+                    {
+                        var Items = (from it in inv.FindAllItems(req.Number)
+                                    where it.Plus == req.Plus
+                                    select it)
+                                    .Take(sq.Count);
 
-                                switch (sq.CompensationType)
-                                {
-                                    case QuestCompensation.Changeup:
-                                        Character.LevelUpPoints += sq.Amount;
-                                        Character.Changeup = true;
-                                        RewardArg = Character.ClientClass;
-
-                                        session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
-                                        break;
-                                    case QuestCompensation.Statup:
-                                    case QuestCompensation.Plusstat:
-                                        Character.LevelUpPoints += sq.Amount;
-                                        RewardArg = sq.Amount;
-                                        break;
-                                    case QuestCompensation.Comboskill:
-                                        RewardArg = 0;
-                                        break;
-                                    case QuestCompensation.Master:
-                                        Character.LevelUpPoints += sq.Amount;
-
-                                        if (!Character.Changeup && !(Character.Class == HeroClass.MagicGladiator || Character.Class == HeroClass.DarkLord))
-                                        {
-                                            return 1;
-                                        }
-                                        Character.MasterClass = true;
-                                        RewardArg = Character.ClientClass;
-                                        session.SendAsync(new SSendQuestPrize((ushort)session.ID, QuestCompensation.Statup, sq.Amount));
-                                        break;
-                                }
-
-                                session.SendAsync(new SSendQuestPrize((ushort)session.ID, sq.CompensationType, RewardArg));
-
-                                return 0;
-                            }
-                        }
+                        list.AddRange(Items);
+                        total += sq.Count;
                     }
                 }
             }
-            return 0;
+            var result = mobFinish && total == list.Count;
+            if(result && clear)
+            {
+                list.ForEach(x => _=inv.Delete((byte)x.SlotId));
+                Details.Sub.Where(x => x.Allowed.Contains(Character.Class)).ToList().ForEach( x => Clear(x));
+            }
+
+            return (byte)(result?0:1);
         }
 
         private byte canRun()
@@ -723,8 +760,8 @@ namespace MuEmu
             _needSave = false;
 
             var details = string.Join(";",Manager._questMonsterKillCount
-                .Where(x => (x.Key & 0xFF0000) >> 16 == Index)
-                .Select(x => x.Key+"="+x.Value));
+                .Where(x => x.Quest == Index)
+                .Select(x => x.Number.ToString()));
 
             var dto =
                     new MU.DataBase.QuestDto
@@ -749,6 +786,209 @@ namespace MuEmu
             await db.SaveChangesAsync();
 
             _dbId = dto.QuestId;
+        }
+
+        internal IDictionary<ushort, byte> GetKillCount()
+        {
+            return Manager._questMonsterKillCount
+                .Where(x => x.Quest == Index)
+                .ToDictionary(x => x.Monster, y => y.Count);
+        }
+    }
+
+    internal class Quest4thInfo
+    {
+        private byte state;
+        private List<Monster> monsters = new List<Monster>();
+        private DateTime end;
+        private Monster centNPC;
+
+        public Player Master { get; set; }
+        public List<Player> Members => Master.Character.Party?.Members.ToList() ?? new List<Player> { Master };
+        public byte State { get => state;
+            set
+            {
+                state = value;
+                onSetState();
+            }
+        }
+
+        public Quest4thInfo()
+        {
+            centNPC = MonstersMng.Instance.CreateMonster(766, 
+                ObjectType.NPC, 
+                Maps.NewQuest,
+                new System.Drawing.Point(147, 29),
+                1);
+
+            centNPC.Active = false;
+            centNPC.Params = this;
+        }
+
+        internal IEnumerable<Monster> GetMonsters()
+        {
+            var copy = monsters.ToList();
+            copy.Add(centNPC);
+            return copy.Where(x => x.Active);
+        }
+
+        private void onSetState()
+        {
+            monsters.ForEach(x => MonstersMng.Instance.DeleteMonster(x));
+            monsters.Clear();
+            centNPC.Active = false;
+
+            var masterQuest = Master.Character?.Quests.Find(766)??null;
+            Log.Logger.Debug("Quest state changed to {0}, main quest index {1}", state, masterQuest?.Index??0);
+            switch (state)
+            {
+                case 0: // Created State
+                    break;
+                case 10: // Talk End
+                case 7: // Talk
+                case 4: // Talk
+                case 1: // Firts Talk
+                    centNPC.Active = true;
+                    break;
+                case 8: // Set Reg
+                case 5: // Set Reg
+                case 2: // Set Reg
+                    if (questPartyNextStep(766, new QuestState[] { QuestState.Clear, QuestState.Unreg }))
+                        State++;
+                    else
+                        State--;
+                    break;
+                case 9: // Final Cent Battle
+                case 6: // Summon Monsters
+                case 3: // Cent Test Battle
+                    var SubQuests = masterQuest.Details.Sub.Where(x => x.Allowed.Contains(Master.Character.Class)).ToList();
+                    if (State == 9)
+                    {
+                        var q = Master.Character.Quests.GetByIndex(8);
+                        SubQuests.AddRange(q.Details.Sub.Where(x => x.Allowed.Contains(Master.Character.Class)));
+                    }
+                    foreach (var sub in SubQuests)
+                    {
+                        for (var i = 0; i < sub.Count; i++)
+                        {
+                            monsters.Add(MonstersMng.Instance.CreateMonster(
+                                sub.Monster,
+                                ObjectType.Monster,
+                                Maps.NewQuest,
+                                new System.Drawing.Point(147, 29),
+                                1));
+                        }
+                    }
+                    monsters.ForEach(x => x.Die += X_Die);
+                    if(state == 6)
+                    {
+                        _ = Members.SendAsync(new SQuestSurvivalTime
+                        {
+                            Increase = 0,
+                            Time = 1 * 60 * 1000,
+                            Type = QSType.QuestSurvivalTime,
+                        });
+
+                        end = DateTime.Now.AddMinutes(1);
+                    }
+                    break;
+            }
+            monsters.ForEach(x => x.Params = this);
+        }
+
+        private bool questPartyNextStep(ushort npc, QuestState[] states)
+        {
+            var masterQuest = Members.First().Character.Quests.Find(npc);
+            bool result = true;
+            foreach (var member in Members)
+            {
+                var q = member.Character.Quests.Find(npc);
+                if (q.Index > masterQuest.Index || (q.Index == masterQuest.Index && q.State == QuestState.Complete))
+                    continue;
+
+                if (q.Index < masterQuest.Index)
+                    return false;
+
+                if (states.Contains(q.State))
+                    result &= q.NextStep() == 0;
+            }
+
+            return result;
+        }
+
+        private void X_Die(object sender, EventArgs e)
+        {
+            var mob = sender as Monster;
+            var instance = mob.Params as Quest4thInfo;
+            var quests = instance.Master.Character.Quests;
+            var masterQuest = quests.Find(766);
+
+            if (masterQuest.Index != 8)
+            {
+                instance.State++;
+            }
+        }
+
+        public void Update()
+        {
+            if (state == 6 && end <= DateTime.Now)
+            {
+                var q = Master.Character.Quests.Find(766);
+                if (q.canClear(false) == 0)
+                {
+                    State++;
+                }
+                else
+                {
+                    State = 4;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            centNPC.Params = null;
+            MonstersMng.Instance.DeleteMonster(centNPC);
+            centNPC = null;
+            monsters.ForEach(x => MonstersMng.Instance.DeleteMonster(x));
+            monsters.Clear();
+        }
+    }
+    internal static class Quest4th
+    {
+        private static Dictionary<Player, Quest4thInfo> _info = new Dictionary<Player, Quest4thInfo>();
+
+        public static Quest4thInfo GetInfo(Player plr)
+        {
+            var master = plr.Character.Party?.Master ?? plr;
+
+            if (!_info.ContainsKey(master))
+            {
+                _info.Add(master, new Quest4thInfo { Master = master });
+                master.OnStatusChange += Master_OnStatusChange;
+            }
+            return _info[master];
+        }
+
+        private static void Master_OnStatusChange(object sender, EventArgs e)
+        {
+            RemoveInstance(sender as Player);
+        }
+
+        internal static void RemoveInstance(Player plr)
+        {
+            if (!_info.ContainsKey(plr))
+                return;
+
+            var instance = _info[plr];
+            instance.State = 0;
+            instance.Dispose();
+            _info.Remove(plr);
+        }
+
+        internal static void Update()
+        {
+            _info.Values.ToList().ForEach(x => x.Update());
         }
     }
 }

@@ -279,6 +279,13 @@ namespace MuEmu
                                where rect.Contains(pos) && obj.Player.Session.ID != plr.Player.Session.ID
                                select obj;
 
+                if(Map.Map == (int)Maps.NewQuest)
+                {
+                    playerVP = from obj in playerVP
+                               where obj.Party == plr.Party
+                               select obj;
+                }
+
                 PShop = (from obj in playerVP
                              where obj.Shop.Open
                              select obj).ToList();
@@ -436,6 +443,11 @@ namespace MuEmu
                 var playerVP = from obj in targetVP
                                where obj.Position.Substract(plr.Position).LengthSquared() <= 10
                                select obj;
+
+                if(Map.Map == (int)Maps.NewQuest)
+                {
+                    playerVP = Quest4th.GetInfo(plr.Player).GetMonsters();
+                }
 
                 newObj = (from obj in playerVP
                               where (obj.State == ObjectState.Regen||obj.UseTeleport) && obj.Active
@@ -636,6 +648,7 @@ namespace MuEmu
                 {
                     Program.EventManager.Update();
                     Program.GlobalEventsManager.Update();
+                    Quest4th.Update();
                     Thread.Sleep(1000);
                 }
                 catch(Exception e)

@@ -4,6 +4,13 @@ using System.Text;
 
 namespace MU.Resources
 {
+    public enum QSType : byte
+    {
+        TimeLimit = 1,
+        RemainingTime,
+        HuntingTime,
+        QuestSurvivalTime = 5,
+    }
     // Event Inventory Flags
     public enum EventInventoryType : byte
     {
@@ -1463,6 +1470,8 @@ namespace MU.Resources
         Plusstat,
         Comboskill,
         Master,
+        AllStatsUp,
+        Majestic,
     }
 
     public enum DevilSquareState : byte

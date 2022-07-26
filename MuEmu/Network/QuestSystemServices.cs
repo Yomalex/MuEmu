@@ -204,10 +204,12 @@ namespace MuEmu.Network
             var npc = session.Player.Window as Monster;
             var list = session.Player.Character.Quests
                 .EXPListNPC(npc.Info.Monster)
-                .Select(x => new QuestNPCTalkDto { QuestInfoIndex = x, State = (QuestState)x.Switch })
+                .Select(x => new QuestNPCTalkDto { QuestInfoIndex = x, State = x.Switch==0? QuestState.Clear : x.Switch == 65535 ? QuestState.Complete : QuestState.Reg })
                 .ToList();
 
-            list.Add(new QuestNPCTalkDto { QuestInfoIndex = 0 });
+            //list.Add(new QuestNPCTalkDto { QuestInfoIndex = QuestInfoIndex.FromEpisodeSwitch(1, 1), State = QuestState.Clear });
+            //list.Add(new QuestNPCTalkDto { QuestInfoIndex = QuestInfoIndex.FromEpisodeSwitch(2, 1), State = QuestState.Clear });
+            list.Add(new QuestNPCTalkDto { QuestInfoIndex = QuestInfoIndex.FromEpisodeSwitch(0, 0), State = QuestState.Clear });
 
             await session.SendAsync(new SQuestNPCTalk
             {
@@ -221,6 +223,62 @@ namespace MuEmu.Network
             var @char = session.Player.Character;
             @char.Quests.QuestEXPSetProgress(message.QuestInfoIndex, 1);
             await session.SendAsync(new SQuestNPCAccept { QuestInfoIndex = message.QuestInfoIndex, Result = 0 });
+        }
+
+        [MessageHandler(typeof(CCentMove))]
+        public async Task CentMove(GSSession session)
+        {
+            await session.Player.Character.WarpTo(537);
+        }
+
+        [MessageHandler(typeof(CCentTestStart))]
+        public async Task CentTestStart(GSSession session)
+        {
+            var @char = session.Player.Character;
+            var party = @char.Party;
+
+            var q6 = @char.Quests.GetByIndex(6);
+            if (q6 == null || q6.State != QuestState.Complete || @char.MapID != Maps.LabyrinthEntrance)
+            {
+                return;
+            }
+
+            var instance = Quest4th.GetInfo(session.Player);
+            instance.State = 1;
+
+            if (party != null)
+            {
+                var inPlace = party.Members
+                    .Where(x => x.Character.MapID == Maps.LabyrinthEntrance)
+                    .Where(x => (x.Character.Quests.GetByIndex(6)?.State??QuestState.Clear) == QuestState.Complete)
+                    .ToList();
+
+                inPlace.ForEach(x => _=x.Character.WarpTo(540));
+            }
+            else
+            {
+                await @char.WarpTo(540);
+            }
+        }
+
+        [MessageHandler(typeof(CCentBattleStart))]
+        public async Task CentBattleStart(GSSession session)
+        {
+            var instance = Quest4th.GetInfo(session.Player);
+            var q = session.Player.Character.Quests.Find(766);
+            switch (q.Index)
+            {
+                case 7:
+                    instance.State = 2;
+                    break;
+                case 8:
+                    instance.State = 5;
+                    break;
+                case 9:
+                    instance.State = 8;
+                    break;
+            }
+            
         }
     }
 }

@@ -95,7 +95,7 @@ namespace MuEmu.Monsters
                 if (point.X == 0)
                     continue;
 
-                mob.monster = new Monster(mob.Class, ObjectType.Monster, mob.MapNumber, point, mob.StartDir == -1 ? (byte)Program.RandomProvider(7) : (byte)mob.StartDir) { Index = MonstersMng.Instance.GetNewIndex() };
+                mob.monster = MonstersMng.Instance.CreateMonster(mob.Class, ObjectType.Monster, mob.MapNumber, point, mob.StartDir == -1 ? (byte)Program.RandomProvider(7) : (byte)mob.StartDir);
                 //mob.monster.Active = false;
                 mob.monster.Die += die;
                 if(mob.Rank == 0)
@@ -106,7 +106,6 @@ namespace MuEmu.Monsters
                 {
                     mob.monster.Leader = Leader;
                 }
-                MonstersMng.Instance.Monsters.Add(mob.monster);
             }
 
             return _instance._IAGroups[group].Count;

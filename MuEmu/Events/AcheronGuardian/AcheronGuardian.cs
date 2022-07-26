@@ -87,17 +87,13 @@ namespace MuEmu.Events.AcheronGuardian
 
                     var obeliskCode = (ushort)(627 + Program.RandomProvider(5));
                     var randObeliskPos = Program.RandomProvider(_obeliskPositions.Count);
-                    _obelisk = new Monster(
+                    _obelisk = MonstersMng.Instance.CreateMonster(
                         obeliskCode,
                         ObjectType.Gate,
                         _obeliskMaps[randObeliskPos],
                         _obeliskPositions[randObeliskPos],
                         1,
-                        (Element)MonstersMng.Instance.MonsterInfo[obeliskCode].MainAttribute)
-                    {
-                        Index = MonstersMng.Instance.GetNewIndex()
-                    };
-                    MonstersMng.Instance.Monsters.Add(_obelisk);
+                        (Element)MonstersMng.Instance.MonsterInfo[obeliskCode].MainAttribute);
                     _obelisk.Die += _obelisk_Die;
                     _logger.Debug("Obelisk Spawned in {0},{1}", _obelisk.Position.X, _obelisk.Position.Y);
                     break;
@@ -161,7 +157,7 @@ namespace MuEmu.Events.AcheronGuardian
             for(var i = 0; i < 5; i++)
             {
                 var mtype = codes[Program.RandomProvider(codes.Count)];
-                var m = new Monster(
+                var m = MonstersMng.Instance.CreateMonster(
                     mtype,
                     ObjectType.Monster,
                     _obelisk.MapID,
@@ -171,10 +167,7 @@ namespace MuEmu.Events.AcheronGuardian
                         ),
                     1,
                     (Element)MonstersMng.Instance.MonsterInfo[mtype].MainAttribute);
-                m.Index = MonstersMng.Instance.GetNewIndex();
                 m.Die += Monster_Die;
-
-                MonstersMng.Instance.Monsters.Add(m);
             }
         }
 

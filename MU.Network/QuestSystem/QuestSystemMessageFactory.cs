@@ -27,8 +27,13 @@ namespace MU.Network.QuestSystem
             Register<CQuestNPCAccept>(QuestOpCode.QuestMUAccept);
             Register<SQuestNPCAccept>(QuestOpCode.QuestMUAccept);
 
+            Register<CCentTestStart>(QuestOpCode.CentQuestTest);
+            Register<CCentBattleStart>(QuestOpCode.CentQuestSummon);
+            Register<CCentMove>(QuestOpCode.CentQuestMove);
+
             // S2C
             Register<SSetQuest>(QuestOpCode.SetQuest);
+            Register<SMonsterKillS16>(QuestOpCode.QuestKillCount);
             Register<SSendQuestPrize>(QuestOpCode.QuestPrize);
             Register<SSetQuestState>(QuestOpCode.SetQuestState);
             Register<SQuestSwitchListNPC>(QuestOpCode.QuestSwitchListNPC);
@@ -40,6 +45,7 @@ namespace MU.Network.QuestSystem
             Register<SSendQuestEXPProgressAsk>(QuestOpCode.QuestExpInfoAsk);
             Register<SSendQuestEXPInfo>(QuestOpCode.QuestEXPProgress);
             Register<SSendQuestEXPComplete>(QuestOpCode.QuestExpComplete);
+            Register<SQuestSurvivalTime>(QuestOpCode.QuestSurvivalTime);
         }
     }
 }

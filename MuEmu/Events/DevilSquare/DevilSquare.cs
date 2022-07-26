@@ -35,13 +35,10 @@ namespace MuEmu.Events.DevilSquare
                 {
                     var x = rand.Next(ground.Left, ground.Right);
                     var y = rand.Next(ground.Top, ground.Bottom);
-                    var mob = new Monster(type, ObjectType.Monster, Index <= 4 ? Maps.DevilSquare : Maps.DevilSquare2, new Point(x, y), (byte)rand.Next(7))
-                    { Index = MonstersMng.Instance.GetNewIndex() };
+                    var mob = MonstersMng.Instance.CreateMonster(type, ObjectType.Monster, Index <= 4 ? Maps.DevilSquare : Maps.DevilSquare2, new Point(x, y), (byte)rand.Next(7));
                     mob.Die += OnMonsterDead;
                     subList.Add(mob);
                     mob.Active = false;
-
-                    MonstersMng.Instance.Monsters.Add(mob);
                 }
                 _ground.Add(subList);
             }

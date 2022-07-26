@@ -56,4 +56,17 @@ namespace MU.Network.QuestSystem
     {
         [WZMember(0)] public uint QuestInfoIndex { get; set; }
     }
+
+
+    [WZContract]
+    public class CCentTestStart : IQuestMessage
+    { }
+
+    [WZContract]
+    public class CCentBattleStart : IQuestMessage
+    { }
+
+    [WZContract]
+    public class CCentMove : IQuestMessage
+    { }
 }

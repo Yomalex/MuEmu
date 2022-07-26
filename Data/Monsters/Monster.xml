@@ -5809,4 +5809,97 @@
   <Info Monster="738" ExpType="0" Name="Ferea Fighter"	Level="110"	HP="10" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
 <PentagramDefense>7</PentagramDefense>
 </Info>
+  <Info Monster="739" ExpType="0" Name="Green Monkey"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="740" ExpType="0" Name="White Monkey"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="741" ExpType="0" Name="Blue Monkey"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="742" ExpType="0" Name="Red Monkey"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="743" ExpType="0" Name="Farah Car"	Level="144"	HP="240000" 		MP="0" DamageMin="1875"	DmgMax="1913"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="744" ExpType="0" Name="Bath"	Level="145"	HP="120000" 		MP="0" DamageMin="1125"	DmgMax="1200"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="745" ExpType="0" Name="Ski Bar"	Level="146"	HP="125000" 		MP="0" DamageMin="2325"	DmgMax="2400"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="746" ExpType="0" Name="Nixie"	Level="170"	HP="30000000" 		MP="0" DamageMin="8500"	DmgMax="9000"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="747" ExpType="0" Name="Stonemason"	Level="150"	HP="5000000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="748" ExpType="0" Name="Nixie's Spirit"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="749" ExpType="0" Name="Elena"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="750" ExpType="0" Name="Gate"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="751" ExpType="0" Name="Gate"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="752" ExpType="0" Name="Gate"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="753" ExpType="0" Name="Gate"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="754" ExpType="0" Name="Great Sword of Kundun"	Level="160"	HP="38500" 		MP="0" DamageMin="430"	DmgMax="465"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="755" ExpType="0" Name="Soldier of Kundun"	Level="160"	HP="38500" 		MP="0" DamageMin="430"	DmgMax="465"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="756" ExpType="0" Name="Lancer of Kundun"	Level="160"	HP="38500" 		MP="0" DamageMin="430"	DmgMax="465"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="757" ExpType="0" Name="Labyrinth Goblin"	Level="160"	HP="150000" 		MP="0" DamageMin="430"	DmgMax="465"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="758" ExpType="0" Name="Dimension Door"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="759" ExpType="0" Name="Green Chicken"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="760" ExpType="0" Name="White Chicken"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="761" ExpType="0" Name="Blue Chicken"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+  <Info Monster="762" ExpType="0" Name="Red Chicken"	Level="2"	HP="10000" 		MP="0" DamageMin="0"	DmgMax="0"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="0"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+<PentagramDefense>7</PentagramDefense>
+</Info>
+	<Info Monster="763" ExpType="0" Name="Cent(Monster)"	Level="170"	HP="240000" 		MP="0" DamageMin="2500"	DmgMax="2550"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="10" AttackType="0"		AttackRange="1" ViewRange="10"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
+	<Info Monster="764" ExpType="0" Name="Cent(Town)"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="10"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
+	<Info Monster="765" ExpType="0" Name="Cent(Entrance)"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="10"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
+	<Info Monster="766" ExpType="0" Name="Cent(Quest)"	Level="2"	HP="10000" 		MP="0" DamageMin="10"	DmgMax="10"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="0" AttackType="0"		AttackRange="0" ViewRange="10"	MoveSpeed="0"	AttackSpeed="0"		RegenTime="0"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
+	<Info Monster="767" ExpType="0" Name="Deep Dungeon Skeleton Warrior"	Level="170"	HP="200000" 		MP="0" DamageMin="2308"	DmgMax="2408"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="10" AttackType="0"		AttackRange="1" ViewRange="10"	MoveSpeed="1"	AttackSpeed="1"		RegenTime="1000"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
+	<Info Monster="770" ExpType="0" Name="Deep Dungeon Larva"	Level="170"	HP="195000" 		MP="0" DamageMin="2480"	DmgMax="2580"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="10" AttackType="0"		AttackRange="1" ViewRange="10"	MoveSpeed="1"	AttackSpeed="1"		RegenTime="1000"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
+	<Info Monster="771" ExpType="0" Name="Deep Dungeon Cyclops"	Level="200"	HP="374954" 		MP="0" DamageMin="2782"	DmgMax="2882"		Defense="10"	MagicDefense="10"	Attack="10"		Success="10"		MoveRange="10" AttackType="0"		AttackRange="1" ViewRange="10"	MoveSpeed="1"	AttackSpeed="1"		RegenTime="1000"	Attribute="0" ItemDropRate="0"		M_Rate="0"	MaxItem="0" MonsterSkill="0" IceRes="0"	Possion_Resistance="0"		Lightning_Resistance="0"	Fire_Resistance="0">
+		<PentagramDefense>7</PentagramDefense>
+	</Info>
 </Monster>

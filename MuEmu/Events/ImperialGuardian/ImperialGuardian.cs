@@ -339,8 +339,7 @@ namespace MuEmu.Events.ImperialGuardian
             _fortressGates.AddRange(_JerintGaionGates);
             foreach (var g in _fortressGates)
             {
-                g.monster = new Monster(g.Class, ObjectType.NPC, g.map, new System.Drawing.Point(g.X, g.Y), g.Dir) { Index = MonstersMng.Instance.GetNewIndex() };
-                MonstersMng.Instance.Monsters.Add(g.monster);
+                g.monster = MonstersMng.Instance.CreateMonster(g.Class, ObjectType.NPC, g.map, new System.Drawing.Point(g.X, g.Y), g.Dir);
                 g.monster.Die += OnMonsterDead;
                 g.monster.Regen += Monster_Regen;
             }

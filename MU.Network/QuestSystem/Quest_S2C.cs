@@ -15,6 +15,21 @@ namespace MU.Network.QuestSystem
         [WZMember(1)] public byte State { get; set; }
     }
     [WZContract]
+    public class MonsterKillCountDto
+    {
+        [WZMember(0)] public uint Monster { get; set; }
+        [WZMember(1)] public uint Count { get; set; }
+    }
+    [WZContract]
+    public class SMonsterKillS16 : IQuestMessage
+    {
+        [WZMember(0)] public byte Unk { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public byte QuestId { get; set; }
+        [WZMember(3)] public ushort Unk2 { get; set; }
+        [WZMember(4, typeof(ArraySerializer))] public MonsterKillCountDto[] KillCount { get; set; } = new MonsterKillCountDto[5];
+    }
+    [WZContract]
     public class SSetQuestState : IQuestMessage
     {
         [WZMember(0)] public byte Index { get; set; }
@@ -159,5 +174,14 @@ namespace MU.Network.QuestSystem
     {
         [WZMember(0)] public uint QuestInfoIndex { get; set; }
         [WZMember(1)] public byte Result { get; set; }
+    }
+
+    [WZContract]
+    public class SQuestSurvivalTime : IQuestMessage
+    {
+        [WZMember(0)] public QSType Type { get; set; }
+        [WZMember(1)] public byte Increase { get; set; }
+        [WZMember(2)] public ushort Unk { get; set; }
+        [WZMember(3)] public uint Time { get; set; }
     }
 }

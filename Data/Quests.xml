@@ -113,10 +113,50 @@
     <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner">
       <NeededMonster Type="412" Count="1" />
       <Reward Type="Master" SubType="200" />
-      <Message LinkConditionIndex="0" BeforeReg="135" AfterReg="138" CompleteQuest="139" ClearQuest="113" />
+      <Message LinkConditionIndex="0" BeforeReg="168" AfterReg="172" CompleteQuest="173" ClearQuest="174" />
     </Detail>
     <Condition Index="-1" NeededQuest="-1" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="10000000" Message="167" />
     <Condition Index="-1" NeededQuest="-1" MinLevel="400" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
     <Condition Index="-1" NeededQuest="5" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="145" />
   </Quest>
+
+    <Quest Type="0" Index="7" SubType="2" NPC="766" Name="4th Job - Qualification Test">
+	    <Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+		    <NeededMonster Type="763" Count="1" />
+		    <Reward Type="Plusstat" SubType="20" />
+		    <Message LinkConditionIndex="0" BeforeReg="183" AfterReg="185" CompleteQuest="186" ClearQuest="187" />
+	    </Detail>
+	    <Condition Index="-1" NeededQuest="-1" MinLevel="450" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+	    <Condition Index="-1" NeededQuest="6" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="188" />
+    </Quest>
+
+	<Quest Type="0" Index="8" SubType="2" NPC="766" Name="4th Job - New battle">
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+			<NeededMonster Type="767" Count="5" />
+			<Reward Type="Plusstat" SubType="0" />
+			<Message LinkConditionIndex="0" BeforeReg="189" AfterReg="191" CompleteQuest="192" ClearQuest="193" />
+		</Detail>
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+			<NeededMonster Type="770" Count="5" />
+			<Reward Type="Plusstat" SubType="0" />
+			<Message LinkConditionIndex="0" BeforeReg="189" AfterReg="191" CompleteQuest="192" ClearQuest="193" />
+		</Detail>
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+			<NeededMonster Type="771" Count="5" />
+			<Reward Type="Plusstat" SubType="20" />
+			<Message LinkConditionIndex="0" BeforeReg="189" AfterReg="191" CompleteQuest="192" ClearQuest="193" />
+		</Detail>
+		<Condition Index="-1" NeededQuest="-1" MinLevel="800" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+		<Condition Index="-1" NeededQuest="7" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="194" />
+	</Quest>
+
+	<Quest Type="0" Index="9" SubType="2" NPC="766" Name="4th Job - New battle(2)">
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+			<NeededMonster Type="763" Count="1" />
+			<Reward Type="Majestic" SubType="30" />
+			<Message LinkConditionIndex="0" BeforeReg="195" AfterReg="197" CompleteQuest="198" ClearQuest="199" />
+		</Detail>
+		<Condition Index="-1" NeededQuest="-1" MinLevel="800" MaxLevel="0" NeedStr="0" Cost="0" Message="144" />
+		<Condition Index="-1" NeededQuest="8" MinLevel="0" MaxLevel="0" NeedStr="0" Cost="0" Message="200" />
+	</Quest>
 </Quests>

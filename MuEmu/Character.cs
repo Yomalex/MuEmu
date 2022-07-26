@@ -183,11 +183,21 @@ namespace MuEmu
         }
         public bool MasterClass
         {
-            get => (((byte)Class) & 0x0F) > 1;
+            get => (((byte)Class) & 0x0F) == 2;
             set
             {
                 Class &= (HeroClass)(0xF0);
                 Class |= (HeroClass)(value ? 2 : 0);
+                _needSave = true;
+            }
+        }
+        public bool MajesticClass
+        {
+            get => (((byte)Class) & 0x0F) == 3;
+            set
+            {
+                Class &= (HeroClass)(0xF0);
+                Class |= (HeroClass)(value ? 3 : 0);
                 _needSave = true;
             }
         }
@@ -197,6 +207,7 @@ namespace MuEmu
         internal HuntingRecord HuntingRecord { get; }
         public string Name { get; set; }
         public ushort Level { get => _level; set { _level = value; _needSave = true; } }
+        public ushort GlobalLevel => (ushort)(_level + (MasterClass ? MasterLevel.Level : 0));
         public float Health {
             get => _hp;
             set {

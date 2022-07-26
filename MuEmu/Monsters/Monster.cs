@@ -312,10 +312,24 @@ namespace MuEmu.Monsters
 
             lock (ViewPort)
             {
-                ViewPort = Map.Players
-                    .Where(x => x.Player.Status == LoginStatus.Playing && Distance(x.Position, Position) <= 18)
-                    .Select(x => x.Player)
-                    .ToList();
+                if (Map.Map == (int)Maps.NewQuest)
+                {
+                    var instance = Params as Quest4thInfo;
+                    if (instance.Master.Character == null)
+                    {
+                        Quest4th.RemoveInstance(instance.Master);
+                    }
+                    else
+                    {
+                        ViewPort = instance.Master.Character.Party?.Members.ToList() ?? new List<Player> { instance.Master };
+                    }
+                }
+                else {
+                    ViewPort = Map.Players
+                        .Where(x => x.Player.Status == LoginStatus.Playing && Distance(x.Position, Position) <= 18)
+                        .Select(x => x.Player)
+                        .ToList();
+                }
             }
 
             if (Target == null && Leader != null)

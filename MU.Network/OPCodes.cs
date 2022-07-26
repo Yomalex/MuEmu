@@ -426,6 +426,8 @@ namespace MU.Network
         SetQuest = 0xFFA1,
         SetQuestState = 0xFFA2,
         QuestPrize = 0xFFA3,
+        QuestKillCount = 0xFFA4,
+        QuestSurvivalTime = 0x01A5,
         QuestExp = 0x00F6,
         QuestSwitchListNPC = 0x0AF6,
         QuestExpInfo = 0x0BF6,
@@ -438,5 +440,8 @@ namespace MU.Network
         QuestSwitchListItem = 0x04F6,
         QuestMUTalk = 0x71F6,
         QuestMUAccept = 0x72F6,
+        CentQuestTest = 0x203E,
+        CentQuestSummon = 0x213E,
+        CentQuestMove = 0x223E,
     }
 }

@@ -711,11 +711,10 @@ namespace MuEmu.Events.Kanturu
             _monsters.Clear();
 
             var mobs = _info.Stages.First(x => x.Number == number).Monsters;
-            _monsters = mobs.Select(x => new Monster(x.Type, ObjectType.Monster, (Maps)x.Map, new System.Drawing.Point(x.PosX, x.PosY), (byte)x.Dir) { Index = MonstersMng.Instance.GetNewIndex() }).ToList();
+            _monsters = mobs.Select(x => MonstersMng.Instance.CreateMonster(x.Type, ObjectType.Monster, (Maps)x.Map, new System.Drawing.Point(x.PosX, x.PosY), (byte)x.Dir)).ToList();
             foreach (var x in _monsters)
             {
                 x.Die += OnMonsterDead;
-                MonstersMng.Instance.Monsters.Add(x);
             }
         }
 

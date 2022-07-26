@@ -526,5 +526,6 @@
 	<Gate Number="523" GateType="1" Map="Raklion" X1="208" Y1="219" X2="211" Y2="221" Target="524" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
 	<Gate Number="524" GateType="2" Map="NixieLake" X1="208" Y1="219" X2="211" Y2="221" Target="524" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
 	
-	<Gate Number="537" GateType="0" Map="LabyrinthEntrance" X1="187" Y1="54" X2="189" Y2="55" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="537" GateType="0" Map="LabyrinthEntrance" X1="238" Y1="237" X2="239" Y2="238" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
+	<Gate Number="540" GateType="0" Map="NewQuest" X1="147" Y1="27" X2="148" Y2="28" Target="0" Dir="0" ReqLevel="300" Name="" ReqZen="0" Move="-1" />
 </Warp>

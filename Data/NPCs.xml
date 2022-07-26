@@ -106,4 +106,8 @@
   <NPC NPC="682" Type="Window" Icon="Conversation" Data="51" />
   <!-- NPC Ruud Shop -->
   <NPC NPC="725" Type="Shop" Icon="Elixir" Data="50" />
+	<!-- NPCs Cent -->
+	<NPC NPC="764" Type="Window" Icon="Conversation" Data="54" />
+	<NPC NPC="765" Type="Window" Icon="Conversation" Data="55" />
+	<NPC NPC="766" Type="Quest" Icon="Conversation" Data="0" />
 </NPCs>

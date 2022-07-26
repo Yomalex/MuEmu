@@ -92,7 +92,8 @@ namespace MuEmu.Network
                         Logger.ForAccount(Session).Information("Disconnecting...");
                     }
                 }
-                Session.Player.Account = null;
+                if(Session.Player != null)
+                    Session.Player.Account = null;
             }
             //db.SaveChanges();
 

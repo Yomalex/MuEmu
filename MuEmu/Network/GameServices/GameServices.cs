@@ -749,13 +749,9 @@ namespace MuEmu.Network.GameServices
                             logger.Error("[Kalima] Failed to Summon Kalima Gate - Min Level: {0}, Player Level: {1}", minLevel[item.Plus], plr.Character.Level);
                             break;
                         }
-                        plr.Character.KalimaGate = new Monster((ushort)(151 + item.Plus), ObjectType.NPC, plr.Character.MapID, new Point(message.MapX, message.MapY), 1)
-                        {
-                            Index = MonstersMng.Instance.GetNewIndex(),
-                            Caller = plr,
-                            Params = 5,
-                        };
-                        MonstersMng.Instance.Monsters.Add(plr.Character.KalimaGate);
+                        plr.Character.KalimaGate = MonstersMng.Instance.CreateMonster((ushort)(151 + item.Plus), ObjectType.NPC, plr.Character.MapID, new Point(message.MapX, message.MapY), 1);
+                        plr.Character.KalimaGate.Caller = plr;
+                        plr.Character.KalimaGate.Params = 5;
                         await inv.Delete(message.Source);
 
                         goto throwItem;
@@ -841,6 +837,9 @@ namespace MuEmu.Network.GameServices
             var ObjectIndex = message.Number.ShufleEnding();
             var obj = MonstersMng.Instance.GetMonster(ObjectIndex);
             var @char = session.Player.Character;
+
+            if (obj == null)
+                return;
 
             if (npcs.TryGetValue(obj.Info.Monster, out var npc))
             {
@@ -933,6 +932,13 @@ namespace MuEmu.Network.GameServices
                         var details = quest.Details;
                         Logger.ForAccount(session)
                             .Information("Talk to QuestNPC: {0}, Found Quest:{1}, State:{2}", obj.Info.Name, details.Name, quest.State);
+                        await session.SendAsync(new SMonsterKillS16 { 
+                            QuestId = (byte)quest.Index, 
+                            KillCount = quest
+                            .GetKillCount()
+                            .Select(x => new MonsterKillCountDto { Monster = x.Key, Count = x.Value })
+                            .ToArray()
+                        });
                         await session.SendAsync(new SSetQuest { Index = (byte)quest.Index, State = quest.StateByte });
                         break;
                     case NPCAttributeType.Gens:

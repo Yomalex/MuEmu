@@ -53,13 +53,20 @@ namespace MuEmu.Monsters
             return ++_lastUsedIndex;
         }
 
+        public Monster CreateMonster(ushort monsterID, ObjectType type, Maps mapId, Point position, byte dir, Element element = Element.None)
+        {
+            var mob = new Monster(monsterID, type, mapId, position, dir, element);
+            mob.Index = GetNewIndex();
+            Monsters.Add(mob);
+            return mob;
+        }
         public void DeleteMonster(Monster mob)
         {
             if (mob == null)
                 return;
 
             mob.Map.DelMonster(mob);
-            mob.ViewPort.ForEach(x => x.Character.MonstersVP.Remove(mob.Index));
+            mob.ViewPort.ForEach(x => x.Character?.MonstersVP.Remove(mob.Index));
             _clearIndex.Add(mob.Index);
             Monsters.Remove(mob);
         }

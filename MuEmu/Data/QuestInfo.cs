@@ -55,7 +55,7 @@ namespace MuEmu.Data
 
         public bool CanRun(Character @char)
         {
-            if ((MinLevel > @char.Level && MinLevel != 0) || (@char.Level > MaxLevel && MaxLevel != 0))
+            if ((MinLevel > @char.GlobalLevel && MinLevel != 0) || (@char.GlobalLevel > MaxLevel && MaxLevel != 0))
                 return false;
 
             if (!@char.Quests.IsClear(NeededQuestIndex))
