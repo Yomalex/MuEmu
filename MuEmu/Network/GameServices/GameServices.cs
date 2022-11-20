@@ -578,8 +578,14 @@ namespace MuEmu.Network.GameServices
                         if (Target.Plus >= 7)
                             break;
 
-                        await inv.Delete(message.Source);
-                        Target.Plus++;
+                        var source = inv.Get(message.Source);
+                        var left = (byte)Math.Min(6 - Target.Plus, source.Durability);
+
+                        Target.Plus += left;
+                        source.Durability -= left;
+
+                        if(source.Durability == 0)
+                            await inv.Delete(message.Source);
                     }
                     break;
                 case 14 * 512 + 14: //  Jewel of Soul

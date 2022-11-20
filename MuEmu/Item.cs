@@ -78,13 +78,15 @@ namespace MuEmu
                 var logger = Log.Logger;
                 var addList = _itemForSave.Where(x => x.Serial == 0 && x.State != ItemState.Deleted && x.Account != null);
                 var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0);
-                var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted);
+                var removeList = _itemForSave.Where(x => x.Serial != 0 && x.State == ItemState.Deleted);
+                var removeList2 = _itemForSave.Where(x => x.Serial == 0 && x.State == ItemState.Deleted);
 
                 db.Items.AddRange(addList.Select(x => x.Save(db)).Where(x => x != null));
                 db.Items.UpdateRange(updateList.Select(x => x.Save(db)).Where(x => x != null));
-                db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)).Where(x => x != null));
+                db.Items.RemoveRange(removeList.Select(x => x.Save(db)).Where(x => x != null));
 
                 _itemForSave.RemoveAll(x => removeList.Contains(x));
+                _itemForSave.RemoveAll(x => removeList2.Contains(x));
             }
         }
         public static void SaveReference(Account account)
@@ -97,13 +99,15 @@ namespace MuEmu
                 {
                     var addList = _itemForSave.Where(x => x.Serial == 0 && x.Account == account && x.State != ItemState.Deleted);
                     var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0 && x.Account == account);
-                    var removeList = _itemForSave.Where(x => x.State == ItemState.Deleted && x.Account == account);
+                    var removeList = _itemForSave.Where(x => x.Serial == 0 && x.State == ItemState.Deleted && x.Account == account);
+                    var removeList2 = _itemForSave.Where(x => x.Serial == 0 && x.State == ItemState.Deleted && x.Account == account);
 
                     db.Items.AddRange(addList.Select(x => x.Save(db)));
                     db.Items.UpdateRange(updateList.Select(x => x.Save(db)));
                     db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)));
 
                     _itemForSave.RemoveAll(x => removeList.Contains(x));
+                    _itemForSave.RemoveAll(x => removeList2.Contains(x));
                     db.SaveChanges();
                 }
             }

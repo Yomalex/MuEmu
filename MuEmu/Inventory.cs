@@ -157,6 +157,7 @@ namespace MuEmu
                             {
                                 _logger.Error(ServerMessages.GetMessage(Messages.IV_IndexAlreadyUsed, Character, (Equipament)pos));
                                 _logger.Error(it.ToString());
+                                it.Delete();
                             }
 
                             if (it.Number.Type == ItemType.BowOrCrossbow && (it.Number.Index == 7 || it.Number.Index == 15))
@@ -178,7 +179,10 @@ namespace MuEmu
                         {
                             try
                             {
-                                sto.Add(it);
+                                if(sto.Add(it)==0xff)
+                                {
+                                    it.Delete();
+                                }
                             }
                             catch (Exception)
                             {
@@ -1173,24 +1177,24 @@ namespace MuEmu
                     { 55, new byte[]{ 12, 0x00, 12 } },
                     { 56, new byte[]{ 12, 0x00, 13 } },
                     { 57, new byte[]{ 12, 0x00, 14 } },
-                    //{ 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
-                    //{ 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
-                    //{ 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
-                    //{ 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
-                    //{ 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
-                    //{ 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
-                    //{ 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
-                    //{ 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
-                    //{ 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
-                    //{ 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
-                    //{ 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
-                    //{ 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
-                    //{ 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
-                    //{ 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
-                    //{ 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
+                    { 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
+                    { 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
+                    { 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
+                    { 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
+                    { 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
+                    { 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
+                    { 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
+                    { 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
+                    { 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
+                    { 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
+                    { 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
+                    { 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                    { 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
+                    { 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
+                    { 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
                     //{ 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
-                    //{ 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
-                    //{ 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
+                    { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
+                    { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
                 };
                 // Season X
                 /*sub = new Dictionary<int, byte[]>
