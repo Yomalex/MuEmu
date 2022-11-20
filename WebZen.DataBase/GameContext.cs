@@ -144,5 +144,6 @@ namespace MuEmu.Entity
         public DbSet<BloodCastleDto> BloodCastles { get; set; }
         public DbSet<GuildMatchingDto> GuildMatching { get; set; }
         public DbSet<GuildMatchingJoinDto> GuildMatchingJoin { get; set; }
+        public DbSet<SellDto> Sell { get; set; }
     }
 }

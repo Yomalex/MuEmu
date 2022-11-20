@@ -16,6 +16,7 @@ namespace MuEmu
         public HuntingDto Hunting { get; set; }
         public Character Character { get; }
         public bool Active { get; set; }
+        public bool Visibility { get; internal set; }
 
         public HuntingRecord(Character character, CharacterDto characterDto)
         {

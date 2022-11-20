@@ -58,6 +58,7 @@ using MuEmu.Events.Minigames;
 using MuEmu.Events.CastleSiege;
 using MuEmu.Events.Raklion;
 using MuEmu.Events.AcheronGuardian;
+using Serilog.Events;
 
 namespace MuEmu
 {
@@ -110,7 +111,9 @@ namespace MuEmu
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
                 .Destructure.ByTransforming<EndPoint>(endPoint => endPoint.ToString())
-                .WriteTo.File("GameServer_.txt", outputTemplate: output, rollingInterval: RollingInterval.Day)
+                .WriteTo.Map(
+                le => new Tuple<DateTime, LogEventLevel>(new DateTime(le.Timestamp.Year, le.Timestamp.Month, le.Timestamp.Day), le.Level),
+                (key,log) => log.File($"Logs/{key.Item1:yyyy-MM}/{key.Item2}GameServer_.txt", rollingInterval: RollingInterval.Day), sinkMapCountLimit: 1)
                 .WriteTo.Console(outputTemplate: output)
                 .MinimumLevel.Debug()
                 .CreateLogger();
@@ -128,7 +131,7 @@ namespace MuEmu
 
             var xml = ResourceLoader.XmlLoader<ServerInfoDto>("./Server.xml");
             XMLConfiguration = xml;
-            ServerMessages.LoadMessages($"./Data/Lang/ServerMessages({xml.Lang}).xml");
+            ServerMessages.LoadMessages($"{xml.Files.DataRoot}Lang/ServerMessages({xml.Lang}).xml");
 
             Name = xml.Name;
             Console.Title = ServerMessages.GetMessage(Messages.Server_Title, xml.Code, xml.Name, xml.Client.Version, xml.Client.Serial, xml.Database.DataBase, xml.Season);
@@ -136,11 +139,9 @@ namespace MuEmu
             ConnectionString = $"Server={xml.Database.DBIp};port=3306;Database={xml.Database.DataBase};user={xml.Database.BDUser};password={xml.Database.DBPassword};Convert Zero Datetime=True;";
 
             GameContext.ConnectionString = ConnectionString;
-            SimpleModulus.LoadDecryptionKey("./Data/Dec1.dat");
-            SimpleModulus.LoadEncryptionKey("./Data/Enc2.dat");
-            //byte[] key = { 0x44, 0x9D, 0x0F, 0xD0, 0x37, 0x22, 0x8F, 0xCB, 0xED, 0x0D, 0x37, 0x04, 0xDE, 0x78, 0x00, 0xE4, 0x33, 0x86, 0x20, 0xC2, 0x79, 0x35, 0x92, 0x26, 0xD4, 0x37, 0x37, 0x30, 0x98, 0xEF, 0xA4, 0xDE };
-            //PacketEncrypt.Initialize(key);
-
+            SimpleModulus.LoadDecryptionKey(xml.Files.DataRoot + "Dec1.dat");
+            SimpleModulus.LoadEncryptionKey(xml.Files.DataRoot + "Enc2.dat");
+            
             var ip = new IPEndPoint(IPAddress.Parse(xml.Connection.IP), xml.Connection.Port);
             var csIP = new IPEndPoint(IPAddress.Parse(xml.Connection.ConnectServerIP), 44405);
             AutoRegistre = xml.AutoRegister;
@@ -362,7 +363,7 @@ namespace MuEmu
                     db.SaveChanges();
                 }
 
-                ResourceCache.Initialize(".\\Data");
+                ResourceCache.Initialize(xml.Files.DataRoot);
                 MasterLevel.Initialize();
                 GuildManager.Initialize();
                 PartyManager.Initialzie(xml.GamePlay.MaxPartyLevelDifference);
@@ -372,12 +373,12 @@ namespace MuEmu
                 // Event Config
                 EventConfig(xml);
                 MonstersMng.Initialize();
-                MonstersMng.Instance.LoadMonster(xml.Files.Monsters);
-                MonsterIA.Initialize("./Data/Monsters/");
+                MonstersMng.Instance.LoadMonster(xml.Files.DataRoot + xml.Files.Monsters);
+                MonsterIA.Initialize(xml.Files.DataRoot + "Monsters/");
                 EventInitialize();
 
-                MapServerManager.Initialize(xml.Files.MapServer);
-                MonstersMng.Instance.LoadSetBase(xml.Files.MonsterSetBase);
+                MapServerManager.Initialize(xml.Files.DataRoot + xml.Files.MapServer);
+                MonstersMng.Instance.LoadSetBase(xml.Files.DataRoot + xml.Files.MonsterSetBase);
                 SubSystem.Initialize();
                 Marlon.Initialize();
                 SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.Connection.APIKey);

@@ -21,6 +21,11 @@ namespace MU.Network.Game
             Register<SMapMoveCheckSum>(GameOpCode.MapMoveCheckSum);
             Register<CClientMessage>(GameOpCode.ClientMessage);
             Register<CCloseWindow>(GameOpCode.CloseWindow);
+            Register<CCancelItemSale>(GameOpCode.CancelItemSale);
+            Register<CCancelItemSaleClose>(GameOpCode.CancelItemSaleClose);
+            Register<CCancelItemSaleItem>(GameOpCode.CancelItemSaleItem);
+            Register<SCancelItemSaleResult>(GameOpCode.CancelItemSaleItem);
+            Register<SCancelItemSaleListS16>(GameOpCode.CancelItemSale);
 
             Register<CAction>(GameOpCode.Rotation);
             Register<CMove>(GameOpCode.Move);
@@ -422,6 +427,8 @@ namespace MU.Network.Game
             Register<SPartyMJoinNotify>(GameOpCode.PartyJoinNotify);
 
             Register<CHuntingRecordRequest>(GameOpCode.HuntingRecordRequest);
+            Register<CHuntingRecordClose>(GameOpCode.HuntingRecordClose);
+            Register<CHuntingRecordVisibility>(GameOpCode.HuntingRecordVisibility);
             Register<SHuntingRecordList>(GameOpCode.HuntingRecordRequest);
             Register<SHuntingRecordDay>(GameOpCode.HuntingRecordDay);
             Register<SHuntingRecordTime>(GameOpCode.HuntingRecordCurrent);

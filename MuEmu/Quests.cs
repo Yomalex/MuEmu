@@ -87,7 +87,7 @@ namespace MuEmu
         {
             if(_questEXP == null)
             {
-                string file = Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
+                string file = Program.XMLConfiguration.Files.DataRoot+Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
                 try
                 {
                     _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>(file);
@@ -829,13 +829,12 @@ namespace MuEmu
         {
             var copy = monsters.ToList();
             copy.Add(centNPC);
-            return copy.Where(x => x.Active);
+            return copy;
         }
 
         private void onSetState()
         {
-            monsters.ForEach(x => MonstersMng.Instance.DeleteMonster(x));
-            monsters.Clear();
+            monsters.ForEach(x => x.Active = false);
             centNPC.Active = false;
 
             var masterQuest = Master.Character?.Quests.Find(766)??null;
@@ -859,14 +858,11 @@ namespace MuEmu
                         State--;
                     break;
                 case 9: // Final Cent Battle
+                    monsters.ForEach(x => x.Active = true);
+                    break;
                 case 6: // Summon Monsters
                 case 3: // Cent Test Battle
                     var SubQuests = masterQuest.Details.Sub.Where(x => x.Allowed.Contains(Master.Character.Class)).ToList();
-                    if (State == 9)
-                    {
-                        var q = Master.Character.Quests.GetByIndex(8);
-                        SubQuests.AddRange(q.Details.Sub.Where(x => x.Allowed.Contains(Master.Character.Class)));
-                    }
                     foreach (var sub in SubQuests)
                     {
                         for (var i = 0; i < sub.Count; i++)

@@ -193,11 +193,11 @@ namespace MuEmu
         }
         public bool MajesticClass
         {
-            get => (((byte)Class) & 0x0F) == 3;
+            get => (((byte)Class) & 0x0F) == 4;
             set
             {
                 Class &= (HeroClass)(0xF0);
-                Class |= (HeroClass)(value ? 3 : 0);
+                Class |= (HeroClass)(value ? 4 : 0);
                 _needSave = true;
             }
         }

@@ -396,6 +396,71 @@ namespace MuEmu
             return new Item(ItemNumber.Zen, new { BuyPrice });
         }
 
+        public Item(byte[] data)
+        {
+            using(var ms = new MemoryStream(data))
+            {
+                ItemNumber number = 0;
+                number.Number = (ushort)ms.ReadByte();
+
+                var tmp = ms.ReadByte();
+                Skill = (tmp & 128) != 0;
+                Luck = (tmp & 4) != 0;
+                _option = (byte)(tmp & 3);
+                _plus = (byte)((tmp >> 3) & 0xFF);
+
+                _durability = (byte)ms.ReadByte();
+
+                tmp = ms.ReadByte();
+                OptionExe = (byte)(tmp & 0x3F);
+                _option = (tmp & 0x40) != 0 ? (byte)4 : Option28;
+                number.Number |= (ushort)((tmp << 1) & 0x100);
+
+                SetOption = (byte)ms.ReadByte();
+
+                tmp = ms.ReadByte();
+                OptionExe |= (byte)((tmp << 4) & 0x80);
+                number.Number |= (ushort)((tmp << 5) & 0x1E00);
+
+                _number = number;
+                var ItemDB = ResourceCache.Instance.GetItems();
+
+                if (!ItemDB.ContainsKey(number))
+                    throw new Exception("Item don't exists " + number);
+                BasicInfo = ItemDB[number];
+
+                tmp = ms.ReadByte();
+                if (IsPentagramItem || IsPentagramJewel)
+                    BonusSocket = (byte)tmp;
+                else
+                    Harmony = (byte)tmp;
+
+                var l = new List<SocketOption>();
+                tmp = ms.ReadByte();
+                if (tmp != 0xff)
+                    l.Add((SocketOption)tmp);
+                tmp = ms.ReadByte();
+                if (tmp != 0xff)
+                    l.Add((SocketOption)tmp);
+                tmp = ms.ReadByte();
+                if (tmp != 0xff)
+                    l.Add((SocketOption)tmp);
+                tmp = ms.ReadByte();
+                if (tmp != 0xff)
+                    l.Add((SocketOption)tmp);
+                tmp = ms.ReadByte();
+                if (tmp != 0xff)
+                    l.Add((SocketOption)tmp);
+
+                Slots = l.ToArray();
+
+                GetValue();
+                CalcItemAttributes();
+                State = ItemState.Created;
+                ItemManager.AddReference(this);
+            }
+        }
+
         public Item(ItemNumber number, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();

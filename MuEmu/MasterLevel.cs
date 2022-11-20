@@ -94,6 +94,7 @@ namespace MuEmu
                 var levelPoint = Character.BaseClass == HeroClass.MagicGladiator || Character.BaseClass == HeroClass.DarkLord ? 7 : 5;
 
                 Points += (ushort)(levelPoint*LevelAdd);
+                Character.LevelUpPoints += (ushort)((levelPoint+1) * LevelAdd);
                 if (Points > 200)
                     Points = 200;
 

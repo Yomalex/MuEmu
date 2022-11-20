@@ -27,6 +27,25 @@ namespace MU.Network.Game
     { }
 
     [WZContract]
+    public class CCancelItemSale : IGameMessage
+    { }
+
+    [WZContract]
+    public class CCancelItemSaleClose : IGameMessage
+    { }
+
+    [WZContract]
+    public class CCancelItemSaleItem : IGameMessage
+    {
+        [WZMember(0)] public byte IndexCode { get; set; }
+        [WZMember(1)] public ushort Unk { get; set; }
+        [WZMember(2)] public byte ItemCount { get; set; }
+        [WZMember(3)] public uint ExpireSec { get; set; }
+        [WZMember(4)] public int RequireMoney { get; set; }
+        [WZMember(5)] public int Unk2 { get; set; }
+    }
+
+    [WZContract]
     public class CTeleport : IGameMessage
     {
         [WZMember(0)] public byte Unk { get; set; }
@@ -1129,6 +1148,16 @@ namespace MU.Network.Game
         [WZMember(1)] public byte Map { get; set; }
         [WZMember(2)] public ushort index { get; set; }
         [WZMember(3)] public ushort unk { get; set; }
+    }
+
+    [WZContract]
+    public class CHuntingRecordClose : IGameMessage
+    { }
+
+    [WZContract]
+    public class CHuntingRecordVisibility : IGameMessage
+    {
+        [WZMember(1)] public byte Visible { get; set; }
     }
 
     [WZContract]

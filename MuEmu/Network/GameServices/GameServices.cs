@@ -1063,6 +1063,32 @@ namespace MuEmu.Network.GameServices
                     var inve = plr.Character.Inventory;
                     var item = inve.Get(message.Position);
 
+                    if(
+                        item.ExcellentCount > 0 || 
+                        item.Plus > 7 || 
+                        (item.Number >= 6144 && item.Number <= 6150) || //Wing L1
+                        item.Number.Number == 6159 || //Chaos
+                        (item.Number >= 6174 && item.Number <= 6175) || //Compressed
+                        (item.Number >= 6180 && item.Number <= 6187) || //Wing L2
+                        (item.Number >= 6193 && item.Number <= 6194) || //Wing L2
+                        (item.Number >= 6204 && item.Number <= 6209) || //Seed()
+                        (item.Number >= 6288 && item.Number <= 6345)
+                        )
+                    {
+                        using (var db = new GameContext())
+                        {
+                            db.Sell.Add(new SellDto
+                            {
+                                CharacterId = plr.Character.Id,
+                                Count = 1,
+                                Date = DateTime.Now.AddDays(1),
+                                Item = item.GetBytes(),
+                                Price = (int)(item.SellPrice*1.1f)
+                            });
+                            db.SaveChanges();
+                        }
+                    }
+
                     plr.Character.Money += item.SellPrice;
                     result.Money = session.Player.Character.Money;
                     await inve.Delete(item, false);
@@ -2921,6 +2947,18 @@ namespace MuEmu.Network.GameServices
             });
         }
 
+        [MessageHandler(typeof(CHuntingRecordClose))]
+        public void CHuntingRecordClose(GSSession session)
+        {
+            session.Player.Character.HuntingRecord.Save();
+        }
+
+        [MessageHandler(typeof(CHuntingRecordVisibility))]
+        public void CHuntingRecordVisibility(GSSession session, CHuntingRecordVisibility message)
+        {
+            session.Player.Character.HuntingRecord.Visibility = message.Visible == 1;
+        }
+
         [MessageHandler(typeof(CMossMerchantOpenBox))]
         public async Task CMossMerchantOpenBox(GSSession session, CMossMerchantOpenBox message)
         {
@@ -3025,6 +3063,76 @@ namespace MuEmu.Network.GameServices
             @char.Inventory.Add(reward);
             @char.Inventory.SendInventory();
             await session.SendAsync(new SMossMerchantOpenBox { ItemInfo = reward.GetBytes() });
+        }
+
+        [MessageHandler(typeof(CCancelItemSale))]
+        public async Task CCancelItemSale(GSSession session)
+        {
+            using(var db = new GameContext())
+            {
+                var list = from s in db.Sell
+                           where s.CharacterId == session.Player.Character.Id
+                           select s;
+                var outputList = new List<CancelItemSaleInfoDto>();
+
+                byte index = 0;
+                foreach(var it in list)
+                {
+                    if(it.Date < DateTime.Now)
+                    {
+                        db.Sell.Remove(it);
+                    }
+                    else
+                    {
+                        outputList.Add(new CancelItemSaleInfoDto
+                        {
+                            ExpireSec = (uint)(it.Date - DateTime.Now).TotalSeconds,
+                            IndexCode = index++,
+                            ItemCount = 1,
+                            ItemInfo = it.Item,
+                            RequireMoney = it.Price,
+                        });
+                    }
+                }
+
+                db.SaveChanges();
+                await session.SendAsync(new SCancelItemSaleListS16
+                {
+                    //Result = 0,
+                    ItemList = outputList.Take(5).ToArray()
+                });
+            }
+        }
+
+        [MessageHandler(typeof(CCancelItemSaleItem))]
+        public async Task CCancelItemSaleItem(GSSession session, CCancelItemSaleItem message)
+        {
+            using(var db = new GameContext())
+            {
+                var list = (from s in db.Sell
+                           where s.CharacterId == session.Player.Character.Id
+                           select s).ToList();
+
+                var item = list.Take(5).ElementAt(message.IndexCode);
+                if (session.Player.Character.Money >= item.Price)
+                {
+                    if(session.Player.Character.Inventory.Add(new Item(item.Item)) == 0xff)
+                    {
+                        await session.SendAsync(new SCancelItemSaleResult { Result = 1 });
+                        return;
+                    }
+                    session.Player.Character.Money -= (uint)item.Price;
+                    db.Sell.Remove(item);
+                    db.SaveChanges();
+                    session.Player.Character.Inventory.SendInventory();
+                    await CCancelItemSale(session);
+                    await session.SendAsync(new SCancelItemSaleResult { Result = 0 });
+                }
+                else
+                {
+                    await session.SendAsync(new SCancelItemSaleResult { Result = 2 });
+                }
+            }
         }
     }
 }

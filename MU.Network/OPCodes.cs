@@ -40,7 +40,6 @@ namespace MU.Network
         ServerMove = 0x00B1,
         ServerMoveAuth = 0x01B1,
 
-
         ResetList = 0x0AFA,
         Resets = 0x0BFA,
         EnableCreate = 0x00DE,
@@ -127,6 +126,9 @@ namespace MU.Network
         PeriodicEffect = 0xFF2D,
         Talk = 0xFF30,
         CloseWindow = 0xFF31,
+        CancelItemSale = 0x006F,
+        CancelItemSaleClose = 0x016F,
+        CancelItemSaleItem = 0x026F,
         Buy = 0xFF32,
         Sell = 0xFF33,
         ItemModify = 0xFF34,
@@ -252,12 +254,16 @@ namespace MU.Network
         PartyLeaderChange = 0x07EF,
         PartyJoinNotify = 0x08EF,
         HuntingRecordRequest = 0x50EC,
+        HuntingRecordClose = 0x51EC,
+        HuntingRecordVisibility = 0x52EC,
         HuntingRecordDay = 0x53EC,
         HuntingRecordCurrent = 0x55EC,
         MossMerchant = 0x1170,
         MossMerchantOpenBox = 0x1070,
         MossMerchantOpenBoxReward = 0x1270,
         GremoryCaseOpenS16 = 0x06CD,
+
+        MiningSystemUnk = 0x204C,
     }
 
     public enum GensOpCode

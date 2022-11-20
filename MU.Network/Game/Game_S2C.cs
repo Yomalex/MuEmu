@@ -3108,5 +3108,31 @@ namespace MU.Network.Game
     {
         [WZMember(0, typeof(ArraySerializer))] public byte[] ItemInfo { get; set; }
     }
+
+    [WZContract]
+    public class CancelItemSaleInfoDto
+    {
+        [WZMember(0)] public uint ExpireSec { get; set; }
+        //[WZMember(1)] public byte Unk { get; set; }
+        [WZMember(2, 12)] public byte[] ItemInfo{ get; set; } //[12]
+        [WZMember(3)] public ushort ItemCount { get; set; }
+        [WZMember(4)] public int RequireMoney { get; set; }
+        [WZMember(5)] public byte IndexCode { get; set; }
+}
+
+    [WZContract(LongMessage = true)]
+    public class SCancelItemSaleListS16 : IGameMessage
+    {
+        //PSWMSG_HEAD h;
+        //[WZMember(0)] public byte Result { get; set; }
+        //BYTE btItemCnt;
+        [WZMember(1, typeof(ArrayWithScalarSerializer<ushortle>))] public CancelItemSaleInfoDto[] ItemList { get;set; }
+    }
+
+    [WZContract]
+    public class SCancelItemSaleResult : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+    }
 }
 

@@ -65,6 +65,7 @@ namespace MuEmu.Resources.XML
     [XmlType(AnonymousType = true)]
     public class FilesInfoDto
     {
+        [XmlElement] public string DataRoot { get; set; } = "./Data/";
         [XmlElement] public string Monsters { get; set; } = "./Data/Monsters/Monster";
         [XmlElement] public string MonsterSetBase { get; set; } = "./Data/Monsters/MonsterSetBase";
         [XmlElement] public string SelupanPatterns { get; set; } = "./Data/Monsters/PatternSelupan.xml";
