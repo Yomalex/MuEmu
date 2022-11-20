@@ -1066,13 +1066,10 @@ namespace MuEmu.Network.GameServices
                     if(
                         item.ExcellentCount > 0 || 
                         item.Plus > 7 || 
-                        (item.Number >= 6144 && item.Number <= 6150) || //Wing L1
                         item.Number.Number == 6159 || //Chaos
                         (item.Number >= 6174 && item.Number <= 6175) || //Compressed
-                        (item.Number >= 6180 && item.Number <= 6187) || //Wing L2
-                        (item.Number >= 6193 && item.Number <= 6194) || //Wing L2
                         (item.Number >= 6204 && item.Number <= 6209) || //Seed()
-                        (item.Number >= 6288 && item.Number <= 6345)
+                        (item.Number >= 6288 && item.Number <= 6345) || item.WingType != 0
                         )
                     {
                         using (var db = new GameContext())
@@ -3118,7 +3115,7 @@ namespace MuEmu.Network.GameServices
                 {
                     if(session.Player.Character.Inventory.Add(new Item(item.Item)) == 0xff)
                     {
-                        await session.SendAsync(new SCancelItemSaleResult { Result = 1 });
+                        await session.SendAsync(new SCancelItemSaleResult { Result = 2 });
                         return;
                     }
                     session.Player.Character.Money -= (uint)item.Price;
@@ -3130,7 +3127,7 @@ namespace MuEmu.Network.GameServices
                 }
                 else
                 {
-                    await session.SendAsync(new SCancelItemSaleResult { Result = 2 });
+                    await session.SendAsync(new SCancelItemSaleResult { Result = 1 });
                 }
             }
         }
