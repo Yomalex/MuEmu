@@ -74,7 +74,7 @@ namespace MuEmu.Network.GameServices
         }
 
         [MessageHandler(typeof(CMove))]
-        public async Task CMove(GSSession session, CMove message)
+        public static async Task CMove(GSSession session, CMove message)
         {
             var dirs = new List<Point>
             {
@@ -112,7 +112,7 @@ namespace MuEmu.Network.GameServices
 
             if (!valid)
             {
-                var msgp = new SPositionSet((ushort)session.ID, @char.Position);
+                var msgp = VersionSelector.CreateMessage<SPositionSet>((ushort)session.ID, @char.Position);
                 await session.SendAsync(msgp);
                 session.Player.SendV2Message(msgp);
                 Logger
@@ -771,7 +771,7 @@ namespace MuEmu.Network.GameServices
         }
 
         [MessageHandler(typeof(CItemGet))]
-        public async Task CItemGet(GSSession session, CItemGet message)
+        public static async Task CItemGet(GSSession session, CItemGet message)
         {
             var @char = session.Player.Character;
             byte pos = 0xff;
@@ -1132,21 +1132,15 @@ namespace MuEmu.Network.GameServices
                 return;
             }
 
-            if (gate.ReqZen > @char.Money)
+            var moneyRequ = gate.ReqZen * ((@char.PKLevel < PKLevel.Warning) ? 1u : 50u);
+
+            if (moneyRequ > @char.Money)
             {
                 await session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_Warp, gate.ReqZen)));
                 return;
             }
 
-            if (@char.PKLevel > PKLevel.Warning)
-            {
-                @char.Money -= gate.ReqZen;
-            }
-            else
-            {
-                @char.Money -= gate.ReqZen * 50u;
-            }
-
+            @char.Money -= moneyRequ;
             await @char.WarpTo(gate.Number);
         }
 
@@ -2146,6 +2140,9 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CMUBotData))]
         public void CMUBotData(GSSession session, CMUBotData message)
         {
+            var muhelper = session.Player.Character.MuHelper;
+            muhelper.Configuration = message;
+
             Logger.Debug(message.ToString());
             //message.Data[0x01]: 0x08: Jewel/Gem, 0x40: Zen, 0x10: Set Item, 0x20: Excellent Item, 0x80: Add Extra Item
             //message.Data[0x02]: 0x01-0x08: hunting Range, 0x10-0x80: Optaining Range
@@ -2549,6 +2546,33 @@ namespace MuEmu.Network.GameServices
         {
             var @char = session.Player.Character;
             var inv = @char.Inventory;
+            await session.SendAsync(new SXElementalData
+            {
+                AbsorbHP = inv.PentagramAbsorbHP,
+                AbsorbShield = inv.PentagramAbsorbShield,
+                AddAttackDamage = inv.PentagramAddAttackDamage,
+                AddDefense = inv.PentagramAddDefense,
+                PVMAbsorbDamage = inv.PentagramAbsorbDamagePVM,
+                PVMAttackSuccessRate = inv.PentagramAttackSuccessRatePVM,
+                PVPAbsorbDamage = inv.PentagramAbsorbDamagePVP,
+                PVPAttackSuccessRate = inv.PentagramAttackSuccessRatePVP,
+                Bind = inv.PentagramBind,
+                BleedingDamage = inv.PentagramBleedingDamage,
+                Blind = inv.PentagramBlind,
+                CriticalDamageRate = inv.PentagramCriticalDamageRate,
+                Paralyzing = inv.PentagramParalyzing,
+                Punish = inv.PentagramPunish,
+                PVMDamageMax = inv.PentagramDamageMaxPVM,
+                PVMDamageMin = inv.PentagramDamageMinPVM,
+                PVMDefense = inv.PentagramDefensePVM,
+                PVMDefenseSuccessRate = inv.PentagramDefenseSuccessRatePVM,
+                PVMIncreaseDamage = inv.PentagramIncreaseDamagePVM,
+                PVPDamageMax = inv.PentagramDamageMaxPVP,
+                PVPDamageMin = inv.PentagramDamageMinPVP,
+                PVPDefense = inv.PentagramDefensePVM,
+                PVPDefenseSuccessRate = inv.PentagramDefenseSuccessRatePVM,
+                PVPIncreaseDamage = inv.PentagramIncreaseDamagePVM,
+            });
             await session.SendAsync(new SXCharacterInfo
             {
                 CriticalDamageRate = inv.CriticalRate,
@@ -2606,7 +2630,6 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CFavoritesList))]
         public async Task CFavoritesList(GSSession session, CFavoritesList message)
         {
-            Logger.Debug("CFavoritesList:"+message.Region.Length.ToString());
             using (var db = new GameContext())
             {
                 var tmp = new int[5] { -1, -1, -1, -1, -1 };

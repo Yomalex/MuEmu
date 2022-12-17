@@ -712,6 +712,11 @@ namespace MuEmu
                             }
                     }
 
+                    foreach(var Character in map.Players)
+                    {
+                        Character?.MuHelper.Update();
+                    }
+
                     kalimaGateDisposed.ForEach(x => x.DisposeKalimaGate());
                     kalimaGateDisposed.Clear();
                 }

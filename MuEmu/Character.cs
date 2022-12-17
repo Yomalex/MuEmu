@@ -173,7 +173,7 @@ namespace MuEmu
         public HeroClass Class { get => _class; set { _class = value; _needSave = true; BaseInfo = ResourceCache.Instance.GetDefChar()[BaseClass]; } }
         public HeroClass BaseClass => (HeroClass)(((int)Class) & 0xF0);
         public bool Changeup {
-            get => (((byte)Class) & 0x0F) == 1;
+            get => (((byte)Class) & 0x01) == 1;
             set
             {
                 Class &= (HeroClass)(0xF0);
@@ -183,7 +183,7 @@ namespace MuEmu
         }
         public bool MasterClass
         {
-            get => (((byte)Class) & 0x0F) == 2;
+            get => (((byte)Class) & 0x02) == 2;
             set
             {
                 Class &= (HeroClass)(0xF0);
@@ -193,11 +193,11 @@ namespace MuEmu
         }
         public bool MajesticClass
         {
-            get => (((byte)Class) & 0x0F) == 4;
+            get => (((byte)Class) & 0x04) == 4;
             set
             {
                 Class &= (HeroClass)(0xF0);
-                Class |= (HeroClass)(value ? 4 : 0);
+                Class |= (HeroClass)(value ? 7 : 0);
                 _needSave = true;
             }
         }
@@ -750,7 +750,7 @@ namespace MuEmu
             if (MonstersMng.MonsterStartIndex < targetNumber)
             {
                 var mob = MonstersMng.Instance.GetMonster(targetNumber);
-                if (MissCheck(mob))
+                if (MissCheck(mob.Info.Success))
                 {
                     return;
                 }
@@ -1527,7 +1527,7 @@ namespace MuEmu
             type = DamageType.Regular;
             var attack = 0.0f;
 
-            if (MissCheck(target))
+            if (MissCheck(target.DefenseRatePvP))
             {
                 type = DamageType.Miss;
                 return (int)attack;
@@ -1587,7 +1587,7 @@ namespace MuEmu
 
             var attack = 0.0f;
 
-            if(MissCheck(target))
+            if(MissCheck(target.Info.Success))
             {
                 type = DamageType.Miss;
                 return 0;
@@ -1635,45 +1635,13 @@ namespace MuEmu
         /// <summary>
         /// Check if can attack a target
         /// </summary>
-        /// <param name="target">Monster</param>
+        /// <param name="defenseRate">Defense Rate</param>
         /// <returns>false if can attack</returns>
-        private bool MissCheck(Monster target)
+        private bool MissCheck(int defenseRate)
         {
-            if (AttackRatePvM < target.Info.Success)
+            if (_rand.Next(AttackRatePvM) < defenseRate)
             {
                 if (_rand.Next(100) >= 5)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (_rand.Next(AttackRatePvM) < target.Info.Success)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-
-        /// <summary>
-        /// Check if can attack a target
-        /// </summary>
-        /// <param name="target">Character</param>
-        /// <returns>false if can attack</returns>
-        private bool MissCheck(Character target)
-        {
-            if (AttackRatePvP < target.DefenseRatePvP)
-            {
-                if (_rand.Next(100) >= 5)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (_rand.Next(AttackRatePvP) < target.DefenseRatePvP)
                 {
                     return true;
                 }
@@ -1990,6 +1958,7 @@ namespace MuEmu
                     addMp = MaxMana / 27.5f;
                     addBp = 2 + (float)MaxStamina / 20;
                     break;
+                case HeroClass.RuneWizard:
                 case HeroClass.DarkWizard:
                 case HeroClass.FaryElf:
                 case HeroClass.Summoner:

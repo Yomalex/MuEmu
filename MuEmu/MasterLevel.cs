@@ -20,6 +20,7 @@ namespace MuEmu
         private ushort _level;
         private long _experience;
         private ushort _points;
+        private ushort _mPoints;
         private bool _new;
 
         public static MasterSkillTreeDto MasterSkillTree { get; set; }
@@ -48,6 +49,14 @@ namespace MuEmu
             {
                 _needSave = true;
                 _points = value;
+            }
+        }
+        public ushort MPoints
+        {
+            get => _mPoints; set
+            {
+                _needSave = true;
+                _mPoints = value;
             }
         }
         public Character Character { get; private set; }
@@ -140,6 +149,25 @@ namespace MuEmu
                         (ushort)Character.MaxMana, 
                         (ushort)Character.MaxStamina
                         ));
+            }
+            if(Character.MajesticClass)
+            {
+                await Character
+                    .Player
+                    .Session
+                    .SendAsync(new SMajesticInfo
+                    {
+                        Points = MPoints,
+                        SkillList = Array.Empty<MajesticInfoDto>(),
+                    });
+
+                await Character
+                    .Player
+                    .Session
+                    .SendAsync(new SMajesticStatsInfo
+                    {
+                        SkillList = Array.Empty<MajesticInfoDto>(),
+                    });
             }
         }
 

@@ -264,6 +264,14 @@ namespace MuEmu
                 OnItemChange();
             }
         }
+        public byte[] RankLevel
+        {
+            get => _slots.Select(a => (byte)(((byte)a & 0xF0) >> 4)).ToArray();
+        }
+        public byte[] RankOption
+        {
+            get => _slots.Select(a => (byte)((byte)a & 0x0F)).ToArray();
+        }
         public List<SpecialNumber> Special { get; set; } = new List<SpecialNumber>();
         public JewelOfHarmony Harmony
         {

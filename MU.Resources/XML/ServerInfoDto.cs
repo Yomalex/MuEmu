@@ -29,6 +29,7 @@ namespace MuEmu.Resources.XML
     public class ConnectionInfoDto
     {
         [XmlElement] public string IP { get; set; } = "127.0.0.1";
+        [XmlElement] public string IPPublic { get; set; } = "127.0.0.1";
         [XmlElement] public int Port { get; set; } = 55901;
         [XmlElement] public string ConnectServerIP { get; set; } = "127.0.0.1";
         [XmlElement] public string APIKey { get; set; } = "2020110116";

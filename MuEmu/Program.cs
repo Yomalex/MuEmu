@@ -332,6 +332,7 @@ namespace MuEmu
                 new GensMessageFactory(),
             };
             server = new WZGameServer(ip, mh, mf, NewEncode(Season));
+            server.IPPublic = xml.Connection.IPPublic;
             server.ClientVersion = xml.Client.Version;
             server.ClientSerial = xml.Client.Serial;
             server.Connect += Server_Connect;

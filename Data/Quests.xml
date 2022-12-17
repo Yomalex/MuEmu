@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Quests>
   <Quest Type="0" Index="0" SubType="2" NPC="235" Name="Find the 'Scroll of Emperor'!">
-    <Detail Classes="DarkWizard,DarkKnight,FaryElf,Summoner">
+    <Detail Classes="DarkWizard,DarkKnight,FaryElf,Summoner,RuneWizard">
       <NeededItem Type="14" Index="23" Level="0" Count="1" Monster="40-60" Drop="10" />
       <Reward Type="Statup" SubType="100" />
       <Message LinkConditionIndex="0" BeforeReg="52" AfterReg="54" CompleteQuest="55" ClearQuest="56" />
@@ -28,7 +28,7 @@
       <Reward Type="Changeup" SubType="0" />
       <Message LinkConditionIndex="0" BeforeReg="64" AfterReg="65" CompleteQuest="66" ClearQuest="72" />
     </Detail>
-    <Detail Classes="DarkWizard">
+    <Detail Classes="DarkWizard,RuneWizard">
       <NeededItem Type="14" Index="26" Level="0" Count="1" Monster="62-76" Drop="10" />
       <Reward Type="Changeup" SubType="0" />
       <Message LinkConditionIndex="0" BeforeReg="67" AfterReg="68" CompleteQuest="69" ClearQuest="72" />
@@ -42,7 +42,7 @@
   </Quest>
   
   <Quest Type="0" Index="2" SubType="2" NPC="229" Name="Gain'Hero status">
-    <Detail Classes="SoulMaster,HighElf,BlodySummoner">
+    <Detail Classes="SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
       <NeededItem Type="14" Index="23" Level="1" Count="1" Monster="72-108" Drop="10" />
       <Reward Type="Plusstat" SubType="0" />
       <Message LinkConditionIndex="0" BeforeReg="102" AfterReg="105" CompleteQuest="108" ClearQuest="113" />
@@ -69,7 +69,7 @@
   </Quest>
   
   <Quest Type="0" Index="4" SubType="2" NPC="406" Name="Certificate of Strength!">
-    <Detail Classes="SoulMaster,HighElf,BlodySummoner">
+    <Detail Classes="SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
       <NeededItem Type="14" Index="65" Level="0" Count="1" Monster="63-0" Drop="300" />
       <NeededItem Type="14" Index="66" Level="0" Count="1" Monster="309-0" Drop="400" />
       <NeededItem Type="14" Index="67" Level="0" Count="1" Monster="77-0" Drop="500" />
@@ -97,7 +97,7 @@
   </Quest>
   
   <Quest Type="0" Index="5" SubType="2" NPC="406" Name="Infiltration Of 'Barrack'">
-    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner">
+    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
       <NeededMonster Type="409" Count="10" />
       <NeededMonster Type="410" Count="10" />
       <NeededMonster Type="411" Count="10" />
@@ -110,7 +110,7 @@
   </Quest>
   
   <Quest Type="0" Index="6" SubType="2" NPC="406" Name="Infiltration Of 'Refuge'">
-    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner">
+    <Detail Classes="BladeKnight,SoulMaster,HighElf,BlodySummoner,RuneSpellMaster">
       <NeededMonster Type="412" Count="1" />
       <Reward Type="Master" SubType="200" />
       <Message LinkConditionIndex="0" BeforeReg="168" AfterReg="172" CompleteQuest="173" ClearQuest="174" />
@@ -121,7 +121,7 @@
   </Quest>
 
     <Quest Type="0" Index="7" SubType="2" NPC="766" Name="4th Job - Qualification Test">
-	    <Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+	    <Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster,GrandRuneMaster">
 		    <NeededMonster Type="763" Count="1" />
 		    <Reward Type="Plusstat" SubType="20" />
 		    <Message LinkConditionIndex="0" BeforeReg="183" AfterReg="185" CompleteQuest="186" ClearQuest="187" />
@@ -131,17 +131,17 @@
     </Quest>
 
 	<Quest Type="0" Index="8" SubType="2" NPC="766" Name="4th Job - New battle">
-		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster,GrandRuneMaster">
 			<NeededMonster Type="767" Count="5" />
 			<Reward Type="Plusstat" SubType="0" />
 			<Message LinkConditionIndex="0" BeforeReg="189" AfterReg="191" CompleteQuest="192" ClearQuest="193" />
 		</Detail>
-		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster,GrandRuneMaster">
 			<NeededMonster Type="770" Count="5" />
 			<Reward Type="Plusstat" SubType="0" />
 			<Message LinkConditionIndex="0" BeforeReg="189" AfterReg="191" CompleteQuest="192" ClearQuest="193" />
 		</Detail>
-		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster,GrandRuneMaster">
 			<NeededMonster Type="771" Count="5" />
 			<Reward Type="Plusstat" SubType="20" />
 			<Message LinkConditionIndex="0" BeforeReg="189" AfterReg="191" CompleteQuest="192" ClearQuest="193" />
@@ -151,7 +151,7 @@
 	</Quest>
 
 	<Quest Type="0" Index="9" SubType="2" NPC="766" Name="4th Job - New battle(2)">
-		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster">
+		<Detail Classes="BladeMaster,GranMaster,HighElf,DimensionMaster,GrandRuneMaster">
 			<NeededMonster Type="763" Count="1" />
 			<Reward Type="Majestic" SubType="30" />
 			<Message LinkConditionIndex="0" BeforeReg="195" AfterReg="197" CompleteQuest="198" ClearQuest="199" />

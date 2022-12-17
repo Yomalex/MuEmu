@@ -55,7 +55,7 @@ namespace MuEmu.Network.ConnectServer
             _token = token;
             SendAsync(new CRegistryReq { 
                 Index = index, 
-                Address = server.IPAddress.ToString(), 
+                Address = server.IPPublic, 
                 Port = server.Port, 
                 Show = show, 
                 Token = token, 

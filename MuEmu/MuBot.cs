@@ -1,7 +1,13 @@
 ﻿using MU.Network.Game;
+using MuEmu.Network.GameServices;
+using MuEmu.Resources.Map;
+using MuEmu.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using WebZen.Util;
 
 namespace MuEmu
 {
@@ -12,6 +18,8 @@ namespace MuEmu
         private uint TotalMinutes => (uint)(DateTime.Now - _start).TotalMinutes;
 
         public Player Player { get; private set; }
+        public CMUBotData Configuration { get; internal set; }
+
         public MuBot(Player player)
         {
             Player = player;

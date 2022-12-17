@@ -102,6 +102,7 @@ namespace MU.Network
         Notice = 0xFF0D,
         Weather = 0xFF0F,
         Beattack = 0xFF10,
+        BeattackS16 = 0xFFD3,
         ViewPortCreate = 0xFF12,
         ViewPortMCreate = 0xFF13,
         ViewPortDestroy = 0xFF14,
@@ -235,6 +236,7 @@ namespace MU.Network
         EquipamentChange = 0xFF25,
         Attack12Eng = 0xFFDF,
         SXUpPront = 0x25EC,
+        SXElementalData = 0x26EC,
         SXInfo = 0x27EC,
         SXCharacterInfo = 0x29EC,
         NewQuestWorldLoad = 0x20F6,
@@ -264,6 +266,9 @@ namespace MU.Network
         GremoryCaseOpenS16 = 0x06CD,
 
         MiningSystemUnk = 0x204C,
+        MajesticInfo = 0x027E,
+        MajesticStatsInfo = 0x067E,
+        Position16Kor = 0xFF10,
     }
 
     public enum GensOpCode

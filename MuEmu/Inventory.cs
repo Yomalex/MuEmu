@@ -102,6 +102,29 @@ namespace MuEmu
         public Item MainPet { get; private set; }
         public Item SubPet { get; private set; }
 
+        // Pentagram
+        public int PentagramAbsorbHP { get; internal set; }
+        public int PentagramAbsorbShield { get; internal set; }
+        public int PentagramAddAttackDamage { get; internal set; }
+        public int PentagramAddDefense { get; internal set; }
+        public int PentagramAbsorbDamagePVM { get; internal set; }
+        public int PentagramAttackSuccessRatePVM { get; internal set; }
+        public int PentagramAbsorbDamagePVP { get; internal set; }
+        public int PentagramAttackSuccessRatePVP { get; internal set; }
+        public int PentagramBind { get; internal set; }
+        public int PentagramBleedingDamage { get; internal set; }
+        public int PentagramBlind { get; internal set; }
+        public int PentagramCriticalDamageRate { get; internal set; }
+        public int PentagramParalyzing { get; internal set; }
+        public int PentagramPunish { get; internal set; }
+        public int PentagramDamageMaxPVM { get; internal set; }
+        public int PentagramDamageMinPVM { get; internal set; }
+        public int PentagramDefensePVM { get; internal set; }
+        public int PentagramDefenseSuccessRatePVM { get; internal set; }
+        public int PentagramIncreaseDamagePVM { get; internal set; }
+        public int PentagramDamageMaxPVP { get; internal set; }
+        public int PentagramDamageMinPVP { get; internal set; }
+
         public Inventory(Character @char, CharacterDto characterDto)
         {
             Character = @char;
@@ -424,6 +447,7 @@ namespace MuEmu
             _dmgDecrease = 0;
             _increaseMP = 0;
             _increaseHP = 0;
+            PentagramDamageMaxPVM = 0;
 
             foreach (var equip in _equipament)
             {
@@ -431,6 +455,35 @@ namespace MuEmu
 
                 if (Character != null)
                     item.ApplyEffects(Character);
+
+                if(item.IsPentagramItem)
+                {
+                    PentagramDamageMaxPVM = item.AttackMax;
+                    PentagramDamageMaxPVP = item.AttackMax;
+                    PentagramDamageMinPVM = item.AttackMin;
+                    PentagramDamageMinPVP = item.AttackMin;
+                    foreach (var pSerial in item.PentagramJewels.Where(x => x != 0))
+                    {
+                        var jewel = _pentagrama.FirstOrDefault(x => x.Serial == pSerial);
+                        if (jewel == null)
+                            continue;
+                        var table0 = new[] { 10, 15, 20, 30, 40, 60, 80, 100, 150, 200, 250 };
+                        var table1 = new[] { 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20 };
+                        var table2 = new[] { 10, 15, 20, 30, 40, 60, 80, 125, 175, 225, 275 };
+                        switch (jewel.Number)
+                        {
+                            case 6365: //Errtel of Anger, 10, 15, 20, 30, 40, 60, 80, 100, 150, 200, 250
+                                PentagramAddAttackDamage += table0[jewel.RankLevel[0]];
+                                //
+                                var factor = table0[jewel.RankLevel[2]];
+                                PentagramDamageMaxPVM += factor;
+                                PentagramDamageMaxPVP += factor;
+                                PentagramDamageMinPVM += factor;
+                                PentagramDamageMinPVP += factor;
+                                break;
+                        }
+                    }
+                }
 
                 _defense += item.Defense + item.AditionalDefense;
                 _defenseRate += item.BasicInfo.DefRate;

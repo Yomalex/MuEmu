@@ -41,7 +41,7 @@ namespace MuEmu
                     _vaults.Add(i, vault);
 
                     var items = db.Items
-                        .Where(x => x.VaultId == (int)vault.StorageID);
+                        .Where(x => x.VaultId == (int)vault.StorageID && x.AccountId == ID);
 
                     foreach (var it in items)
                     {

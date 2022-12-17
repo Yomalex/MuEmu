@@ -931,43 +931,43 @@ namespace MU.Resources
         DarkWizard,
         SoulMaster,
         GranMaster,
-        SoulWizard = 4, //4TH Class
+        SoulWizard = 7, //4TH Class
         DarkKnight = 0x10,
         BladeKnight,
         BladeMaster,
-        DragonKnight = 0x14, //4TH Class
+        DragonKnight = 0x17, //4TH Class
         FaryElf = 0x20,
         MuseElf,
         HighElf,
-        NobleElf = 0x24, //4TH
+        NobleElf = 0x27, //4TH
         MagicGladiator = 0x30,
         DuelMaster,
-        MagicKnight = 0x34, //4TH
+        MagicKnight = 0x37, //4TH
         DarkLord = 0x40,
         LordEmperator,
-        EmpireLord = 0x44,
+        EmpireLord = 0x47,
         Summoner = 0x50,
         BlodySummoner,
         DimensionMaster,
-        DimensionSummoner = 0x54, //4TH
+        DimensionSummoner = 0x57, //4TH
         RageFighter = 0x60,
         FistMaster,
-        FistBlazer = 0x64,//4TH
+        FistBlazer = 0x67,//4TH
         GrowLancer = 0x70,
         MirageLancer,
-        ShinningLancer = 0x74, //4TH
+        ShinningLancer = 0x77, //4TH
         RuneWizard = 0x80,
         RuneSpellMaster,
         GrandRuneMaster,
-        MajesticRuneWizard = 0x84, //4TH
+        MajesticRuneWizard = 0x87, //4TH
         Slayer = 0x90,
         RoyalSlayer,
         MasterSlayer,
-        Slaughterer = 0x94,
+        Slaughterer = 0x97,
         GunCrusher = 0xA0,
         GunBreaker,
         MasterGunBreaker,
-        HeistGunCrasher = 0xA4, //4TH
+        HeistGunCrasher = 0xA7, //4TH
         End = 0xff,
     }
 

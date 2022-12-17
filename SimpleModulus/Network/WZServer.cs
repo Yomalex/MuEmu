@@ -26,6 +26,7 @@ namespace WebZen.Network
         private WZPacketEncoder _encoder;
 
         public IPAddress IPAddress => ((IPEndPoint)_listener.LocalEndpoint).Address;
+        public string IPPublic { get; set; }
 
         public ushort Port => (ushort)((IPEndPoint)_listener.LocalEndpoint).Port;
 

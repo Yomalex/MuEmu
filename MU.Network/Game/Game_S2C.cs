@@ -681,6 +681,28 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class SPositionSetS16Kor : IGameMessage
+    {
+        [WZMember(0)]
+        public ushortle Number { get; set; }
+
+        [WZMember(1)]
+        public byte X { get; set; }
+
+        [WZMember(2)]
+        public byte Y { get; set; }
+
+        public SPositionSetS16Kor() { }
+
+        public SPositionSetS16Kor(ushort number, Point pos)
+        {
+            Number = number;
+            X = (byte)pos.X;
+            Y = (byte)pos.Y;
+        }
+    }
+
+    [WZContract]
     public class SPositionSetS9Eng : IGameMessage
     {
         [WZMember(0)]
@@ -1855,6 +1877,39 @@ namespace MU.Network.Game
         }
     }
 
+    [WZContract]
+    public class SCharRegenS16Kor : IGameMessage
+    {
+        [WZMember(0)] public byte MapX { get; set; }
+        [WZMember(1)] public byte MapY { get; set; }
+        [WZMember(2)] public ushort MapNumber { get; set; }
+        [WZMember(3)] public byte Dir { get; set; }
+        [WZMember(4)] public byte LabyrinthId { get; set; }
+        [WZMember(5)] public ushort Life { get; set; }
+        [WZMember(6)] public ushort Mana { get; set; }
+        [WZMember(7)] public ushort wShield { get; set; }
+        [WZMember(8)] public ushort BP { get; set; }
+        //[WZMember(8)] public ulong unk1 { get; set; }
+        [WZMember(9)] public ulong Exp { get; set; }
+        [WZMember(10)] public ushort Align { get; set; }
+        [WZMember(11)] public uint Money { get; set; }
+
+        public SCharRegenS16Kor()
+        { }
+        public SCharRegenS16Kor(Maps map, byte x, byte y, byte dir, ushort life, ushort mana, ushort shield, ushort bp, uint exp, ulong money)
+        {
+            MapNumber = (ushort)map;
+            MapX = x;
+            MapY = y;
+            Dir = dir;
+            Life = life;//.ShufleEnding();
+            Mana = mana;//.ShufleEnding();
+            wShield = shield;//.ShufleEnding();
+            BP = bp;//.ShufleEnding();
+            Exp = ((ulong)exp);//.ShufleEnding();
+            Money = (uint)money;//.ShufleEnding();
+        }
+    }
 
     // 0xC1 0xAA 0x01
     [WZContract]
@@ -2335,6 +2390,29 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class MajesticInfoDto
+    {
+        [WZMember(0)] public byte Section { get; set; }
+        [WZMember(1)] public ushort Id { get; set; }
+        [WZMember(2)] public byte Level { get; set; }
+        [WZMember(3)] public float CurrentValue { get; set; }
+        [WZMember(4)] public float NextValue { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SMajesticInfo : IGameMessage
+    {
+        [WZMember(0)] public ushort Points { get; set; }
+        [WZMember(1, typeof(ArrayWithScalarSerializer<uint>))] public MajesticInfoDto[] SkillList { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SMajesticStatsInfo : IGameMessage
+    {
+        [WZMember(1, typeof(ArrayWithScalarSerializer<uint>))] public MajesticInfoDto[] SkillList { get; set; }
+    }
+
+    [WZContract]
     public class SMasterLevelUp : IGameMessage
     {
         public SMasterLevelUp() { }
@@ -2800,6 +2878,45 @@ namespace MU.Network.Game
         [WZMember(8)] public ushort Leadership{ get; set; }
         [WZMember(9)] public ushort AddLeadership{ get; set; }
         [WZMember(10)] public float mPrec { get; set; }
+    }
+
+    [WZContract]
+    public class SXElementalData : IGameMessage
+    {
+        [WZMember(0)] public int PVMDamageMin{ get; set; }
+        [WZMember(1)] public int PVMDamageMax { get; set; }
+        [WZMember(2)] public int PVPDamageMin{ get; set; }
+        [WZMember(3)] public int PVPDamageMax { get; set; }
+        [WZMember(4)] public int PVMAttackSuccessRate{ get; set; }
+        [WZMember(5)] public int PVPAttackSuccessRate { get; set; }
+        [WZMember(6)] public int PVMDefense{ get; set; }
+        [WZMember(7)] public int PVPDefense{ get; set; }
+        [WZMember(8)] public int PVMDefenseSuccessRate{ get; set; }
+        [WZMember(9)] public int PVPDefenseSuccessRate { get; set; }
+        [WZMember(10)] public int Unk1{ get; set; }
+        [WZMember(11)] public int Unk2 { get; set; }
+        [WZMember(12)] public int Unk3 { get; set; }
+        [WZMember(13)] public int Unk4 { get; set; }
+        [WZMember(14)] public int Unk5 { get; set; }
+        [WZMember(15)] public int Unk6 { get; set; }
+        [WZMember(16)] public int Unk7 { get; set; }
+        [WZMember(17)] public int Unk8 { get; set; }
+        [WZMember(18)] public int CriticalDamageRate{ get; set; }
+        [WZMember(19)] public int PVMIncreaseDamage{ get; set; }
+        [WZMember(20)] public int PVPIncreaseDamage { get; set; }
+        [WZMember(21)] public int PVMAbsorbDamage{ get; set; }
+        [WZMember(22)] public int PVPAbsorbDamage { get; set; }
+        [WZMember(23)] public int AbsorbShield{ get; set; }
+        [WZMember(24)] public int AbsorbHP{ get; set; }
+        [WZMember(25)] public int BleedingDamage{ get; set; }
+        [WZMember(26)] public int Paralyzing{ get; set; }
+        [WZMember(27)] public int Bind{ get; set; }
+        [WZMember(28)] public int Punish{ get; set; }
+        [WZMember(29)] public int Blind{ get; set; }
+        [WZMember(30)] public int Res_to_str_elem{ get; set; }
+        [WZMember(31)] public int Res_to_elem_dmg{ get; set; }
+        [WZMember(32)] public int AddAttackDamage{ get; set; }
+        [WZMember(33)] public int AddDefense{ get; set; }
     }
 
     [WZContract]

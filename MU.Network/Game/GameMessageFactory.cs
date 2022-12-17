@@ -28,9 +28,6 @@ namespace MU.Network.Game
             Register<SCancelItemSaleListS16>(GameOpCode.CancelItemSale);
 
             Register<CAction>(GameOpCode.Rotation);
-            Register<CMove>(GameOpCode.Move);
-            Register<CMoveEng>(GameOpCode.MoveEng);
-            Register<CMove12Eng>(GameOpCode.Move12Eng);
 
             Register<COpenBox>(GameOpCode.OpenBox);
             Register<SOpenBox>(GameOpCode.OpenBox);
@@ -88,6 +85,8 @@ namespace MU.Network.Game
             switch (Season)
             {
                 case ServerSeason.Season16Kor:
+                    Register<CBeattackS9>(GameOpCode.BeattackS16);
+                    Register<CMove12Eng>(GameOpCode.Move12Eng);
                     Register<SMove>(GameOpCode.Move12Eng);
                     Register<CAttack>(GameOpCode.Attack12Eng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
@@ -98,6 +97,7 @@ namespace MU.Network.Game
                 case ServerSeason.Season12Eng:
                     Register<SMove>(GameOpCode.Move12Eng);
                     Register<CAttack>(GameOpCode.Attack12Eng);
+                    Register<CBeattackS9>(GameOpCode.Position);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<CMagicDurationS9>(GameOpCode.MagicDuration);
                     Register<SMagicAttackS12Eng>(GameOpCode.MagicAttack);
@@ -112,6 +112,7 @@ namespace MU.Network.Game
                     Register<CBeattackS9>(GameOpCode.Position);
                     Register<SMagicAttackS9Eng>(GameOpCode.MagicAttack);
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
+                    Register<CMoveEng>(GameOpCode.MoveEng);
                     Register<SMove>(GameOpCode.MoveEng);
                     break;
                 default:
@@ -121,6 +122,7 @@ namespace MU.Network.Game
                     Register<CTeleport>(GameOpCode.Teleport);
                     Register<CPositionSet>(GameOpCode.Position);
                     Register<CBeattack>(GameOpCode.Beattack);
+                    Register<CMove>(GameOpCode.Move);
                     Register<SMove>(GameOpCode.Move);
                     Register<SMagicDuration>(GameOpCode.MagicDuration);
                     Register<SMagicAttack>(GameOpCode.MagicAttack);
@@ -213,11 +215,17 @@ namespace MU.Network.Game
             Register<SAction>(GameOpCode.Rotation);
             Register<SPositionSet>(GameOpCode.Position);
             Register<SPositionSetS9Eng>(GameOpCode.Position9Eng);
+            Register<SPositionSetS16Kor>(GameOpCode.Position16Kor);
+            VersionSelector.Register<SPositionSet>(ServerSeason.Season6Kor, GameOpCode.Position);
+            VersionSelector.Register<SPositionSetS9Eng>(ServerSeason.Season9Eng, GameOpCode.Position);
+            VersionSelector.Register<SPositionSetS16Kor>(ServerSeason.Season16Kor, GameOpCode.Position);
             Register<SPointAdd>(GameOpCode.PointAdd);
             Register<SCharRegen>(GameOpCode.CharRegen);
             Register<SCharRegenS12Eng>(GameOpCode.CharRegen);
+            Register<SCharRegenS16Kor>(GameOpCode.CharRegen);
             VersionSelector.Register<SCharRegen>(ServerSeason.Season6Kor, GameOpCode.CharRegen);
             VersionSelector.Register<SCharRegenS12Eng>(ServerSeason.Season12Eng, GameOpCode.CharRegen);
+            VersionSelector.Register<SCharRegenS16Kor>(ServerSeason.Season16Kor, GameOpCode.CharRegen);
             Register<SLevelUp>(GameOpCode.LevelUp);
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);
@@ -308,6 +316,8 @@ namespace MU.Network.Game
             Register<SMasterLevelUp>(GameOpCode.MasterLevelUp);
             Register<SMasterLevelSkillS9ENG>(GameOpCode.MasterLevelSkill);
             Register<SMasterLevelSkillListS9ENG>(GameOpCode.MasterLevelSkills);
+            Register<SMajesticInfo>(GameOpCode.MajesticInfo);
+            Register<SMajesticStatsInfo>(GameOpCode.MajesticStatsInfo);
             #endregion
 
             Register<CTradeRequest>(GameOpCode.TradeRequest);
@@ -393,6 +403,7 @@ namespace MU.Network.Game
             Register<SExpEventInfo>(GameOpCode.ExpEventInfo);
 
             Register<CSXInfo>(GameOpCode.SXInfo);
+            Register<SXElementalData>(GameOpCode.SXElementalData);
             Register<SXCharacterInfo>(GameOpCode.SXCharacterInfo);
             Register<SXUpPront>(GameOpCode.SXUpPront);
 
