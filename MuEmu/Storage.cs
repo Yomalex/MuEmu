@@ -170,7 +170,9 @@ namespace MuEmu
 
             it.Storage = StorageID;
             _items.Add(pos, it);
-            _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
+
+            if(!NoMapped)
+                _map.Add(new RectangleF(new Point(pos % 8, pos / 8), it.BasicInfo.Size));
             NeedSave = true;
         }
 

@@ -99,8 +99,8 @@ namespace MU.Network.Game
         [WZMember(1)]
         public byte Y { get; set; } // 4
 
-        [WZMember(2,8)]
-        public byte[] Path{ get; set; }   // 5 - 8
+        [WZMember(2, 8)]
+        public byte[] Path { get; set; }   // 5 - 8
     }
 
     [WZContract]
@@ -138,7 +138,7 @@ namespace MU.Network.Game
         [WZMember(1, 60)]
         public byte[] Message { get; set; } // 4
     }
-    
+
     [WZContract]
     public class CChatNumber : IGameMessage
     {
@@ -212,7 +212,7 @@ namespace MU.Network.Game
         [WZMember(1)]
         public byte Source { get; set; }
 
-        [WZMember(2,12)]
+        [WZMember(2, 12)]
         public byte[] ItemInfo { get; set; }
 
         [WZMember(3)]
@@ -263,7 +263,7 @@ namespace MU.Network.Game
     { }
 
     [WZContract]
-    public class CBuy:IGameMessage
+    public class CBuy : IGameMessage
     {
         [WZMember(0)]
         public byte Position { get; set; }
@@ -360,7 +360,7 @@ namespace MU.Network.Game
         [WZMember(7)]
         public byte MagicKey { get; set; }
 
-        [WZMember(8,5)]
+        [WZMember(8, 5)]
         public byte[] Unk { get; set; }
 
         public ushort Target { get => wzTarget.ShufleEnding(); set => wzTarget = value.ShufleEnding(); }
@@ -390,7 +390,7 @@ namespace MU.Network.Game
         [WZMember(9)] public byte MagicKey { get; set; }
 
         public ushort Target => (ushort)(TargetH << 8 | TargetL);
-        public Spell MagicNumber => (Spell)(MagicNumberH<<8|MagicNumberL);
+        public Spell MagicNumber => (Spell)(MagicNumberH << 8 | MagicNumberL);
     }
 
     [WZContract]
@@ -461,7 +461,7 @@ namespace MU.Network.Game
         //[WZMember(1)] public byte Count { get; set; }
         [WZMember(6, typeof(ArraySerializer))] public CBeattackS9Dto[] Beattack { get; set; }
 
-        public Spell MagicNumber => (Spell)(MagicNumberH<<8|MagicNumberL);
+        public Spell MagicNumber => (Spell)(MagicNumberH << 8 | MagicNumberL);
         public Point Position => new Point(X, Y);
     }
 
@@ -476,7 +476,7 @@ namespace MU.Network.Game
     }
 
     [WZContract]
-    public class CDataLoadOK :IGameMessage
+    public class CDataLoadOK : IGameMessage
     { }
 
     [WZContract]
@@ -590,6 +590,35 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class CPShopSetItemPriceS16Kor : IGameMessage
+    {
+        [WZMember(0)] public byte Slot { get; set; }
+        [WZMember(1)] public byte Changed { get; set; }
+        [WZMember(2)] public uint Price { get; set; }
+        [WZMember(3)] public uint JewelOfBlessPrice { get; set; }
+        [WZMember(4)] public uint JewelOfSoulPrice { get; set; }
+        [WZMember(5)] public uint Item1 { get; set; }
+        [WZMember(6)] public uint Item2 { get; set; }
+        [WZMember(7)] public uint Item3 { get; set; }
+        [WZMember(8)] public uint Item4 { get; set; }
+        [WZMember(9)] public uint Item5 { get; set; }
+
+        private IEnumerable<uint> getItems()
+        {
+            var list = new List<uint>();
+            if (Item1 != 0xffffffff) list.Add(Item1);
+            if (Item2 != 0xffffffff) list.Add(Item2);
+            if (Item3 != 0xffffffff) list.Add(Item3);
+            if (Item4 != 0xffffffff) list.Add(Item4);
+            if (Item5 != 0xffffffff) list.Add(Item5);
+
+            return list;
+        }
+
+        public IEnumerable<uint> Items => getItems();
+    }
+
+    [WZContract]
     public class CPShopRequestOpen : IGameMessage
     {
         [WZMember(0, 36)] public byte[] btName { get; set; }
@@ -605,9 +634,45 @@ namespace MU.Network.Game
     public class CPShopRequestList : IGameMessage
     {
         [WZMember(0)] public ushort wzNumber { get; set; }
-        [WZMember(1,10)] public byte[] btName { get; set; }
+        [WZMember(1, 10)] public byte[] btName { get; set; }
         public ushort Number => wzNumber.ShufleEnding();
         public string Name => btName.MakeString();
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CPShopSearch : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CPShopItemSearch : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CPShopItemSearch2 : IGameMessage
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 65)] public string Name { get; set; }
+        [WZMember(1)] public uint Number { get; set; }
+        [WZMember(2)] public ushort Item { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CPShopRequestList2S16Kor : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Seller { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CPShopChangeStateS16Kor : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1)] public byte State { get; set; }
+        [WZMember(2, typeof(BinaryStringSerializer), 11)] public string Seller { get; set; }
+        [WZMember(3, typeof(BinaryStringSerializer), 45)] public string Description { get; set; }
     }
 
     [WZContract]

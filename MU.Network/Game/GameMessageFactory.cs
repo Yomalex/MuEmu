@@ -67,6 +67,18 @@ namespace MU.Network.Game
             Register<CPShopRequestList>(GameOpCode.PShopRequestList);
             Register<CPShopRequestBuy>(GameOpCode.PShopRequestBuy);
             Register<CPShopCloseDeal>(GameOpCode.PShopCloseDeal);
+
+            Register<CPShopSearch>(GameOpCode.PShopSearchS16Kor);
+            Register<SPShopSearch>(GameOpCode.PShopSearchS16Kor);
+            Register<CPShopItemSearch>(GameOpCode.PShopItemSearchS16Kor);
+            Register<SPShopItemSearch>(GameOpCode.PShopItemSearchS16Kor);
+            Register<CPShopItemSearch2>(GameOpCode.PShopItemSearch2S16Kor);
+            Register<CPShopRequestList2S16Kor>(GameOpCode.PShopRequestList2S16Kor);
+            Register<SPShopSellList>(GameOpCode.PShopRequestList2S16Kor);
+            Register<CPShopSetItemPriceS16Kor>(GameOpCode.PShopSetItemPriceS16Kor);
+            Register<SPShopSetItemPriceS16Kor>(GameOpCode.PShopSetItemPriceS16Kor);
+            Register<CPShopChangeStateS16Kor>(GameOpCode.PShopChangeState);
+            Register<SPShopChangeStateS16Kor>(GameOpCode.PShopChangeState);
             #endregion
 
 

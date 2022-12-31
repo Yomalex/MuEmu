@@ -1,4 +1,5 @@
-﻿using MU.Resources;
+﻿using BlubLib.Serialization.Serializers;
+using MU.Resources;
 using MuEmu.Network.Data;
 using MuEmu.Resources.Game;
 using System;
@@ -2258,7 +2259,6 @@ namespace MU.Network.Game
         }
     }
 
-
     [WZContract]
     public class PShopItemS9Eng : PShopItem
     {
@@ -2298,6 +2298,93 @@ namespace MU.Network.Game
             wzNumber = numb.ShufleEnding();
             Items = it;
         }
+    }
+
+    [WZContract]
+    public class SPShopSearchDto
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)]
+        public string Seller { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 45)]
+        public string Description { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopSearch : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1)] public uint Count { get; set; }
+        [WZMember(2)] public ushort Padding { get; set; }
+        [WZMember(3, typeof(ArraySerializer))] public SPShopSearchDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class SPShopItemSearchDto
+    {
+        [WZMember(0, typeof(BinaryStringSerializer), 11)]
+        public string Seller { get; set; }
+        [WZMember(1)] public byte Slot { get; set; }
+        [WZMember(2)] public byte Bundle { get; set; }
+        [WZMember(3, 12)] public byte[] ItemInfo{ get; set; }
+        [WZMember(4)] public uint Zen { get; set; }
+        [WZMember(5)] public uint JOBless { get; set; }
+        [WZMember(6)] public uint JOSoul { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopItemSearch : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1)] public uint Count { get; set; }
+        [WZMember(2)] public byte Padding { get; set; }
+        [WZMember(3)] public byte Result { get; set; }
+        [WZMember(4, typeof(ArraySerializer))] public SPShopItemSearchDto[] List { get; set; }
+    }
+
+    [WZContract]
+    public class SPShopItemSellListDto
+    {
+        /*[WZMember(0, typeof(BinaryStringSerializer), 11)]
+        public string Seller { get; set; }*/
+        [WZMember(1)] public byte Slot { get; set; }
+        [WZMember(2)] public byte Bundle { get; set; }
+        [WZMember(3, 12)] public byte[] ItemInfo { get; set; }
+        [WZMember(4)] public uint Zen { get; set; }
+        [WZMember(5)] public uint JOBless { get; set; }
+        [WZMember(6)] public uint JOSoul { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopSellList : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2, typeof(BinaryStringSerializer), 45)]
+        public string Description { get; set; }
+        [WZMember(3)] public byte state { get; set; }
+        [WZMember(4, typeof(ArrayWithScalarSerializer<uint>))] //public uint Count { get; set; }
+        public SPShopItemSellListDto[] List { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopChangeStateS16Kor : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public byte State { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopSetItemPriceS16Kor : IGameMessage
+    {
+        [WZMember(0)] public byte Number { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public byte Slot { get; set; }
+        [WZMember(3)] public byte Bundle { get; set; }
+        [WZMember(4,12)] public byte[] ItemInfo { get; set; }
+        [WZMember(5)] public uint Zen { get; set; }
+        [WZMember(6)] public uint JOBless { get; set; }
+        [WZMember(7)] public uint JOSoul { get; set; }
     }
 
     [WZContract]
@@ -2734,6 +2821,14 @@ namespace MU.Network.Game
 
     [WZContract(LongMessage = true)]
     public class SPShopSearchItem : IGameMessage
+    {
+        [WZMember(0)] public int iPShopCnt { get; set; }
+        [WZMember(1)] public byte btContinueFlag { get; set; }
+        [WZMember(2, typeof(ArraySerializer))] public SPShopSearchItemDto[] List { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopSearchItemS16Kor
     {
         [WZMember(0)] public int iPShopCnt { get; set; }
         [WZMember(1)] public byte btContinueFlag { get; set; }

@@ -555,6 +555,16 @@ namespace MuEmu
                     break;
             }
 
+            await Player.Session.SendAsync(new SPeriodicEffectS12Eng
+            {
+                effect = (ushort)effect.State,
+                time = 0,
+                value = 0,
+                state = 0,
+                wEffectValue = 10,
+                group = 1,
+                ItemInfo = Array.Empty<byte>()
+            });
             await Player.Session.SendAsync(m);
             Player.SendV2Message(m);
         }
