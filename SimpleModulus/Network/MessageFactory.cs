@@ -39,16 +39,19 @@ namespace WebZen.Network
             }
         }
 
-        protected void ChangeType<T>(ushort opCode, object oldType)
+        protected void ChangeType<T>(ushort opCode, Type oldType)
             where T : new()
         {
             var type = typeof(T);
-            var oType = oldType.GetType();
-            _opCodeLookup.Remove(oType);
+            _opCodeLookup.Remove(oldType);
             _opCodeLookup.Add(type,opCode);
-            if (_typeLookup.ContainsValue(oType))
+            if (_typeLookup.ContainsValue(oldType))
             {
                 _typeLookup[opCode] = type;
+            }
+            else
+            {
+                _typeLookup.Add(opCode, type);
             }
         }
 
@@ -109,7 +112,7 @@ namespace WebZen.Network
             ChangeOPCode<T>(DynamicCast<ushort>.From(opCode));
         }
 
-        protected void ChangeType<T>(TOpCode opCode, object oldType)
+        protected void ChangeType<T>(TOpCode opCode, Type oldType)
             where T : TMessage, new()
         {
             ChangeType<T>(DynamicCast<ushort>.From(opCode), oldType);
