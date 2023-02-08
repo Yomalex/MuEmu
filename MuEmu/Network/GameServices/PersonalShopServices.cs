@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebZen.Handlers;
 using MuEmu.Util;
+using Google.Protobuf.Collections;
 
 namespace MuEmu.Network.GameServices
 {
@@ -345,6 +346,8 @@ namespace MuEmu.Network.GameServices
                            cl.Chararacter.Inventory.PersonalShop.Items.Values.Count(x => x.Number.Number == (ushort)message.sSearchItem) != 0
                            select cl;
             }*/
+
+            Logger.Debug(nameof(CPShopRequestListS16Kor));
             await session.SendAsync(new SPShopSearch
             {
                 Count = (uint)shopList.Count(),
@@ -383,13 +386,14 @@ namespace MuEmu.Network.GameServices
                 });
             });
 
-            if(message.Number != 0xffff)
+            if(message.Number != 0xffffffff)
             {
                 list = list.Where(x => (new Item(x.ItemInfo)).Number == message.Number);
             }else if(message.Name.Length > 0)
             {
                 list = list.Where(x => (new Item(x.ItemInfo)).BasicInfo.Name.ToLower().Contains(message.Name.ToLower()));
             }
+            Logger.Debug(nameof(CPShopItemSearch));
             await session.SendAsync(new SPShopItemSearch
             {
                 Count = (uint)list.Count(),
@@ -401,6 +405,7 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CPShopItemSearch))]
         public async Task CPShopItemSearch(GSSession session, CPShopItemSearch message)
         {
+            Logger.Debug(nameof(CPShopItemSearch));
             await CPShopItemSearch(session, new CPShopItemSearch2 { Item = 0xffff, Name = "", Number = message.Number });
         }
 
@@ -408,22 +413,32 @@ namespace MuEmu.Network.GameServices
         public async Task CPShopRequestList2S16Kor(GSSession session, CPShopRequestList2S16Kor message)
         {
             var shop = session.Player.Character.Shop;
-            await session.SendAsync(new SPShopSellList
+            Logger.Debug(nameof(CPShopRequestList2S16Kor));
+            var psInventory = session.Player.Character.Inventory.PersonalShop;
+            var Bundles = psInventory.Items.Values.GroupBy(x => Math.Floor((x.SlotId - (int)psInventory.IndexTranslate) / 5.0f));
+
+            var output = new SPShopSellList
             {
                 Result = 1,
                 Description = shop.Name,
                 state = (byte)(shop.Open ? 1 : 0),
                 Number = message.Number,
-                List = shop.Items.Select(x => new SPShopItemSellListDto
+                List = Bundles.Select(x =>
                 {
-                    JOBless = x.BlessValue,
-                    JOSoul = x.SoulValue,
-                    ItemInfo = x.Item,
-                    Zen = x.Price,
-                    Slot = x.Pos,
-                    Bundle = 0,
-                }).ToArray()
-            });
+                    var y = x.First();
+                    var bundle = x.Count() > 1;
+                    return new SPShopItemSellListDto
+                    {
+                        JOBless = y.PShopValueB,
+                        JOSoul = y.PShopValueS,
+                        ItemInfo = y.GetBytes(),
+                        Zen = y.PShopValueZ,
+                        Slot = (byte)x.Key,
+                        Bundle = (byte)(bundle ? 2 : 1),
+                    };
+                 }).ToArray()
+            };
+            await session.SendAsync(output);
         }
 
         [MessageHandler(typeof(CPShopSetItemPriceS16Kor))]
@@ -432,16 +447,35 @@ namespace MuEmu.Network.GameServices
             var shop = session.Player.Character.Shop;
 
             var items = message.Items.Select(x => session.Player.Character.Inventory.Get((byte)x)).ToList();
-            var i = 0;
+            if (items.Count != 0)
+            {
+                var i = 0;
+                foreach (var item in items)
+                {
+                    session.Player.Character.Inventory.Remove(item, true);
+                    session.Player.Character.Inventory.PersonalShop.Add((byte)(StorageID.PersonalShop + message.Slot * 5 + i), item);
+                    i++;
+                }
+            }
+            else
+            {
+                items = Enumerable
+                    .Range(message.Slot * 5, 5)
+                    .Select(x => session.Player.Character.Inventory.PersonalShop.Get((byte)(StorageID.PersonalShop + x)))
+                    .Where(x => x != null)
+                    .ToList();
+            }
             foreach (var item in items)
             {
-                session.Player.Character.Inventory.Remove(item, true);
-                session.Player.Character.Inventory.PersonalShop.Add((byte)(StorageID.PersonalShop+message.Slot * 5 + i), item);
+                item.PShopValueB = (ushort)message.JewelOfBlessPrice;
+                item.PShopValueS = (ushort)message.JewelOfSoulPrice;
+                item.PShopValueZ = message.Price;
             }
-
+            var start = items.First();
+            Logger.Debug(nameof(CPShopSetItemPriceS16Kor));
             await session.SendAsync(new SPShopSetItemPriceS16Kor
             {
-                ItemInfo = items.First().GetBytes(),
+                ItemInfo = start.GetBytes(),
                 Number = 1,
                 Bundle = (byte)(items.Count > 1?2:1),
                 JOBless = message.JewelOfBlessPrice,
@@ -456,13 +490,59 @@ namespace MuEmu.Network.GameServices
         public async Task CPShopChangeStateS16Kor(GSSession session, CPShopChangeStateS16Kor message)
         {
             var shop = session.Player.Character.Shop;
-            shop.Open = message.State == 1;
+            shop.Open = message.State == 0? false : (message.State == 1?true: shop.Open);
             shop.Name = message.Description;
+            Logger.Debug(nameof(CPShopChangeStateS16Kor));
             await session.SendAsync(new SPShopChangeStateS16Kor
             {
                 Number = message.Number,
-                Result = 0,
+                Result = 1,
                 State = (byte)(shop.Open ? 1 : 0)
+            });
+        }
+
+        [MessageHandler(typeof(CPShopItemViewS16Kor))]
+        public async Task CPShopItemViewS16Kor(GSSession session, CPShopItemViewS16Kor message)
+        {
+            var shop = session.Player.Character.Shop;
+            var psInventory = session.Player.Character.Inventory.PersonalShop;
+            var Bundles = psInventory.Items.Values.GroupBy(x => Math.Floor((x.SlotId - (int)psInventory.IndexTranslate) / 5.0f));
+
+            Logger.Debug(nameof(CPShopItemViewS16Kor));
+            var info = Bundles.FirstOrDefault(x => x.Key == message.Slot);
+            if (info == null)
+                throw new InvalidOperationException("message.Slot Invalid");
+
+            var start = info.First();
+            await session.SendAsync(new SPShopItemViewS16Kor
+            {
+                Result = 1,
+                Slot = message.Slot,
+                JOBless = start.PShopValueB,
+                JOSoul = start.PShopValueS,
+                Zen = start.PShopValueZ,
+                Items = info.Select(y => new ItemViewS16Dto { ItemInfo = y.GetBytes() }).ToArray()
+            });
+        }
+
+        [MessageHandler(typeof(CPShopCancelItemSaleS16Kor))]
+        public async Task CPShopCancelItemSaleS16Kor(GSSession session, CPShopCancelItemSaleS16Kor message)
+        {
+            var psInventory = session.Player.Character.Inventory.PersonalShop;
+            var Bundles = psInventory.Items.Values.GroupBy(x => Math.Floor((x.SlotId - (int)psInventory.IndexTranslate) / 5.0f));
+
+            var slot = Bundles.First(x => x.Key == message.Slot);
+            foreach (var item in slot)
+                session.Player.Character.GremoryCase.AddItem(item, DateTime.Today.AddDays(30), GremoryStorage.Character, GremorySource.Event);
+
+            foreach (var item in slot)
+                psInventory.Remove((byte)item.SlotId);
+
+            await session.SendAsync(new SPShopCancelItemSaleS16Kor
+            {
+                Data = message.Number,
+                Result = 1,
+                Slot = message.Slot,
             });
         }
     }

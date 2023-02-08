@@ -269,11 +269,14 @@ namespace MU.Network
         MajesticInfo = 0x027E,
         MajesticStatsInfo = 0x067E,
         Position16Kor = 0xFF10,
+
         PShopSearchS16Kor = 0x007C,
         PShopItemSearchS16Kor = 0x017C,
         PShopItemSearch2S16Kor = 0x037C,
-        PShopSetItemPriceS16Kor = 0x087C,
         PShopRequestList2S16Kor = 0x067C,
+        PShopItemViewS16Kor = 0x077C,
+        PShopSetItemPriceS16Kor = 0x087C,
+        PShopCancelItemSaleS16Kor = 0x097C,
         PShopChangeState = 0x0A7C,
     }
 

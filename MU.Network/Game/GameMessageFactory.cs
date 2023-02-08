@@ -79,6 +79,10 @@ namespace MU.Network.Game
             Register<SPShopSetItemPriceS16Kor>(GameOpCode.PShopSetItemPriceS16Kor);
             Register<CPShopChangeStateS16Kor>(GameOpCode.PShopChangeState);
             Register<SPShopChangeStateS16Kor>(GameOpCode.PShopChangeState);
+            Register<CPShopItemViewS16Kor>(GameOpCode.PShopItemViewS16Kor);
+            Register<SPShopItemViewS16Kor>(GameOpCode.PShopItemViewS16Kor);
+            Register<CPShopCancelItemSaleS16Kor>(GameOpCode.PShopCancelItemSaleS16Kor);
+            Register<SPShopCancelItemSaleS16Kor>(GameOpCode.PShopCancelItemSaleS16Kor);
             #endregion
 
 

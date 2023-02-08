@@ -40,10 +40,11 @@ namespace MuEmu
                 ChaosValue = x.Value.PShopValueC,
             })
             .ToArray();
-        
+
         public PShop(Character @char)
         {
             Chararacter = @char;
+            Name = @char.Name + " Personal Store";
         }
     }
 

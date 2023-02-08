@@ -675,6 +675,23 @@ namespace MU.Network.Game
         [WZMember(3, typeof(BinaryStringSerializer), 45)] public string Description { get; set; }
     }
 
+    [WZContract(LongMessage = true)]
+    public class CPShopCancelItemSaleS16Kor : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Seller { get; set; }
+        [WZMember(2)] public byte Slot { get; set; }
+        [WZMember(3, typeof(ArrayWithScalarSerializer<uint>))] public ItemViewS16Dto[] Items { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class CPShopItemViewS16Kor : IGameMessage
+    {
+        [WZMember(0)] public uint Number { get; set; }
+        [WZMember(1, typeof(BinaryStringSerializer), 11)] public string Seller { get; set; }
+        [WZMember(2)] public byte Slot { get; set; }
+    }
+
     [WZContract]
     public class CPShopRequestBuy : IGameMessage
     {

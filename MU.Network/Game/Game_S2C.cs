@@ -2354,19 +2354,20 @@ namespace MU.Network.Game
         [WZMember(6)] public uint JOSoul { get; set; }
     }
 
-    [WZContract(LongMessage = true)]
+    [WZContract(LongMessage = true, Serialized = true)]
     public class SPShopSellList : IGameMessage
     {
-        [WZMember(0)] public uint Number { get; set; }
-        [WZMember(1)] public byte Result { get; set; }
-        [WZMember(2, typeof(BinaryStringSerializer), 45)]
+        //0xC2 SS SS 7C SH:5
+        [WZMember(0)] public uint Number { get; set; }//5
+        [WZMember(1)] public byte Result { get; set; }//9
+        [WZMember(2, typeof(BinaryStringSerializer), 45)]//10
         public string Description { get; set; }
-        [WZMember(3)] public byte state { get; set; }
+        [WZMember(3)] public byte state { get; set; }//55
         [WZMember(4, typeof(ArrayWithScalarSerializer<uint>))] //public uint Count { get; set; }
         public SPShopItemSellListDto[] List { get; set; }
     }
 
-    [WZContract(LongMessage = true)]
+    [WZContract(LongMessage = true, Serialized = true)]
     public class SPShopChangeStateS16Kor : IGameMessage
     {
         [WZMember(0)] public uint Number { get; set; }
@@ -2374,7 +2375,7 @@ namespace MU.Network.Game
         [WZMember(2)] public byte State { get; set; }
     }
 
-    [WZContract(LongMessage = true)]
+    [WZContract(LongMessage = true, Serialized = true)]
     public class SPShopSetItemPriceS16Kor : IGameMessage
     {
         [WZMember(0)] public byte Number { get; set; }
@@ -2828,11 +2829,19 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true)]
-    public class SPShopSearchItemS16Kor
+    public class SPShopSearchItemS16Kor : IGameMessage
     {
         [WZMember(0)] public int iPShopCnt { get; set; }
         [WZMember(1)] public byte btContinueFlag { get; set; }
         [WZMember(2, typeof(ArraySerializer))] public SPShopSearchItemDto[] List { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SPShopCancelItemSaleS16Kor : IGameMessage
+    {
+        [WZMember(0)] public uint Data { get; set; }
+        [WZMember(1)] public byte Result { get; set; }
+        [WZMember(2)] public byte Slot { get; set; }
     }
 
     [WZContract]
@@ -3345,6 +3354,25 @@ namespace MU.Network.Game
     public class SCancelItemSaleResult : IGameMessage
     {
         [WZMember(0)] public byte Result { get; set; }
+    }
+
+
+    [WZContract]
+    public class ItemViewS16Dto
+    {
+        [WZMember(0, 12)] public byte[] ItemInfo { get; set; }
+    }
+
+    [WZContract(LongMessage = true, Serialized = true)]
+    public class SPShopItemViewS16Kor : IGameMessage
+    {
+        [WZMember(0)] public byte Result { get; set; }
+        [WZMember(1)] public byte Slot { get; set; }
+        [WZMember(2)] public uint Zen { get; set; }
+        [WZMember(3)] public uint JOBless { get; set; }
+        [WZMember(4)] public uint JOSoul { get; set; }
+
+        [WZMember(5, typeof(ArrayWithScalarSerializer<uint>))] public ItemViewS16Dto[] Items { get; set; }
     }
 }
 
