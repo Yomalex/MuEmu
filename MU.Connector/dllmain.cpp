@@ -173,6 +173,7 @@ int iPort = 44405;
 LPTOP_LEVEL_EXCEPTION_FILTER PreviousExceptionFilter = NULL;
 bool UEF = false;
 bool Initialized = false;
+bool ODSShow = false;
 
 // Constants
 const char* cfgFile = ".\\config.ini";
@@ -211,6 +212,7 @@ void XOrData(bool Encode, BYTE * lpBuffer, int size, int offset)
     }
 }
 
+#pragma intrinsic(_ReturnAddress)
 void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
 {
     static BYTE send[8192];
@@ -292,6 +294,7 @@ void SendPacket(BYTE* lpMsg, DWORD len, int enc, int unk1)
 
     DWORD* d = *WZSenderClass;
     WZSender(d, buff, size);
+    Print(fp, "return to %08X", _ReturnAddress());
 }
 
 void SendPacketS16(BYTE* lpMsg, DWORD len)
@@ -480,7 +483,7 @@ int CheckIntegrityS16Kor()
     return 1;
 }
 
-__declspec(naked) void FixLogin()
+/*__declspec(naked) void FixLogin()
 {
 #define MAIN_FIX_LOGIN_HOOK								0x00D3865B
 #define MAIN_FIX_LOGIN_JMP								0x00D38728
@@ -498,6 +501,30 @@ __declspec(naked) void FixLogin()
     {
         Jmp[JMP_1]
     }
+}*/
+
+void WZMainLog(void*file, char*string, ...)
+{
+    va_list va;
+    va_start(va, string);
+    static char sbuff[1024];
+    vsprintf(sbuff, string, va);
+    va_end(va);
+    Print(fp, "[Log] %s", sbuff);
+
+}
+
+LRESULT MySendMessageW(
+    HWND   hWnd,
+    UINT   Msg,
+    WPARAM wParam,
+    LPARAM lParam
+)
+{
+    if (Msg != WM_DESTROY)
+        return SendMessageA(hWnd, Msg, wParam, lParam);
+
+    return 0;
 }
 
 void MainConfiguration()
@@ -515,6 +542,7 @@ void MainConfiguration()
     iPort = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
     GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", szSerial, 18, cfgFile);
     GetPrivateProfileStringA("MU", "Version", CLIENT_VERSION, szVersion, sizeof(szVersion), cfgFile);
+    ODSShow = GetPrivateProfileIntA("MU", "OutputDebugString", 0, cfgFile) == 1;
     if (GetPrivateProfileIntA("MU", "Console", 0, cfgFile) == 1)
     {
         AllocConsole();
@@ -540,6 +568,8 @@ void MainConfiguration()
     WZSenderClass = (DWORD**)GetPrivateProfileIntHexA("OFFSET", "SenderClass", MU_SENDER_CLASS, cfgFile);
     auto pCoreAHook = (T_ProcCoreA)GetPrivateProfileIntHexA("OFFSET", "ProcCoreAHook", 0, cfgFile);
     auto pCoreBHook = (T_ProcCoreB)GetPrivateProfileIntHexA("OFFSET", "ProcCoreBHook", 0, cfgFile);
+    auto pWZLog = (LPVOID*)GetPrivateProfileIntHexA("OFFSET", "WZMuLog", 0, cfgFile);
+    auto SkipDestroy = GetPrivateProfileIntHexA("MU", "SkipDestroy", 0, cfgFile);
 
     auto sprintfFix = GetPrivateProfileIntA("MU", "sprintfFix", 0, cfgFile) == 1;
 
@@ -551,6 +581,8 @@ void MainConfiguration()
     old_Recv = main_Recv.Set(old_Recv, ParsePacket);
     main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
     main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);
+    if(pWZLog!=nullptr) Hook<void>::Jump(pWZLog, WZMainLog);
+    if(SkipDestroy) Hook<void>::Jump(SendMessageW, MySendMessageW);
 
     if(sprintfFix)
         old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
@@ -625,7 +657,7 @@ void _stdcall new_GetStartupInfoA(LPSTARTUPINFOA lpStartupinfo)
 
 void _stdcall new_OutputDebugStringA(LPCSTR lpOutputString)
 {
-    Print(fp, "OutputDebugString: %s", lpOutputString);
+    if(ODSShow) Print(fp, "[ODS]: %s", lpOutputString);
     if (!UEF)
     {
         SetErrorMode(SEM_FAILCRITICALERRORS);

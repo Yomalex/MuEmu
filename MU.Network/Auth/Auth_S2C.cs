@@ -93,6 +93,27 @@ namespace MU.Network.Auth
             Result = result;
         }
     }
+
+    [WZContract]
+    public class SLoginResultS17 : IAuthMessage
+    {
+        [WZMember(0)]
+        public byte UnkBYTE { get; set; }
+
+        [WZMember(1)]
+        public LoginResult Result { get; set; }
+
+        [WZMember(2, typeof(BinarySerializer), 0x6)]
+        public byte[] Unk { get; set; } = Array.Empty<byte>();
+
+        public SLoginResultS17()
+        { }
+
+        public SLoginResultS17(LoginResult result)
+        {
+            Result = result;
+        }
+    }
     public abstract class CharList
     {
         public CharList()
@@ -447,7 +468,7 @@ namespace MU.Network.Auth
         [WZMember(7)] public byte unk37 { get; set; } //37
 }
 
-    [WZContract]
+    [WZContract(Serialized = true)]
     public class SCharacterMapJoin : IAuthMessage
     {
         [WZMember(0, typeof(BinaryStringSerializer), 10)]

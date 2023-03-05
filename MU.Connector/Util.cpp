@@ -38,7 +38,17 @@ void PacketPrint(FILE * fp, LPBYTE buff, DWORD size, const char* szDesc)
             ZeroMemory(DecBuff, sizeof(DecBuff));
             ZeroMemory(DecBuff2, sizeof(DecBuff));
         }
-        sprintf(itoab, "%c", buff[i]);
+        switch (buff[i])
+        {
+        case 0x0A:
+        case 0x0D:
+            itoab[0] = '·';
+            itoab[1] = '\0';
+            break;
+        default:
+            sprintf(itoab, "%c", buff[i]);
+            break;
+        }
         strcat(DecBuff2, itoab);
         sprintf(itoab, "%02X%s", buff[i], (i+1<size)?" ":"");
         strcat(DecBuff, itoab);
