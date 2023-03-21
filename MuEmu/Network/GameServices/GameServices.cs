@@ -525,7 +525,7 @@ namespace MuEmu.Network.GameServices
                     }
                     break;
                 case 14 * 512 + 9: // Ale
-                    if (Source.Durability == 1)
+                    if (Source.Durability <= 1)
                         await inv.Delete(message.Source);
                     else
                         Source.Durability--;
@@ -1316,6 +1316,9 @@ namespace MuEmu.Network.GameServices
         {
             if (message.Position == 0xff)
             {
+                session.Player.Character.Inventory
+                    .MainInventory()
+                    .ForEach(x => CItemModify(session, new CItemModify { Position = (byte)x.SlotId }));
                 return;
             }
 

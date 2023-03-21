@@ -158,6 +158,7 @@ namespace WebZen.Network
                     pkSize = tmph.Size;
                 }
 
+                if ((opCode& 0xFF00)== 0xFF00) posPacket.Position--;
                 //posPacket.Seek(0, SeekOrigin.Begin);
 
                 var factory = _factories.FirstOrDefault(f => f.ContainsOpCode(opCode));

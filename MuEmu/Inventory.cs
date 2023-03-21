@@ -763,7 +763,7 @@ namespace MuEmu
 
             Item it = null;
 
-            if (from == MoveItemFlags.Inventory && (fromIndex < (byte)Equipament.End || fromIndex == (byte)Equipament.Pentagrama))
+            if (from == MoveItemFlags.Inventory && Enum.IsDefined(typeof(Equipament), (int)fromIndex))
             {
                 it = Unequip((Equipament)fromIndex);
             }
@@ -782,7 +782,7 @@ namespace MuEmu
 
             try
             {
-                if (to == MoveItemFlags.Inventory && (toIndex < (byte)Equipament.End || toIndex == (byte)Equipament.Pentagrama))
+                if (to == MoveItemFlags.Inventory && Enum.IsDefined(typeof(Equipament), (int)toIndex))
                 {
                     Equip((Equipament)toIndex, it);
                 }

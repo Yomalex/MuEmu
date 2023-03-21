@@ -42,7 +42,7 @@ namespace MU.Network
         JoinMap = 0x15F3,
         JoinMapS17Kor = 0x604A,
         JoinMapS17KorResp = 0x1652,
-        JoinMap2S17Kor = 0xD44A,
+        JoinMap2S17Kor = 0x024A,
         JoinMap2S17KorResp = 0x2452,
         ServerMove = 0x00B1,
         ServerMoveAuth = 0x01B1,
