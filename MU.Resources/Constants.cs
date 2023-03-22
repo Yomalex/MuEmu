@@ -11,6 +11,12 @@ namespace MU.Resources
         HuntingTime,
         QuestSurvivalTime = 5,
     }
+    public enum CharacterDeleteResult : byte
+    {
+        Error,
+        Success,
+        WrongSecurityCode,
+    }
     // Event Inventory Flags
     public enum EventInventoryType : byte
     {

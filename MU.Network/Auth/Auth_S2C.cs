@@ -346,7 +346,7 @@ namespace MU.Network.Auth
     public class SCharacterDelete : IAuthMessage
     {
         [WZMember(0)]
-        public byte Result { get; set; }
+        public CharacterDeleteResult Result { get; set; }
     }
 
     [WZContract]

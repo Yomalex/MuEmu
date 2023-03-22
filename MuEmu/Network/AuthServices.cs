@@ -480,19 +480,24 @@ namespace MuEmu.Network
         [MessageHandler(typeof(CCharacterDelete))]
         public async Task CCharacterDelete(GSSession session, CCharacterDelete message)
         {
+            var result = CharacterDeleteResult.Error;
             using (var db = new GameContext())
             {
                 var @char = db.Characters.FirstOrDefault(x => x.Name == message.Name);
                 if (@char != null)
                 {
-                    db.Characters.Remove(@char);
-                    db.SaveChanges();
+                    if (@char.GuildId == null)
+                    {
+                        db.Characters.Remove(@char);
+                        db.SaveChanges();
 
-                    var pk = session.Player.Account.Characters.FirstOrDefault(x => x.Value.Name == message.Name);
-                    session.Player.Account.Characters.Remove(pk.Key);
+                        var pk = session.Player.Account.Characters.FirstOrDefault(x => x.Value.Name == message.Name);
+                        session.Player.Account.Characters.Remove(pk.Key);
+                        result = CharacterDeleteResult.Success;
+                    }
                 }
             }
-            await session.SendAsync(new SCharacterDelete());
+            await session.SendAsync(new SCharacterDelete { Result = result });
         }
 
         [MessageHandler(typeof(SSkillKey))]

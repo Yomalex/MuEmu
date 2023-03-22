@@ -79,7 +79,7 @@ namespace MU.Network.Auth
         [WZMember(0, typeof(BinaryStringSerializer), 10)]
         public string Name { get; set; }
 
-        [WZMember(0, typeof(BinaryStringSerializer), 10)]
+        [WZMember(1, typeof(BinaryStringSerializer), 10)]
         public string JoominNumber { get; set; }
     }
 
