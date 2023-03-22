@@ -74,6 +74,8 @@ namespace MuEmu
 
         internal void Save()
         {
+            if (!Active) return;
+
             Active = false;
             using(var db = new GameContext())
             {

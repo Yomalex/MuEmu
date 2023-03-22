@@ -146,7 +146,7 @@ namespace MuEmu.Network.GameServices
             var pos = message.Position;
             Logger.ForAccount(session).Debug("Position set Recv {0}", pos);
             var @char = session.Player.Character;
-            var msg = new SPositionSet((ushort)session.ID, pos);
+            var msg = VersionSelector.CreateMessage<SPositionSet>((ushort)session.ID, pos);
             @char.Position = pos;
             @char.TPosition = pos;
             await session.SendAsync(msg);

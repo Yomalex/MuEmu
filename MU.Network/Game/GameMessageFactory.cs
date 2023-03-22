@@ -231,6 +231,7 @@ namespace MU.Network.Game
             Register<SAction>(GameOpCode.Rotation);
             Register<SPositionSet>(GameOpCode.Position);
             Register<SPositionSetS9Eng>(GameOpCode.Position9Eng);
+            Register<CPositionSet>(GameOpCode.Position16Kor);
             Register<SPositionSetS16Kor>(GameOpCode.Position16Kor);
             VersionSelector.Register<SPositionSet>(ServerSeason.Season6Kor, GameOpCode.Position);
             VersionSelector.Register<SPositionSetS9Eng>(ServerSeason.Season9Eng, GameOpCode.Position);

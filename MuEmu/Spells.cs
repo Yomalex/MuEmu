@@ -560,7 +560,7 @@ namespace MuEmu
                 effect = (ushort)effect.State,
                 time = 0,
                 value = 0,
-                state = 0,
+                state = 1,
                 wEffectValue = 10,
                 group = 1,
                 ItemInfo = Array.Empty<byte>()
