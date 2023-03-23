@@ -394,18 +394,6 @@ namespace MuEmu.Network.GameServices
             {
                 if (@char.Inventory.Arrows == null)
                     return;
-
-                if (!@char.Spells.BufActive(SkillStates.InfinityArrow))
-                {
-                    var durDown = magic.Number == Spell.Triple_Shot ? 3 : (magic.Number == Spell.MultiShot ? 5 : 0);
-                    if (@char.Inventory.Arrows.Durability > durDown)
-                        @char.Inventory.Arrows.Durability -= (byte)durDown;
-                    else
-                        @char.Inventory.Arrows.Durability--;
-
-                    if (@char.Inventory.Arrows.Durability == 0)
-                        await @char.Inventory.Delete(@char.Inventory.Arrows);
-                }
             }
 
             @char.Mana -= magic.Mana;

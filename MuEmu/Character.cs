@@ -1372,7 +1372,7 @@ namespace MuEmu
         }
         private long GetExperienceFromLevel(ushort level)
         {
-            return (((level + 9l) * level) * level) * 10l + ((level > 255) ? ((((long)(level - 255) + 9l) * (level - 255l)) * (level - 255l)) * 1000l : 0l);
+            return (((level + 9L) * level) * level) * 10L + ((level > 255) ? ((((long)(level - 255) + 9L) * (level - 255L)) * (level - 255L)) * 1000L : 0L);
         }
 
         public void TryRegen()
@@ -1492,7 +1492,7 @@ namespace MuEmu
                 db.Characters.Update(charDto);
                 await db.SaveChangesAsync();
             }
-            //await Inventory.Save(db);
+            await Inventory.Save(db);
             await Spells.Save(db);
             await Quests.Save(db);
             await MasterLevel.Save(db);
@@ -1778,6 +1778,7 @@ namespace MuEmu
             var wing = Inventory.Get(Equipament.Wings);
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
+            var pet = Inventory.Get(Equipament.Pet);
 
             var attack = 0.0f;
             type = DamageType.Regular;
@@ -1805,6 +1806,15 @@ namespace MuEmu
                 }
             }
 
+            if ((pet?.Number ?? ItemNumber.Zen) == ItemNumber.FromTypeIndex(13, 1)) // Satan 30% Attack Fisic & Magic
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.3f;
+                }
+            }
+
             attack *= (200.0f + EnergyTotal / 10.0f) / 100.0f;
 
             attack -= targetDefense;
@@ -1818,6 +1828,7 @@ namespace MuEmu
             var wing = Inventory.Get(Equipament.Wings);
             var leftHand = Inventory.Get(Equipament.LeftHand);
             var rightHand = Inventory.Get(Equipament.RightHand);
+            var pet = Inventory.Get(Equipament.Pet);
 
             WeaponDurDown(targetDefense);
             var magicAdd = 0;
@@ -1847,6 +1858,15 @@ namespace MuEmu
                 if (Health > 0)
                 {
                     attack *= 1.12f + wing.Plus * 0.02f;
+                }
+            }
+
+            if ((pet?.Number ?? ItemNumber.Zen) == ItemNumber.FromTypeIndex(13, 1)) // Satan 30% Attack Fisic & Magic
+            {
+                Health -= 3;
+                if (Health > 0)
+                {
+                    attack *= 1.3f;
                 }
             }
 
@@ -1996,12 +2016,21 @@ namespace MuEmu
 
             var bow = bl ? left : (br ? right : null);
 
-            if(bow != null && Inventory.Arrows != null && Inventory.Arrows.Durability > 0)
+            if(bow != null && Inventory.Arrows != null)
             {
-                Inventory.Arrows.Durability -= 1;
                 if (Inventory.Arrows.Durability <= 0)
                 {
                     Inventory.Delete(Inventory.Arrows).Wait();
+                    return;
+                }
+
+                if (!Spells.BufActive(SkillStates.InfinityArrow))
+                {
+                    Inventory.Arrows.Durability -= 1;
+                    if (Inventory.Arrows.Durability <= 0)
+                    {
+                        Inventory.Delete(Inventory.Arrows).Wait();
+                    }
                 }
 
                 bow.BowWeaponDurabilityDown(Defense);

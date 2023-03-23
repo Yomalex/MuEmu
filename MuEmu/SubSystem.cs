@@ -60,7 +60,6 @@ namespace MuEmu
             _workerEvents = new Thread(WorkerEvents);
             _workerSavePlayers = new Thread(WorkerSavePlayers);
             _workerIA = new Thread(WorkerIA);
-            ItemManager.Initialize();
         }
 
         public static void CSSystem(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, byte show, string token)
@@ -765,7 +764,6 @@ namespace MuEmu
                                 plrLog.Error(ex, "Player Save:");
                             }
                         }
-                        ItemManager.Save(db);
                         Logger.Information("Saved players");
                         var maps = ResourceCache.Instance.GetMaps();
                         foreach(var map in maps)

@@ -16,108 +16,13 @@ using MuEmu.Util;
 
 namespace MuEmu
 {
-    public static class ItemManager
-    {
-        private static List<Item> _itemForSave = new List<Item>();
-        public static void Initialize()
-        {
-            using (var db = new GameContext())
-            {
-                var lost = db.Items.Where(x => x.AccountId == 0);
-                db.Items.RemoveRange(lost);
-                db.SaveChanges();
-            }
-
-            Program.server.Connect += Server_Connect;
-        }
-
-        private static void Server_Connect(object sender, Network.WZServerEventArgs e)
-        {
-            e.session.Player.OnStatusChange += Player_OnStatusChange;
-        }
-
-        private static void Player_OnStatusChange(object sender, EventArgs e)
-        {
-            var plr = sender as Player;
-            switch(plr.Status)
-            {
-                case LoginStatus.Logged:
-                    SaveReference(plr.Account);
-                    RemReference(plr.Account);
-                    break;
-                case LoginStatus.NotLogged:
-                    plr.OnStatusChange -= Player_OnStatusChange;
-                    SaveReference(plr.Account);
-                    RemReference(plr.Account);
-                    break;
-            }
-        }
-
-        public static void AddReference(Item item)
-        {
-            if (item.IsZen)
-                return;
-
-            lock(_itemForSave)
-                _itemForSave.Add(item);
-        }
-        public static void RemReference(Item item)
-        {
-            lock(_itemForSave)
-                _itemForSave.Remove(item);
-        }
-        public static void RemReference(Account account)
-        {
-            lock(_itemForSave)
-                _itemForSave.RemoveAll(x => x.Account == account);
-        }
-        public static void Save(GameContext db)
-        {
-            lock (_itemForSave)
-            { 
-                var logger = Log.Logger;
-                var addList = _itemForSave.Where(x => x.Serial == 0 && x.State != ItemState.Deleted && x.Account != null);
-                var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0);
-                var removeList = _itemForSave.Where(x => x.Serial != 0 && x.State == ItemState.Deleted);
-                var removeList2 = _itemForSave.Where(x => x.Serial == 0 && x.State == ItemState.Deleted);
-
-                db.Items.AddRange(addList.Select(x => x.Save(db)).Where(x => x != null));
-                db.Items.UpdateRange(updateList.Select(x => x.Save(db)).Where(x => x != null));
-                db.Items.RemoveRange(removeList.Select(x => x.Save(db)).Where(x => x != null));
-
-                _itemForSave.RemoveAll(x => removeList.Contains(x));
-                _itemForSave.RemoveAll(x => removeList2.Contains(x));
-            }
-        }
-        public static void SaveReference(Account account)
-        {
-            lock (_itemForSave)
-            {
-                var logger = Log.Logger.ForAccount(account.Player.Session);
-                logger.Information("Force save items");
-                using (var db = new GameContext())
-                {
-                    var addList = _itemForSave.Where(x => x.Serial == 0 && x.Account == account && x.State != ItemState.Deleted);
-                    var updateList = _itemForSave.Where(x => x.State == ItemState.Changed && x.Serial != 0 && x.Account == account);
-                    var removeList = _itemForSave.Where(x => x.Serial == 0 && x.State == ItemState.Deleted && x.Account == account);
-                    var removeList2 = _itemForSave.Where(x => x.Serial == 0 && x.State == ItemState.Deleted && x.Account == account);
-
-                    db.Items.AddRange(addList.Select(x => x.Save(db)));
-                    db.Items.UpdateRange(updateList.Select(x => x.Save(db)));
-                    db.Items.RemoveRange(removeList.Where(x => x.Serial != 0).Select(x => x.Save(db)));
-
-                    _itemForSave.RemoveAll(x => removeList.Contains(x));
-                    _itemForSave.RemoveAll(x => removeList2.Contains(x));
-                    db.SaveChanges();
-                }
-            }
-        }
-    }
     public enum ItemState
     {
         Created,
+        CreatedAndChanged,
         Unchanged,
         Changed,
+        Deleting,
         Deleted,
     }
     public class Item : ICloneable
@@ -144,7 +49,7 @@ namespace MuEmu
                 if (_account == value)
                     return;
                 _account = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
         public Character Character
@@ -154,7 +59,7 @@ namespace MuEmu
                 if (_character == value)
                     return;
                 _character = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
         public StorageID Storage
@@ -165,7 +70,7 @@ namespace MuEmu
                 if (_vid == value)
                     return;
                 _vid = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
         public int SlotId
@@ -176,7 +81,7 @@ namespace MuEmu
                 if (_slot == value)
                     return;
                 _slot = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
         public bool IsZen => ItemNumber.Zen == Number;
@@ -191,7 +96,7 @@ namespace MuEmu
                     return;
 
                 _number = value;
-                State = ItemState.Changed; 
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -205,7 +110,7 @@ namespace MuEmu
                     return;
                 _plus = value;
 
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -221,12 +126,12 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                if (BasicInfo.MaxStack < value || (value > DurabilityBase && DurabilityBase > 0 && BasicInfo.MaxStack == 0))
+                if ((BasicInfo.MaxStack < value && BasicInfo.MaxStack != 0) || (value > DurabilityBase && DurabilityBase > 0 && BasicInfo.MaxStack == 0))
                     value = Math.Max(DurabilityBase, BasicInfo.MaxStack);
 
                 _durability = value;
                 OnDurabilityChange(false);
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
         public byte DurabilityBase => GetDurabilityBase();
@@ -239,7 +144,7 @@ namespace MuEmu
                     return;
 
                 _option = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -260,7 +165,7 @@ namespace MuEmu
             set
             {
                 _slots = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
                 OnItemChange();
             }
         }
@@ -279,7 +184,7 @@ namespace MuEmu
             set
             {
                 _jewelOfHarmony = value;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
         public byte BonusSocket { get; set; }
@@ -396,7 +301,7 @@ namespace MuEmu
                 AttackMin = _petLevel * 15 + Character.CommandTotal / 8 + 180;
                 AttackMax = _petLevel * 15 + Character.CommandTotal / 4 + 200;
                 AttackSpeed = _petLevel * 4 / 5 + Character.CommandTotal / 50 + 20;
-                State = ItemState.Changed;
+                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
             }
         }
 
@@ -469,7 +374,6 @@ namespace MuEmu
                 GetValue();
                 CalcItemAttributes();
                 State = ItemState.Created;
-                ItemManager.AddReference(this);
             }
         }
 
@@ -495,7 +399,6 @@ namespace MuEmu
             GetValue();
             CalcItemAttributes();
             State = ItemState.Created;
-            ItemManager.AddReference(this);
         }
 
         public Item(ItemDto dto, Account acc = null, Character @char = null)
@@ -549,7 +452,6 @@ namespace MuEmu
                 Number = BasicInfo.OnMaxStack;
             }
             State = ItemState.Unchanged;
-            ItemManager.AddReference(this);
         }
 
         internal void AddExperience(int gain)
@@ -1165,10 +1067,13 @@ namespace MuEmu
 
         public ItemDto Save(GameContext db)
         {
-
             var log = Logger;
             if (Character != null)
                 log = Logger.ForAccount(Character.Player.Session);
+            else if(Account != null)
+                log = Logger.ForAccount(Account.Player.Session);
+
+            if (State == ItemState.Deleted) return null;
 
             var _db = db.Items.Find(Serial);
             if (_db == null)
@@ -1176,6 +1081,15 @@ namespace MuEmu
 
             if (State == ItemState.Unchanged)
                 return _db;
+
+            if(State == ItemState.Deleting)
+            {
+                log.Information($"[A{_db.AccountId}->{_vid}:{_slot}]Item Removed:{ToString()}" + " {0}", State);
+                State = ItemState.Deleted;
+                db.Remove(_db);
+                return null;
+            }
+
             _db.AccountId = Account?.ID ?? 0;
             _db.CharacterId = Character?.Id ?? 0;
             _db.VaultId = (int)_vid;
@@ -1198,12 +1112,15 @@ namespace MuEmu
             log.Information(str+" {0}", State);
 
             State = ItemState.Unchanged;
+            db.Update(_db);
             return _db;
         }
 
         public void Delete()
         {
-            State = ItemState.Deleted;
+            Character = null;
+            Account = null;
+            State = Serial == 0?ItemState.Deleted:ItemState.Deleting;
         }
 
         private void CalcItemAttributes()
@@ -1509,7 +1426,7 @@ namespace MuEmu
 
         private void OnDurabilityChange(bool flag)
         {
-            if (Storage != StorageID.Inventory)
+            if (Storage != StorageID.Inventory && Storage != StorageID.Equipament)
                 return;
 
             var p = new SInventoryItemDurSend
@@ -1819,6 +1736,9 @@ namespace MuEmu
             Extensions.AnonymousMap(it, this);
             it.Serial = 0;
             it.Durability = Durability;
+            it.Character = null;
+            it.Account = null;
+            it.SlotId = 0;
             if (it.DurabilityBase == 0 && Durability == 0)
             {
                 it.Durability = 1;

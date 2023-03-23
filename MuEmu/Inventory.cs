@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using MuEmu.Util;
 using MuEmu.Resources;
 using MU.Network.Event;
+using MySqlX.XDevAPI;
 
 namespace MuEmu
 {
@@ -24,7 +25,7 @@ namespace MuEmu
         public MoveItemFlags To;
         public byte toIndex;
     }
-    public class Inventory
+    public class Inventory : IDisposable
     {
         private static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(Inventory));
         //public Player Player { get; set; }
@@ -973,10 +974,24 @@ namespace MuEmu
         public async Task Delete(byte target, bool send = true)
         {
             var st = GetStorage(target);
-            var it = st?.Get(target) ?? Unequip((Equipament)target);
-            it.Delete();
+            if (st == null)
+                return;
 
-            await Remove(target, send);
+            Item it = null;
+            if(send)
+            {
+                var session = Character.Player.Session;
+                await session.SendAsync(new SInventoryItemDelete(target, 1));
+            }
+            if(st.StorageID == StorageID.Equipament)
+            {
+                it = Unequip((Equipament)target);
+            }
+            else
+            {
+                it = st.Get(target);
+            }
+            it.Delete();
         }
 
         /// <summary>
@@ -1474,6 +1489,17 @@ namespace MuEmu
         internal void Remove(List<Item> transfer)
         {
             transfer.ForEach(x => Remove((byte)x.SlotId).Wait());
+        }
+
+        public void Dispose()
+        {
+        }
+
+        internal async Task Save(GameContext db)
+        {
+            var inv = (Storages[StorageID.Equipament] as Dictionary<Equipament, Item>).Values.ToList();
+            inv.AddRange(Storages.Where(x => x.Key != StorageID.Equipament).Select(x => x.Value as Storage).Where(x => x != null).SelectMany(x => x.Items.Values));
+            inv.ForEach(x => x.Save(db));
         }
     }
 }

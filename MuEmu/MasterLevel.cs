@@ -117,7 +117,7 @@ namespace MuEmu
 
         private long GetExperienceFromLevel(ushort level)
         {
-            var exp = (((level + 9l) * level) * level) * 10l + ((level>255)?(((((long)(level - 255) + 9l) * (level - 255l)) * (level - 255l)) * 1000l):0l);
+            var exp = (((level + 9L) * level) * level) * 10L + ((level>255)?(((((long)(level - 255) + 9L) * (level - 255L)) * (level - 255L)) * 1000L):0L);
             if (level >= 400)
             {
                 exp -= 3892250000;
