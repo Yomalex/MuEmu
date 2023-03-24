@@ -31,6 +31,7 @@ namespace MuEmu
         //public Player Player { get; set; }
         public Character Character { get; }
 
+        private List<Item> _toDelete = new List<Item>();
         private Dictionary<Equipament, Item> _equipament;
         private Dictionary<StorageID, object> Storages;
         private Storage _inventory;
@@ -817,7 +818,7 @@ namespace MuEmu
             catch (Exception ex)
             {
                 Log.Logger.Error(ex, ServerMessages.GetMessage(Messages.IV_CantMove));
-                if (from == MoveItemFlags.Inventory && fromIndex < (byte)Equipament.End)
+                if (from == MoveItemFlags.Inventory && fromIndex <= (byte)Equipament.LeftRing)
                 {
                     Equip((Equipament)fromIndex, it);
                 }
@@ -991,6 +992,7 @@ namespace MuEmu
             {
                 it = st.Get(target);
             }
+            _toDelete.Add(it);
             it.Delete();
         }
 
@@ -1499,6 +1501,8 @@ namespace MuEmu
         {
             var inv = (Storages[StorageID.Equipament] as Dictionary<Equipament, Item>).Values.ToList();
             inv.AddRange(Storages.Where(x => x.Key != StorageID.Equipament).Select(x => x.Value as Storage).Where(x => x != null).SelectMany(x => x.Items.Values));
+            inv.AddRange(_toDelete);
+            _toDelete.Clear();
             inv.ForEach(x => x.Save(db));
         }
     }

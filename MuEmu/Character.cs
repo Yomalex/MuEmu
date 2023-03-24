@@ -230,7 +230,7 @@ namespace MuEmu
                 }
 
 
-                HPorSDChanged(arg);
+                HPorSDChanged(RefillInfo.Drink);
             }
         }
         public float MaxHealth
@@ -269,7 +269,7 @@ namespace MuEmu
                     _sd = value;
                 }
 
-                HPorSDChanged(arg);
+                HPorSDChanged(RefillInfo.Drink);
             }
         }
         public float MaxShield
@@ -471,7 +471,7 @@ namespace MuEmu
 
                     var pets = Inventory.FindAllItems(6661);
                     pets.AddRange(Inventory.FindAllItems(6660));
-                    pets = pets.Where(x => x.SlotId <= (int)Equipament.End).ToList();
+                    pets = pets.Where(x => x.SlotId <= (int)Equipament.LeftRing).ToList();
                     pets.AddRange(_mounts.Where(x => (int)x.Number == 6661 || (int)x.Number == 6660));
 
                     gain /= 5;

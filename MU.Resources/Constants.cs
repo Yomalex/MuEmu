@@ -991,7 +991,7 @@ namespace MU.Resources
         Pendant,
         RightRing,
         LeftRing,
-        End,
+        //End,
         Pentagrama = 236,
         Earring1,
         Earring2,

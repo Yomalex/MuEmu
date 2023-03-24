@@ -20,8 +20,8 @@ namespace MuEmu
     {
         Created,
         CreatedAndChanged,
-        Unchanged,
-        Changed,
+        Saved,
+        SavedAndChanged,
         Deleting,
         Deleted,
     }
@@ -42,14 +42,44 @@ namespace MuEmu
         private Account _account;
         private Character _character;
 
-        public ItemState State { get; private set; }
+        private ItemState _state;
+        public ItemState State { get => _state; private set
+            {
+                _state = value;
+            }
+        }
+
+        private void OnCreate()
+        {
+            State = ItemState.Created;
+        }
+        private void OnChange()
+        {
+            State = State switch
+            {
+                ItemState.Created => ItemState.CreatedAndChanged,
+                ItemState.Saved => ItemState.SavedAndChanged,
+                _ => State,
+            };
+        }
+        private void OnDelete()
+        {
+            State = State switch
+            {
+                ItemState.Created => ItemState.Deleted,
+                ItemState.CreatedAndChanged => ItemState.Deleted,
+                ItemState.Saved => ItemState.Deleting,
+                ItemState.SavedAndChanged => ItemState.Deleting,
+                _ => State,
+            };
+        }
 
         public Account Account { get => _account; set
             {
                 if (_account == value)
                     return;
                 _account = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
             }
         }
         public Character Character
@@ -59,7 +89,7 @@ namespace MuEmu
                 if (_character == value)
                     return;
                 _character = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
             }
         }
         public StorageID Storage
@@ -70,7 +100,7 @@ namespace MuEmu
                 if (_vid == value)
                     return;
                 _vid = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
             }
         }
         public int SlotId
@@ -81,7 +111,7 @@ namespace MuEmu
                 if (_slot == value)
                     return;
                 _slot = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
             }
         }
         public bool IsZen => ItemNumber.Zen == Number;
@@ -96,7 +126,7 @@ namespace MuEmu
                     return;
 
                 _number = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
                 OnItemChange();
             }
         }
@@ -110,7 +140,7 @@ namespace MuEmu
                     return;
                 _plus = value;
 
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
                 OnItemChange();
             }
         }
@@ -130,8 +160,8 @@ namespace MuEmu
                     value = Math.Max(DurabilityBase, BasicInfo.MaxStack);
 
                 _durability = value;
-                OnDurabilityChange(false);
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnDurabilityChange(false); 
+                OnChange();
             }
         }
         public byte DurabilityBase => GetDurabilityBase();
@@ -144,7 +174,7 @@ namespace MuEmu
                     return;
 
                 _option = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
                 OnItemChange();
             }
         }
@@ -165,7 +195,7 @@ namespace MuEmu
             set
             {
                 _slots = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
                 OnItemChange();
             }
         }
@@ -184,7 +214,7 @@ namespace MuEmu
             set
             {
                 _jewelOfHarmony = value;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
             }
         }
         public byte BonusSocket { get; set; }
@@ -301,7 +331,7 @@ namespace MuEmu
                 AttackMin = _petLevel * 15 + Character.CommandTotal / 8 + 180;
                 AttackMax = _petLevel * 15 + Character.CommandTotal / 4 + 200;
                 AttackSpeed = _petLevel * 4 / 5 + Character.CommandTotal / 50 + 20;
-                State = Serial == 0 ? ItemState.CreatedAndChanged : ItemState.Changed;
+                OnChange();
             }
         }
 
@@ -413,6 +443,7 @@ namespace MuEmu
             BasicInfo = ItemDB[dto.Number];
             _slot = dto.SlotId;
             Serial = dto.ItemId;
+            State = ItemState.Saved;
             Skill = dto.Skill;
             _number = dto.Number;
             _plus = dto.Plus;
@@ -442,7 +473,7 @@ namespace MuEmu
                 PentagramJewels = tmp.Select(x => long.Parse(x)).ToArray();
             }
 
-            Harmony = dto.HarmonyOption;
+            _jewelOfHarmony = dto.HarmonyOption;
             Harmony.Item = this;
 
             GetValue();
@@ -451,7 +482,7 @@ namespace MuEmu
             {
                 Number = BasicInfo.OnMaxStack;
             }
-            State = ItemState.Unchanged;
+            //OnChange();
         }
 
         internal void AddExperience(int gain)
@@ -479,7 +510,7 @@ namespace MuEmu
             {
                 PetLevel++;
                 levelUp = true;
-                State = ItemState.Changed;
+                OnChange();
             }
 
             if (levelUp)
@@ -1042,7 +1073,8 @@ namespace MuEmu
 
             var map = Character.Map;
             var output = map.AddItem(mapX, mapY, Clone() as Item, Character);
-            Delete();
+            //Delete();
+            await Character?.Inventory.Delete(this);
 
             return output;
         }
@@ -1068,18 +1100,19 @@ namespace MuEmu
         public ItemDto Save(GameContext db)
         {
             var log = Logger;
-            if (Character != null)
-                log = Logger.ForAccount(Character.Player.Session);
-            else if(Account != null)
+            ItemDto _db = null;
+            
+            if(Account != null)
                 log = Logger.ForAccount(Account.Player.Session);
 
             if (State == ItemState.Deleted) return null;
 
-            var _db = db.Items.Find(Serial);
-            if (_db == null)
+            if(State == ItemState.Saved || State == ItemState.SavedAndChanged || State == ItemState.Deleting)
+                _db = db.Items.Find(Serial);
+            else if (State == ItemState.Created || State == ItemState.CreatedAndChanged)
                 _db = new ItemDto();
 
-            if (State == ItemState.Unchanged)
+            if (State == ItemState.Saved)
                 return _db;
 
             if(State == ItemState.Deleting)
@@ -1111,16 +1144,20 @@ namespace MuEmu
             var str = $"[A{_db.AccountId}->{_vid}:{_slot}]Item Saved:{ToString()}";
             log.Information(str+" {0}", State);
 
-            State = ItemState.Unchanged;
+            State = ItemState.Saved;
             db.Update(_db);
             return _db;
         }
 
         public void Delete()
         {
-            Character = null;
-            Account = null;
-            State = Serial == 0?ItemState.Deleted:ItemState.Deleting;
+            var log = Logger;
+
+            if (Account != null)
+                log = Logger.ForAccount(Account.Player.Session);
+
+            OnDelete();
+            log.Information($"[A{Account?.ID??0}->{_vid}:{_slot}]Item Deleting:{ToString()}" + " {0}", State);
         }
 
         private void CalcItemAttributes()
@@ -1437,7 +1474,7 @@ namespace MuEmu
             };
             Character?.Player.Session.SendAsync(p);
 
-            State = ItemState.Changed;
+            OnChange();
         }
 
         public override string ToString()
@@ -1850,7 +1887,8 @@ namespace MuEmu
 
             item.Durability = Overlap(item.Durability);
             if (item.Durability == 0)
-                item.Delete();
+                Character?.Inventory.Delete(this).Wait();
+                //item.Delete();
         }
     }
 }
