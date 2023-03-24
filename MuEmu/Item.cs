@@ -58,7 +58,7 @@ namespace MuEmu
             State = State switch
             {
                 ItemState.Created => ItemState.CreatedAndChanged,
-                ItemState.Saved => ItemState.SavedAndChanged,
+                ItemState.Saved => Serial==0? ItemState.CreatedAndChanged:ItemState.SavedAndChanged,
                 _ => State,
             };
         }
@@ -156,8 +156,10 @@ namespace MuEmu
                 if (_durability == value)
                     return;
 
-                if ((BasicInfo.MaxStack < value && BasicInfo.MaxStack != 0) || (value > DurabilityBase && DurabilityBase > 0 && BasicInfo.MaxStack == 0))
-                    value = Math.Max(DurabilityBase, BasicInfo.MaxStack);
+                if (BasicInfo.MaxStack != 0)
+                    value = Math.Min(value, BasicInfo.MaxStack);
+                else if (DurabilityBase > 0)
+                    value = Math.Min(DurabilityBase, value);
 
                 _durability = value;
                 OnDurabilityChange(false); 
