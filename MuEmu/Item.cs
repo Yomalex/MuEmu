@@ -1773,6 +1773,7 @@ namespace MuEmu
         {
             var it = new Item(Number, new { Plus, Luck, Skill, Durability, Option28, OptionExe });
             Extensions.AnonymousMap(it, this);
+            it.State = ItemState.Created;
             it.Serial = 0;
             it.Durability = Durability;
             it.Character = null;

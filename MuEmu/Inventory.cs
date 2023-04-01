@@ -15,6 +15,7 @@ using MuEmu.Util;
 using MuEmu.Resources;
 using MU.Network.Event;
 using MySqlX.XDevAPI;
+using MuEmu.Network.Data;
 
 namespace MuEmu
 {
@@ -183,6 +184,7 @@ namespace MuEmu
                             {
                                 _logger.Error(ServerMessages.GetMessage(Messages.IV_IndexAlreadyUsed, Character, (Equipament)pos));
                                 _logger.Error(it.ToString());
+                                _toDelete.Add(it);
                                 it.Delete();
                             }
 
@@ -629,6 +631,8 @@ namespace MuEmu
 
             CalcStats();
             Character.ObjCalc();
+            if(Character.Skin == 0xffff && item.BasicInfo.Skin != 0xffff)
+                Character.Skin = item.BasicInfo.Skin;
             Character.Change = true;
         }
 
@@ -653,6 +657,12 @@ namespace MuEmu
                 Arrows = null;
 
             Character.Change = true;
+            if (Character.Transformation && item.BasicInfo.Skin == Character.Skin)
+            {
+                Character.Skin = 0xffff;
+                Character.Transformation = false;
+                SubSystem.SelfUpdate(Character);
+            }
 
             return item;
         }
@@ -991,6 +1001,7 @@ namespace MuEmu
             else
             {
                 it = st.Get(target);
+                st.Remove(it);
             }
             _toDelete.Add(it);
             it.Delete();

@@ -24,10 +24,7 @@ namespace MuEmu.Network.Data
         public byte Y { get; set; }
 
         [WZMember(4)]
-        public byte SkinH { get; set; }
-
-        [WZMember(5)]
-        public byte SkinL { get; set; }
+        public ushortle Skin { get; set; }
 
         [WZMember(6, 10)]
         public byte[] Id { get; set; } //10

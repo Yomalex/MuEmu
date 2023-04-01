@@ -184,15 +184,14 @@ namespace MuEmu.Network
                 byte mClass = 0;
                 var maxLevel = acc.Characters.Any()?acc.Characters.Max(x => x.Value.Level):1;
 
-                if (maxLevel > 200)
-                    mClass = 1;
-                else if (maxLevel > 210)
-                    mClass = 2;
+                if (maxLevel > 250)
+                    mClass = 4;
                 else if (maxLevel > 220)
                     mClass = 3;
-                else if (maxLevel > 250)
-                    mClass = 4;
-
+                else if (maxLevel > 210)
+                    mClass = 2;
+                else if(maxLevel > 200)
+                    mClass = 1;
 
                 var charList = VersionSelector.CreateMessage<SCharacterList>(mClass, (byte)0, (byte)5, (byte)3) as CharList;
 

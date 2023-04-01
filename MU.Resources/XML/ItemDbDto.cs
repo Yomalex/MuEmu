@@ -65,6 +65,7 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public byte MaxStack { get; set; } = 0;
         [XmlAttribute] public ushort OnMaxStack { get; set; } = 0xffff;
         [XmlAttribute] public string IsMount { get; set; } = "False";
+        [XmlAttribute] public ushort Skin { get; set; } = 0xffff;
         [XmlAttribute] public string Inventory { get; set; } = "Inventory";
     }
 }

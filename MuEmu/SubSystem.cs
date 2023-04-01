@@ -50,6 +50,8 @@ namespace MuEmu
         private MessageFactory[] _factories;
         private byte _show;
         private string _token;
+        private static Type _typeBase;
+        private static Type _typeBaseC;
         public static SubSystem Instance { get; set; }
 
         public SubSystem()
@@ -60,6 +62,22 @@ namespace MuEmu
             _workerEvents = new Thread(WorkerEvents);
             _workerSavePlayers = new Thread(WorkerSavePlayers);
             _workerIA = new Thread(WorkerIA);
+
+            _typeBase = Program.Season switch
+            {
+                ServerSeason.Season16Kor => typeof(VPCreateS16KorDto),
+                ServerSeason.Season12Eng => typeof(VPCreateS12Dto),
+                ServerSeason.Season9Eng => typeof(VPCreateS9Dto),
+                _ => typeof(VPCreateDto),
+            };
+
+            _typeBaseC = Program.Season switch
+            {
+                ServerSeason.Season16Kor => typeof(VPChangeS12Dto),
+                ServerSeason.Season12Eng => typeof(VPChangeS12Dto),
+                ServerSeason.Season9Eng => typeof(VPChangeS9Dto),
+                _ => typeof(VPChangeDto),
+            };
         }
 
         public static void CSSystem(IPEndPoint ip, MessageHandler[] handlers, MessageFactory[] factories, byte show, string token)
@@ -260,7 +278,7 @@ namespace MuEmu
             }
         }
 
-        private static async void PlayerPlrViewport(MapInfo Map, Character plr)
+        internal static async void PlayerPlrViewport(MapInfo Map, Character plr)
         {
             var pos = plr.Position;
             pos.Offset(15, 15);
@@ -360,30 +378,46 @@ namespace MuEmu
             }
 
             var addPlr = new List<VPCreateAbs>();
-            var typeBase = Program.Season switch
-            {
-                ServerSeason.Season16Kor => typeof(VPCreateS16KorDto),
-                ServerSeason.Season12Eng => typeof(VPCreateS12Dto),
-                ServerSeason.Season9Eng => typeof(VPCreateS9Dto),
-                _ => typeof(VPCreateDto),
-            };
+            var changePlayer = new List<VPChangeAbs>();
 
-            foreach(var x in newPlr)
+            foreach (var x in newPlr)
             {
-                var obj = Activator.CreateInstance(typeBase) as VPCreateAbs;
+                var obj = Activator.CreateInstance(_typeBase) as VPCreateAbs;
                 AssignVP(obj, x, true);                
                 addPlr.Add(obj);
             }
 
-            foreach (var x in existPlr)
+            foreach (var x in existPlr.Where(x => x.Transformation))
             {
-                var obj = Activator.CreateInstance(typeBase) as VPCreateAbs;
+                var obj = Activator.CreateInstance(_typeBaseC) as VPChangeAbs;
+                obj.DirAndPkLevel = (byte)(x.Direction << 4);
+                obj.Set("PentagramMainAttribute", (byte)(x.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute ?? 0));
+                obj.CharSet = x.Inventory.GetCharset();
+                obj.Set("CurLife", (uint)x.Health);
+                obj.Set("Level", x.Level);
+                obj.Set("MaxLife", (uint)x.MaxHealth);
+                obj.Name = x.Name;
+                obj.Number = x.Player.Session.ID;
+                obj.Position = x.Position;
+                obj.TPosition = x.TPosition;
+                obj.Set("ServerCodeOfHomeWorld", 0);
+                obj.Skin = x.Skin;
+                //AssignVP(obj, x, false);
+                changePlayer.Add(obj);
+            }
+
+            foreach (var x in existPlr.Where(x => x.Transformation == false))
+            {
+                var obj = Activator.CreateInstance(_typeBase) as VPCreateAbs;
                 AssignVP(obj, x, false);
                 addPlr.Add(obj);
             }
 
             var msg = VersionSelector.CreateMessage<SViewPortCreate>(addPlr);
             await plr.Player.Session.SendAsync(msg);
+
+            if (changePlayer.Any())
+                await plr.Player.Session.SendAsync(new SViewPortChange { ViewPort = changePlayer.ToArray() });
 
             if (lostPlr.Any())
                 await plr.Player.Session.SendAsync(new SViewPortDestroy(lostPlr.Select(x => new VPDestroyDto((ushort)x.Session.ID)).ToArray()));
@@ -397,7 +431,36 @@ namespace MuEmu
             if (gensVP.Any())
                 await plr.Player.Session.SendAsync(new SViewPortGens { VPGens = gensVP.ToArray() });
         }
+        public static void SelfUpdate(Character x)
+        {
+            if (!x.Change)
+                return;
 
+            if(x.Transformation)
+            {
+                var obj = Activator.CreateInstance(_typeBaseC) as VPChangeAbs;
+                obj.DirAndPkLevel = (byte)(x.Direction << 4);
+                obj.Set("PentagramMainAttribute", (byte)(x.Inventory.Get(Equipament.Pentagrama)?.PentagramaMainAttribute ?? 0));
+                obj.CharSet = x.Inventory.GetCharset();
+                obj.Set("CurLife", (uint)x.Health);
+                obj.Set("Level", (ushortle)x.Level);
+                obj.Set("MaxLife", (uint)x.MaxHealth);
+                obj.Name = x.Name;
+                obj.Number = x.Player.Session.ID;
+                obj.Position = x.Position;
+                obj.TPosition = x.TPosition;
+                obj.Set("ServerCodeOfHomeWorld", (ushort)0);
+                obj.Skin = x.Skin;
+                x.Player.Session.SendAsync(new SViewPortChange { ViewPort = new VPChangeAbs[] { obj } });
+            }
+            else
+            {
+                var obj = Activator.CreateInstance(_typeBase) as VPCreateAbs;
+                AssignVP(obj, x, false);
+                var msg = VersionSelector.CreateMessage<SViewPortCreate>((new VPCreateAbs[] { obj }).ToList());
+                x.Player.Session.SendAsync(msg);
+            }
+        }
         private static void AssignVP(VPCreateAbs obj, Character x, bool create)
         {
             obj.Set("CharSet", x.Inventory.GetCharset());

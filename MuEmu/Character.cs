@@ -731,6 +731,9 @@ namespace MuEmu
         public List<SelfDefense> SelfDefense { get; set; } = new List<SelfDefense>();
         public bool HaveMount => _mounts.Any();
 
+        public bool Transformation { get; internal set; }
+        public ushort Skin { get; internal set; } = 0xffff;
+
         private Item getDarkRaven()
         {
             var item = _mounts.FirstOrDefault(x => (int)x.Number == 6661);

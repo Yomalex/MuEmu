@@ -2230,8 +2230,12 @@ namespace MuEmu.Network.GameServices
                 ShieldDamageReduction = 0,
                 SkillDamageBonus = 0,
                 StunRate = 0,
-                unk36 = 36,// AGUsageRate
-                unk5 = 5,//TripleDamageRate
+                AGUsageRate = 0,
+                TripleDamageRate = 0,
+                unk3a = 1,
+                unk37 = 2,
+                unk38 = 3,
+                unk39 = 4,
             });
         }
 
@@ -2604,6 +2608,16 @@ namespace MuEmu.Network.GameServices
                     await session.SendAsync(new SCancelItemSaleResult { Result = 1 });
                 }
             }
+        }
+
+        [MessageHandler(typeof(CChangeSkin))]
+        public async Task CChangeSkin(GSSession session, CChangeSkin message)
+        {
+            session.Player.Character.Change = true;
+            session.Player.Character.Transformation = message.Skin == 0;
+
+            SubSystem.SelfUpdate(session.Player.Character);
+            SubSystem.PlayerPlrViewport(session.Player.Character.Map, session.Player.Character);
         }
     }
 }

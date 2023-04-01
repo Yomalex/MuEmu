@@ -1247,4 +1247,10 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte Section {get; set;}
     }
+
+    [WZContract]
+    public class CChangeSkin : IGameMessage
+    {
+        [WZMember(0)] public byte Skin { get; set; }
+    }
 }

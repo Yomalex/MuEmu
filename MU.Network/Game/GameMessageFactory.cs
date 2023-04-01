@@ -60,6 +60,8 @@ namespace MU.Network.Game
             Register<CItemThrow>(GameOpCode.ItemThrow);
             Register<CItemModify>(GameOpCode.ItemModify);
 
+            Register<CChangeSkin>(GameOpCode.ChangeSkin);
+
             #region Client PersonalShopMessages
             Register<CPShopSetItemPrice>(GameOpCode.PShopSetItemPrice);
             Register<CPShopRequestOpen>(GameOpCode.PShopRequestOpen);

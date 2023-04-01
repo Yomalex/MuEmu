@@ -290,7 +290,7 @@ namespace MU.Network.Game
     public class SViewPortChange : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
-        public VPChangeDto[] ViewPort { get; set; }
+        public VPChangeAbs[] ViewPort { get; set; }
 
         public SViewPortChange()
         {
@@ -3122,7 +3122,7 @@ namespace MU.Network.Game
         /*373*/
         [WZMember(43)] public float DoubleDamageRate{ get; set; }//Ë«±¶ÉËº¦¼¸ÂÊ
         /*377*/
-        [WZMember(44)] public float  unk5{ get; set; }
+        [WZMember(44)] public float TripleDamageRate { get; set; }
         /*381*/
         [WZMember(45)] public byte DamageReduction{ get; set; }//ÉËº¦¼õÉÙÂÊ
         /*382*/
@@ -3130,7 +3130,15 @@ namespace MU.Network.Game
         /*383*/
         [WZMember(47)] public byte DamageReflect{ get; set; }//ÉËº¦·´ÉäÂÊ
         /*384*/	
-        [WZMember(48)] public byte  unk36{ get; set; }
+        [WZMember(48)] public byte AGUsageRate { get; set; }
+        /*384*/
+        [WZMember(49)] public byte unk37 { get; set; }
+        /*384*/
+        [WZMember(50)] public byte unk38 { get; set; }
+        /*384*/
+        [WZMember(51)] public byte unk39 { get; set; }
+        /*384*/
+        [WZMember(52)] public byte unk3a { get; set; }
     }
     [WZContract]
     public class SNQWorldLoad : IGameMessage

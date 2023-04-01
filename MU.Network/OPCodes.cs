@@ -285,6 +285,7 @@ namespace MU.Network
         PShopSetItemPriceS16Kor = 0x087C,
         PShopCancelItemSaleS16Kor = 0x097C,
         PShopChangeState = 0x0A7C,
+        ChangeSkin = 0x21F3,
     }
 
     public enum GensOpCode
