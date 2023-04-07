@@ -1217,6 +1217,7 @@ namespace MU.Resources
         CastleSiegeCrown,
         CastleSiegeCrownSwitch,
         MossMerchant,
+        ShopRuud,
     }
 
     public enum NPCWindow : byte
@@ -1235,6 +1236,7 @@ namespace MU.Resources
         GateKeeper = 33,
         Sartigan = 35,
         LeoTheHelper = 38,
+        RuudShop = 53,
     }
 
     public enum AttributeType

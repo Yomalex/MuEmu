@@ -510,7 +510,7 @@ namespace MU.Network.Auth
         [WZMember(26)] public short MinusPoints { get; set; }//3e
         [WZMember(27)] public short MaxMinusPoints { get; set; }//40
         [WZMember(28)] public byte ExpandedInv { get; set; }//41
-        [WZMember(29)] public int Ruud { get; set; }//42
+        [WZMember(29)] public uint Ruud { get; set; }//42
         //[WZMember(30)]
         //public byte ExpandedVault { get; set; }//44
 
@@ -519,7 +519,7 @@ namespace MU.Network.Auth
 
         }
 
-        public SCharacterMapJoin2(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint Money, int ruud, byte ctlCode)
+        public SCharacterMapJoin2(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint Money, uint ruud, byte ctlCode)
         {
             Map = (byte)mapID;
             LevelUpPoints = levelUpPoints;
@@ -605,7 +605,7 @@ namespace MU.Network.Auth
 
         }
 
-        public SCharacterMapJoin2S12Eng(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint Money, int ruud, byte ctlCode)
+        public SCharacterMapJoin2S12Eng(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint Money, uint ruud, byte ctlCode)
         {
             Map = (byte)mapID;
             LevelUpPoints = levelUpPoints;
@@ -685,11 +685,11 @@ namespace MU.Network.Auth
         [WZMember(29)] public byte unk2 { get; set; } // 69
         [WZMember(30)] public byte unk3 { get; set; } // 70
         [WZMember(31)] public byte unk4 { get; set; } // 71
-        [WZMember(32)] public int Ruud { get; set; } // 72
+        [WZMember(32)] public uint Ruud { get; set; } // 72
 
         public SCharacterMapJoin2S16Kor() { }
 
-        public SCharacterMapJoin2S16Kor(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint money, int ruud, byte ctlCode)
+        public SCharacterMapJoin2S16Kor(Maps mapID, byte x, byte y, byte direction, ushort strength, ushort agility, ushort vitality, ushort energy, ushort comm, long experience, long nextExperience, ushort hp, ushort hpMax, ushort mp, ushort mpMax, ushort shield, ushort maxShield, ushort bp, ushort bpMax, byte pk, short addPoints, short maxAddPoints, short minusPoints, short maxMinusPoints, ushort levelUpPoints, byte expandedInventory, uint money, uint ruud, byte ctlCode)
         {
             Map = mapID;
             MapX = x;

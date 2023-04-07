@@ -59,6 +59,7 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public ushort NeededCmd { get; set; }
 
         [XmlAttribute] public string ReqClass { get; set; }
+        [XmlAttribute] public int Ruud { get; set; }
         [XmlAttribute] public int Zen { get; set; }
 
         [XmlAttribute] public string Attributes { get; set; } = "";

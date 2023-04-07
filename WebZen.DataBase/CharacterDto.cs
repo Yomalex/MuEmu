@@ -64,6 +64,8 @@ namespace MU.DataBase
 
         [Column(TypeName = "INT(11)")]
         public uint Money { get; set; }
+        [Column(TypeName = "INT(11)")]
+        public uint Ruud { get; set; }
 
         public byte ExpandedInventory { get; set; }
         public short PKLevel { get; set; } = 3;

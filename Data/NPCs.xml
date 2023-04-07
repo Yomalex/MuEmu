@@ -105,7 +105,7 @@
   <!-- NPC Muun Exchange -->
   <NPC NPC="682" Type="Window" Icon="Conversation" Data="51" />
   <!-- NPC Ruud Shop -->
-  <NPC NPC="725" Type="Shop" Icon="Elixir" Data="50" />
+  <NPC NPC="725" Type="ShopRuud" Icon="Elixir" Data="50" />
 	<!-- NPCs Cent -->
 	<NPC NPC="764" Type="Window" Icon="Conversation" Data="54" />
 	<NPC NPC="765" Type="Window" Icon="Conversation" Data="55" />

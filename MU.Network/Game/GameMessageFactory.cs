@@ -102,6 +102,7 @@ namespace MU.Network.Game
             Register<CItemGet>(GameOpCode.ItemGet);
             switch (Season)
             {
+                case ServerSeason.Season17Kor:
                 case ServerSeason.Season16Kor:
                     Register<CBeattackS9>(GameOpCode.BeattackS16);
                     Register<CMove12Eng>(GameOpCode.Move12Eng);
@@ -255,6 +256,8 @@ namespace MU.Network.Game
             Register<SCloseMsg>(GameOpCode.ClientClose);
             Register<STalk>(GameOpCode.Talk);
             Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
+            Register<SMonsterSoulShop>(GameOpCode.MonsterSoulShop);
+            Register<SMonsterSoulAvailableShop>(GameOpCode.MonsterSoulAvailableShop);
             Register<STax>(GameOpCode.Tax);
             Register<CWarehouseMoney>(GameOpCode.WarehouseMoney);
             Register<SWarehouseMoney>(GameOpCode.WarehouseMoney);
@@ -466,6 +469,10 @@ namespace MU.Network.Game
             Register<SMossMerchantOpen>(GameOpCode.MossMerchant);
             Register<CMossMerchantOpenBox>(GameOpCode.MossMerchantOpenBox);
             Register<SMossMerchantOpenBox>(GameOpCode.MossMerchantOpenBoxReward);
+
+            Register<CRuudBuy>(GameOpCode.Ruudbuy);
+            Register<SRuudBuy>(GameOpCode.Ruudbuy);
+            Register<SRuudSend>(GameOpCode.RuudSend);
         }
     }
 }

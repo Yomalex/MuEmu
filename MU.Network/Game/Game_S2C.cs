@@ -848,6 +848,20 @@ namespace MU.Network.Game
         }
     }
 
+    [WZContract()]
+    public class SMonsterSoulShop : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+    }
+
+    [WZContract()]
+    public class SMonsterSoulAvailableShop : IGameMessage
+    {
+        [WZMember(0)]
+        public uint Amount { get; set; }
+    }
+
     [WZContract(Serialized = true)]
     public class STalk : IGameMessage
     {
@@ -3381,6 +3395,20 @@ namespace MU.Network.Game
         [WZMember(4)] public uint JOSoul { get; set; }
 
         [WZMember(5, typeof(ArrayWithScalarSerializer<uint>))] public ItemViewS16Dto[] Items { get; set; }
+    }
+
+    [WZContract()]
+    public class SRuudBuy : IGameMessage
+    {
+        public byte Result { get; set; }
+    }
+
+    [WZContract()]
+    public class SRuudSend : IGameMessage
+    {
+        public uint Ruud { get; set; }
+        public uint AddRuud { get; set; }
+        public byte Add { get; set; }
     }
 }
 

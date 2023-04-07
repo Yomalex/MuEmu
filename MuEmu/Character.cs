@@ -112,6 +112,7 @@ namespace MuEmu
         private ushort _cmd;
         private ushort _cmdAdd;
         private uint _zen;
+        private uint _ruud;
         private Maps _map = Maps.InvalidMap;
         private bool _needSave;
         private HeroClass _class;
@@ -381,6 +382,26 @@ namespace MuEmu
                 }
                 _needSave = true;
                 OnMoneyChange();
+            }
+        }
+        public uint Ruud
+        {
+            get => _ruud;
+            set
+            {
+                if (value == _ruud)
+                    return;
+
+                if (value > int.MaxValue)
+                {
+                    _ruud = int.MaxValue;
+                }
+                else
+                {
+                    _ruud = value;
+                }
+                _needSave = true;
+                OnRuudChange();
             }
         }
         public PKLevel PKLevel { get => _pkLevel; 
@@ -914,6 +935,7 @@ namespace MuEmu
             Stamina = _bpMax / 2;
             Mana = characterDto.Mana;
             _zen = characterDto.Money;
+            _ruud = characterDto.Ruud;
 
             PCPoints = 0;
             //byte ctlCode
@@ -945,7 +967,7 @@ namespace MuEmu
                 LevelUpPoints,
                 characterDto.ExpandedInventory,
                 Money,
-                1,
+                Ruud,
                 (byte)CtlCode
                );
 
@@ -1045,6 +1067,11 @@ namespace MuEmu
         private async void OnMoneyChange()
         {
             var msg = VersionSelector.CreateMessage<SItemGet>(Money, (ushort)0xffff);
+            await Player.Session.SendAsync(msg);
+        }
+        private async void OnRuudChange()
+        {
+            var msg = new SRuudSend { Ruud = Ruud };
             await Player.Session.SendAsync(msg);
         }
         internal void DisposeKalimaGate()
@@ -1472,6 +1499,7 @@ namespace MuEmu
                 charDto.Energy = _ene;
                 charDto.Command = _cmd;
                 charDto.Money = _zen;
+                charDto.Ruud = _ruud;
                 charDto.CtlCode = (int)CtlCode;
                 charDto.Resets = Resets;
                 charDto.PKLevel = (byte)_pkLevel;

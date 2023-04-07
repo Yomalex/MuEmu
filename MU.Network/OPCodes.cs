@@ -286,6 +286,11 @@ namespace MU.Network
         PShopCancelItemSaleS16Kor = 0x097C,
         PShopChangeState = 0x0A7C,
         ChangeSkin = 0x21F3,
+        MonsterSoulShop = 0x424D,
+        MonsterSoulAvailableShop = 0x464D,
+        Ruudbuy = 0xF0D0,
+        RuudOpenBox = 0xF1D0,
+        RuudSend = 0xF1D0,
     }
 
     public enum GensOpCode

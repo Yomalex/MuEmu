@@ -58,6 +58,7 @@ namespace MuEmu
             //    foreach (var it in vault.Items.Values)
             //        await it.Save(db);
             //}
+            _vaults.Values.ToList().ForEach(x => x.Items.Values.ToList().ForEach(x => x.Save(db)));
 
             if (!NeedSave)
                 return;

@@ -65,7 +65,7 @@ namespace MuEmu.Network.GameServices
             var ans = new SAction((ushort)session.ID, message.Dir, message.ActionNumber, message.Target);
             //session.SendAsync(ans).Wait();
             session.Player.SendV2Message(ans);
-        }
+        } 
 
         [MessageHandler(typeof(CDataLoadOK))]
         public void CDataLoadOk(GSSession session)
@@ -852,6 +852,25 @@ namespace MuEmu.Network.GameServices
                 session.Player.Window = obj;
                 switch (npc.Class)
                 {
+                    case NPCAttributeType.ShopRuud:
+                        if (session.Player.Character.PKLevel >= PKLevel.Warning2)
+                        {
+                            await session.SendAsync(new SChatTarget(ObjectIndex, "I don't sell to killers"));
+                            break;
+                        }
+
+                        if (npc.Data == 0xffff)
+                            break;
+
+                        var baseClass = (byte)session.Player.Character.BaseClass;
+                        baseClass >>= 4;
+                        var shop = ResourceCache.Instance.GetShops()[(ushort)(npc.Data + baseClass)];
+
+                        await session.SendAsync(new STalk { Result = NPCWindow.RuudShop });
+                        await session.SendAsync(new SShopItemList(shop.Storage.GetInventory()) { ListType = 0x17 });
+                        await session.SendAsync(new SMonsterSoulShop { Result = 1 });
+                        await session.SendAsync(new SMonsterSoulAvailableShop { Amount = 1 });
+                        break;
                     case NPCAttributeType.Shop:
                         if(session.Player.Character.PKLevel >= PKLevel.Warning2)
                         {
@@ -869,7 +888,7 @@ namespace MuEmu.Network.GameServices
 
                         if (npc.Data == 0xffff)
                             break;
-                        await session.SendAsync(new STalk { Result = 0 });
+                        await session.SendAsync(new STalk { Result = NPCWindow.Shop });
                         await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
                         await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
                         break;
@@ -2618,6 +2637,52 @@ namespace MuEmu.Network.GameServices
 
             SubSystem.SelfUpdate(session.Player.Character);
             SubSystem.PlayerPlrViewport(session.Player.Character.Map, session.Player.Character);
+        }
+
+        [MessageHandler(typeof(CRuudBuy))]
+        public async Task CRuudBuy(GSSession session, CRuudBuy message)
+        {
+            var plr = session.Player;
+            var @char = plr.Character;
+
+            var bResult = new SRuudBuy { Result = 255 };
+
+            if (plr.Window == null)
+            {
+                await session.SendAsync(bResult);
+                throw new ArgumentException("Player isn't in buy/trade/box/Quest", nameof(session.Player.Window));
+            }
+
+            if (plr.Window.GetType() != typeof(Monster))
+            {
+                await session.SendAsync(bResult);
+                throw new ArgumentException("Player isn't in buy", nameof(session.Player.Window));
+            }
+
+            var npcs = ResourceCache.Instance.GetNPCs();
+            var ruud = npcs.First(x => x.Value.Class == NPCAttributeType.ShopRuud).Value;
+            var baseClass = (byte)session.Player.Character.BaseClass;
+            baseClass >>= 4;
+            var shop = ResourceCache.Instance.GetShops()[(ushort)(ruud.Data + baseClass)];
+            var it = shop.Storage.Get(message.Slot).Clone() as Item;
+
+            if(it.BasicInfo.Ruud > @char.Ruud)
+            {
+                bResult.Result = 252;
+                await session.SendAsync(bResult);
+                return;
+            }
+
+            var result = @char.Inventory.Add(it);
+            if(result == 0xff)
+            {
+                bResult.Result = 251;
+                await session.SendAsync(bResult);
+                return;
+            }
+
+            @char.Ruud -= (uint)it.BasicInfo.Ruud;
+            await session.SendAsync(new SBuy { Result = result, ItemInfo = it.GetBytes() });
         }
     }
 }

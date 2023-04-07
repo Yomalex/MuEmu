@@ -1253,4 +1253,10 @@ namespace MU.Network.Game
     {
         [WZMember(0)] public byte Skin { get; set; }
     }
+
+    [WZContract]
+    public class CRuudBuy : IGameMessage
+    {
+        [WZMember(0)] public byte Slot { get; set; }
+    }
 }

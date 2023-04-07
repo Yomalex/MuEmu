@@ -63,8 +63,11 @@ namespace MuEmu
                     GameServices.CCloseWindow(Session);
                     var @char = plr.Character;
 
-                    using(var db = new GameContext())
+                    using (var db = new GameContext())
+                    {
+                        plr.Account?.Save(db);
                         @char?.Save(db);
+                    }
 
                     @char?.Dispose();
                     plr.Character = null;
@@ -95,14 +98,9 @@ namespace MuEmu
 
         public async Task Save(GameContext db)
         {
-            if (Account != null)
-            {
-                await Account.Save(db);
-                await db.SaveChangesAsync();
-            }
-
-            if (Character != null)
-                await Character.Save(db);
+            await Account?.Save(db);
+            await Character?.Save(db);
+            await db.SaveChangesAsync();
         }
 
         /// <summary>

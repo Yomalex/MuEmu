@@ -36,5 +36,6 @@ namespace MuEmu.Data
         public bool IsMount { get; set; }
         public ushort Skin { get; set; }
         public StorageID Inventory { get; internal set; } = StorageID.Inventory;
+        public int Ruud { get; internal set; }
     }
 }

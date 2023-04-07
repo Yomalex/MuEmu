@@ -73,6 +73,7 @@ namespace MuEmu.Resources
                     DefRate = i.DefenseRate,
                     Attributes = i.Attributes.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<AttributeType>(x)).ToList(),
                     Zen = i.Zen,
+                    Ruud = i.Ruud,
                     Classes = i.ReqClass.Split(",").Where(x => !string.IsNullOrEmpty(x)).Select(x => System.Enum.Parse<HeroClass>(x)).ToList(),
                     Skill = System.Enum.Parse<Spell>(i.Skill),
                     Durability = i.Durability,
@@ -383,6 +384,7 @@ namespace MuEmu.Resources
                     Skill = x.Skill.ToString(),
                     Speed = x.Speed,
                     Zen = x.Zen,
+                    Ruud = x.Ruud,
                 }).ToArray();
 
                 XmlSaver(Path.Combine(_root, "Items.xml"), xml);
@@ -668,6 +670,7 @@ namespace MuEmu.Resources
                 };
                 switch (type)
                 {
+                    case NPCAttributeType.ShopRuud:
                     case NPCAttributeType.Shop:
                         var shops = ResourceCache.Instance.GetShops();
                         var shopNum = ushort.Parse(npc.Data);
