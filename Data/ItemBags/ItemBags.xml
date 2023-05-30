@@ -53,8 +53,6 @@
   <ItemBag Item="7179" Plus="12" Bag="Golden Invation/BoxOfKundun5.xml" />
   <!-- Hallowin -->
   <ItemBag Item="7213" Plus="0" Bag="Hallowin/HallowinDay.xml" />
-  <!-- WareRabbit Egg -->
-  <ItemBag Item="6866" Plus="0" Bag="Event Egg/WareRabbit Egg.xml" />
   <!-- Fire Flame Ghost -->
   <ItemBag Monster="676" Bag="Event Egg/Fire Flame Ghost.xml" />
   <!-- Golden Goblin -->
@@ -117,4 +115,8 @@
 	<ItemBag Item="7577" Bag="Jewelry Bingo\IntermediateBox.xml" />
 	<ItemBag Item="7578" Bag="Jewelry Bingo\AdvancedBox.xml" />
 	<ItemBag Item="7579" Bag="Jewelry Bingo\PremiumBox.xml" />
+	<!--Muun-->
+	<ItemBag Item="6625" Bag="Event Egg/Desmodus Egg.xml" />
+	<!-- WareRabbit Egg -->
+	<ItemBag Item="6866" Plus="0" Bag="Event Egg/WareRabbit Egg.xml" />
 </ItemBags>

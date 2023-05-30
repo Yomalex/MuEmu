@@ -992,6 +992,8 @@ namespace MuEmu
                 plr.Session.SendAsync(new SResets { Resets = Resets }).Wait();
             }
             catch (Exception) { }
+
+            plr.Session.SendAsync(new SEventEnterCount { Type = EventEnterType.BloodCastle, Left = 4 });
         }
 
         public void SendV2Message(object message, Player exclude = null)

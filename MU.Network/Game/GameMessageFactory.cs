@@ -227,7 +227,7 @@ namespace MU.Network.Game
 
             Register<SNotice>(GameOpCode.Notice);
             Register<SEventState>(GameOpCode.EventState);
-            //Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
+            Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
             Register<SHeatlUpdate>(GameOpCode.HealthUpdate);
             Register<SManaUpdate>(GameOpCode.ManaUpdate);
             Register<SSkillKey>(GameOpCode.SkillKey);

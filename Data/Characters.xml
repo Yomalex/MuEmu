@@ -62,6 +62,7 @@
 		<Attributes Life="130" LevelLife="1.5" Mana="10" LevelMana="1" VitalityToLife="3" EnergyToMana="1" />
 		<Equipament Slot="12" Type="13" Index="20" Level="1" />
 		<Equipament Slot="13" Type="13" Index="20" Level="2" />
+		<Equipament Slot="14" Type="12" Index="481" Level="0" />
 	</Character>
 	<Character BaseClass="GunCrusher" Map="Elbeland" Level="1">
 		<Stats Str="20" Agi="18" Vit="20" Ene="25" Cmd="0" />

@@ -581,7 +581,7 @@ namespace MuEmu.Resources
                 if(@char.Equipament != null)
                 foreach(var e in @char.Equipament)
                 {
-                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (byte)e.Index), new { Plus = (byte)e.Level }));
+                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (ushort)e.Index), new { Plus = (byte)e.Level }));
                 }
 
                 yield return new CharacterInfo

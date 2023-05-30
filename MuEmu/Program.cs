@@ -59,6 +59,7 @@ using MuEmu.Events.CastleSiege;
 using MuEmu.Events.Raklion;
 using MuEmu.Events.AcheronGuardian;
 using Serilog.Events;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MuEmu
 {
@@ -107,6 +108,8 @@ namespace MuEmu
             Predicate<GSSession> MustBeInTrade = session => session.Player.Window is GSSession;
 
             string output = "{Timestamp: HH:mm:ss} [{Level} {SourceContext}][{AID}:{AUser}] {Message}{NewLine}{Exception}";
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             Log.Logger = new LoggerConfiguration()
                 .Destructure.ByTransforming<IPEndPoint>(endPoint => endPoint.ToString())
@@ -441,6 +444,11 @@ namespace MuEmu
 
                 Handler.ProcessCommands(null, input);
             }
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Log.Error("UnhandledException", (e.ExceptionObject as Exception));
         }
 
         private static void PacketCreate(object sender, CommandEventArgs e)

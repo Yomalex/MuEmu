@@ -450,6 +450,7 @@ namespace MuEmu.Network
                 {
                     AccountId = session.Player.Account.ID,
                     CharacterId = newChar.CharacterId,
+                    VaultId = eq.Key >= 12 ? 12 : 0,
                     SlotId = eq.Key,
                     DateCreation = DateTime.Now,
                     Durability = eq.Value.Durability,

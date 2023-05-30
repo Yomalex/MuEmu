@@ -508,17 +508,17 @@ namespace MU.Network.Game
         }
     }
 
-    /*[WZContract]
+    [WZContract]
     public class SNewQuestInfo : IGameMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
-        public NewQuestInfoDto[] QuestList { get; set; }
+        public uint[] QuestList { get; set; }
 
         public SNewQuestInfo()
         {
-            QuestList = Array.Empty<NewQuestInfoDto>();
+            QuestList = Array.Empty<uint>();
         }
-    }*/
+    }
 
     [WZContract]
     public class SHeatlUpdate : IGameMessage

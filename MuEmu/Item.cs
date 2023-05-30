@@ -1146,8 +1146,13 @@ namespace MuEmu
             var str = $"[A{_db.AccountId}->{_vid}:{_slot}]Item Saved:{ToString()}";
             log.Information(str+" {0}", State);
 
-            State = ItemState.Saved;
             db.Update(_db);
+            if(State == ItemState.Created || State == ItemState.CreatedAndChanged)
+            {
+                db.SaveChanges();
+                Serial = _db.ItemId;
+            }
+            State = ItemState.Saved;
             return _db;
         }
 

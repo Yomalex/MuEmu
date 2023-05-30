@@ -65,12 +65,13 @@ namespace MuEmu
 
                     using (var db = new GameContext())
                     {
-                        if(plr.Account != null) plr.Account.Save(db);
+                        if(plr.Account != null) plr.Account.Save(db).Wait();
                         if (@char != null)
                         {
-                            @char.Save(db);
+                            @char.Save(db).Wait();
                             @char.Dispose();
                         }
+                        db.SaveChanges();
                     }
 
                     plr.Character = null;

@@ -2341,7 +2341,22 @@ namespace MuEmu.Network.GameServices
                 result.Slot = reward.Number.Number;
 
                 if (!reward.IsZen)
-                    plr.Character.Inventory.Add(reward);
+                {
+                    if(
+                        (reward.Number >= 6868 && reward.Number <= 7005) || 
+                        (reward.Number >= 7065 && reward.Number <= 7120) ||
+                        (reward.Number >= 7136 && reward.Number <= 7159) ||
+                        (reward.Number >= 8192 && reward.Number <= 8695)
+                        )
+                    {
+                        plr.Character.Inventory.AddMuun(reward);
+                        plr.Character.Inventory.SendMuunInventory();
+                    }
+                    else
+                    {
+                        plr.Character.Inventory.Add(reward);
+                    }
+                }
                 else
                     plr.Character.Money += reward.BuyPrice;
 
