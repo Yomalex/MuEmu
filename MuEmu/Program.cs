@@ -377,12 +377,12 @@ namespace MuEmu
                 // Event Config
                 EventConfig(xml);
                 MonstersMng.Initialize();
-                MonstersMng.Instance.LoadMonster(xml.Files.DataRoot + xml.Files.Monsters);
+                MonstersMng.Instance.LoadMonster( xml.Files.Monsters);
                 MonsterIA.Initialize(xml.Files.DataRoot + "Monsters/");
                 EventInitialize();
 
-                MapServerManager.Initialize(xml.Files.DataRoot + xml.Files.MapServer);
-                MonstersMng.Instance.LoadSetBase(xml.Files.DataRoot + xml.Files.MonsterSetBase);
+                MapServerManager.Initialize(  xml.Files.MapServer);
+                MonstersMng.Instance.LoadSetBase(xml.Files.MonsterSetBase);
                 SubSystem.Initialize();
                 Marlon.Initialize();
                 SubSystem.CSSystem(csIP, cmh, cmf, (byte)xml.Show, xml.Connection.APIKey);

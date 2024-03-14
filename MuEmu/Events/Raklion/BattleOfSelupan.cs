@@ -32,7 +32,7 @@ namespace MuEmu.Events.Raklion
             _map.PlayerJoins += BattleOfSelupan_PlayerJoins;
             _map.PlayerLeaves += BattleOfSelupan_PlayerLeaves;
 
-            var xml = Resources.ResourceLoader.XmlLoader<PatternsDto>(Program.XMLConfiguration.Files.DataRoot+ Program.XMLConfiguration.Files.SelupanPatterns);
+            var xml = Resources.ResourceLoader.XmlLoader<PatternsDto>(  Program.XMLConfiguration.Files.SelupanPatterns);
             foreach(var x in xml.Pattern.OrderBy(x => x.Number))
             {
                 _selupanPatters.Add(x.Skill.ToList());

@@ -87,7 +87,7 @@ namespace MuEmu
         {
             if(_questEXP == null)
             {
-                string file = Program.XMLConfiguration.Files.DataRoot+Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
+                string file =   Program.XMLConfiguration.Files.QuestWorld+$"Quest_{Program.Season}.xml";
                 try
                 {
                     _questEXP = ResourceLoader.XmlLoader<QuestEXPDto>(file);
