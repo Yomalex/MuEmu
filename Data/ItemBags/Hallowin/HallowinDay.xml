@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<ItemList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Number="7213" Monster="65535" Plus="0" LevelMin="1" DropItemCount="1" DropItemRate="100" DropZenRate="100" MinZen="500000" MaxZen="500000">
-  <Item Number="7214" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
-  <Item Number="7215" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
-  <Item Number="7216" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
-  <Item Number="7217" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
-  <Item Number="7218" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
-  <Item Number="6696" MinLevel="0" MaxLevel="0" Luck="false" Skill="false" MinOption="0" MaxOption="0" MinExcellent="0" MaxExcellent="0" />
-</ItemList>

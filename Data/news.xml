@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<!-- Interval in minutes -->
-<News xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Interval="5">
-  <New>MuSharp tu Server de confianza</New>
-  <New>Sistema de noticias</New>
-  <New>Servidor totalmente customizable</New>
-</News>

@@ -1,9 +1,0 @@
-4 7 1 255 0 0 0 0 //Arrows 
-4 15 1 255 0 0 0 0 //Bolts 
-4 7 2 255 0 0 0 0 //Arrows 
-4 15 2 255 0 0 0 0 //Bolts 
-4 7 3 255 0 0 0 0 //Arrows 
-4 15 3 255 0 0 0 0 //Bolts 
-
-13 29 0 0 0 0 0 0 //Armor of Guardman
-end

@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <BaseOutputPath>D:\Apps\MuEmu\bin\CSEmu</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
