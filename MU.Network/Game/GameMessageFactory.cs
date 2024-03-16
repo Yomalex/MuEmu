@@ -112,6 +112,7 @@ namespace MU.Network.Game
                     Register<SMagicAttackS12Eng>(GameOpCode.MagicAttack);
                     Register<CMagicDurationS16>(GameOpCode.MagicDuration);
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
+                    Register<CPositionSet>(GameOpCode.Position16Kor);
                     break;
                 case ServerSeason.Season12Eng:
                     Register<SMove>(GameOpCode.Move12Eng);
@@ -234,7 +235,6 @@ namespace MU.Network.Game
             Register<SAction>(GameOpCode.Rotation);
             Register<SPositionSet>(GameOpCode.Position);
             Register<SPositionSetS9Eng>(GameOpCode.Position9Eng);
-            Register<CPositionSet>(GameOpCode.Position16Kor);
             Register<SPositionSetS16Kor>(GameOpCode.Position16Kor);
             VersionSelector.Register<SPositionSet>(ServerSeason.Season6Kor, GameOpCode.Position);
             VersionSelector.Register<SPositionSetS9Eng>(ServerSeason.Season9Eng, GameOpCode.Position);

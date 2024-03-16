@@ -158,11 +158,13 @@ auto old_SendS16 = (T_WZSendS16)SEND_PACKET_HOOK;// 0x00BAEBDD;
 auto old_SendS161 = (T_WZSendS16)nullptr;// 0x00BAEBDD;
 auto old_SendS162 = (T_WZSendS16)nullptr;// 0x00BAEBDD;
 auto old_Recv = (T_WZRecv)PARSE_PACKET_HOOK;// 0x00C19CF5;
+auto old_Recv2 = (T_WZRecv)PARSE_PACKET_HOOK;// 0x00C19CF5;
 auto ProtocolCoreA = (T_ProcCoreA)PROTOCOL_CORE1;// 0xBE50E1;
 auto ProtocolCoreB = (T_ProcCoreB)PROTOCOL_CORE2;// 0xC150A9;
 auto old_sprintf = (T_sprintf)0x00D0A18A;
 auto WZSender = (T_WZSender)MU_SEND_PACKET;
 auto WZParser = (T_WZParse)PARSE_PACKET_STREAM;
+auto WZParser2 = (T_WZParse)PARSE_PACKET_STREAM;
 
 // Variables
 auto WZSenderClass = (DWORD**)MU_SENDER_CLASS;
@@ -379,12 +381,14 @@ void ParsePacket(void* PackStream, int unk1, int unk2)
     BYTE* buff;
     unsigned int DecSize;
 
-    while (true)
+    if (PackStream == nullptr)
     {
-        buff = WZParser(PackStream);
-        if (!buff)
-            break;
+        Print(fp, "PackStream can't be null\n");
+        return;
+    }
 
+    while ((buff = WZParser(PackStream)) != 0)
+    {
         auto Type = buff[0];
         auto Offset = (Type & 1) == 1 ? 2 : 3;
         WORD Size = (Type & 1) == 1 ? buff[1] : MAKEWORD(buff[2], buff[1]);
@@ -561,6 +565,7 @@ void MainConfiguration()
     old_SendS161 = (T_WZSendS16)GetPrivateProfileIntHexA("OFFSET", "SendS161", 0, cfgFile);
     old_SendS162 = (T_WZSendS16)GetPrivateProfileIntHexA("OFFSET", "SendS162", 0, cfgFile);
     old_Recv = (T_WZRecv)GetPrivateProfileIntHexA("OFFSET", "Recv", PARSE_PACKET_HOOK, cfgFile);
+    old_Recv2 = (T_WZRecv)GetPrivateProfileIntHexA("OFFSET", "Recv2", 0, cfgFile);
     ProtocolCoreA = (T_ProcCoreA)GetPrivateProfileIntHexA("OFFSET", "CoreA", PROTOCOL_CORE1, cfgFile);
     ProtocolCoreB = (T_ProcCoreB)GetPrivateProfileIntHexA("OFFSET", "CoreB", PROTOCOL_CORE2, cfgFile);
     WZSender = (T_WZSender)GetPrivateProfileIntHexA("OFFSET", "SendPacket", MU_SEND_PACKET, cfgFile);
@@ -579,8 +584,9 @@ void MainConfiguration()
     main_SendS161.ChangeFunctionAddress(old_SendS161, SendPacketS16);
     main_SendS162.ChangeFunctionAddress(old_SendS162, SendPacketS16);
     old_Recv = main_Recv.Set(old_Recv, ParsePacket);
-    main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
-    main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);
+    if (old_Recv2 != 0) old_Recv2 = main_Recv.Set(old_Recv2, ParsePacket);
+    if (pCoreAHook != 0) main_procCoreA.Set(pCoreAHook, ProtocolCoreAEx);
+    if (pCoreBHook != 0) main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);
     if(pWZLog!=nullptr) Hook<void>::Jump(pWZLog, WZMainLog);
     if(SkipDestroy) Hook<void>::Jump(SendMessageW, MySendMessageW);
 

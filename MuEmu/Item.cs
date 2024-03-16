@@ -1600,10 +1600,9 @@ namespace MuEmu
                 if (Number.Index == 15)
                     return 0xff;
 
-                if (itemlevel >= (level - 8))
+                if (itemlevel >= (level - 8) && itemlevel <= level)
                 {
-                    if (itemlevel <= level)
-                        return 0;
+                    return 0;
                 }
 
                 return 0xff;
@@ -1888,14 +1887,15 @@ namespace MuEmu
             }
             return left;
         }
-        public void Overlap(Item item)
+        public Item Overlap(Item item)
         {
             if (item.Number != Number || item.Plus != Plus || _durability >= BasicInfo.MaxStack)
                 throw new Exception($"Item {item} to {this} Can't be stacked {item.Number != Number} {item.Plus != Plus} {_durability >= BasicInfo.MaxStack}");
 
             item.Durability = Overlap(item.Durability);
             if (item.Durability == 0)
-                Character?.Inventory.Delete(this).Wait();
+                return null;
+            return item;
                 //item.Delete();
         }
     }

@@ -54,8 +54,8 @@ namespace MuEmu
                              select r).FirstOrDefault();
                 if (firts != null)
                 {
-                    firts.Overlap(it);
-                    return 0xfd;// (byte)firts.SlotId;
+                    if(firts.Overlap(it) == null)
+                        return 0xfd;
                 }
             }
             for (var i = offset; i < Size; i++)
@@ -154,8 +154,8 @@ namespace MuEmu
 
             if (_items.ContainsKey(pos))
             {
-                _items[pos].Overlap(it);
-                return;
+                if(_items[pos].Overlap(it) == null)
+                    return;
             }
 
             if (pos >= Size)

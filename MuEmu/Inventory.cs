@@ -138,10 +138,10 @@ namespace MuEmu
             _personalShop.NoMapped = (Program.Season >= ServerSeason.Season16Kor);
             _chaosBox = new Storage(Storage.ChaosBoxSize);
             _tradeBox = new Storage(Storage.TradeSize);
-            _muun = new Storage(64, StorageID.Equipament);
+            _muun = new Storage(64);
             _muun.NoMapped = true;
             _muun.StorageID = StorageID.MuunInventory;
-            _event = new Storage(Storage.Expansion, StorageID.Equipament);
+            _event = new Storage(Storage.Expansion);
             _event.StorageID = StorageID.EventInventory;
             _pentagrama = new List<Item>();
             _forDelete = new List<Item>();

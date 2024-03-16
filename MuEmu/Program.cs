@@ -468,8 +468,11 @@ namespace MuEmu
 
         private static void Server_Connect(object sender, WZServerEventArgs e)
         {
-            Log.Information("Sending PSK");
-            _ = e.session.SendAsync(new SAHPreSharedKey { Key = e.session.Key });
+            if (NewEncode(Season))
+            {
+                Log.Information("Sending PSK");
+                _ = e.session.SendAsync(new SAHPreSharedKey { Key = e.session.Key });
+            }
         }
 
         private static void UpdateZen(object sender, CommandEventArgs e)

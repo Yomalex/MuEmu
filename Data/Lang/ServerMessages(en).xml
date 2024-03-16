@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServerMessage>
+	<Message ID="Server_Cfg" Message="The server configuration file does not exist, please configure the server data first" />
+	<Message ID="Server_Title" Message="GameServer .NetCore3.1 [{0}]{1} {5} Client:{2}#!{3} DB:{4}" />
+	<Message ID="Server_MySQL_Error" Message="Error with database" />
+	<Message ID="Server_Error" Message="Internal error" />
+	<Message ID="Server_CSServer_Error" Message="Unable to connect to the ConnectServer" />
+	<Message ID="Server_Disconnecting_Accounts" Message="Disconnecting accounts" />
+	<Message ID="Server_Ready" Message="Server READY!" />
+	<Message ID="Server_GlobalAnnouncement" Message="Global Announcement:{0}" />
+	<Message ID="Server_MapAnnouncement" Message="Announcement to map {0}:" />
+	<Message ID="Server_NoEventMapAnnouncement" Message="Announcement to maps without event: {0}" />
+	<Message ID="Server_Close" Message="Closing server" />
+	<Message ID="Server_EventStateChange" Message="Status:{0}->{1}" />
+	<Message ID="RCache_Initialized" Message="Already initialized" />
+	<Message ID="RCache_Loading_Items" Message="Preloading Items..." />
+	<Message ID="RCache_Loading_Spells" Message="Preloading Spells..." />
+	<Message ID="RCache_Loading_Maps" Message="Preloading Maps..." />
+	<Message ID="RCache_Loading_DefClass" Message="Preloading Base Classes..." />
+	<Message ID="RCache_Loading_Shops" Message="Preloading Shops..." />
+	<Message ID="RCache_Loading_NPCs" Message="Preloading NPCs..." />
+	<Message ID="RCache_Loading_JoHs" Message="Preloading Jewels of Harmony..." />
+	<Message ID="RCache_Loading_Gates" Message="Preloading Gates..." />
+	<Message ID="RCache_Loading_Quests" Message="Preloading Quests..." />
+	<Message ID="RCache_Loading_ChaosMixs" Message="Preloading ChaosBox..." />
+	<Message ID="RCache_Loading_ItemBags" Message="Preloading ItemBags..." />
+	<Message ID="MonsterMng_Loading" Message="Loading monsters from file {0}" />
+	<Message ID="MonsterMng_Types" Message="{0} monster classes loaded" />
+	<Message ID="MonsterMng_Loading2" Message="Loading positions from file {0}" />
+	<Message ID="MonsterMng_Loaded" Message="Loaded {0} monsters on the maps" />
+	<Message ID="BC_Closed" Message="[BloodCastle] Entry closed." />
+	<Message ID="BC_Open" Message="[BloodCastle] There are {0} minute(s) left in login." />
+	<Message ID="BC_Open2" Message="[BloodCastle] There are {0} minute(s) left for the raid." />
+	<Message ID="BC_MonstersKilled" Message="[BloodCastle] The bridge is down!" />
+	<Message ID="BC_DoorKiller" Message="[BloodCastle] {0} I destroy the door." />
+	<Message ID="BC_BossKilled" Message="[BloodCastle] The statue has appeared!" />
+	<Message ID="BC_StatueKiller" Message="[BloodCastle] {0} I destroy the statue." />
+	<Message ID="BC_WeaponOwner" Message="[BloodCastle] {0} I take the weapon." />
+	<Message ID="BC_Winner" Message="[BloodCastle] {0} Quest complete!." />
+	<Message ID="BC_Time" Message="When the clock reaches 3:00 you give me the weapon, not now." />
+	<Message ID = "BC_WeaponError" Message = "The user already had a weapon in his inventory." />
+	<Message ID="DS_Closed" Message="[DevilSquare] Will be open in {0} minute(s)." />
+	<Message ID="Chat_Player_Offline" Message="Player {0} is offline." />
+	<Message ID="Game_Close" Message="Player requested {0}." />
+	<Message ID="Game_Close_Message" Message="You'll be out in {0} second(s)." />
+	<Message ID="Game_Vault_active" Message="Vault {0} active." />
+	<Message ID="Game_NoQuestAvailable" Message="I no longer have a quest to offer you." />
+	<Message ID="Game_DefaultNPCMessage" Message="Have a nice day." />
+	<Message ID="Game_Warp" Message="You need to be level {0} to go." />
+	<Message ID="Game_Warp2" Message="You need to have {0}zen to go." />
+	<Message ID="Game_ChaosBoxMixError" Message="You need to organize your inventory." />
+	<Message ID="Game_MonsterOutOfRange" Message="Monster out of range." />
+	<Message ID="Kanturu_CoreGateOpens" Message="The portal machine will open in 1 minute." />
+	<Message ID="Kanturu_NextBattle" Message="The next battle will start soon" />
+	<Message ID="Kanturu_NightmareNotify" Message="Defeat the nightmare that controls the maya" />
+	<Message ID="Kanturu_Successfull" Message="{0} Ah, defeated the nightmare, now you have access to the refinery" />
+	<Message ID="Kanturu_Fail" Message="Since time is up, we must return to the safe area" />
+	<Message ID="IV_IndexAlreadyUsed" Message="Character:{0} Repeated Index:{1}" />
+	<Message ID="IVEX_AlreadyEquiped" Message="An item is already equipped in Slot {0}" />
+	<Message ID="IVEX_NeedMoreStrength" Message="{0} Strength required" />
+	<Message ID="IVEX_NeedMoreAgility" Message="{0} Agility Required" />
+	<Message ID="IVEX_NeedMoreVitality" Message="{0} Vitality required" />
+</ServerMessage>
