@@ -1,4 +1,5 @@
-﻿using MU.Network.MuunSystem;
+﻿using MU.Network.Event;
+using MU.Network.MuunSystem;
 using MU.Network.Pentagrama;
 using MU.Resources;
 using MuEmu.Network.UBFSystem;
@@ -437,10 +438,6 @@ namespace MU.Network.Game
             Register<SMonsterSkillS9Eng>(GameOpCode.MonsterSkill);
 
             Register<CFavoritesList>(GameOpCode.FavoritesList);
-            if(Season == ServerSeason.Season16Kor)
-            {
-                ChangeOPCode<CFavoritesList>(GameOpCode.FavoritesListS16Kor);
-            }
             Register<SEventNotificationS16Kor>(GameOpCode.Eventnotification);
 
 
@@ -473,6 +470,30 @@ namespace MU.Network.Game
             Register<CRuudBuy>(GameOpCode.Ruudbuy);
             Register<SRuudBuy>(GameOpCode.Ruudbuy);
             Register<SRuudSend>(GameOpCode.RuudSend);
+
+            switch(Season)
+            {
+                case ServerSeason.Season17Kor75:
+                    ChangeOPCode<CClientMessage>(GameOpCode.ClientMessageS17K75);
+                    ChangeOPCode<CHuntingRecordClose>((GameOpCode)0x50F7);
+                    ChangeOPCode<CCloseWindow>((GameOpCode)0xFFC0);
+
+                    ChangeOPCode<SCheckSum>((GameOpCode)0xFF00);
+                    ChangeOPCode<SInventory>((GameOpCode)0x2682);
+                    ChangeOPCode<SQuestInfo>((GameOpCode)0xFF81);
+                    ChangeOPCode<CSell>((GameOpCode)0xFF97);
+                    ChangeOPCode<SClinetClose>((GameOpCode)0xFE3A);
+
+                    ChangeOPCode<CTradeMoney>((GameOpCode)0xFF19);
+                    ChangeOPCode<STradeMoney>((GameOpCode)0xFF54);
+
+                    ChangeOPCode<SMasterLevelSkillListS9ENG>((GameOpCode)0x2482);
+                    ChangeOPCode<SSpellsS12Eng>((GameOpCode)0x5382);
+                    break;
+                case ServerSeason.Season16Kor:
+                    ChangeOPCode<CFavoritesList>(GameOpCode.FavoritesListS16Kor);
+                    break;
+            }
         }
     }
 }

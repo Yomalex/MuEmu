@@ -225,13 +225,7 @@ namespace MuEmu.Network
             var valid = session.Player.Account.Characters.Any(x => x.Value.Name == Character.Name);
             Logger.ForAccount(session)
                 .Information("Try to join with {0}", Character.Name);
-            if(Program.Season >= ServerSeason.Season17Kor)
-            {
-                await session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = (byte)(valid ? 0 : 1) });
-            }else
-            {
-                await session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = (byte)(valid ? 0 : 1) });
-            }
+            await session.SendAsync(new SCharacterMapJoin { Name = Character.Name, Valid = (byte)(valid ? 0 : 1) });
         }
 
         [MessageHandler(typeof(CServerList))]

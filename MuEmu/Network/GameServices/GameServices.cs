@@ -40,6 +40,21 @@ namespace MuEmu.Network.GameServices
     public partial class GameServices : MessageHandler
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(GameServices));
+        private static readonly Dictionary<HackCheck, string> HackCheck = new Dictionary<HackCheck, string>
+        {
+            { (HackCheck)0x3600, "Trade must be encrypted"},
+            { (HackCheck)0x0004, "NProtect must be open"},
+            { (HackCheck)0x0005, "Minimize is not enable"},
+            { (HackCheck)0xF100, "LogOut must be encrypted" },
+            { (HackCheck)0xF300, "JoinMap must be encrypted" },
+            { (HackCheck)0x1C00, "Teleport must be encrypted" },
+            { (HackCheck)0x1900, "Magic must be encrypted" },
+            { (HackCheck)0x1E00, "MagicContinue must be encrypted" },
+            { (HackCheck)0x1600, "DieExp/EquipmentItem must be encrypted" },
+            { (HackCheck)0x2900, "HelperItem must be encrypted" },
+            { (HackCheck)0x0006, "Decrypted size < 0" },
+            { (HackCheck)0x4A00, "StraightAttack must be encrypted" },
+        };
 
         [MessageHandler(typeof(CCheckSum))]
         public void CCheckSum(GSSession session, CCheckSum message)
@@ -53,6 +68,13 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CClientMessage))]
         public void CClientMessage(GSSession session, CClientMessage message)
         {
+            if(HackCheck.ContainsKey(message.Flag))
+            {
+                Logger
+                .ForAccount(session)
+                .Information("Client Hack Check {0}", HackCheck[message.Flag]);
+                return;
+            }
             Logger
                 .ForAccount(session)
                 .Information("Client Hack Check {0}", message.Flag);
@@ -2459,13 +2481,14 @@ namespace MuEmu.Network.GameServices
         [MessageHandler(typeof(CHuntingRecordClose))]
         public void CHuntingRecordClose(GSSession session)
         {
-            session.Player.Character.HuntingRecord.Save();
+            session.Player.Character?.HuntingRecord.Save();
         }
 
         [MessageHandler(typeof(CHuntingRecordVisibility))]
         public void CHuntingRecordVisibility(GSSession session, CHuntingRecordVisibility message)
         {
-            session.Player.Character.HuntingRecord.Visibility = message.Visible == 1;
+            if(session.Player.Character != null)
+                session.Player.Character.HuntingRecord.Visibility = message.Visible == 1;
         }
 
         [MessageHandler(typeof(CMossMerchantOpenBox))]

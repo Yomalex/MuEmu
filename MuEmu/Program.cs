@@ -95,6 +95,7 @@ namespace MuEmu
             ServerSeason.Season12Eng => true,
             ServerSeason.Season16Kor => true,
             ServerSeason.Season17Kor => true,
+            ServerSeason.Season17Kor75 => true,
             _ => throw new NotImplementedException()
         };
 
@@ -324,10 +325,10 @@ namespace MuEmu
             var mf = new MessageFactory[]
             {
                 new AuthMessageFactory(Season),
-                new GlobalMessageFactory(),
+                new GlobalMessageFactory(Season),
                 new GameMessageFactory(Season),
                 new CashShopMessageFactory(Season),
-                new EventMessageFactory(),
+                new EventMessageFactory(Season),
                 new QuestSystemMessageFactory(),
                 new GuildMessageFactory(),
                 new AntiHackMessageFactory(),

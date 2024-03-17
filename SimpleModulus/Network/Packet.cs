@@ -120,6 +120,10 @@ namespace WebZen.Network
 
                 posPacket.Seek(0, SeekOrigin.Begin);
 
+#if DEBUG
+                Logger.Debug("Incoming Packet: "+string.Join(", 0x", posPacket.GetBuffer().Take((int)posPacket.Length).Select(x => x.ToString("X2"))));
+#endif
+
                 ushort opCode;
                 ushort pkSize;
 
