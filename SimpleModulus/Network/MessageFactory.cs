@@ -17,9 +17,16 @@ namespace WebZen.Network
             where T : new()
         {
             var type = typeof(T);
-            _opCodeLookup.Add(type, opCode);
+            try
+            {
+                _opCodeLookup.Add(type, opCode);
 
-            if(!_typeLookup.ContainsKey(opCode))
+            }
+            catch (Exception)
+            {
+
+            }
+            if (!_typeLookup.ContainsKey(opCode))
                 _typeLookup.Add(opCode, type);
         }
 

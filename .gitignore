@@ -301,3 +301,7 @@ __pycache__/
 *.lnk
 /Data/Monsters/MonsterSetBaseCS2.txt
 /Server.xml
+MU.Connector/cryptopp/**
+Main/Main/cryptopp/**
+Cliente75/**
+Client/**

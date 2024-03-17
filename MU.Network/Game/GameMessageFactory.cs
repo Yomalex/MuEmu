@@ -473,7 +473,7 @@ namespace MU.Network.Game
 
             switch(Season)
             {
-                case ServerSeason.Season17Kor75:
+                case ServerSeason.Season17Kor:
                     ChangeOPCode<CClientMessage>(GameOpCode.ClientMessageS17K75);
                     ChangeOPCode<CHuntingRecordClose>((GameOpCode)0x50F7);
                     ChangeOPCode<CCloseWindow>((GameOpCode)0xFFC0);
@@ -483,6 +483,7 @@ namespace MU.Network.Game
                     ChangeOPCode<SQuestInfo>((GameOpCode)0xFF81);
                     ChangeOPCode<CSell>((GameOpCode)0xFF97);
                     ChangeOPCode<SClinetClose>((GameOpCode)0xFE3A);
+                    ChangeOPCode<SEventEnterCount>((GameOpCode)0xFFFF);
 
                     ChangeOPCode<CTradeMoney>((GameOpCode)0xFF19);
                     ChangeOPCode<STradeMoney>((GameOpCode)0xFF54);

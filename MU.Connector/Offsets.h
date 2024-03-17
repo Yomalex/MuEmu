@@ -1,7 +1,7 @@
 #pragma once
 
-#define CLIENT_S9 //1.05.25
-//#define CLIENT_S12 //1.18.70
+//#define CLIENT_S9 //1.05.25
+#define CLIENT_S12 //1.18.70
 
 typedef BYTE* (__thiscall* T_WZParse)(void* thisPtr);
 typedef void(__thiscall* T_WZSender)(DWORD* thisPtr, BYTE* buff, DWORD len);

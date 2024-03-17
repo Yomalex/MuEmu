@@ -171,7 +171,7 @@ namespace MU.Network.Event
 
             switch(season)
             {
-                case ServerSeason.Season17Kor75:
+                case ServerSeason.Season17Kor:
                     ChangeOPCode<SEventInventory>((EventOpCode)0x3B87);
                     break;
             }

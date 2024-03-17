@@ -20,7 +20,7 @@ namespace MU.Network.Global
 
             switch (Season)
             {
-                case ServerSeason.Season17Kor75:
+                case ServerSeason.Season17Kor:
                     ChangeOPCode<CLiveClient>(GlobalOpCode.LiveClientS17K75);
                     break;
                 default:

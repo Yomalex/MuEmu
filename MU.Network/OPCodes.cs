@@ -30,21 +30,17 @@ namespace MU.Network
 
     public enum CSOpCode : ushort
     {
-        JoinResult = 0x00F1,
-        Login = 0x01F1,
-        LoginS17Kor = 0x020E,
-        LoginS17KorResp = 0xFEF1,
+        JoinResult = 0x003A, //S17
+        Login = 0xFD3A, //S17
+        LoginRes = 0x02F3, //S17
+
         CharacterList = 0x00F3,
-        CharacterListS17Kor = 0x154A,
-        CharacterListS17KorResp = 0x1452,
+       
         CharacterCreate = 0x01F3,
         CharacterDelete = 0x02F3,
         JoinMap2 = 0x03F3,
         JoinMap = 0x15F3,
-        JoinMapS17Kor = 0x604A,
-        JoinMapS17KorResp = 0x1652,
-        JoinMap2S17Kor = 0x024A,
-        JoinMap2S17KorResp = 0x2452,
+        
         ServerMove = 0x00B1,
         ServerMoveAuth = 0x01B1,
 

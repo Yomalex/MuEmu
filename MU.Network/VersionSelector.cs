@@ -39,8 +39,16 @@ namespace MU.Network
 
             var usOpCode = Convert.ToUInt16(opCode);
 
-            s_instance._types[season].Add(usOpCode, typeof(_T));
-            s_instance._opCodeLookUp.Add(typeof(_T), usOpCode);
+            try
+            {
+                s_instance._types[season].Add(usOpCode, typeof(_T));
+
+                s_instance._opCodeLookUp.Add(typeof(_T), usOpCode);
+            }
+            catch (Exception)
+            {
+
+            }
 
             if (s_instance._active == null && season == s_instance._activeSeason)
                 s_instance._active = s_instance._types[season];

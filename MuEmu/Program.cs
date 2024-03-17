@@ -94,8 +94,7 @@ namespace MuEmu
             ServerSeason.Season9Eng => true,
             ServerSeason.Season12Eng => true,
             ServerSeason.Season16Kor => true,
-            ServerSeason.Season17Kor => true,
-            ServerSeason.Season17Kor75 => true,
+            ServerSeason.Season17Kor => true, 
             _ => throw new NotImplementedException()
         };
 
