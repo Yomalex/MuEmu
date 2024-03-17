@@ -1314,6 +1314,16 @@ namespace MuEmu
                     _attackRatePvP = Level * 5 + AgilityTotal * 4.5f;
                     _attackSpeed = AgilityTotal / 15.0f;
                     break;
+                case HeroClass.GunCrusher:
+                    _defense = AgilityTotal / 3.0f;
+                    _defenseRatePvM = AgilityTotal / 4.0f;
+                    _defenseRatePvP = Level * 2 + AgilityTotal * 2.0f;
+                    _attackRatePvM = Level * 5 + AgilityTotal * 1.5f + StrengthTotal / 4;
+                    _attackRatePvP = Level * 3 + AgilityTotal * 3.5f;
+                    _attackSpeed = AgilityTotal / 20.0f;
+                    _magicAttackMin = EnergyTotal / 9.0f;
+                    _magicAttackMax = EnergyTotal / 4.0f;
+                    break;
                 case HeroClass.RuneWizard:
                 case HeroClass.DarkWizard:
                     _defense = AgilityTotal / 5.0f;
@@ -2026,6 +2036,8 @@ namespace MuEmu
                     break;
                 case HeroClass.GrowLancer:
                 case HeroClass.RageFighter:
+                    addMp = (float)MaxMana / 27.5f;
+                    addBp = 1.9f + (float)MaxStamina / 33;
                     break;
             }
 

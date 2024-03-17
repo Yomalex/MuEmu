@@ -95,6 +95,7 @@ namespace MuEmu
             ServerSeason.Season12Eng => true,
             ServerSeason.Season16Kor => true,
             ServerSeason.Season17Kor => true,
+            ServerSeason.Season17Kor75 => true,
             _ => throw new NotImplementedException()
         };
 
@@ -324,10 +325,10 @@ namespace MuEmu
             var mf = new MessageFactory[]
             {
                 new AuthMessageFactory(Season),
-                new GlobalMessageFactory(),
+                new GlobalMessageFactory(Season),
                 new GameMessageFactory(Season),
                 new CashShopMessageFactory(Season),
-                new EventMessageFactory(),
+                new EventMessageFactory(Season),
                 new QuestSystemMessageFactory(),
                 new GuildMessageFactory(),
                 new AntiHackMessageFactory(),
@@ -468,8 +469,11 @@ namespace MuEmu
 
         private static void Server_Connect(object sender, WZServerEventArgs e)
         {
-            Log.Information("Sending PSK");
-            _ = e.session.SendAsync(new SAHPreSharedKey { Key = e.session.Key });
+            if (NewEncode(Season))
+            {
+                Log.Information("Sending PSK");
+                _ = e.session.SendAsync(new SAHPreSharedKey { Key = e.session.Key });
+            }
         }
 
         private static void UpdateZen(object sender, CommandEventArgs e)

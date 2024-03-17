@@ -19,6 +19,7 @@ namespace MU.Network
     public enum GlobalOpCode : ushort
     {
         LiveClient = 0xFF0E,
+        LiveClientS17K75 = 0xFF24,
     }
 
     public enum AHOpCode : ushort
@@ -78,6 +79,7 @@ namespace MU.Network
         KillCount = 0x01B8,
         ClientClose = 0x02F1,
         ClientMessage = 0x03F1,
+        ClientMessageS17K75 = 0x03F3,
         Eventnotification = 0xFEF1,
         CharRegen = 0x04F3,
         LevelUp = 0x5F3,

@@ -1,4 +1,5 @@
 ﻿using MU.Network.CastleSiege;
+using MU.Resources;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,7 @@ namespace MU.Network.Event
 
     public class EventMessageFactory : MessageFactory<EventOpCode, IEventMessage>
     {
-        public EventMessageFactory()
+        public EventMessageFactory(ServerSeason season)
         {
             // C2S
             Register<CEventRemainTime>(EventOpCode.RemainTime);
@@ -167,6 +168,13 @@ namespace MU.Network.Event
             Register<SCastleSiegeMinimapData>(EventOpCode.CastleSiegeMinimap);
             Register<SCastleSiegeNotifySwitchInfo>(EventOpCode.CastleSiegeNotifySwitchInfo);
             Register<SCastleSiegeNotifyCrownState>(EventOpCode.CastleSiegeCrownState);
+
+            switch(season)
+            {
+                case ServerSeason.Season17Kor75:
+                    ChangeOPCode<SEventInventory>((EventOpCode)0x3B87);
+                    break;
+            }
         }
     }
 }
