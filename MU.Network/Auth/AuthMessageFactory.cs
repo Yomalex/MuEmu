@@ -23,7 +23,6 @@ namespace MU.Network.Auth
             Register<CCharacterDelete>(CSOpCode.CharacterDelete);
             Register<CServerMove>(CSOpCode.ServerMoveAuth);
             Register<CServerList>(CSOpCode.ChannelList);
-            //Register<SLoginResultS17>(CSOpCode.LoginS17KorResp);
 
             // S2C
             Register<SServerList>(CSOpCode.ChannelList);
@@ -34,7 +33,7 @@ namespace MU.Network.Auth
             VersionSelector.Register<SJoinResult>(ServerSeason.Season6Kor, CSOpCode.JoinResult);
             VersionSelector.Register<SJoinResultS16Kor>(ServerSeason.Season16Kor, CSOpCode.JoinResult);
             Register<SCharacterCreate>(CSOpCode.CharacterCreate);
-            //Register<SCharacterDelete>(CSOpCode.CharacterDelete);
+            Register<SCharacterDelete>(CSOpCode.CharacterDelete);
             Register<SCharacterMapJoin2S12Eng>(CSOpCode.JoinMap2);
             Register<SCharacterMapJoin2S16Kor>(CSOpCode.JoinMap2);
             VersionSelector.Register<SCharacterMapJoin2>(ServerSeason.Season6Kor, CSOpCode.JoinMap2);
@@ -64,6 +63,7 @@ namespace MU.Network.Auth
                 case ServerSeason.Season17Kor75:
                     ChangeOPCode<CCharacterCreate>((CSOpCode)0x2652);
                     ChangeOPCode<CCharacterDelete>((CSOpCode)0x0652);
+                    ChangeOPCode<SCharacterDelete>((CSOpCode)0x0782);
                     ChangeOPCode<CServerList>((CSOpCode)0x58F7);
                     ChangeOPCode<SServerList>((CSOpCode)0x3151);
 

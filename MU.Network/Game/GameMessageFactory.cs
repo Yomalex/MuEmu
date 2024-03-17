@@ -489,6 +489,7 @@ namespace MU.Network.Game
 
                     ChangeOPCode<SMasterLevelSkillListS9ENG>((GameOpCode)0x2482);
                     ChangeOPCode<SSpellsS12Eng>((GameOpCode)0x5382);
+                    ChangeOPCode<SEventEnterCount>((GameOpCode)0xFFFF);
                     break;
                 case ServerSeason.Season16Kor:
                     ChangeOPCode<CFavoritesList>(GameOpCode.FavoritesListS16Kor);
