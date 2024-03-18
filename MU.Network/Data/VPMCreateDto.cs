@@ -212,9 +212,10 @@ namespace MuEmu.Network.Data
 
         [WZMember(18, typeof(ArrayWithScalarSerializer<ushort>))]
         public SkillStates[] ViewSkillState { get; set; }
-        //[WZMember(18)]
-        public ushort EffectCount { get => (ushort)ViewSkillState.Length; set => _len = value; }
-        private ushort _len;
+        [WZMember(18)]  public byte unk64 { get; set; }
+
+        //public ushort EffectCount { get => (ushort)ViewSkillState.Length; set => _len = value; }
+        //private ushort _len;
 
         public VPMCreateS16KorDto()
         {

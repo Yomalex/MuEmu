@@ -13,7 +13,7 @@ namespace MU.Network.QuestSystem
         public QuestSystemMessageFactory()
         {
             // C2S
-            Register<CSetQuestState>(QuestOpCode.SetQuestState);
+            Register<CSetQuestState>(QuestOpCode.SetQuestStateRes);
             Register<CQuestEXP>(QuestOpCode.QuestSwitchListNPC);
             Register<CQuestEXPProgressList>(QuestOpCode.QuestExpProgressList);
             Register<CQuestEXPProgress>(QuestOpCode.QuestExpInfo);

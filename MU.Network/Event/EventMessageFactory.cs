@@ -82,7 +82,7 @@ namespace MU.Network.Event
             Register<SSendBanner>(EventOpCode.Banner);
 
             // MuRummy
-            Register<CEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
+            Register<CEventInventoryOpenS16>(EventOpCode.EventInventoryOpenRes);
             Register<SEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
             Register<CMuRummyStart>(EventOpCode.MuRummyStart);
             Register<SMuRummyStart>(EventOpCode.MuRummyStart);
@@ -169,12 +169,7 @@ namespace MU.Network.Event
             Register<SCastleSiegeNotifySwitchInfo>(EventOpCode.CastleSiegeNotifySwitchInfo);
             Register<SCastleSiegeNotifyCrownState>(EventOpCode.CastleSiegeCrownState);
 
-            switch(season)
-            {
-                case ServerSeason.Season17Kor:
-                    ChangeOPCode<SEventInventory>((EventOpCode)0x3B87);
-                    break;
-            }
+          
         }
     }
 }

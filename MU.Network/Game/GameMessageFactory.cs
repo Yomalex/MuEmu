@@ -18,7 +18,7 @@ namespace MU.Network.Game
         public GameMessageFactory(ServerSeason Season)
         {
             // C2S
-            Register<CCheckSum>(GameOpCode.GameSecurity);
+            Register<CCheckSum>(GameOpCode.GameSecurityRes);
             Register<SMapMoveCheckSum>(GameOpCode.MapMoveCheckSum);
             Register<CClientMessage>(GameOpCode.ClientMessage);
             Register<CCloseWindow>(GameOpCode.CloseWindow);
@@ -37,28 +37,28 @@ namespace MU.Network.Game
             Register<SItemSplit>(GameOpCode.ItemSplit);
 
             #region Client ChatMessages
-            Register<CChatNickname>(GameOpCode.GeneralChat0);
+            Register<CChatNickname>(GameOpCode.GeneralChat0Res);
             Register<CChatNumber>(GameOpCode.GeneralChat1);
             Register<CChatWhisper>(GameOpCode.WhisperChat);
             #endregion
 
             Register<CInventory>(GameOpCode.Inventory);
-            Register<CPointAdd>(GameOpCode.PointAdd);
-            Register<CClientClose>(GameOpCode.ClientClose);
-            Register<CMoveItem>(GameOpCode.MoveItem);
-            Register<CUseItem>(GameOpCode.HealthUpdate); // Same OPCode
+            Register<CPointAdd>(GameOpCode.PointAddRes);
+            Register<CClientClose>(GameOpCode.ClientCloseRes);
+            Register<CMoveItem>(GameOpCode.MoveItemRes);
+            Register<CUseItem>(GameOpCode.UseItem); 
             Register<CEventEnterCount>(GameOpCode.EventEnterCount);
-            Register<CTalk>(GameOpCode.Talk);
+            Register<CTalk>(GameOpCode.TalkRes);
             Register<CWarehouseUseEnd>(GameOpCode.WarehouseUseEnd);
-            Register<CBuy>(GameOpCode.Buy);
-            Register<CSell>(GameOpCode.Sell);
+            Register<CBuy>(GameOpCode.BuyRes);
+            Register<CSell>(GameOpCode.SellRes);
             Register<CWarp>(GameOpCode.Warp);
             Register<CDataLoadOK>(GameOpCode.DataLoadOK);
             Register<CJewelMix>(GameOpCode.JewelMix);
             Register<CJewelUnMix>(GameOpCode.JewelUnMix);
-            Register<CChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
+            Register<CChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClickRes);
             Register<CChaosBoxUseEnd>(GameOpCode.ChaosBoxUseEnd);
-            Register<CItemThrow>(GameOpCode.ItemThrow);
+            Register<CItemThrow>(GameOpCode.ItemThrowRes);
             Register<CItemModify>(GameOpCode.ItemModifyRes);
 
             Register<CChangeSkin>(GameOpCode.ChangeSkin);
@@ -100,55 +100,17 @@ namespace MU.Network.Game
             VersionSelector.Register<SMagicAttackS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicAttack);
             VersionSelector.Register<SMagicAttackS12Eng>(ServerSeason.Season12Eng, GameOpCode.MagicAttack);
 
-            Register<CItemGet>(GameOpCode.ItemGet);
-            switch (Season)
-            {
-                case ServerSeason.Season17Kor:
-                case ServerSeason.Season16Kor:
-                    Register<CBeattackS9>(GameOpCode.BeattackS16);
-                    Register<CMove12Eng>(GameOpCode.Move12Eng);
-                    Register<SMove>(GameOpCode.Move12Eng);
-                    Register<CAttack>(GameOpCode.Attack12Eng);
-                    Register<CMagicAttackS9>(GameOpCode.MagicAttack);
-                    Register<SMagicAttackS12Eng>(GameOpCode.MagicAttack);
-                    Register<CMagicDurationS16>(GameOpCode.MagicDuration);
-                    Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
-                    Register<CPositionSet>(GameOpCode.Position16Kor);
-                    break;
-                case ServerSeason.Season12Eng:
-                    Register<SMove>(GameOpCode.Move12Eng);
-                    Register<CAttack>(GameOpCode.Attack12Eng);
-                    Register<CBeattackS9>(GameOpCode.Position);
-                    Register<CMagicAttackS9>(GameOpCode.MagicAttack);
-                    Register<CMagicDurationS9>(GameOpCode.MagicDuration);
-                    Register<SMagicAttackS12Eng>(GameOpCode.MagicAttack);
-                    Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
-                    break;
-                case ServerSeason.Season9Eng:// ENG
-                    Register<CAttack>(GameOpCode.AttackEng);
-                    Register<CMagicAttackS9>(GameOpCode.MagicAttack);
-                    Register<CTeleportS9>(GameOpCode.Teleport);
-                    Register<CMagicDurationS9>(GameOpCode.MagicDuration);
-                    Register<CPositionSetS9>(GameOpCode.Position9Eng);
-                    Register<CBeattackS9>(GameOpCode.Position);
-                    Register<SMagicAttackS9Eng>(GameOpCode.MagicAttack);
-                    Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
-                    Register<CMoveEng>(GameOpCode.MoveEng);
-                    Register<SMove>(GameOpCode.MoveEng);
-                    break;
-                default:
-                    Register<CAttack>(GameOpCode.Attack);
-                    Register<CMagicAttack>(GameOpCode.MagicAttack);
-                    Register<CMagicDuration>(GameOpCode.MagicDuration);
-                    Register<CTeleport>(GameOpCode.Teleport);
-                    Register<CPositionSet>(GameOpCode.Position);
-                    Register<CBeattack>(GameOpCode.Beattack);
-                    Register<CMove>(GameOpCode.Move);
-                    Register<SMove>(GameOpCode.Move);
-                    Register<SMagicDuration>(GameOpCode.MagicDuration);
-                    Register<SMagicAttack>(GameOpCode.MagicAttack);
-                    break;
-            }
+            Register<CItemGet>(GameOpCode.ItemGetRes);
+
+            Register<CBeattackS9>(GameOpCode.BeattackS16);
+            Register<CMove12Eng>(GameOpCode.Move12Eng);
+            Register<SMove>(GameOpCode.Move12Eng);
+            Register<CAttack>(GameOpCode.Attack12Eng);
+            Register<CMagicAttackS9>(GameOpCode.MagicAttackRes);
+            Register<SMagicAttackS12Eng>(GameOpCode.MagicAttack);
+            Register<CMagicDurationS16>(GameOpCode.MagicDuration);
+            Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
+            Register<CPositionSet>(GameOpCode.Position16Kor);
 
             Register<SAttackResultS16Kor>(GameOpCode.Attack12Eng);
             Register<SAttackResultS12Eng>(GameOpCode.Attack12Eng);
@@ -184,7 +146,7 @@ namespace MU.Network.Game
             #endregion
 
             #region MasterSystemMessages
-            Register<CMasterSkill>(GameOpCode.MasterLevelSkill);
+            Register<CMasterSkill>(GameOpCode.MasterLevelSkillRes);
             #endregion
 
             // S2C
@@ -258,11 +220,11 @@ namespace MU.Network.Game
             Register<SEventEnterCount>(GameOpCode.EventEnterCount);
             Register<SCloseMsg>(GameOpCode.ClientClose);
             Register<STalk>(GameOpCode.Talk);
-            Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
+            Register<SShopItemList>(GameOpCode.ShopItemList); 
             Register<SMonsterSoulShop>(GameOpCode.MonsterSoulShop);
             Register<SMonsterSoulAvailableShop>(GameOpCode.MonsterSoulAvailableShop);
             Register<STax>(GameOpCode.Tax);
-            Register<CWarehouseMoney>(GameOpCode.WarehouseMoney);
+            Register<CWarehouseMoney>(GameOpCode.WarehouseMoneyRes);
             Register<SWarehouseMoney>(GameOpCode.WarehouseMoney);
             Register<SQuestWindow>(GameOpCode.QuestWindow);
             Register<SBuy>(GameOpCode.Buy);
@@ -374,7 +336,7 @@ namespace MU.Network.Game
             Register<SPentagramaJewelInfo>(GameOpCode.PentagramaJInfo);
 
             Register<SUBFInfo>(GameOpCode.UBFInfo);
-            Register<CUsePopUpType>(GameOpCode.PopUpType);
+            Register<CUsePopUpType>(GameOpCode.PopUpTypeRes);
             Register<SUBFPopUpType>(GameOpCode.PopUpType);
 
             Register<SMuunInventory>(GameOpCode.MuunInventory);
@@ -458,7 +420,7 @@ namespace MU.Network.Game
             Register<CPartyLeaderChange>(GameOpCode.PartyLeaderChange);
             Register<SPartyMJoinNotify>(GameOpCode.PartyJoinNotify);
 
-            Register<CHuntingRecordRequest>(GameOpCode.HuntingRecordRequest);
+            Register<CHuntingRecordRequest>(GameOpCode.HuntingRecordRequestRes);
             Register<CHuntingRecordClose>(GameOpCode.HuntingRecordClose);
             Register<CHuntingRecordVisibility>(GameOpCode.HuntingRecordVisibility);
             Register<SHuntingRecordList>(GameOpCode.HuntingRecordRequest);
@@ -473,30 +435,7 @@ namespace MU.Network.Game
             Register<SRuudBuy>(GameOpCode.Ruudbuy);
             Register<SRuudSend>(GameOpCode.RuudSend);
 
-            switch(Season)
-            {
-                case ServerSeason.Season17Kor:
-                    ChangeOPCode<CClientMessage>(GameOpCode.ClientMessage);
-                    ChangeOPCode<CHuntingRecordClose>((GameOpCode)0x50F7);
-                    ChangeOPCode<CCloseWindow>((GameOpCode)0xFFC0);
-
-                    ChangeOPCode<SCheckSum>((GameOpCode)0xFF00);
-                    ChangeOPCode<SInventory>((GameOpCode)0x2682);
-                    ChangeOPCode<SQuestInfo>((GameOpCode)0xFF81);
-                    ChangeOPCode<CSell>((GameOpCode)0xFF97);
-                    ChangeOPCode<SClinetClose>((GameOpCode)0xFE3A);
-                    ChangeOPCode<SEventEnterCount>((GameOpCode)0xFFFF);
-
-                    ChangeOPCode<CTradeMoney>((GameOpCode)0xFF19);
-                    ChangeOPCode<STradeMoney>((GameOpCode)0xFF54);
-
-                    ChangeOPCode<SMasterLevelSkillListS9ENG>((GameOpCode)0x2482);
-                    ChangeOPCode<SSpellsS12Eng>((GameOpCode)0x5382);
-                    break;
-                case ServerSeason.Season16Kor:
-                    ChangeOPCode<CFavoritesList>(GameOpCode.FavoritesListS16Kor);
-                    break;
-            }
+           
         }
     }
 }

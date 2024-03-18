@@ -39,7 +39,7 @@ namespace MuEmu.Network.Data
         public byte DirAndPkLevel { get; set; }
         //public ulong ViewSkillState;
 
-        [WZMember(10, 18)]
+        [WZMember(10, 20)]
         public byte[] CharSet { get; set; } //18
 
         public int Number

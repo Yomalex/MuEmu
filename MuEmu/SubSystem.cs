@@ -65,6 +65,7 @@ namespace MuEmu
 
             _typeBase = Program.Season switch
             {
+                ServerSeason.Season17Kor => typeof(VPCreateS16KorDto),
                 ServerSeason.Season16Kor => typeof(VPCreateS16KorDto),
                 ServerSeason.Season12Eng => typeof(VPCreateS12Dto),
                 ServerSeason.Season9Eng => typeof(VPCreateS9Dto),
@@ -73,6 +74,7 @@ namespace MuEmu
 
             _typeBaseC = Program.Season switch
             {
+                ServerSeason.Season17Kor => typeof(VPChangeS12Dto),
                 ServerSeason.Season16Kor => typeof(VPChangeS12Dto),
                 ServerSeason.Season12Eng => typeof(VPChangeS12Dto),
                 ServerSeason.Season9Eng => typeof(VPChangeS9Dto),
