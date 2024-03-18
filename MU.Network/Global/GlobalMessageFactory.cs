@@ -15,17 +15,7 @@ namespace MU.Network.Global
         {
             // C2S
             Register<CLiveClient>(GlobalOpCode.LiveClient);
-
-            // S2C
-
-            switch (Season)
-            {
-                case ServerSeason.Season17Kor:
-                    ChangeOPCode<CLiveClient>(GlobalOpCode.LiveClientS17K75);
-                    break;
-                default:
-                    break;
-            }
+             
         }        
     }
 }

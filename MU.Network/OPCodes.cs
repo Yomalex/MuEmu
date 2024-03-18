@@ -18,8 +18,7 @@ namespace MU.Network
 
     public enum GlobalOpCode : ushort
     {
-        LiveClient = 0xFF0E,
-        LiveClientS17K75 = 0xFF24,
+        LiveClient = 0xFF24, //S17
     }
 
     public enum AHOpCode : ushort
@@ -30,24 +29,35 @@ namespace MU.Network
 
     public enum CSOpCode : ushort
     {
-        JoinResult = 0x003A, //S17
+        JoinResult = 0x003A, //S17 
+
         Login = 0xFD3A, //S17
         LoginRes = 0x02F3, //S17
 
-        CharacterList = 0x00F3,
-       
-        CharacterCreate = 0x01F3,
-        CharacterDelete = 0x02F3,
-        JoinMap2 = 0x03F3,
-        JoinMap = 0x15F3,
-        
-        ServerMove = 0x00B1,
-        ServerMoveAuth = 0x01B1,
+        CharacterList = 0x0482, //S17
+        CharacterListRes = 0x6052, //S17
 
-        ResetList = 0x0AFA,
-        Resets = 0x0BFA,
-        EnableCreate = 0x00DE,
-        ChannelList = 0x57EC,
+        CharacterCreate = 0x0082, //S17
+        CharacterCreateRes = 0x2652, //S17
+
+        CharacterDelete = 0x0782, //S17
+        CharacterDeleteRes = 0x0652, //S17
+
+        JoinMap2 = 0x1482, //S17
+        JoinMap2Res = 0x0052, //S17
+
+        JoinMap = 0x0582, //S17
+        JoinMapRes = 0x0152, //S17
+
+        ServerMove = 0x0073, //S17
+        ServerMoveAuth = 0x014B, //S17
+
+        ResetList = 0x0AFA, //S17
+        Resets = 0x0BFA, //S17
+        EnableCreate = 0x00DE, //S17
+
+        ChannelList = 0x3151, //S17
+        ChannelListRes = 0x58F7, //S17
     }
 
     public enum GameOpCode : ushort
@@ -74,14 +84,16 @@ namespace MU.Network
         Tax = 0x1AB2,
         KillCount = 0x01B8,
         ClientClose = 0x02F1,
-        ClientMessage = 0x03F1,
-        ClientMessageS17K75 = 0x03F3,
+        ClientMessage = 0x03F3, //S17
         Eventnotification = 0xFEF1,
-        CharRegen = 0x04F3,
-        LevelUp = 0x5F3,
+        CharRegen = 0x2082, //S17
+        LevelUp = 0x6082, //S17
         PointAdd = 0x06F3,
+
         Damage = 0x07F3,
-        Inventory = 0x10F3,
+        Inventory = 0x2682, //S17
+        InventoryRes = 0x1052, //S17
+
         Spells = 0x11F3,
         DataLoadOK = 0x12F3,
         Equipament = 0x13F3,
@@ -137,7 +149,8 @@ namespace MU.Network
         CancelItemSaleItem = 0x026F,
         Buy = 0xFF32,
         Sell = 0xFF33,
-        ItemModify = 0xFF34,
+        ItemModify = 0xFF18, //S17
+        ItemModifyRes = 0xFF57, //S17
         TradeRequest = 0xFF36,
         TradeResponce = 0xFF37,
         TradeOtherAdd = 0xFF39,

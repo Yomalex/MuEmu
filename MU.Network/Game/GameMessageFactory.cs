@@ -59,7 +59,7 @@ namespace MU.Network.Game
             Register<CChaosBoxItemMixButtonClick>(GameOpCode.ChaosBoxItemMixButtonClick);
             Register<CChaosBoxUseEnd>(GameOpCode.ChaosBoxUseEnd);
             Register<CItemThrow>(GameOpCode.ItemThrow);
-            Register<CItemModify>(GameOpCode.ItemModify);
+            Register<CItemModify>(GameOpCode.ItemModifyRes);
 
             Register<CChangeSkin>(GameOpCode.ChangeSkin);
 
@@ -241,12 +241,14 @@ namespace MU.Network.Game
             VersionSelector.Register<SPositionSetS9Eng>(ServerSeason.Season9Eng, GameOpCode.Position);
             VersionSelector.Register<SPositionSetS16Kor>(ServerSeason.Season16Kor, GameOpCode.Position);
             Register<SPointAdd>(GameOpCode.PointAdd);
+
             Register<SCharRegen>(GameOpCode.CharRegen);
             Register<SCharRegenS12Eng>(GameOpCode.CharRegen);
             Register<SCharRegenS16Kor>(GameOpCode.CharRegen);
             VersionSelector.Register<SCharRegen>(ServerSeason.Season6Kor, GameOpCode.CharRegen);
             VersionSelector.Register<SCharRegenS12Eng>(ServerSeason.Season12Eng, GameOpCode.CharRegen);
             VersionSelector.Register<SCharRegenS16Kor>(ServerSeason.Season16Kor, GameOpCode.CharRegen);
+
             Register<SLevelUp>(GameOpCode.LevelUp);
             Register<SClinetClose>(GameOpCode.ClientClose);
             Register<SMoveItem>(GameOpCode.MoveItem);
@@ -474,7 +476,7 @@ namespace MU.Network.Game
             switch(Season)
             {
                 case ServerSeason.Season17Kor:
-                    ChangeOPCode<CClientMessage>(GameOpCode.ClientMessageS17K75);
+                    ChangeOPCode<CClientMessage>(GameOpCode.ClientMessage);
                     ChangeOPCode<CHuntingRecordClose>((GameOpCode)0x50F7);
                     ChangeOPCode<CCloseWindow>((GameOpCode)0xFFC0);
 
