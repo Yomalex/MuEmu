@@ -32,6 +32,16 @@ namespace MU.Network.CashShop
             Register<SCashInventoryItem>(CashOpCode.CashInventoryCount);
             Register<SCashItemBuy>(CashOpCode.CashItemBuy);
             Register<SCashItemList>(CashOpCode.CashItemList);
+
+            switch(Season)
+            {
+                case ServerSeason.Season17Kor75:
+                    ChangeOPCode<SCashInit>(Data.ProtocolXChangeS17K75(CashOpCode.CashInit, false));
+                    ChangeOPCode<SCashVersion>(Data.ProtocolXChangeS17K75(CashOpCode.CashVersion, false));
+                    ChangeOPCode<SCashBanner>(Data.ProtocolXChangeS17K75(CashOpCode.CashBanner, false));
+                    ChangeOPCode<SCashPointsS9>(Data.ProtocolXChangeS17K75(CashOpCode.CashPoints, false));
+                    break;
+            }
         }
     }
 }

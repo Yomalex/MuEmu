@@ -329,11 +329,11 @@ namespace MuEmu
                 new GameMessageFactory(Season),
                 new CashShopMessageFactory(Season),
                 new EventMessageFactory(Season),
-                new QuestSystemMessageFactory(),
+                new QuestSystemMessageFactory(Season),
                 new GuildMessageFactory(),
                 new AntiHackMessageFactory(),
                 new PCPShopMessageFactory(),
-                new GensMessageFactory(),
+                new GensMessageFactory(Season),
             };
             server = new WZGameServer(ip, mh, mf, NewEncode(Season));
             server.IPPublic = xml.Connection.IPPublic;

@@ -30,13 +30,8 @@ namespace WebZen.Network
             var old = _opCodeLookup[type];
             _typeLookup.Remove(old);
             _opCodeLookup[type] = opCode;
-            try
-            {
+            if(!_typeLookup.ContainsKey(opCode))
                 _typeLookup.Add(opCode, type);
-            }catch(Exception)
-            {
-
-            }
         }
 
         protected void ChangeType<T>(ushort opCode, Type oldType)
@@ -101,10 +96,11 @@ namespace WebZen.Network
 
     public class MessageFactory<TOpCode, TMessage> : MessageFactory
     {
+        protected Func<TOpCode, TOpCode> Converter = (opCode) => opCode;
         protected void Register<T>(TOpCode opCode)
             where T : TMessage, new()
         {
-            Register<T>(DynamicCast<ushort>.From(opCode));
+            Register<T>(DynamicCast<ushort>.From(Converter(opCode)));
         }
         protected void ChangeOPCode<T>(TOpCode opCode)
             where T : TMessage, new()

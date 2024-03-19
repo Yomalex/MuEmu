@@ -15,6 +15,9 @@ namespace MU.Network.Auth
         public AuthMessageFactory(ServerSeason Season)
         {
             // C2S
+            if(Season == ServerSeason.Season17Kor75)
+                Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, true);
+
             Register<CIDAndPassS12>(CSOpCode.Login);
             Register<CCharacterList>(CSOpCode.CharacterList);
             Register<CCharacterMapJoin>(CSOpCode.JoinMap);
@@ -25,42 +28,39 @@ namespace MU.Network.Auth
             Register<CServerList>(CSOpCode.ChannelList);
 
             // S2C
+            if(Season == ServerSeason.Season17Kor75)
+                Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
+
             Register<SServerList>(CSOpCode.ChannelList);
             Register<SEnableCreation>(CSOpCode.EnableCreate);
-
             Register<SJoinResult>(CSOpCode.JoinResult);
             Register<SJoinResultS16Kor>(CSOpCode.JoinResult);
-            VersionSelector.Register<SJoinResult>(ServerSeason.Season6Kor, CSOpCode.JoinResult);
-            VersionSelector.Register<SJoinResultS16Kor>(ServerSeason.Season16Kor, CSOpCode.JoinResult);
             Register<SCharacterCreate>(CSOpCode.CharacterCreate);
             Register<SCharacterDelete>(CSOpCode.CharacterDelete);
             Register<SCharacterMapJoin2S12Eng>(CSOpCode.JoinMap2);
             Register<SCharacterMapJoin2S16Kor>(CSOpCode.JoinMap2);
-            VersionSelector.Register<SCharacterMapJoin2>(ServerSeason.Season6Kor, CSOpCode.JoinMap2);
-            VersionSelector.Register<SCharacterMapJoin2S12Eng>(ServerSeason.Season12Eng, CSOpCode.JoinMap2);
-            VersionSelector.Register<SCharacterMapJoin2S16Kor>(ServerSeason.Season16Kor, CSOpCode.JoinMap2);
             Register<SServerMove>(CSOpCode.ServerMove);
-
-            VersionSelector.Register<SCharacterList>(ServerSeason.Season6Kor, CSOpCode.CharacterList);
-            VersionSelector.Register<SCharacterListS9>(ServerSeason.Season9Eng, CSOpCode.CharacterList);
-            VersionSelector.Register<SCharacterListS12>(ServerSeason.Season12Eng, CSOpCode.CharacterList);
-            VersionSelector.Register<SCharacterListS16Kor>(ServerSeason.Season16Kor, CSOpCode.CharacterList);
             Register<SCharacterList>(CSOpCode.CharacterList);
             Register<SCharacterListS9>(CSOpCode.CharacterList);
             Register<SCharacterListS12>(CSOpCode.CharacterList);
             Register<SCharacterListS16Kor>(CSOpCode.CharacterList);
-
             Register<SLoginResult>(CSOpCode.Login);
             Register<SCharacterMapJoin>(CSOpCode.JoinMap);
             Register<SCharacterMapJoin2>(CSOpCode.JoinMap2);
+            VersionSelector.Register<SJoinResult>(ServerSeason.Season6Kor, CSOpCode.JoinResult);
+            VersionSelector.Register<SJoinResultS16Kor>(ServerSeason.Season16Kor, CSOpCode.JoinResult);
+            VersionSelector.Register<SCharacterMapJoin2>(ServerSeason.Season6Kor, CSOpCode.JoinMap2);
+            VersionSelector.Register<SCharacterMapJoin2S12Eng>(ServerSeason.Season12Eng, CSOpCode.JoinMap2);
+            VersionSelector.Register<SCharacterMapJoin2S16Kor>(ServerSeason.Season16Kor, CSOpCode.JoinMap2);
+            VersionSelector.Register<SCharacterList>(ServerSeason.Season6Kor, CSOpCode.CharacterList);
+            VersionSelector.Register<SCharacterListS9>(ServerSeason.Season9Eng, CSOpCode.CharacterList);
+            VersionSelector.Register<SCharacterListS12>(ServerSeason.Season12Eng, CSOpCode.CharacterList);
+            VersionSelector.Register<SCharacterListS16Kor>(ServerSeason.Season16Kor, CSOpCode.CharacterList);
 
 
             switch (Season)
             {
-                default:
-                    ChangeType<CIDAndPass>(CSOpCode.Login, typeof(CIDAndPassS12));
-                    break;
-                case ServerSeason.Season17Kor75:
+                /*case ServerSeason.Season17Kor75:
                     ChangeOPCode<CCharacterCreate>((CSOpCode)0x2652);
                     ChangeOPCode<CCharacterDelete>((CSOpCode)0x0652);
                     ChangeOPCode<SCharacterDelete>((CSOpCode)0x0782);
@@ -75,11 +75,11 @@ namespace MU.Network.Auth
                     ChangeOPCode<SLoginResult>((CSOpCode)0xFD3A);
                     ChangeOPCode<SCharacterListS16Kor>((CSOpCode)0x0482);
                     ChangeOPCode<SCharacterMapJoin>((CSOpCode)0x0582);
-                    ChangeOPCode<SCharacterMapJoin2>((CSOpCode)0x1482);
+                    ChangeOPCode<SCharacterMapJoin2>(Data.ProtocolXChangeS17K75(CSOpCode.JoinMap2, false));//(CSOpCode)0x1482
 
                     ChangeOPCode<SEnableCreation>((CSOpCode)CSOpCode.EnableCreate);
                     //MiningSystemUnk 0x11C4
-                    break;
+                    break;*/
                 case ServerSeason.Season17Kor:
                     ChangeOPCode<CIDAndPassS12>(CSOpCode.LoginS17Kor);
                     ChangeOPCode<SLoginResult>(CSOpCode.LoginS17KorResp);
@@ -98,6 +98,9 @@ namespace MU.Network.Auth
                     //Register<CIDAndPassS12>(CSOpCode.Login);
                     //Register<SResets>(CSOpCode.Resets);
                     //Register<SResetCharList>(CSOpCode.ResetList);
+                    break;
+                default:
+                    ChangeType<CIDAndPass>(CSOpCode.Login, typeof(CIDAndPassS12));
                     break;
             }
         }

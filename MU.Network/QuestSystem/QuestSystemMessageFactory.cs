@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Network;
@@ -10,7 +11,7 @@ namespace MU.Network.QuestSystem
 
     public class QuestSystemMessageFactory : MessageFactory<QuestOpCode, IQuestMessage>
     {
-        public QuestSystemMessageFactory()
+        public QuestSystemMessageFactory(ServerSeason Season)
         {
             // C2S
             Register<CSetQuestState>(QuestOpCode.SetQuestState);
@@ -46,6 +47,13 @@ namespace MU.Network.QuestSystem
             Register<SSendQuestEXPInfo>(QuestOpCode.QuestEXPProgress);
             Register<SSendQuestEXPComplete>(QuestOpCode.QuestExpComplete);
             Register<SQuestSurvivalTime>(QuestOpCode.QuestSurvivalTime);
+
+            switch(Season)
+            {
+                case ServerSeason.Season17Kor75:
+                    //ChangeOPCode<CNewQuestInfo>(Data.ProtocolXChangeS17K75(GameOpCode.MuunInventory, false));
+                    break;
+            }
         }
     }
 }
