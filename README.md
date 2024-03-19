@@ -6,11 +6,7 @@
 # Mu Online Server Emulator C#
 
 It is a version of the MU Online Server written in C # NetCore3.1 for compatibility on all platforms
-Now is listed to support:
-- Season 6 Korean
-- Season 9 English
-- Season 12 Korean
-- Season 16 Korean
+Now is listed to support: 
 - Season 17 Korean
 
 
@@ -38,7 +34,7 @@ The configuration comes in XML, in the server.xml file, generated automatically 
       <Show>1</Show>
       <Lang>es</Lang>
       <AutoRegister>true</AutoRegister>
-      <Season>Season9Eng</Season>
+      <Season>Season17Kor</Season>
       <Connection>
         <IP>127.0.0.1</IP>
         <Port>55901</Port>
