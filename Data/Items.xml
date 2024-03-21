@@ -1,5 +1,5 @@
-<?xml version='1.0' encoding='utf-8'?>
-<Items>
+<?xml version="1.0" encoding='utf-8'?>
+<Items xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Item Number="0" Name="Kris" Skill="None" Size="1,2" Option="False" Drop="False" Level="6" Defense="0" DefenseRate="0" Dmg="6-11" Speed="50" Durability="20" MagicDur="0" MagicPower="0" NeededLevel="0" NeededStr="40" NeededAgi="40" NeededVit="0" NeededEne="0" NeededCmd="0" ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter,GrowLancer,RuneWizard,Slayer" Zen="0" Attributes="" MaxStack="0" OnMaxStack="65535" IsMount="False" />
   <Item Number="1" Name="Short Sword" Skill="None" Size="1,3" Option="False" Drop="False" Level="3" Defense="0" DefenseRate="0" Dmg="3-7" Speed="20" Durability="22" MagicDur="0" MagicPower="0" NeededLevel="0" NeededStr="60" NeededAgi="0" NeededVit="0" NeededEne="0" NeededCmd="0" ReqClass="DarkWizard,DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,RageFighter,GrowLancer,RuneWizard,Slayer" Zen="0" Attributes="" MaxStack="0" OnMaxStack="65535" IsMount="False" />
   <Item Number="2" Name="Rapier" Skill="None" Size="1,3" Option="False" Drop="False" Level="9" Defense="0" DefenseRate="0" Dmg="9-15" Speed="40" Durability="23" MagicDur="0" MagicPower="0" NeededLevel="0" NeededStr="50" NeededAgi="40" NeededVit="0" NeededEne="0" NeededCmd="0" ReqClass="DarkKnight,FaryElf,MagicGladiator,DarkLord,Summoner,GrowLancer,RuneWizard,Slayer" Zen="0" Attributes="" MaxStack="0" OnMaxStack="65535" IsMount="False" />
