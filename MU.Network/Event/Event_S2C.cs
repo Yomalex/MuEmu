@@ -1,7 +1,9 @@
-﻿using MU.Resources;
+﻿using MU.Network.Game;
+using MU.Resources;
 using MuEmu.Network.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using WebZen.Serialization;
 using WebZen.Util;
@@ -433,9 +435,24 @@ namespace MU.Network.Event
     }
 
     [WZContract(LongMessage = true, Serialized = true)]
-    public class SEventInventory : IEventMessage
+    public class SEventInventory : IInventory, IEventMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public InventoryDto[] Inventory { get; set; }
+
+        public void LoadItems(IEnumerable<AInventoryDto> items)
+        {
+            Inventory = items.Select(x => x as InventoryDto).ToArray();
+        }
+    }
+
+    [WZContract(LongMessage = true, Serialized = true)]
+    public class SEventInventoryS17 : IInventory, IEventMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public InventoryS17Dto[] Inventory { get; set; }
+        public void LoadItems(IEnumerable<AInventoryDto> items)
+        {
+            Inventory = items.Select(x => x as InventoryS17Dto).ToArray();
+        }
     }
 
     [WZContract]

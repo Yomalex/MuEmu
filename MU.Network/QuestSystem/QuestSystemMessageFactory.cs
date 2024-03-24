@@ -14,6 +14,7 @@ namespace MU.Network.QuestSystem
         public QuestSystemMessageFactory(ServerSeason Season)
         {
             // C2S
+            if(Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, true);
             Register<CSetQuestState>(QuestOpCode.SetQuestState);
             Register<CQuestEXP>(QuestOpCode.QuestSwitchListNPC);
             Register<CQuestEXPProgressList>(QuestOpCode.QuestExpProgressList);
@@ -21,18 +22,14 @@ namespace MU.Network.QuestSystem
             Register<CQuestEXPComplete>(QuestOpCode.QuestExpComplete); 
             Register<CNewQuestInfo>(QuestOpCode.QuestEXPProgress);
             Register<CQuestEXPEventItemEPList>(QuestOpCode.QuestEXPEventItemEPList);
-
             Register<CQuestNPCTalk>(QuestOpCode.QuestMUTalk);
-            Register<SQuestNPCTalk>(QuestOpCode.QuestMUTalk);
-
             Register<CQuestNPCAccept>(QuestOpCode.QuestMUAccept);
-            Register<SQuestNPCAccept>(QuestOpCode.QuestMUAccept);
-
             Register<CCentTestStart>(QuestOpCode.CentQuestTest);
             Register<CCentBattleStart>(QuestOpCode.CentQuestSummon);
             Register<CCentMove>(QuestOpCode.CentQuestMove);
 
             // S2C
+            if(Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
             Register<SSetQuest>(QuestOpCode.SetQuest);
             Register<SMonsterKillS16>(QuestOpCode.QuestKillCount);
             Register<SSendQuestPrize>(QuestOpCode.QuestPrize);
@@ -47,13 +44,8 @@ namespace MU.Network.QuestSystem
             Register<SSendQuestEXPInfo>(QuestOpCode.QuestEXPProgress);
             Register<SSendQuestEXPComplete>(QuestOpCode.QuestExpComplete);
             Register<SQuestSurvivalTime>(QuestOpCode.QuestSurvivalTime);
-
-            switch(Season)
-            {
-                case ServerSeason.Season17Kor75:
-                    //ChangeOPCode<CNewQuestInfo>(Data.ProtocolXChangeS17K75(GameOpCode.MuunInventory, false));
-                    break;
-            }
+            Register<SQuestNPCAccept>(QuestOpCode.QuestMUAccept);
+            Register<SQuestNPCTalk>(QuestOpCode.QuestMUTalk);
         }
     }
 }

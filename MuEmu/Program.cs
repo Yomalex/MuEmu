@@ -330,9 +330,9 @@ namespace MuEmu
                 new CashShopMessageFactory(Season),
                 new EventMessageFactory(Season),
                 new QuestSystemMessageFactory(Season),
-                new GuildMessageFactory(),
+                new GuildMessageFactory(Season),
                 new AntiHackMessageFactory(),
-                new PCPShopMessageFactory(),
+                new PCPShopMessageFactory(Season),
                 new GensMessageFactory(Season),
             };
             server = new WZGameServer(ip, mh, mf, NewEncode(Season));

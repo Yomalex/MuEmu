@@ -1010,13 +1010,13 @@ namespace MuEmu
         {
             Party?.LifeUpdate();
 
-            await Player.Session.SendAsync(new SHeatlUpdate(info, (ushort)_hp, (ushort)_sd, false));
+            await Player.Session.SendAsync(VersionSelector.CreateMessage<SHeatlUpdate>(info, (ushort)_hp, (ushort)_sd, false));
         }
         private async void HPorSDMaxChanged()
         {
             Party?.LifeUpdate();
 
-            await Player.Session.SendAsync(new SHeatlUpdate(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
+            await Player.Session.SendAsync(VersionSelector.CreateMessage<SHeatlUpdate>(RefillInfo.MaxChanged, (ushort)MaxHealth, (ushort)MaxShield, false));
         }
         private async void MPorBPChanged(RefillInfo info)
         {

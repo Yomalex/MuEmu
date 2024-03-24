@@ -11,10 +11,13 @@ namespace MU.Network.GensSystem
     {
         public GensMessageFactory(ServerSeason Season)
         {
+            if(Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, true);
             Register<CRequestJoin>(GensOpCode.RequestJoin);
             Register<CRequestLeave>(GensOpCode.RequestLeave);
             Register<CRequestMemberInfo>(GensOpCode.RequestMemberInfo);
             Register<CRequestReward>(GensOpCode.RequestReward);
+
+            if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
             Register<SRequestJoin>(GensOpCode.RequestJoin);
             Register<SGensSendInfoS9>(GensOpCode.SendGensInfo);
             Register<SViewPortGens>(GensOpCode.ViewPortGens);
@@ -22,13 +25,6 @@ namespace MU.Network.GensSystem
             Register<SGensLeaveResult>(GensOpCode.RemoveMember);
             Register<SGensReward>(GensOpCode.RewardSend);
             //Register<SGensBattleZoneData>(GensOpCode.BattleZoneData);
-
-            switch(Season)
-            {
-                case ServerSeason.Season17Kor75:
-                    ChangeOPCode<SGensSendInfoS9>(Data.ProtocolXChangeS17K75(GensOpCode.SendGensInfo, false));
-                    break;
-            }
         }
     }
 }

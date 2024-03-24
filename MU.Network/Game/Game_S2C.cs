@@ -1,4 +1,6 @@
 ﻿using BlubLib.Serialization.Serializers;
+//using MU.DataBase;
+using MU.Network.Auth;
 using MU.Resources;
 using MuEmu.Network.Data;
 using MuEmu.Resources.Game;
@@ -13,8 +15,13 @@ using WebZen.Util;
 
 namespace MU.Network.Game
 {
+    public interface IInventory
+    {
+        public void LoadItems(IEnumerable<AInventoryDto> items);
+    }
+
     [WZContract(LongMessage = true, Serialized = true)]
-    public class SInventory : IGameMessage
+    public class SInventory : IInventory, IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
         public InventoryDto[] Inventory { get; set; }
@@ -24,9 +31,36 @@ namespace MU.Network.Game
             Inventory = Array.Empty<InventoryDto>();
         }
 
-        public SInventory(InventoryDto[] inv)
+        public SInventory(object[] inv)
         {
-            Inventory = inv;
+            Inventory = inv as InventoryDto[];
+        }
+
+        public void LoadItems(IEnumerable<AInventoryDto> items)
+        {
+            Inventory = items.Select(x => x as InventoryDto).ToArray();
+        }
+    }
+
+    [WZContract(LongMessage = true, Serialized = true)]
+    public class SInventoryS17 : IInventory, IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryS17Dto[] Inventory { get; set; }
+
+        public SInventoryS17()
+        {
+            Inventory = Array.Empty<InventoryS17Dto>();
+        }
+
+        public SInventoryS17(object[] inv)
+        {
+            Inventory = inv as InventoryS17Dto[];
+        }
+
+        public void LoadItems(IEnumerable<AInventoryDto> items)
+        {
+            Inventory = items.Select(x => x as InventoryS17Dto).ToArray();
         }
     }
 
@@ -34,14 +68,14 @@ namespace MU.Network.Game
     public class SMuunInventory : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public InventoryDto[] Inventory { get; set; }
+        public object[] Inventory { get; set; }
 
         public SMuunInventory()
         {
-            Inventory = Array.Empty<InventoryDto>();
+            Inventory = Array.Empty<object>();
         }
 
-        public SMuunInventory(InventoryDto[] inv)
+        public SMuunInventory(object[] inv)
         {
             Inventory = inv;
         }
@@ -547,6 +581,34 @@ namespace MU.Network.Game
         }
     }
 
+
+    [WZContract]
+    public class SHeatlUpdateS17 : IGameMessage
+    {
+        [WZMember(0)] public RefillInfo Pos { get; set; }
+
+        [WZMember(1)] public uint HP { get; set; }
+
+        [WZMember(2)] public byte Flag { get; set; }
+
+        [WZMember(3)] public uint SD { get; set; }
+
+        public uint Health { get => HP.ShufleEnding(); set => HP = value.ShufleEnding(); }
+
+        public uint Shield { get => SD.ShufleEnding(); set => SD = value.ShufleEnding(); }
+
+        public SHeatlUpdateS17()
+        { }
+
+        public SHeatlUpdateS17(RefillInfo pos, uint hp, uint sd, bool flag)
+        {
+            Pos = pos;
+            HP = hp;
+            SD = sd;
+            Flag = 0;
+        }
+    }
+
     [WZContract]
     public class SManaUpdate : IGameMessage
     {
@@ -835,14 +897,14 @@ namespace MU.Network.Game
         public byte ListType { get; set; }
 
         [WZMember(1, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public InventoryDto[] Inventory { get; set; }
+        public AInventoryDto[] Inventory { get; set; }
 
         public SShopItemList()
         {
-            Inventory = Array.Empty<InventoryDto>();
+            Inventory = Array.Empty<AInventoryDto>();
         }
 
-        public SShopItemList(InventoryDto[] inv)
+        public SShopItemList(AInventoryDto[] inv)
         {
             Inventory = inv;
         }
