@@ -9,11 +9,6 @@ namespace MuEmu.Network.Data
 {
     public abstract class AInventoryDto
     {
-        [WZMember(0)]
-        public byte Index { get; set; }
-
-        [WZMember(1, 12)]
-        public virtual byte[] Item { get; set; }
         public AInventoryDto()
         {
 
@@ -26,6 +21,11 @@ namespace MuEmu.Network.Data
     [WZContract]
     public class InventoryDto : AInventoryDto
     {
+        [WZMember(0)]
+        public byte Index { get; set; }
+
+        [WZMember(1, 12)]
+        public byte[] Item { get; set; }
         public InventoryDto()
         {
 
@@ -39,11 +39,11 @@ namespace MuEmu.Network.Data
     [WZContract]
     public class InventoryS17Dto : AInventoryDto
     {
-        /*[WZMember(0)]
-        public byte Index { get; set; }*/
+        [WZMember(0)]
+        public byte Index { get; set; }
 
         [WZMember(1, 15)]
-        public override byte[] Item { get; set; }
+        public byte[] Item { get; set; }
 
         public InventoryS17Dto()
         {
