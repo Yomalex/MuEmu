@@ -9,7 +9,7 @@ namespace WebZen.Util
     [WZContract]
     public class ushortle
     {
-        [WZMember(0, typeof(ArraySerializer))] public byte[] data { get; set; } = new byte[2] { 0, 0 };
+        [WZMember(0)] public ushort dataFinal { get; set; } = 0;
         public ushortle()
         {
             Set(0);
@@ -20,11 +20,13 @@ namespace WebZen.Util
         }
         public void Set(ushort value)
         {
-            data = BitConverter.GetBytes(value).Reverse().ToArray();
+            var tmp = BitConverter.GetBytes(value).Reverse().ToArray();
+            dataFinal = BitConverter.ToUInt16(tmp);
         }
         public ushort Get()
         {
-            return BitConverter.ToUInt16(data.Reverse().ToArray(), 0);
+            var tmp = BitConverter.GetBytes(dataFinal).Reverse().ToArray();
+            return BitConverter.ToUInt16(tmp, 0);
         }
 
         public static implicit operator ushortle(ushort value)

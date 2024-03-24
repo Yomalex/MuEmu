@@ -48,6 +48,7 @@ namespace MU.Network.Game
             Register<CItemModify>(GameOpCode.ItemModify);
             Register<CChangeSkin>(GameOpCode.ChangeSkin);
             Register<CNPCJulia>(GameOpCode.NPCJulia);
+            Register<CItemGet>(GameOpCode.ItemGet);
 
             #region Client ChatMessages
             Register<CChatNickname>(GameOpCode.GeneralChat0);
@@ -101,7 +102,6 @@ namespace MU.Network.Game
             VersionSelector.Register<SMagicAttackS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicAttack);
             VersionSelector.Register<SMagicAttackS12Eng>(ServerSeason.Season12Eng, GameOpCode.MagicAttack);
 
-            Register<CItemGet>(GameOpCode.ItemGet);
             switch (Season)
             {
                 case ServerSeason.Season17Kor75:
