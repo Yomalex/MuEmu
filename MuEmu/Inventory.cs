@@ -16,6 +16,7 @@ using MuEmu.Resources;
 using MU.Network.Event;
 using MySqlX.XDevAPI;
 using MuEmu.Network.Data;
+using MU.Network;
 
 namespace MuEmu
 {
@@ -282,7 +283,9 @@ namespace MuEmu
 
         internal async void SendEventInventory()
         {
-            await Character.Player.Session.SendAsync(new SEventInventory { Inventory = _event.GetInventory() });
+            var message = VersionSelector.CreateMessage<SEventInventory>() as IInventory;
+            message.LoadItems(_event.GetInventory());
+            await Character.Player.Session.SendAsync(message);
         }
 
         /// <summary>
@@ -1033,15 +1036,12 @@ namespace MuEmu
         /// </summary>
         public async void SendInventory()
         {
-            var list = new List<Network.Data.InventoryDto>();
+            var baseType = Program.Season == ServerSeason.Season17Kor75 ? typeof(InventoryS17Dto) : typeof(InventoryDto);
+            var list = new List<AInventoryDto>();
 
             foreach (var it in _equipament)
             {
-                list.Add(new Network.Data.InventoryDto
-                {
-                    Index = (byte)it.Key,
-                    Item = it.Value.GetBytes()
-                });
+                list.Add(Activator.CreateInstance(baseType, (byte)it.Key, it.Value.GetBytes()) as AInventoryDto);
             }
 
             list.AddRange(_inventory.GetInventory());
@@ -1054,7 +1054,10 @@ namespace MuEmu
 
             list.AddRange(_personalShop.GetInventory());
 
-            await Character.Player.Session.SendAsync(new SInventory(list.ToArray()));
+            var message = VersionSelector.CreateMessage<SInventory>() as IInventory;;
+            message.LoadItems(list.ToArray());
+
+            await Character.Player.Session.SendAsync(message);
         }
 
 

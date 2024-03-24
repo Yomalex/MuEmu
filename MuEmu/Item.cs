@@ -546,7 +546,7 @@ namespace MuEmu
 
         public byte[] GetBytes()
         {
-            using (var ms = new MemoryStream(7 + 5))
+            using (var ms = new MemoryStream(15))
             {
                 ms.WriteByte((byte)(Number & 0xff));
 
@@ -607,6 +607,10 @@ namespace MuEmu
                         ms.WriteByte((byte)SocketOption.None);
                     }
                 }
+                ms.WriteByte(0);
+                ms.WriteByte(0);
+                ms.WriteByte(0);
+                ms.WriteByte(0);
                 return ms.GetBuffer();
             }
         }

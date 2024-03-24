@@ -12,9 +12,10 @@ namespace MU.Network.Event
 
     public class EventMessageFactory : MessageFactory<EventOpCode, IEventMessage>
     {
-        public EventMessageFactory(ServerSeason season)
+        public EventMessageFactory(ServerSeason Season)
         {
             // C2S
+            if(Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, true);
             Register<CEventRemainTime>(EventOpCode.RemainTime);
             //LuckyCoins
             Register<CLuckyCoinsCount>(EventOpCode.LuckyCoinsCount);
@@ -24,15 +25,7 @@ namespace MU.Network.Event
             // Crywolf
             Register<CCrywolfState>(EventOpCode.CrywolfState);
             Register<CCrywolfContract>(EventOpCode.CrywolfContract);
-            Register<SCrywolfState>(EventOpCode.CrywolfState);
-            Register<SCrywolfLeftTime>(EventOpCode.CrywolfLeftTime);
-            Register<SCrywolfStatueAndAltarInfo>(EventOpCode.CrywolfStatueAndAltarInfo);
-            Register<SCrywolfBossMonsterInfo>(EventOpCode.CrywolfBossMonsterInfo);
-            Register<SCrywolfStageEffect>(EventOpCode.CrywolfStageEffect);
-            Register<SCrywolfPersonalRank>(EventOpCode.CrywolfPersonalRank);
-            Register<SCrywolfHeroList>(EventOpCode.CrywolfHeroList);
             Register<CCrywolfBenefit>(EventOpCode.CrywolfBenefit);
-
             // DevilSquare
             Register<CDevilSquareMove>(EventOpCode.DevilSquareMove);
 
@@ -40,6 +33,54 @@ namespace MU.Network.Event
             Register<CChaosCastleMove>(EventOpCode.ChaosCastleMove);
 
             Register<CKanturuStateInfo>(EventOpCode.KanturuState);
+            Register<CKanturuEnterBossMap>(EventOpCode.KanturuEnter);
+            Register<CImperialGuardianEnter>(EventOpCode.ImperialGuardianEnter);
+            // MuRummy
+            Register<CEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
+            Register<CMuRummyStart>(EventOpCode.MuRummyStart);
+            Register<CMuRummyPlayCard>(EventOpCode.MuRummyPlayCard);
+            Register<CMuRummyMatch>(EventOpCode.MuRummyMatch);
+            Register<CMuRummySpecialMatch>(EventOpCode.MuRummySpecialMatch);
+            Register<CMuRummyThrow>(EventOpCode.MuRummyThrow);
+            Register<CMuRummyExit>(EventOpCode.MuRummyExit);
+            Register<CMuRummyReveal>(EventOpCode.MuRummyReveal);
+
+            //MineSweeper
+            Register<CMineSweeperOpen>(EventOpCode.MineSweeper);
+            Register<CMineSweeperStart>(EventOpCode.MineSweeperStart);
+            Register<CMineSweeperReveal>(EventOpCode.MineSweeperReveal);
+            Register<CMineSweeperMark>(EventOpCode.MineSweeperMark);
+            Register<CMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
+            //JewelBingo
+            //Register<CJewelBingoMove>(EventOpCode.JeweldryBingoState);
+            Register<CJewelBingoStart>(EventOpCode.JeweldryBingoState);
+            Register<CJewelBingoMove>(EventOpCode.JeweldryBingoInfo);
+            Register<CJewelBingoBox>(EventOpCode.JeweldryBingoBox);
+            Register<CJewelBingoSelect>(EventOpCode.JeweldryBingoPlayInfo);
+            Register<CJewelBingoGetReward>(EventOpCode.JeweldryBingoPlayResult);
+            //BallsAndCows
+            Register<CBallsAndCowsStart>(EventOpCode.BallsAndCowsStart);
+            Register<CBallsAndCowsPick>(EventOpCode.BallsAndCowsPick);
+            Register<CEventItemGet>(EventOpCode.EventItemGet);
+            Register<CEventItemThrow>(EventOpCode.EventItemThrow);
+            Register<CAcheronEventEnter>(EventOpCode.AcheronEnterReq);
+            //CastleSiege
+            Register<CSiegeState>(EventOpCode.CastleSiegeState);
+            Register<CGuildRegisteInfo>(EventOpCode.CastleSiegeGuildInfo);
+            Register<CGuildMarkOfCastleOwner>(EventOpCode.CastleSiegeGuildMarkOfOwner);
+            Register<CGuildRegiste>(EventOpCode.CastleSiegeRegiste);
+            Register<CSiegeGuildList>(EventOpCode.CastleSiegeGuildList);
+            Register<CSiegeRegisteMark>(EventOpCode.CastleSiegeRegisteMark);
+
+            if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
+            Register<SCrywolfState>(EventOpCode.CrywolfState);
+            Register<SCrywolfLeftTime>(EventOpCode.CrywolfLeftTime);
+            Register<SCrywolfStatueAndAltarInfo>(EventOpCode.CrywolfStatueAndAltarInfo);
+            Register<SCrywolfBossMonsterInfo>(EventOpCode.CrywolfBossMonsterInfo);
+            Register<SCrywolfStageEffect>(EventOpCode.CrywolfStageEffect);
+            Register<SCrywolfPersonalRank>(EventOpCode.CrywolfPersonalRank);
+            Register<SCrywolfHeroList>(EventOpCode.CrywolfHeroList);
+
 
             // S2C
             Register<SEventRemainTime>(EventOpCode.RemainTime);
@@ -63,14 +104,12 @@ namespace MU.Network.Event
             // Kanturu
             Register<SKanturuStateInfo>(EventOpCode.KanturuState);
             Register<SKanturuStateChange>(EventOpCode.KanturuStateChange);
-            Register<CKanturuEnterBossMap>(EventOpCode.KanturuEnter);
             Register<SKanturuBattleTime>(EventOpCode.KanturuBattleTime);
             Register<SKanturuMonsterUserCount>(EventOpCode.KanturuMonsterUserCount);
             Register<SKanturuBattleResult>(EventOpCode.KanturuBattleResult);
             Register<SKanturuWideAttack>(EventOpCode.KanturuWideAttack);
 
             // Imperial
-            Register<CImperialGuardianEnter>(EventOpCode.ImperialGuardianEnter);
             Register<SImperialEnterResult>(EventOpCode.ImperialGuardianEnterResult);
             Register<SImperialNotifyZoneTime>(EventOpCode.ImperialGuardianNotifyZoneTime);
             Register<SImperialNotifyZoneClear>(EventOpCode.ImperialGuardianNotifyZoneAllClear);
@@ -81,86 +120,53 @@ namespace MU.Network.Event
             // Banner
             Register<SSendBanner>(EventOpCode.Banner);
 
-            // MuRummy
-            Register<CEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
             Register<SEventInventoryOpenS16>(EventOpCode.EventInventoryOpen);
-            Register<CMuRummyStart>(EventOpCode.MuRummyStart);
             Register<SMuRummyStart>(EventOpCode.MuRummyStart);
             Register<SMuRummyMessage>(EventOpCode.MuRummyMessage);
-            Register<CMuRummyPlayCard>(EventOpCode.MuRummyPlayCard);
             Register<SMuRummyPlayCard>(EventOpCode.MuRummyPlayCard);
-            Register<CMuRummyMatch>(EventOpCode.MuRummyMatch);
-            Register<CMuRummySpecialMatch>(EventOpCode.MuRummySpecialMatch);
             Register<SMuRummyMatch>(EventOpCode.MuRummyMatch);
             Register<SMuRummyCardList>(EventOpCode.MuRummyCardList);
-            Register<CMuRummyThrow>(EventOpCode.MuRummyThrow);
-            Register<CMuRummyReveal>(EventOpCode.MuRummyReveal);
             Register<SMuRummyReveal>(EventOpCode.MuRummyReveal);
-            Register<CMuRummyExit>(EventOpCode.MuRummyExit);
             Register<SMuRummyExit>(EventOpCode.MuRummyExit);
-
-            //MineSweeper
-            Register<CMineSweeperOpen>(EventOpCode.MineSweeper);
             Register<SMineSweeperOpen>(EventOpCode.MineSweeper);
-            Register<CMineSweeperStart>(EventOpCode.MineSweeperStart);
             Register<SMineSweeperStart>(EventOpCode.MineSweeperStart);
             Register<SMineSweeperCreateCell>(EventOpCode.MineSweeperCreateCell);
-            Register<CMineSweeperReveal>(EventOpCode.MineSweeperReveal);
             Register<SMineSweeperReveal>(EventOpCode.MineSweeperReveal);
-            Register<CMineSweeperMark>(EventOpCode.MineSweeperMark);
             Register<SMineSweeperMark>(EventOpCode.MineSweeperMark);
             Register<SMineSweeperEnd>(EventOpCode.MineSweeperEnd);
-            Register<CMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
             Register<SMineSweeperGetReward>(EventOpCode.MineSweeperGetReward);
 
-            //JewelBingo
-            //Register<CJewelBingoMove>(EventOpCode.JeweldryBingoState);
-            Register<CJewelBingoStart>(EventOpCode.JeweldryBingoState);
             Register<SJewelBingoState>(EventOpCode.JeweldryBingoState);
-            Register<CJewelBingoMove>(EventOpCode.JeweldryBingoInfo);
             Register<SJewelBingoInfo>(EventOpCode.JeweldryBingoInfo);
-            Register<CJewelBingoBox>(EventOpCode.JeweldryBingoBox);
             Register<SJewelBingoBox>(EventOpCode.JeweldryBingoBox);
-            Register<CJewelBingoSelect>(EventOpCode.JeweldryBingoPlayInfo);
             Register<SJewelBingoPlayInfo>(EventOpCode.JeweldryBingoPlayInfo);
-            Register<CJewelBingoGetReward>(EventOpCode.JeweldryBingoPlayResult);
             Register<SJewelBingoPlayResult>(EventOpCode.JeweldryBingoPlayResult);
 
-            //BallsAndCows
             Register<SBallsAndCowsOpen>(EventOpCode.BallsAndCowsOpen);
-            Register<CBallsAndCowsStart>(EventOpCode.BallsAndCowsStart);
             Register<SBallsAndCowsStart>(EventOpCode.BallsAndCowsStart);
-            Register<CBallsAndCowsPick>(EventOpCode.BallsAndCowsPick);
             Register<SBallsAndCowsResult>(EventOpCode.BallsAndCowsResult);
 
             //
-            Register<CEventItemGet>(EventOpCode.EventItemGet);
             Register<SEventItemGet>(EventOpCode.EventItemGet);
             Register<SEventItemGetS16>(EventOpCode.EventItemGet);
             VersionSelector.Register<SEventItemGet>(Resources.ServerSeason.Season9Eng, EventOpCode.EventItemGet);
             VersionSelector.Register<SEventItemGetS16>(Resources.ServerSeason.Season16Kor, EventOpCode.EventItemGet);
-            Register<CEventItemThrow>(EventOpCode.EventItemThrow);
             Register<SEventItemThrow>(EventOpCode.EventItemThrow);
 
             Register<SEventInventory>(EventOpCode.EventInventory);
+            Register<SEventInventoryS17>(EventOpCode.EventInventory);
+            VersionSelector.Register<SEventInventory>(ServerSeason.Season6Kor, EventOpCode.EventInventory);
+            VersionSelector.Register<SEventInventoryS17>(ServerSeason.Season17Kor75, EventOpCode.EventInventory);
 
             // Acheron Guardian
-            Register<CAcheronEventEnter>(EventOpCode.AcheronEnterReq);
             Register<SAcheronEventEnter>(EventOpCode.AcheronEnter);
 
-            //CastleSiege
             Register<SLeftTimeAlarm>(EventOpCode.CastleSiegeLeftTimeAlarm);
-            Register<CSiegeState>(EventOpCode.CastleSiegeState);
             Register<SSiegeState>(EventOpCode.CastleSiegeState);
-            Register<CGuildRegisteInfo>(EventOpCode.CastleSiegeGuildInfo);
             Register<SGuildRegisteInfo>(EventOpCode.CastleSiegeGuildInfo);
-            Register<CGuildMarkOfCastleOwner>(EventOpCode.CastleSiegeGuildMarkOfOwner);
             Register<SGuildMarkOfCastleOwner>(EventOpCode.CastleSiegeGuildMarkOfOwner);
-            Register<CGuildRegiste>(EventOpCode.CastleSiegeRegiste);
             Register<SGuildRegiste>(EventOpCode.CastleSiegeRegiste);
-            Register<CSiegeGuildList>(EventOpCode.CastleSiegeGuildList);
             Register<SSiegeGuildList>(EventOpCode.CastleSiegeGuildList);
-            Register<CSiegeRegisteMark>(EventOpCode.CastleSiegeRegisteMark);
             Register<SSiegeRegisteMark>(EventOpCode.CastleSiegeRegisteMark);
             Register<SJoinSideNotify>(EventOpCode.CastleSiegejoinSide);
             Register<SCastleSiegeNotifyStart>(EventOpCode.CastleSiegeNotifyStart);
@@ -168,13 +174,6 @@ namespace MU.Network.Event
             Register<SCastleSiegeMinimapData>(EventOpCode.CastleSiegeMinimap);
             Register<SCastleSiegeNotifySwitchInfo>(EventOpCode.CastleSiegeNotifySwitchInfo);
             Register<SCastleSiegeNotifyCrownState>(EventOpCode.CastleSiegeCrownState);
-
-            switch(season)
-            {
-                case ServerSeason.Season17Kor75:
-                    ChangeOPCode<SEventInventory>((EventOpCode)0x3B87);
-                    break;
-            }
         }
     }
 }

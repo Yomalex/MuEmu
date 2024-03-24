@@ -199,6 +199,9 @@ namespace MU.Network.Game
             // S2C
             if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
             Register<SInventory>(GameOpCode.Inventory);
+            Register<SInventoryS17>(GameOpCode.Inventory);
+            VersionSelector.Register<SInventory>(ServerSeason.Season6Kor, GameOpCode.Inventory);
+            VersionSelector.Register<SInventoryS17>(ServerSeason.Season17Kor75, GameOpCode.Inventory);
             Register<SEquipament>(GameOpCode.Equipament);
             Register<SCheckSum>(GameOpCode.GameSecurity);
             Register<SWeather>(GameOpCode.Weather);
@@ -244,6 +247,9 @@ namespace MU.Network.Game
             Register<SEventState>(GameOpCode.EventState);
             Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
             Register<SHeatlUpdate>(GameOpCode.HealthUpdate);
+            Register<SHeatlUpdateS17>(GameOpCode.HealthUpdate);
+            VersionSelector.Register<SHeatlUpdate>(ServerSeason.Season6Kor, GameOpCode.HealthUpdate);
+            VersionSelector.Register<SHeatlUpdateS17>(ServerSeason.Season17Kor75,GameOpCode.HealthUpdate);
             Register<SManaUpdate>(GameOpCode.ManaUpdate);
             Register<SSkillKey>(GameOpCode.SkillKey);
             Register<SAction>(GameOpCode.Rotation);

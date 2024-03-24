@@ -213,8 +213,13 @@ namespace MuEmu
             _map.Clear();
         }
 
-        public InventoryDto[] GetInventory()
+        public AInventoryDto[] GetInventory()
         {
+            if(Program.Season == ServerSeason.Season17Kor75)
+                return _items
+                .Select(x => new InventoryS17Dto((byte)(x.Key + IndexTranslate), x.Value.GetBytes()))
+                .ToArray();
+
             return _items
                 .Select(x => new InventoryDto { Index = (byte)(x.Key+IndexTranslate), Item = x.Value.GetBytes() })
                 .ToArray();

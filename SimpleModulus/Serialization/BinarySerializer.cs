@@ -75,8 +75,13 @@ namespace WebZen.Serialization
                     emiter.Add();
                     emiter.StoreLocal(i);
 
-                    // i < length
+                    // i >= _size
                     emiter.MarkLabel(loopCheck);
+                    emiter.LoadLocal(i);
+                    emiter.LoadConstant(_size);
+                    emiter.BranchIfGreaterOrEqual(loopFillCheck);
+
+                    // i < length
                     emiter.LoadLocal(i);
                     emiter.LoadLocal(length);
                     emiter.BranchIfLess(loop);
