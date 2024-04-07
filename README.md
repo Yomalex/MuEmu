@@ -12,7 +12,7 @@ Now is listed to support:
 - Season 12 Korean
 - Season 16 Korean
 - Season 17 Korean
-![Season 17 Korean](https://media.discordapp.net/attachments/977558176926945280/1221450959624998943/image.png?ex=66129fda&is=66002ada&hm=699235695390f3399299300ff011ea7f908ccaf417f098b073584efaf111b7b8&=&format=webp&quality=lossless&width=720&height=468)
+![Season 17 Korean](https://i.ibb.co/X80Z73C/Captura-de-pantalla-2024-03-24-082942.png)
 
 # Servers included
 
