@@ -12,7 +12,7 @@ Now is listed to support:
 - Season 12 Korean
 - Season 16 Korean
 - Season 17 Korean
-![Season 17 Korean](https://i.ibb.co/X80Z73C/Captura-de-pantalla-2024-03-24-082942.png)
+![Season 17 Korean](https://github.com/Yomalex/MuEmu/blob/master/Captura%20de%20pantalla%202024-03-24%20082942.png?raw=true)
 
 # Servers included
 
