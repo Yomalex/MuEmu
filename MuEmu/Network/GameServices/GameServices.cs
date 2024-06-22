@@ -21,6 +21,7 @@ using MuEmu.Resources;
 using MuEmu.Resources.Game;
 using MuEmu.Resources.Map;
 using MuEmu.Util;
+using MySqlX.XDevAPI;
 using Serilog;
 using Serilog.Core;
 using System;
@@ -827,7 +828,7 @@ namespace MuEmu.Network.GameServices
             }
             else
             {
-                switch(pickup.BasicInfo.Inventory)
+                switch(Program.Season >= ServerSeason.Season16Kor?pickup.BasicInfo.Inventory: StorageID.Inventory)
                 {
                     case StorageID.Inventory:
                         pos = @char.Inventory.Add(pickup);
@@ -889,7 +890,15 @@ namespace MuEmu.Network.GameServices
                         var shop = ResourceCache.Instance.GetShops()[(ushort)(npc.Data + baseClass)];
 
                         await session.SendAsync(new STalk { Result = NPCWindow.RuudShop });
-                        await session.SendAsync(new SShopItemList(shop.Storage.GetInventory()) { ListType = 0x17 });
+                        switch(Program.Season)
+                        {
+                            case ServerSeason.Season17Kor75:
+                                await session.SendAsync(new SShopItemListS17(shop.Storage.GetInventoryS17()) { ListType = 0x17 });
+                                break;
+                            default:
+                                await session.SendAsync(new SShopItemList(shop.Storage.GetInventory()) { ListType = 0x17 });
+                                break;
+                        }
                         await session.SendAsync(new SMonsterSoulShop { Result = 1 });
                         await session.SendAsync(new SMonsterSoulAvailableShop { Amount = 1 });
                         break;
@@ -911,14 +920,30 @@ namespace MuEmu.Network.GameServices
                         if (npc.Data == 0xffff)
                             break;
                         await session.SendAsync(new STalk { Result = NPCWindow.Shop });
-                        await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
+                        switch (Program.Season)
+                        {
+                            case ServerSeason.Season17Kor75:
+                                await session.SendAsync(new SShopItemListS17(npc.Shop.Storage.GetInventoryS17()) { ListType = 0 });
+                                break;
+                            default:
+                                await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
+                                break;
+                        }
                         await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
                         break;
                     case NPCAttributeType.Warehouse:
                         session.Player.Character.Inventory.Lock = true;
                         await session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_Vault_active, session.Player.Account.ActiveVault + 1)));
                         await session.SendAsync(new STalk { Result = NPCWindow.Warehouse });
-                        await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
+                        switch (Program.Season)
+                        {
+                            case ServerSeason.Season17Kor75:
+                                await session.SendAsync(new SShopItemListS17(session.Player.Account.Vault.GetInventoryS17()));
+                                break;
+                            default:
+                                await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
+                                break;
+                        }
                         await session.SendAsync(new SWarehouseMoney(true, session.Player.Account.VaultMoney, session.Player.Character.Money));
                         break;
                     case NPCAttributeType.GuildMaster:
@@ -962,6 +987,11 @@ namespace MuEmu.Network.GameServices
                         }
                         break;
                     case NPCAttributeType.Talk:
+                        if (npc.NPC == 257 && Program.Season < ServerSeason.Season9Eng)
+                        {
+                            CShadowBuff(session);
+                            break;
+                        }
                         await session.SendAsync(new SNPCDialog { Contribution = 0, NPC = npc.NPC });
                         break;
                     case NPCAttributeType.Buff:

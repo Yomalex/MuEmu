@@ -159,7 +159,7 @@ namespace MU.Network.Auth
         {
             var l = CharacterList.ToList();
             l.Add(new CharacterPreviewDto(
-                id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet, gStatus
+                id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet.Take(18).ToArray(), gStatus
                 ));
             CharacterList = l.ToArray();
             return this;
@@ -200,7 +200,7 @@ namespace MU.Network.Auth
         public override CharList AddChar(byte id, CharacterDto @char, byte[] charSet, GuildStatus gStatus)
         {
             var l = CharacterList.ToList();
-            l.Add(new CharacterPreviewS9Dto(id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet, gStatus, 3));
+            l.Add(new CharacterPreviewS9Dto(id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet.Take(18).ToArray(), gStatus, 3));
             CharacterList = l.ToArray();
             Count = (byte)CharacterList.Length;
             return this;
@@ -240,7 +240,7 @@ namespace MU.Network.Auth
         public override CharList AddChar(byte id, CharacterDto @char, byte[] charSet, GuildStatus gStatus)
         {
             var l = CharacterList.ToList();
-            l.Add(new CharacterPreviewS12Dto(id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet, gStatus, 3));
+            l.Add(new CharacterPreviewS12Dto(id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet.Take(18).ToArray(), gStatus, 3));
             CharacterList = l.ToArray();
             Count = (byte)CharacterList.Length;
             return this;

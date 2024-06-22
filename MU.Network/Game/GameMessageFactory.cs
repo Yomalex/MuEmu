@@ -245,7 +245,6 @@ namespace MU.Network.Game
             if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
             Register<SNotice>(GameOpCode.Notice);
             Register<SEventState>(GameOpCode.EventState);
-            Register<SNewQuestInfo>(GameOpCode.NewQuestInfo);
             Register<SHeatlUpdate>(GameOpCode.HealthUpdate);
             Register<SHeatlUpdateS17>(GameOpCode.HealthUpdate);
             VersionSelector.Register<SHeatlUpdate>(ServerSeason.Season6Kor, GameOpCode.HealthUpdate);
@@ -268,6 +267,7 @@ namespace MU.Network.Game
             Register<SCloseMsg>(GameOpCode.ClientClose);
             Register<STalk>(GameOpCode.Talk);
             Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
+            Register<SShopItemListS17>(GameOpCode.CloseWindow); // Same OPCode
             Register<SMonsterSoulShop>(GameOpCode.MonsterSoulShop);
             Register<SMonsterSoulAvailableShop>(GameOpCode.MonsterSoulAvailableShop);
             Register<STax>(GameOpCode.Tax);

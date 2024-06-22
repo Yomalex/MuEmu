@@ -1037,22 +1037,37 @@ namespace MuEmu
         public async void SendInventory()
         {
             var baseType = Program.Season == ServerSeason.Season17Kor75 ? typeof(InventoryS17Dto) : typeof(InventoryDto);
-            var list = new List<AInventoryDto>();
+            var list = new List<IInventoryDto>();
 
             foreach (var it in _equipament)
             {
-                list.Add(Activator.CreateInstance(baseType, (byte)it.Key, it.Value.GetBytes()) as AInventoryDto);
+                list.Add(Activator.CreateInstance(baseType, (byte)it.Key, it.Value.GetBytes()) as IInventoryDto);
             }
 
-            list.AddRange(_inventory.GetInventory());
+            if (Program.Season == ServerSeason.Season17Kor75)
+            {
+                list.AddRange(_inventory.GetInventoryS17());
 
-            if (_exInventory1 != null)
-                list.AddRange(_exInventory1.GetInventory());
+                if (_exInventory1 != null)
+                    list.AddRange(_exInventory1.GetInventoryS17());
 
-            if (_exInventory2 != null)
-                list.AddRange(_exInventory2?.GetInventory());
+                if (_exInventory2 != null)
+                    list.AddRange(_exInventory2?.GetInventoryS17());
 
-            list.AddRange(_personalShop.GetInventory());
+                list.AddRange(_personalShop.GetInventoryS17());
+            }
+            else
+            {
+                list.AddRange(_inventory.GetInventory());
+
+                if (_exInventory1 != null)
+                    list.AddRange(_exInventory1.GetInventory());
+
+                if (_exInventory2 != null)
+                    list.AddRange(_exInventory2?.GetInventory());
+
+                list.AddRange(_personalShop.GetInventory());
+            }
 
             var message = VersionSelector.CreateMessage<SInventory>() as IInventory;;
             message.LoadItems(list.ToArray());

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Network.Game;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using WebZen.Serialization;
@@ -32,6 +33,18 @@ namespace MU.Network.QuestSystem
     [WZContract]
     public class CQuestEXPProgressList : IQuestMessage
     { }
+
+    [WZContract]
+    public class SNewQuestInfo : IQuestMessage
+    {
+        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
+        public uint[] QuestList { get; set; }
+
+        public SNewQuestInfo()
+        {
+            QuestList = Array.Empty<uint>();
+        }
+    }
 
     [WZContract]
     public class CQuestEXPEventItemEPList : IQuestMessage

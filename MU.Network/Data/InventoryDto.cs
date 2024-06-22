@@ -7,19 +7,12 @@ using WebZen.Serialization;
 
 namespace MuEmu.Network.Data
 {
-    public abstract class AInventoryDto
+    public interface IInventoryDto
     {
-        public AInventoryDto()
-        {
-
-        }
-        public AInventoryDto(byte id, byte[] item)
-        {
-        }
     }
 
     [WZContract]
-    public class InventoryDto : AInventoryDto
+    public class InventoryDto : IInventoryDto
     {
         [WZMember(0)]
         public byte Index { get; set; }
@@ -37,7 +30,7 @@ namespace MuEmu.Network.Data
         }
     }
     [WZContract]
-    public class InventoryS17Dto : AInventoryDto
+    public class InventoryS17Dto : IInventoryDto
     {
         [WZMember(0)]
         public byte Index { get; set; }

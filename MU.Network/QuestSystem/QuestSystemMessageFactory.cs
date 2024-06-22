@@ -1,4 +1,5 @@
-﻿using MU.Resources;
+﻿using MU.Network.Game;
+using MU.Resources;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -46,6 +47,7 @@ namespace MU.Network.QuestSystem
             Register<SQuestSurvivalTime>(QuestOpCode.QuestSurvivalTime);
             Register<SQuestNPCAccept>(QuestOpCode.QuestMUAccept);
             Register<SQuestNPCTalk>(QuestOpCode.QuestMUTalk);
+            Register<SNewQuestInfo>(QuestOpCode.QuestExpProgressList);
         }
     }
 }

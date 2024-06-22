@@ -60,7 +60,7 @@ namespace MU.Network.Guild
         [WZMember(2)] public ushort Padding { get; set; } // 6, 7
         [WZMember(3)] public int TotalScore { get; set; } // 8, 9, A, B
         [WZMember(4)] public byte Score { get; set; } // C
-        [WZMember(0, typeof(BinaryStringSerializer), 8)] public string RivalGuild { get; set; }	// D
+        [WZMember(5, typeof(BinaryStringSerializer), 8)] public string RivalGuild { get; set; }	// D
         [WZMember(6)] public ushort Padding2 { get; set; }
 
         [WZMember(7, SerializerType = typeof(ArraySerializer))]

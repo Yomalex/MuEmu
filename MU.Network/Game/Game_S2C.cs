@@ -17,7 +17,7 @@ namespace MU.Network.Game
 {
     public interface IInventory
     {
-        public void LoadItems(IEnumerable<AInventoryDto> items);
+        public void LoadItems(IEnumerable<IInventoryDto> items);
     }
 
     [WZContract(LongMessage = true, Serialized = true)]
@@ -36,7 +36,7 @@ namespace MU.Network.Game
             Inventory = inv as InventoryDto[];
         }
 
-        public void LoadItems(IEnumerable<AInventoryDto> items)
+        public void LoadItems(IEnumerable<IInventoryDto> items)
         {
             Inventory = items.Select(x => x as InventoryDto).ToArray();
         }
@@ -58,7 +58,7 @@ namespace MU.Network.Game
             Inventory = inv as InventoryS17Dto[];
         }
 
-        public void LoadItems(IEnumerable<AInventoryDto> items)
+        public void LoadItems(IEnumerable<IInventoryDto> items)
         {
             Inventory = items.Select(x => x as InventoryS17Dto).ToArray();
         }
@@ -543,18 +543,6 @@ namespace MU.Network.Game
     }
 
     [WZContract]
-    public class SNewQuestInfo : IGameMessage
-    {
-        [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))]
-        public uint[] QuestList { get; set; }
-
-        public SNewQuestInfo()
-        {
-            QuestList = Array.Empty<uint>();
-        }
-    }
-
-    [WZContract]
     public class SHeatlUpdate : IGameMessage
     {
         [WZMember(0)] public RefillInfo Pos { get; set; }
@@ -897,14 +885,34 @@ namespace MU.Network.Game
         public byte ListType { get; set; }
 
         [WZMember(1, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public AInventoryDto[] Inventory { get; set; }
+        public InventoryDto[] Inventory { get; set; }
 
         public SShopItemList()
         {
-            Inventory = Array.Empty<AInventoryDto>();
+            Inventory = Array.Empty<InventoryDto>();
         }
 
-        public SShopItemList(AInventoryDto[] inv)
+        public SShopItemList(InventoryDto[] inv)
+        {
+            Inventory = inv;
+        }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SShopItemListS17 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte ListType { get; set; }
+
+        [WZMember(1, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryS17Dto[] Inventory { get; set; }
+
+        public SShopItemListS17()
+        {
+            Inventory = Array.Empty<InventoryS17Dto>();
+        }
+
+        public SShopItemListS17(InventoryS17Dto[] inv)
         {
             Inventory = inv;
         }

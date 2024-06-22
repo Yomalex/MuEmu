@@ -309,7 +309,7 @@ namespace MU.Network
         MasterLevelUp = 0x51F3,
         MasterLevelSkill = 0x52F3,
 
-        NewQuestInfo = 0x1AF6,
+        //NewQuestInfo = 0x1AF6,
         QuestDetails = 0x1BF6,
         QuestWindow = 0x01F9,
         JewelMix = 0x00BC,

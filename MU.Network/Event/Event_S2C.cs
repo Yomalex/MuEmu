@@ -439,7 +439,7 @@ namespace MU.Network.Event
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public InventoryDto[] Inventory { get; set; }
 
-        public void LoadItems(IEnumerable<AInventoryDto> items)
+        public void LoadItems(IEnumerable<IInventoryDto> items)
         {
             Inventory = items.Select(x => x as InventoryDto).ToArray();
         }
@@ -449,7 +449,7 @@ namespace MU.Network.Event
     public class SEventInventoryS17 : IInventory, IEventMessage
     {
         [WZMember(0, typeof(ArrayWithScalarSerializer<byte>))] public InventoryS17Dto[] Inventory { get; set; }
-        public void LoadItems(IEnumerable<AInventoryDto> items)
+        public void LoadItems(IEnumerable<IInventoryDto> items)
         {
             Inventory = items.Select(x => x as InventoryS17Dto).ToArray();
         }
