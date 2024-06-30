@@ -890,15 +890,7 @@ namespace MuEmu.Network.GameServices
                         var shop = ResourceCache.Instance.GetShops()[(ushort)(npc.Data + baseClass)];
 
                         await session.SendAsync(new STalk { Result = NPCWindow.RuudShop });
-                        switch(Program.Season)
-                        {
-                            case ServerSeason.Season17Kor75:
-                                await session.SendAsync(new SShopItemListS17(shop.Storage.GetInventoryS17()) { ListType = 0x17 });
-                                break;
-                            default:
-                                await session.SendAsync(new SShopItemList(shop.Storage.GetInventory()) { ListType = 0x17 });
-                                break;
-                        }
+                        await session.SendAsync(VersionSelector.CreateMessage<SShopItemList>((byte)0, shop.Storage.GetInventory()));
                         await session.SendAsync(new SMonsterSoulShop { Result = 1 });
                         await session.SendAsync(new SMonsterSoulAvailableShop { Amount = 1 });
                         break;
@@ -920,30 +912,14 @@ namespace MuEmu.Network.GameServices
                         if (npc.Data == 0xffff)
                             break;
                         await session.SendAsync(new STalk { Result = NPCWindow.Shop });
-                        switch (Program.Season)
-                        {
-                            case ServerSeason.Season17Kor75:
-                                await session.SendAsync(new SShopItemListS17(npc.Shop.Storage.GetInventoryS17()) { ListType = 0 });
-                                break;
-                            default:
-                                await session.SendAsync(new SShopItemList(npc.Shop.Storage.GetInventory()) { ListType = 0 });
-                                break;
-                        }
+                        await session.SendAsync(VersionSelector.CreateMessage<SShopItemList>((byte)0, npc.Shop.Storage.GetInventory()));
                         await session.SendAsync(new STax { Type = TaxType.Shop, Rate = 4 });
                         break;
                     case NPCAttributeType.Warehouse:
                         session.Player.Character.Inventory.Lock = true;
                         await session.SendAsync(new SNotice(NoticeType.Blue, ServerMessages.GetMessage(Messages.Game_Vault_active, session.Player.Account.ActiveVault + 1)));
                         await session.SendAsync(new STalk { Result = NPCWindow.Warehouse });
-                        switch (Program.Season)
-                        {
-                            case ServerSeason.Season17Kor75:
-                                await session.SendAsync(new SShopItemListS17(session.Player.Account.Vault.GetInventoryS17()));
-                                break;
-                            default:
-                                await session.SendAsync(new SShopItemList(session.Player.Account.Vault.GetInventory()));
-                                break;
-                        }
+                        await session.SendAsync(VersionSelector.CreateMessage<SShopItemList>((byte)0, session.Player.Account.Vault.GetInventory()));
                         await session.SendAsync(new SWarehouseMoney(true, session.Player.Account.VaultMoney, session.Player.Character.Money));
                         break;
                     case NPCAttributeType.GuildMaster:
@@ -1337,7 +1313,7 @@ namespace MuEmu.Network.GameServices
 
             if (result != ChaosBoxMixResult.Success)
             {
-                await session.SendAsync(new SShopItemList(cbMix.GetInventory()) { ListType = 3 });
+                await session.SendAsync(VersionSelector.CreateMessage<SShopItemList>((byte)3, cbMix.GetInventory()));
             }
 
             await session.SendAsync(new SChaosBoxItemMixButtonClick { Result = result, ItemInfo = cbMix.Items.Values.FirstOrDefault()?.GetBytes() ?? Array.Empty<byte>() });
@@ -2039,7 +2015,7 @@ namespace MuEmu.Network.GameServices
 
             if (result != ChaosBoxMixResult.Success)
             {
-                await session.SendAsync(new SShopItemList(cbMix.GetInventory()) { ListType = 3 });
+                await session.SendAsync(VersionSelector.CreateMessage<SShopItemList>((byte)3, cbMix.GetInventory()));
             }
             else
             {

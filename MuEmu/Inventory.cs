@@ -263,10 +263,7 @@ namespace MuEmu
         internal void SendMuunInventory()
         {
             var session = Character.Player.Session;
-            _ = session.SendAsync(new SMuunInventory
-            {
-                Inventory = _muun.GetInventory()
-            });
+            _ = session.SendAsync(VersionSelector.CreateMessage<SMuunInventory>(_muun.GetInventory()));
         }
 
         /// <summary>
@@ -1036,40 +1033,19 @@ namespace MuEmu
         /// </summary>
         public async void SendInventory()
         {
-            var baseType = Program.Season == ServerSeason.Season17Kor75 ? typeof(InventoryS17Dto) : typeof(InventoryDto);
-            var list = new List<IInventoryDto>();
+            var message = VersionSelector.CreateMessage<SInventory>() as IInventory;
+            var list = new List<KeyValuePair<byte, byte[]>>();
 
             foreach (var it in _equipament)
             {
-                list.Add(Activator.CreateInstance(baseType, (byte)it.Key, it.Value.GetBytes()) as IInventoryDto);
+                list.Add(new KeyValuePair<byte, byte[]>((byte)it.Key, it.Value.GetBytes()));
             }
 
-            if (Program.Season == ServerSeason.Season17Kor75)
-            {
-                list.AddRange(_inventory.GetInventoryS17());
+            list.AddRange(_inventory.GetInventory());
+            if (_exInventory1 != null) list.AddRange(_exInventory1.GetInventory());
+            if (_exInventory2 != null) list.AddRange(_exInventory2?.GetInventory());
+            list.AddRange(_personalShop.GetInventory());
 
-                if (_exInventory1 != null)
-                    list.AddRange(_exInventory1.GetInventoryS17());
-
-                if (_exInventory2 != null)
-                    list.AddRange(_exInventory2?.GetInventoryS17());
-
-                list.AddRange(_personalShop.GetInventoryS17());
-            }
-            else
-            {
-                list.AddRange(_inventory.GetInventory());
-
-                if (_exInventory1 != null)
-                    list.AddRange(_exInventory1.GetInventory());
-
-                if (_exInventory2 != null)
-                    list.AddRange(_exInventory2?.GetInventory());
-
-                list.AddRange(_personalShop.GetInventory());
-            }
-
-            var message = VersionSelector.CreateMessage<SInventory>() as IInventory;;
             message.LoadItems(list.ToArray());
 
             await Character.Player.Session.SendAsync(message);
@@ -1100,10 +1076,11 @@ namespace MuEmu
             }
             var SmallLevel = 0u;
 
-            if (equip.ContainsKey(Equipament.RightHand))
+            if (equip.TryGetValue(Equipament.RightHand, out Item it))
             {
-                var it = equip[Equipament.RightHand];
+                //CS_WEAPON1_TYPE
                 CharSet[1] = (byte)it.Number;
+                //CS_WEAPON1_DATA
                 CharSet[12] |= (byte)((it.Number & 0xF00) >> 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x04 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x04 : 0x00);
@@ -1114,10 +1091,11 @@ namespace MuEmu
                 CharSet[12] |= 0xF0;
             }
 
-            if (equip.ContainsKey(Equipament.LeftHand))
+            if (equip.TryGetValue(Equipament.LeftHand, out it))
             {
-                var it = equip[Equipament.LeftHand];
+                //CS_WEAPON2_TYPE
                 CharSet[2] = (byte)it.Number;
+                //CS_WEAPON2_DATA
                 CharSet[13] |= (byte)((it.Number & 0xF00) >> 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x02 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x02 : 0x00);
@@ -1128,11 +1106,13 @@ namespace MuEmu
                 CharSet[13] |= 0xF0;
             }
 
-            if(equip.ContainsKey(Equipament.Helm))
+            if(equip.TryGetValue(Equipament.Helm, out it))
             {
-                var it = equip[Equipament.Helm];
+                //CS_SET_HELMET1
                 CharSet[13] |= (byte)((it.Number.Number&0x1E0) >> 5); //1FF
+                //CS_SET_HELMET2
                 CharSet[9] |= (byte)((it.Number.Number & 0x10) << 3);
+                //CS_SET_HELMET3
                 CharSet[3] |= (byte)((it.Number.Number & 0x0F) << 4);
                 CharSet[10] |= (byte)(it.OptionExe != 0 ? 0x80 : 0x00);
                 CharSet[11] |= (byte)(it.SetOption != 0 ? 0x80 : 0x00);
@@ -1145,9 +1125,8 @@ namespace MuEmu
                 CharSet[3] |= 0xF0;
             }
 
-            if (equip.ContainsKey(Equipament.Armor))
+            if (equip.TryGetValue(Equipament.Armor, out it))
             {
-                var it = equip[Equipament.Armor];
                 CharSet[14] |= (byte)((it.Number.Number & 0x1E0) >> 1); //1FF
                 CharSet[9] |= (byte)((it.Number.Number & 0x10) << 2);
                 CharSet[3] |= (byte)((it.Number.Number & 0x0F)/* << 4*/);
@@ -1162,9 +1141,8 @@ namespace MuEmu
                 CharSet[3] |= 0x0F;
             }
 
-            if (equip.ContainsKey(Equipament.Pants))
+            if (equip.TryGetValue(Equipament.Pants, out it))
             {
-                var it = equip[Equipament.Pants];
                 CharSet[14] |= (byte)((it.Number.Number & 0x1E0) >> 5); //1FF
                 CharSet[9] |= (byte)((it.Number.Number & 0x10) << 1);
                 CharSet[4] |= (byte)((it.Number.Number & 0x0F) << 4);
@@ -1179,9 +1157,8 @@ namespace MuEmu
                 CharSet[4] |= 0xF0;
             }
 
-            if (equip.ContainsKey(Equipament.Gloves))
+            if (equip.TryGetValue(Equipament.Gloves, out it))
             {
-                var it = equip[Equipament.Gloves];
                 CharSet[15] |= (byte)((it.Number.Number & 0x1E0) >> 1); //1FF
                 CharSet[9] |= (byte)((it.Number.Number & 0x10)/* << 1*/);
                 CharSet[4] |= (byte)((it.Number.Number & 0x0F)/* << 4*/);
@@ -1196,9 +1173,8 @@ namespace MuEmu
                 CharSet[4] |= 0x0F;
             }
 
-            if (equip.ContainsKey(Equipament.Boots))
+            if (equip.TryGetValue(Equipament.Boots, out it))
             {
-                var it = equip[Equipament.Boots];
                 CharSet[15] |= (byte)((it.Number.Number & 0x1E0) >> 5); //1FF
                 CharSet[9] |= (byte)((it.Number.Number & 0x10) << 1);
                 CharSet[5] |= (byte)((it.Number.Number & 0x0F) << 4);
@@ -1213,10 +1189,8 @@ namespace MuEmu
                 CharSet[5] |= 0xF0;
             }
 
-            if (equip.ContainsKey(Equipament.Pet))
+            if (equip.TryGetValue(Equipament.Pet, out it))
             {
-                var it = equip[Equipament.Pet];
-
                 if(
                     it.Number.Number == 6723 || //Rudolph
                     it.Number.Number == 6779 //??
@@ -1244,10 +1218,9 @@ namespace MuEmu
                 CharSet[12] |= 0x08;
             }
 
-            if(equip.ContainsKey(Equipament.Wings))
+            if(equip.TryGetValue(Equipament.Wings, out it))
             {
                 Dictionary<int, byte[]> sub;
-                var it = equip[Equipament.Wings];
                 // Pre season X
                 sub = new Dictionary<int, byte[]>
                 {
@@ -1296,45 +1269,6 @@ namespace MuEmu
                     { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
                     { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
                 };
-                // Season X
-                /*sub = new Dictionary<int, byte[]>
-                {
-                    { 0, new byte[]{ 0x00, 0x00, 0x01 << 2 } },
-                    { 1, new byte[]{ 0x00, 0x00, 0x02 << 2 } },
-                    { 2, new byte[]{ 0x00, 0x00, 0x03 << 2 } },
-                    { 3, new byte[]{ 0x00, 0x00, 0x04 << 2 } },
-                    { 4, new byte[]{ 0x00, 0x00, 0x05 << 2 } },
-                    { 5, new byte[]{ 0x00, 0x00, 0x06 << 2 } },
-                    { 6, new byte[]{ 0x00, 0x00, 0x07 << 2 } },
-                    { 36, new byte[]{ 0x00, 0x01, 0x00 << 2 } },
-                    { 37, new byte[]{ 0x00, 0x01, 0x01 << 2 } },
-                    { 38, new byte[]{ 0x00, 0x01, 0x02 << 2 } },
-                    { 39, new byte[]{ 0x00, 0x01, 0x03 << 2 } },
-                    { 40, new byte[]{ 0x00, 0x01, 0x04 << 2 } },
-                    { 41, new byte[]{ 0x00, 0x01, 0x05 << 2 } },
-                    { 42, new byte[]{ 0x00, 0x01, 0x06 << 2 } },
-                    { 43, new byte[]{ 0x00, 0x01, 0x07 << 2 } },
-                    { 49, new byte[]{ 0x00, 0x02, 0x00 << 2 } },
-                    { 50, new byte[]{ 0x00, 0x02, 0x01 << 2 } },
-                    { 139, new byte[]{ 0x00, 0x02, 0x02 << 2 } },
-                    { 140, new byte[]{ 0x00, 0x02, 0x03 << 2 } },
-                    { 141, new byte[]{ 0x00, 0x02, 0x04 << 2 } },
-                    { 142, new byte[]{ 0x00, 0x02, 0x05 << 2 } },
-                    { 143, new byte[]{ 0x00, 0x02, 0x06 << 2 } },
-                    { 144, new byte[]{ 0x00, 0x02, 0x07 << 2 } },
-                    { 145, new byte[]{ 0x00, 0x02, 0x08 << 2 } },
-                    { 262, new byte[]{ 0x00, 0x03, 0x00 << 2 } },
-                    { 263, new byte[]{ 0x00, 0x03, 0x01 << 2 } },
-                    { 264, new byte[]{ 0x00, 0x03, 0x02 << 2 } },
-                    { 265, new byte[]{ 0x00, 0x03, 0x03 << 2 } },
-                    { 266, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
-                    { 267, new byte[]{ 0x00, 0x03, 0x14 << 2 } },
-                    { 268, new byte[]{ 0x00, 0x03, 0x10 << 2 } },
-                    { 269, new byte[]{ 0x00, 0x03, 0x1C << 2 } },
-                    { 30, new byte[]{ 0x00, 0x03, 0x18 << 2 } },
-                    { 270, new byte[]{ 0x00, 0x04, 0x00 << 2 } },
-                    { 278, new byte[]{ 0x00, 0x04, 0x04 << 2 } },
-                };*/
 
                 var info = sub[it.Number.Index];
                 CharSet[5] |= info[0];
@@ -1342,9 +1276,9 @@ namespace MuEmu
                 CharSet[16] |= info[2];
             }
 
-            if(equip.ContainsKey(Equipament.Pet))
+            if(equip.TryGetValue(Equipament.Pet, out it))
             {
-                switch(equip[Equipament.Pet].Number.Number)
+                switch(it.Number.Number)
                 {
                     case 6720:
                         CharSet[16] |= 0x20;
@@ -1380,20 +1314,13 @@ namespace MuEmu
             return CharSet;
         }
 
-        internal void Remove(Item item, bool send = false)
-        {
-            Remove((byte)item.SlotId, send);
-        }
+        internal void Remove(Item item, bool send = false) => Remove((byte)item.SlotId, send).Wait();
 
         /// <summary>
         /// Get the client charset for character previews of the current character
         /// </summary>
         /// <returns></returns>
-        public byte[] GetCharset()
-        {
-            return GetCharset(Character.Class, this, Character.Action);
-        }
-
+        public byte[] GetCharset() => GetCharset(Character.Class, this, Character.Action);
         
         /// <summary>
         /// Clear all items in storage container and delete all from DataBase

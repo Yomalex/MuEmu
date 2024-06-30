@@ -58,13 +58,13 @@ namespace MuEmu
         #region Private
         private readonly List<List<float>> pklevelEXP = new List<List<float>>
         {
-            new List<float> { 0.00f, 0.00f, 0.00f },//hero
-            new List<float> { 0.00f, 0.00f, 0.00f },//hero
-            new List<float> { 0.00f, 0.00f, 0.00f },//hero
-            new List<float> { 0.03f, 0.02f, 0.01f },//commoner
-            new List<float> { 0.05f, 0.05f, 0.05f },//pk1
-            new List<float> { 0.10f, 0.10f, 0.10f },//pk2
-            new List<float> { 0.20f, 0.20f, 0.20f } //murderer
+            new List<float> { 0.00f, 0.00f, 0.00f, 0.00f },//hero
+            new List<float> { 0.00f, 0.00f, 0.00f, 0.00f },//hero
+            new List<float> { 0.00f, 0.00f, 0.00f, 0.00f },//hero
+            new List<float> { 0.03f, 0.02f, 0.01f, 0.00f },//commoner
+            new List<float> { 0.05f, 0.05f, 0.05f, 0.00f },//pk1
+            new List<float> { 0.10f, 0.10f, 0.10f, 0.10f },//pk2
+            new List<float> { 0.20f, 0.20f, 0.20f, 0.20f } //murderer
         };
         private readonly List<float> pkLevelDropPVM = new List<float>
         {

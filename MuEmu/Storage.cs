@@ -213,18 +213,10 @@ namespace MuEmu
             _map.Clear();
         }
 
-        public InventoryDto[] GetInventory()
+        public IEnumerable<KeyValuePair<byte, byte[]>> GetInventory()
         {
             return _items
-                .Select(x => new InventoryDto { Index = (byte)(x.Key+IndexTranslate), Item = x.Value.GetBytes() })
-                .ToArray();
-        }
-
-        public InventoryS17Dto[] GetInventoryS17()
-        {
-            return _items
-                .Select(x => new InventoryS17Dto((byte)(x.Key + IndexTranslate), x.Value.GetBytes()))
-                .ToArray();
+                .Select(x => new KeyValuePair<byte, byte[]>((byte)(x.Key + IndexTranslate), x.Value.GetBytes()));
         }
 
         public bool CanContain(byte address)

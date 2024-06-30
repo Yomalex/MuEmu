@@ -17,7 +17,7 @@ namespace MU.Network.Game
 {
     public interface IInventory
     {
-        public void LoadItems(IEnumerable<IInventoryDto> items);
+        public void LoadItems(IEnumerable<KeyValuePair<byte, byte[]>> items);
     }
 
     [WZContract(LongMessage = true, Serialized = true)]
@@ -36,9 +36,9 @@ namespace MU.Network.Game
             Inventory = inv as InventoryDto[];
         }
 
-        public void LoadItems(IEnumerable<IInventoryDto> items)
+        public void LoadItems(IEnumerable<KeyValuePair<byte, byte[]>> items)
         {
-            Inventory = items.Select(x => x as InventoryDto).ToArray();
+            Inventory = items.Select(x => new InventoryDto(x.Key, x.Value)).ToArray();
         }
     }
 
@@ -58,9 +58,9 @@ namespace MU.Network.Game
             Inventory = inv as InventoryS17Dto[];
         }
 
-        public void LoadItems(IEnumerable<IInventoryDto> items)
+        public void LoadItems(IEnumerable<KeyValuePair<byte, byte[]>> items)
         {
-            Inventory = items.Select(x => x as InventoryS17Dto).ToArray();
+            Inventory = items.Select(x => new InventoryS17Dto(x.Key, x.Value)).ToArray();
         }
     }
 
@@ -68,16 +68,33 @@ namespace MU.Network.Game
     public class SMuunInventory : IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
-        public object[] Inventory { get; set; }
+        public InventoryDto[] Inventory { get; set; }
 
         public SMuunInventory()
         {
-            Inventory = Array.Empty<object>();
+            Inventory = Array.Empty<InventoryDto>();
         }
 
-        public SMuunInventory(object[] inv)
+        public SMuunInventory(IEnumerable<KeyValuePair<byte, byte[]>> inv)
         {
-            Inventory = inv;
+            Inventory = inv.Select(x => new InventoryDto(x.Key, x.Value)).ToArray();
+        }
+    }
+
+    [WZContract(LongMessage = true, Serialized = true)]
+    public class SMuunInventoryS17 : IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryS17Dto[] Inventory { get; set; }
+
+        public SMuunInventoryS17()
+        {
+            Inventory = Array.Empty<InventoryS17Dto>();
+        }
+
+        public SMuunInventoryS17(IEnumerable<KeyValuePair<byte, byte[]>> inv)
+        {
+            Inventory = inv.Select(x => new InventoryS17Dto(x.Key, x.Value)).ToArray();
         }
     }
 
@@ -892,9 +909,10 @@ namespace MU.Network.Game
             Inventory = Array.Empty<InventoryDto>();
         }
 
-        public SShopItemList(InventoryDto[] inv)
+        public SShopItemList(byte lt, IEnumerable<KeyValuePair<byte,byte[]>> inv)
         {
-            Inventory = inv;
+            ListType = lt;
+            Inventory = inv.Select(x => new InventoryDto(x.Key, x.Value)).ToArray();
         }
     }
 
@@ -912,9 +930,10 @@ namespace MU.Network.Game
             Inventory = Array.Empty<InventoryS17Dto>();
         }
 
-        public SShopItemListS17(InventoryS17Dto[] inv)
+        public SShopItemListS17(byte lt, IEnumerable<KeyValuePair<byte, byte[]>> inv)
         {
-            Inventory = inv;
+            ListType = lt;
+            Inventory = inv.Select(x => new InventoryS17Dto(x.Key, x.Value)).ToArray();
         }
     }
 

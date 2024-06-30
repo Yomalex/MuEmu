@@ -268,6 +268,8 @@ namespace MU.Network.Game
             Register<STalk>(GameOpCode.Talk);
             Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
             Register<SShopItemListS17>(GameOpCode.CloseWindow); // Same OPCode
+            VersionSelector.Register<SShopItemList>(ServerSeason.Season6Kor, GameOpCode.CloseWindow);
+            VersionSelector.Register<SShopItemListS17>(ServerSeason.Season17Kor, GameOpCode.CloseWindow);
             Register<SMonsterSoulShop>(GameOpCode.MonsterSoulShop);
             Register<SMonsterSoulAvailableShop>(GameOpCode.MonsterSoulAvailableShop);
             Register<STax>(GameOpCode.Tax);
@@ -469,6 +471,9 @@ namespace MU.Network.Game
             Register<SAttackSpeed>(GameOpCode.AttackSpeed);
             Register<SLifeInfo>(GameOpCode.LifeInfo);
             Register<SMuunInventory>(GameOpCode.MuunInventory);
+            Register<SMuunInventoryS17>(GameOpCode.MuunInventory);
+            VersionSelector.Register<SMuunInventory>(ServerSeason.Season6Kor, GameOpCode.MuunInventory);
+            VersionSelector.Register<SMuunInventoryS17>(ServerSeason.Season17Kor, GameOpCode.MuunInventory);
             Register<SUBFPopUpType>(GameOpCode.PopUpType);
             Register<SMiniMapNPC>(GameOpCode.MiniMapNPC);
             Register<SPeriodItemCount>(GameOpCode.PeriodItemCount);
