@@ -14,7 +14,7 @@ namespace MU.DataBase
         public int Index { get; set; }
         public int CharacterId { get; set; }
 
-        [MaxLength(12)]
+        [MaxLength(15)]
         public byte[] Item { get; set; }
         public DateTime Date { get; set; }
         public int Price { get; set; }

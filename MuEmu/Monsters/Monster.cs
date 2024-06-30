@@ -526,8 +526,11 @@ namespace MuEmu.Monsters
                 attack = baseAttack - @char.Defense;
             }
 
-            if (attack < 0)
+            if (attack <= 0)
+            {
                 attack = 0;
+                type = DamageType.Miss;
+            }
 
             return attack;
         }
@@ -535,8 +538,9 @@ namespace MuEmu.Monsters
         private bool MissCheck()
         {
             var @char = Target.Character;
+            var sqr = Math.Sqrt(@char.DefenseRatePvM);
 
-            if (Info.Success < @char.DefenseRatePvM)
+            if (Info.Success < sqr)
             {
                 if (_rand.Next(100) >= 5)
                 {
@@ -545,7 +549,7 @@ namespace MuEmu.Monsters
             }
             else
             {
-                if (_rand.Next(Info.Success) < @char.DefenseRatePvM)
+                if (_rand.Next(Info.Success) < sqr)
                 {
                     return false;
                 }

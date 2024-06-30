@@ -276,7 +276,7 @@ namespace MU.Network.Game
             Register<SWarehouseMoney>(GameOpCode.WarehouseMoney);
             Register<SQuestWindow>(GameOpCode.QuestWindow);
             Register<SBuy>(GameOpCode.Buy);
-            //Register<SSell>(GameOpCode.Sell);
+            Register<SSell>(GameOpCode.Sell);
             Register<SItemGet>(GameOpCode.ItemGet);
             Register<SItemGetS12Eng>(GameOpCode.ItemGet);
             Register<SItemGetS16Kor>(GameOpCode.ItemGet);

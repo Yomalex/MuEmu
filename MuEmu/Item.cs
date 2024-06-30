@@ -611,7 +611,7 @@ namespace MuEmu
                 ms.WriteByte(0);
                 ms.WriteByte(0);
                 ms.WriteByte(0);
-                return ms.GetBuffer();
+                return ms.GetBuffer().Take(15).ToArray();
             }
         }
 
