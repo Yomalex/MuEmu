@@ -8,6 +8,7 @@
 It is a version of the MU Online Server written in C # NetCore3.1 for compatibility on all platforms
 Now is listed to support:
 - Season 6 Korean
+![Season 6 Korean](https://github.com/Yomalex/MuEmu/blob/master/Captura%20de%20pantalla%202024-06-30%20101242.png?raw=true)
 - Season 9 English
 - Season 12 Korean
 - Season 16 Korean
