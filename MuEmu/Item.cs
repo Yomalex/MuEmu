@@ -139,6 +139,7 @@ namespace MuEmu
                 if (_plus == value)
                     return;
                 _plus = value;
+                if (_plus > 16) _plus = 0;
 
                 OnChange();
                 OnItemChange();

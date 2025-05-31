@@ -14,6 +14,7 @@ namespace CSEmu.Network.Services
         {
             // C2S
             Register<CServerList>(MainOpCode.ServerList);
+            Register<CServerListS0>(MainOpCode.ServerListS0);
             Register<CServerInfo>(MainOpCode.ServerInfo);
 
             // GS Messages
@@ -26,6 +27,7 @@ namespace CSEmu.Network.Services
             // S2C
             Register<SConnectResult>(MainOpCode.Join);
             Register<SServerList>(MainOpCode.ServerList);
+            Register<SServerListS0>(MainOpCode.ServerList);
             Register<SServerInfo>(MainOpCode.ServerInfo);
         }
     }

@@ -12,6 +12,11 @@ namespace CSEmu.Network.Services
     }
 
     [WZContract]
+    public class CServerListS0 : IMainMessage
+    {
+    }
+
+    [WZContract]
     public class CServerInfo : IMainMessage
     {
         [WZMember(0)]

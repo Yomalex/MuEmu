@@ -14,6 +14,18 @@ namespace CSEmu.Network.Services
     {
         public static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(MainServices));
 
+
+        [MessageHandler(typeof(CServerListS0))]
+        public void ServerListHandler(CSSession session, CServerListS0 message)
+        {
+            var servers = ServerManager.Instance.Servers
+                .Where(x => x.Visible)
+                .Select(x => new ServerDto { Index = x.Index, Load = x.Load, Type = x.Type })
+                .ToArray();
+            Logger.Information("Sending Server list {0} servers", servers.Length);
+            session.SendAsync(new SServerListS0(servers));
+        }
+
         [MessageHandler(typeof(CServerList))]
         public void ServerListHandler(CSSession session, CServerList message)
         {

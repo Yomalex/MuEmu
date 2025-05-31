@@ -14,6 +14,7 @@ namespace CSEmu.Network
         GSClientRem = 0xFF14,
         ServerInfo = 0x03F4,
         ServerList = 0x06F4,
+        ServerListS0 = 0x02F4,
         Unk = 0xFFA9,
     }
 

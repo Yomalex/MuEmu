@@ -658,10 +658,13 @@ namespace MuEmu.Monsters
                 {
                     if (_rand.Next(2) == 0)
                     {
-                        reward = Program.GlobalEventsManager.GetItem(Level, MapID);
+                        if (_rand.Next(2) == 0)
+                        {
+                            reward = Program.GlobalEventsManager.GetItem(Level, MapID);
 
-                        if (reward == null)
-                            reward = Pentagrama.Drop(this);
+                            if (reward == null)
+                                reward = Pentagrama.Drop(this);
+                        }
 
                         if (reward == null && ItemBag.Count > 0)
                         {
@@ -710,6 +713,8 @@ namespace MuEmu.Monsters
             BallTable[14] = 23;
             BallTable[15] = 24;
             BallTable[16] = 35;
+
+            var itemAdd = 10;
 
             if (ItemBag.Count < 100)
             {
@@ -865,8 +870,13 @@ namespace MuEmu.Monsters
 
                             ItemBag.Add(it);
                         }
+                        else
+                        {
+                            goto start;
+                        }
                     }
                 }
+                if (itemAdd-- > 0) goto start;
             }
         }
 

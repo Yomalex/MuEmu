@@ -23,6 +23,8 @@ namespace MuEmu
         public int Position;            //1
         public bool IsRoot;                //1
 
+        public List<IBSPackage> Packages { get; set; } = new List<IBSPackage>();
+
         public IBSCategory(string[] vs)
         {
             CategoryId = int.Parse(vs[0]);
@@ -37,6 +39,7 @@ namespace MuEmu
     class IBSPackage
     {
         public int CategoryId;              //13
+        public IBSCategory Category { get; set; }
         public int Position;                //1
         public int GameId;                  //263
         public string Name;                 //Rage Fighter Character Card
@@ -63,6 +66,7 @@ namespace MuEmu
         public int CoinType2;               //508
         public int Const8;	                //669
 
+        public List<IBSProduct> Products { get; set; } = new List<IBSProduct> ();
 
         public IBSPackage(string[] vs)
         {
@@ -150,6 +154,8 @@ namespace MuEmu
         public int Const8;
         public int Const9;
 
+        public IBSPackage Package { get; set; }
+
         public IBSProduct(string[] vs)
         {
             RootId = int.Parse(vs[0]);
@@ -223,6 +229,8 @@ namespace MuEmu
                     try
                     {
                         var a = new IBSPackage(subs);
+                        a.Category = cat[a.CategoryId];
+                        a.Category?.Packages.Add(a);
                     pack.Add(a.CategoryId*1000 + a.Position, a);
                     }
                     catch (Exception ex) {
@@ -241,6 +249,8 @@ namespace MuEmu
                     try
                     {
                         var a = new IBSProduct(subs);
+                        a.Package = pack.Values.FirstOrDefault(x => x.ProductRootId.Contains(a.RootId) && x.ProductNodeId.Contains(a.NodeId));
+                        a.Package?.Products.Add(a);
                         prod.Add(a.NodeId, a);
                     }
                     catch (Exception) { }
@@ -282,7 +292,7 @@ namespace MuEmu
                 TotalItemCount = (ushort)_items.Count,
             });
 
-            var items = _items.Select(x => new SCashItemDto
+            var items = _items.Skip(id).Take(cicount).Select(x => new SCashItemDto
             {
                 InventoryType = message.InventoryType,
                 AuthCode = 1,
@@ -338,16 +348,18 @@ namespace MuEmu
                 case CoinType.GPoints:
                     if(_goblinPoints < neededCoins)
                     {
-                        //result = CSResult.InsuficientWCoint;
+                        result = CSResult.InsuficientWCoint;
                         break;
                     }
+                    _goblinPoints -= neededCoins;
                     break;
                 case CoinType.WCoin:
                     if (_wCoinC < neededCoins)
                     {
-                        //result = CSResult.InsuficientWCoint;
+                        result = CSResult.InsuficientWCoint;
                         break;
                     }
+                    _wCoinC -= neededCoins;
                     break;
             }
 
@@ -358,7 +370,7 @@ namespace MuEmu
 
             if(package.DataTimeExpir < DateTime.Now)
             {
-                //result = CSResult.ItemIsNotLongerAvailable;
+                result = CSResult.ItemIsNotLongerAvailable;
             }
 
             if(CSResult.Ok == result)

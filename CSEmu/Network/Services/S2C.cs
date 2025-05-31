@@ -45,6 +45,29 @@ namespace CSEmu.Network.Services
         }
     }
 
+    [WZContract(LongMessage = true)]
+    public class SServerListS0 : IMainMessage
+    {
+        [WZMember(0)]
+        public byte CountH { get; set; }
+
+        [WZMember(1)]
+        public byte CountL { get; set; }
+
+        [WZMember(2, SerializerType = typeof(ArraySerializer))]
+        public ServerDto[] List { get; set; }
+
+        public SServerListS0()
+        { }
+
+        public SServerListS0(ServerDto[] list)
+        {
+            CountH = (byte)(list.Length >> 8);
+            CountL = (byte)(list.Length & 0xff);
+            List = list;
+        }
+    }
+
     [WZContract]
     public class SServerInfo : IMainMessage
     {

@@ -222,6 +222,7 @@ namespace MU.Resources
     // Only Supported versions added
     public enum ServerSeason
     {
+        Season0Kor,
         Season6Kor,
         Season9Eng,
         Season12Eng,
