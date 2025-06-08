@@ -35,5 +35,10 @@ namespace MU.DataBase
         public string AuthToken { get; set; }
 
         public List<CharacterDto> Characters { get; set; }
+        // CashShop
+        public long WebzenCash { get; set; }
+        public long WebzenPoints { get; set; }
+        public long GoblinPoints { get; set; }
+        public List<CashShopInventoryDto> CashShopInventory { get; set; }
     }
 }

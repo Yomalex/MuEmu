@@ -31,5 +31,15 @@ namespace MuEmu.Network
         {
             session.Player.Character.CashShop.BuyItem(message);
         }
+        [MessageHandler(typeof(CCashItemUse))]
+        public void CashItemUse(GSSession session, CCashItemUse message)
+        {
+            session.Player.Character.CashShop.UseItem(message);
+        }
+        [MessageHandler(typeof(CCashItemPreUse))]
+        public void CashItemPreUse(GSSession session, CCashItemPreUse message)
+        {
+            session.Player.Character.CashShop.PreUseItem(message);
+        }
     }
 }

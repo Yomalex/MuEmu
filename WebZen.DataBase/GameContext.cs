@@ -63,10 +63,14 @@ namespace MuEmu.Entity
                 .HasOne(x => x.BloodCastle)
                 .WithOne(y => y.Character);
 
-            /*modelBuilder.Entity<CharacterDto>()
-                .Navigation(x => x.Items)
+            modelBuilder.Entity<AccountDto>()
+                .HasMany(x => x.CashShopInventory)
+                .WithOne(y => y.Account);
+
+            modelBuilder.Entity<CharacterDto>()
+                .Navigation(x => x.Spells)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
-                .AutoInclude();*/
+                .AutoInclude();
 
             modelBuilder.Entity<CharacterDto>()
                 .Navigation(x => x.Gens)
@@ -75,6 +79,11 @@ namespace MuEmu.Entity
 
             modelBuilder.Entity<CharacterDto>()
                 .Navigation(x => x.BloodCastle)
+                .UsePropertyAccessMode(PropertyAccessMode.Property)
+                .AutoInclude();
+
+            modelBuilder.Entity<AccountDto>()
+                .Navigation(x => x.CashShopInventory)
                 .UsePropertyAccessMode(PropertyAccessMode.Property)
                 .AutoInclude();
 
@@ -145,5 +154,6 @@ namespace MuEmu.Entity
         public DbSet<GuildMatchingDto> GuildMatching { get; set; }
         public DbSet<GuildMatchingJoinDto> GuildMatchingJoin { get; set; }
         public DbSet<SellDto> Sell { get; set; }
+        public DbSet<CashShopInventoryDto> CashShopInventory { get; set; }
     }
 }

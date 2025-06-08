@@ -10,6 +10,8 @@ using System.Text;
 using System.Linq;
 using MU.Resources;
 using MU.Network;
+using MuEmu.Entity;
+using ZstdNet;
 
 namespace MuEmu
 {
@@ -63,7 +65,7 @@ namespace MuEmu
         public int ProductCount;            //1
         public int[] ProductNodeId;     //353|
         public int CoinType1;               //0
-        public int CoinType2;               //508
+        public CoinType CoinType2;               //508
         public int Const8;	                //669
 
         public List<IBSProduct> Products { get; set; } = new List<IBSProduct> ();
@@ -122,7 +124,7 @@ namespace MuEmu
             ProductCount = int.Parse(vs[22]);
             ProductNodeId = vs[23].Split("|").Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => int.Parse(x)).ToArray();
             CoinType1 = int.Parse(vs[24]);
-            CoinType2 = int.Parse(vs[25]);
+            CoinType2 = (CoinType)int.Parse(vs[25]);
             Const8 = int.Parse(vs[26]);
         }
     }
@@ -177,11 +179,6 @@ namespace MuEmu
             Const9 = int.Parse(vs[16]);
         }
     }
-    class CashShopItem
-    {
-
-    }
-
     public class CashShop
     {
         private static readonly ILogger Logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(CashShop));
@@ -189,26 +186,22 @@ namespace MuEmu
         private static ushort[] version;
         private static int[] banner;
         private Player _player;
-        private int _wCoinP;
-        private int _wCoinC;
-        private int _goblinPoints;
-        private List<Item> _gifItems = new List<Item>();
-        private List<Item> _storage = new List<Item>();
+        private List<CashShopInventoryDto> _items = new List<CashShopInventoryDto>();
 
         private static Dictionary<int, IBSCategory> cat;
         private static Dictionary<int, IBSPackage> pack;
         private static Dictionary<int, IBSProduct> prod;
 
-        public static void Initialize(ushort[] ver)
+        public static void Initialize(string dataRoot, ushort[] ver)
         {
             version = new ushort[] { ver[0], ver[1], ver[2] };
-            var root = $"./Data/CashShop/{ver[0]}.{ver[1]}.{ver[2]}/";
+            var root = Path.Combine(dataRoot, $"CashShop/{ver[0]}.{ver[1]}.{ver[2]}/");
 
             cat = new Dictionary<int, IBSCategory>();
             pack = new Dictionary<int, IBSPackage>();
             prod = new Dictionary<int, IBSProduct>();
 
-            using (var fs = File.OpenText(root+ "IBSCategory.txt"))
+            using (var fs = File.OpenText(Path.Combine(root,"IBSCategory.txt")))
             {
                 while (!fs.EndOfStream)
                 {
@@ -220,7 +213,7 @@ namespace MuEmu
                 }
             }
 
-            using (var fs = File.OpenText(root + "IBSPackage.txt"))
+            using (var fs = File.OpenText(Path.Combine(root, "IBSPackage.txt")))
             {
                 while (!fs.EndOfStream)
                 {
@@ -239,7 +232,7 @@ namespace MuEmu
                 }
             }
 
-            using (var fs = File.OpenText(root + "IBSProduct.txt"))
+            using (var fs = File.OpenText(Path.Combine(root, "IBSProduct.txt")))
             {
                 while (!fs.EndOfStream)
                 {
@@ -249,7 +242,7 @@ namespace MuEmu
                     try
                     {
                         var a = new IBSProduct(subs);
-                        a.Package = pack.Values.FirstOrDefault(x => x.ProductRootId.Contains(a.RootId) && x.ProductNodeId.Contains(a.NodeId));
+                        a.Package = pack.Values.FirstOrDefault(x => x.ProductRootId.Contains(a.RootId) || x.ProductNodeId.Contains(a.NodeId));
                         a.Package?.Products.Add(a);
                         prod.Add(a.NodeId, a);
                     }
@@ -265,121 +258,182 @@ namespace MuEmu
             session.SendAsync(new SCashInit()).Wait();
             session.SendAsync(new SCashVersion { Ver1 = version[0], Ver2 = version[1], Ver3 = version[2] }).Wait();
             session.SendAsync(new SCashBanner { Ver1 = 583, Ver2 = 2014, Ver3 = 001 }).Wait();
-            session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_wCoinC, _wCoinP, _goblinPoints)).Wait();
+            //session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_wCoinC, _wCoinP, _goblinPoints)).Wait();
 
             _player = session.Player;
             log = Logger.ForAccount(session);
+            _items.AddRange(db.Account.CashShopInventory);
         }
 
         public void SendPoints()
         {
-            _player.Session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_wCoinC, _wCoinP, _goblinPoints)).Wait();
+            _player.Session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_player.Account.WebzenCash, _player.Account.WebzenPoints, _player.Account.GoblinPoints)).Wait();
         }
 
         public async void SendInventory(CCashInventoryItem message)
         {
-            var _items = message.InventoryType == CSInventory.Storage ? _storage : _gifItems;
+            var _it = message.InventoryType == CSInventory.Storage ? _items.Where(x => x.GiftId == 0) : _items.Where(x => x.GiftId != 0);
 
-            var tPage = (ushort)Math.Ceiling(_items.Count / 8.0);
+            var tPage = (ushort)Math.Max(Math.Ceiling(_it.Count() / 8.0), 1);
             var id = (message.Page - 1) * 8;
-            var cicount = (ushort)Math.Max(_items.Count - id, 8);
+            var cicount = (ushort)Math.Min(8, _it.Count() - id);
 
             await _player.Session.SendAsync(new SCashInventoryItem
             {
                 PageIndex = (ushort)message.Page,
                 TotalPage = tPage,
                 CurrentItemCount = cicount,
-                TotalItemCount = (ushort)_items.Count,
+                TotalItemCount = (ushort)_it.Count(),
             });
 
-            var items = _items.Skip(id).Take(cicount).Select(x => new SCashItemDto
+            var output = _it.Skip(id).Take(cicount).Select(x =>
             {
-                InventoryType = message.InventoryType,
-                AuthCode = 1,
-                GiftName = "",
-                Message = "",
-                UniqueCode = 2,
-                UniqueID1 = 3,
-                UniqueID2 = 4,
-                UniqueID3 = 5,
-            }).ToArray();
+                return new SCashItemList2
+                {
+                    Value = x.CoinValue,
+                    AuthCode = x.AccountId,
+                    NodeId = x.ProductBaseIndex,
+                    Category = x.ProductMainIndex,
+                    Package = x.PackageMainIndex,
+                    Serial = x.CashShopInventoryId,
+                    Unknow2 = x.ProductType,
+                };
+            });
 
-            var msg = new SCashItemList
+            log.Debug("Sending list from {0}, Page:{1}/{2} Showing:{3}/{4}", message.InventoryType, message.Page, tPage, cicount, _items.Count);
+
+            foreach(var it in output)
             {
-                aIndex = _player.ID,
-                AccountID = _player.Account.Nickname,
-                InvType = message.InventoryType,
-                InvNum = (byte)id,
-                Result = 1,
-                Items = items
-            };
-            Logger.Debug("Sending list from {0}", message.InventoryType);
-            await _player.Session.SendAsync(msg);
+                await _player.Session.SendAsync(it);
+            }
         }
 
         public async void BuyItem(CCashItemBuy message)
         {
-            var category = (from c in cat
-                            where c.Value.CategoryId == message.Category
-                            select c.Value).First();
-
-            var package = (from p in pack
-                           where p.Value.GameId == message.ItemIndex
-                           select p.Value).First();
-
-            var products = (from p in prod
-                           where package.ProductNodeId.Contains(p.Value.NodeId) || package.ProductRootId.Contains(p.Value.RootId)
-                           select p.Value);
-
-            var product = (from p in products
-                          where message.ItemOpt == 0 || p.NodeId == message.ItemOpt
-                          select p)
-                          .Skip(Program.RandomProvider(package.ProductRootId.Length))
-                          .First();
-
-            var neededCoins = product.Coins != 0 ? product.Coins : package.Price;
-
-            log.Debug("Buy CashItem Cat:{0}->{1} ID:{2}, {3}{4}", category.Name, product.Name, message.ItemID, neededCoins, message.Coin);
-
             CSResult result = CSResult.Ok;
+            var category = cat.Values.SingleOrDefault(x => x.CategoryId == message.Category);
+            if(category == null)
+            {
+                result = CSResult.ItemCannotBeBought;
+                log.Debug("Buy CashItem, Category {0} Doesn't exists", message.Category);
+                await _player.Session.SendAsync(new SCashItemBuy { Result = result });
+                return;
+            }
+            var package = category.Packages.SingleOrDefault(x => x.GameId == message.ItemIndex);
+            if(package == null)
+            {
+                result = CSResult.ItemCannotBeBought;
+                log.Debug("Buy CashItem, item {0} Doesn't exists", message.ItemIndex);
+                await _player.Session.SendAsync(new SCashItemBuy { Result = result });
+                return;
+            }
+            var product = message.ItemOpt==0 ? package.Products.First() : package.Products.Single(x => x.NodeId == message.ItemOpt);
+            var neededCoins = product.Coins != 0 ? product.Coins : package.Price;
+            
 
-            switch(message.Coin)
+            switch(package.CoinType2)
             {
                 case CoinType.GPoints:
-                    if(_goblinPoints < neededCoins)
+                    if(_player.Account.GoblinPoints < neededCoins)
                     {
                         result = CSResult.InsuficientWCoint;
-                        break;
+                        goto buyResult;
                     }
-                    _goblinPoints -= neededCoins;
+                    _player.Account.GoblinPoints -= neededCoins;
                     break;
                 case CoinType.WCoin:
-                    if (_wCoinC < neededCoins)
+                    if (_player.Account.WebzenCash < neededCoins)
                     {
                         result = CSResult.InsuficientWCoint;
-                        break;
+                        goto buyResult;
                     }
-                    _wCoinC -= neededCoins;
+                    _player.Account.WebzenCash -= neededCoins;
                     break;
             }
 
             if(package.DataTimeStart > DateTime.Now)
             {
-                result = CSResult.ItemIsNotCurrentAvailable;
+                //result = CSResult.ItemIsNotCurrentAvailable;
             }
-
-            if(package.DataTimeExpir < DateTime.Now)
+            else if(package.DataTimeExpir < DateTime.Now)
             {
-                result = CSResult.ItemIsNotLongerAvailable;
+                //result = CSResult.ItemIsNotLongerAvailable;
             }
 
             if(CSResult.Ok == result)
             {
-                _storage.Add(new Item((ushort)product.ItemId));
+                var newItem = new CashShopInventoryDto
+                {
+                    AccountId = _player.ID,
+                    CoinValue = neededCoins,
+                    PackageMainIndex = product.Package.CategoryId,
+                    ProductMainIndex = product.RootId,
+                    ProductBaseIndex = product.NodeId,
+                    ProductType = 0x50,
+                };
+                using(var db = new GameContext())
+                {
+                    db.CashShopInventory.Add(newItem);
+                    db.SaveChanges();
+                }
+                lock(_items)
+                    _items.Add(newItem);
             }
 
+            
+        buyResult: 
+            log.Debug("Buy CashItem Cat:{0}->{1} ID:{2}, {3}{4}, {5}", package.Category.Name, product.Name, message.ItemID, neededCoins, package.CoinType2, result);
+
             await _player.Session.SendAsync(new SCashItemBuy { Result = result });
-            SendInventory(new CCashInventoryItem { Page = 0, InventoryType = 0 });
+        }
+
+        public async void PreUseItem(CCashItemPreUse message)
+        {
+            var it = _items.SingleOrDefault(x => x.PackageMainIndex == message.Item);
+            var result = new SCashItemPreUse { Item = message.Item, result = SCashItemPreUse.CashItemUseResults.Ok };
+            if (it == null)
+            {
+                log.Error("Item {0} doesn't exists", message.Item);
+                result.result = SCashItemPreUse.CashItemUseResults.Ok;
+                await _player.Session.SendAsync(result);
+                return;
+            }
+
+            await _player.Session.SendAsync(result);
+        }
+
+        public async void UseItem(CCashItemUse message)
+        {
+            var result = new SCashItemUse
+            {
+                result = SCashItemUse.CashItemUseResults.DoesNotExists
+            };
+            lock (_items)
+            {
+                var it = _items.SingleOrDefault(x => x.CashShopInventoryId == message.Serial);
+                if (it != null)
+                {
+                    var itemInfo = prod.Values.SingleOrDefault(x => x.RootId == it.ProductMainIndex && x.NodeId == it.ProductBaseIndex);
+                    if (itemInfo != null)
+                    {
+                        var obj = new Item(message.Item);
+                        if (_player.Character.Inventory.TryAdd(obj.BasicInfo.Size))
+                        {
+                            _player.Character.Inventory.Add(obj);
+                            _player.Character.Inventory.SendInventory();
+                            _items.Remove(it);
+                            using(var db = new GameContext())
+                            {
+                                var tmp = db.CashShopInventory.Single(x => x.CashShopInventoryId == it.CashShopInventoryId);
+                                db.Remove(tmp);
+                                db.SaveChanges();
+                            }
+                            result.result = SCashItemUse.CashItemUseResults.Ok;
+                        }
+                    }
+                }
+            }
+            await _player.Session.SendAsync(result);
         }
     }
 }

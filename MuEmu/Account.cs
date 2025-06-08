@@ -13,6 +13,9 @@ namespace MuEmu
     {
         private Dictionary<byte, Storage> _vaults { get; set; }
         private int _vaultMoney;
+        private int _webzenCash;
+        private int _webzenPoints;
+        private int _goblinPoints;
 
         public bool NeedSave { get; set; }
         public int ID { get; set; }
@@ -22,6 +25,9 @@ namespace MuEmu
         public byte ActiveVault { get; set; }
         public Storage Vault => _vaults[ActiveVault];
         public int VaultMoney { get => _vaultMoney; set { _vaultMoney = value; NeedSave = true; } }
+        public int WebzenCash { get => _webzenCash; set { _webzenCash = value; NeedSave = true; } }
+        public int WebzenPoints { get => _webzenPoints; set { _webzenPoints = value; NeedSave = true; } }
+        public int GoblinPoints { get => _goblinPoints; set { _goblinPoints = value; NeedSave = true; } }
 
         public Account(Player player, AccountDto accountDto)
         {
@@ -31,7 +37,10 @@ namespace MuEmu
             _vaults = new Dictionary<byte, Storage>();
             ID = accountDto.AccountId;
             Nickname = accountDto.Account;
-            VaultMoney = accountDto.VaultMoney;
+            _vaultMoney = accountDto.VaultMoney;
+            _webzenCash = (int)accountDto.WebzenCash;
+            _webzenPoints = (int)accountDto.WebzenPoints;
+            _goblinPoints = (int)accountDto.GoblinPoints;
 
             using (var db = new GameContext())
                 for (var i = (byte)0; i < accountDto.VaultCount; i++)
@@ -65,6 +74,9 @@ namespace MuEmu
 
             var accDto = db.Accounts.First(x => x.AccountId == ID);
             accDto.VaultMoney = VaultMoney;
+            accDto.WebzenCash = _webzenCash;
+            accDto.WebzenPoints = _webzenPoints;
+            accDto.GoblinPoints = _goblinPoints;
             db.Accounts.Update(accDto);
             NeedSave = false;
         }

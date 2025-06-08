@@ -16,15 +16,18 @@ namespace MU.Network.CashShop
             //C2S
             Register<CCashOpen>(CashOpCode.CashOpen);
             Register<CCashPoints>(CashOpCode.CashPointsS9);
-            Register<CCashInventoryItem>(CashOpCode.CashInventoryCount);
+            Register<CCashInventoryItem>(CashOpCode.CashItemList);
             Register<CCashItemBuy>(CashOpCode.CashItemBuy);
+            Register<CCashItemPreUse>(CashOpCode.CashItemPreUse);
+            Register<CCashItemUse>(CashOpCode.CashItemUse);
 
             // S2C
+            Register<SCashPointsS16>(CashOpCode.CashPointsS9);
             Register<SCashPointsS9>(CashOpCode.CashPointsS9);
             Register<SCashPoints>(CashOpCode.CashPoints);
             VersionSelector.Register<SCashPoints>(ServerSeason.Season6Kor, CashOpCode.CashPoints);
             VersionSelector.Register<SCashPointsS9>(ServerSeason.Season9Eng, CashOpCode.CashPoints);
-            //VersionSelector.Register<SCashPointsS9>(ServerSeason.Season12Eng, CashOpCode.CashPoints);
+            VersionSelector.Register<SCashPointsS16>(ServerSeason.Season16Kor, CashOpCode.CashPoints);
             Register<SCashInit>(CashOpCode.CashInit);
             Register<SCashVersion>(CashOpCode.CashVersion);
             Register<SCashBanner>(CashOpCode.CashBanner);
@@ -32,8 +35,11 @@ namespace MU.Network.CashShop
             Register<SCashInventoryItem>(CashOpCode.CashInventoryCount);
             Register<SCashItemBuy>(CashOpCode.CashItemBuy);
             Register<SCashItemList>(CashOpCode.CashItemList);
+            Register<SCashItemList2>(CashOpCode.CashItemList2);
+            Register<SCashItemPreUse>(CashOpCode.CashItemPreUse);
+            Register<SCashItemUse>(CashOpCode.CashItemUse);
 
-            switch(Season)
+            switch (Season)
             {
                 case ServerSeason.Season17Kor75:
                     ChangeOPCode<SCashInit>(Data.ProtocolXChangeS17K75(CashOpCode.CashInit, false));

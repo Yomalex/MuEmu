@@ -258,9 +258,9 @@ namespace MuEmu.Network
                                  where it.CharacterId == charDto.CharacterId
                                  select it).ToList();
 
-                charDto.Spells = (from spell in db.Spells
+                /*charDto.Spells = (from spell in db.Spells
                                   where spell.CharacterId == charDto.CharacterId
-                                  select spell).ToList();
+                                  select spell).ToList();*/
 
                 charDto.Quests = (from quest in db.Quests
                                    where quest.CharacterId == charDto.CharacterId
@@ -293,6 +293,10 @@ namespace MuEmu.Network
                 charDto.GremoryCases = (from gc in db.GremoryCase
                                         where gc.CharacterId == charDto.CharacterId && gc.AccountId == charDto.AccountId && (gc.Inventory == (byte)GremoryStorage.Character || gc.Inventory == (byte)GremoryStorage.Server)
                                         select gc).ToList();
+
+                charDto.Account = (from a in db.Accounts
+                                   where a.AccountId == charDto.AccountId
+                                   select a).Single();
             }
 
             if (@charDto == null)

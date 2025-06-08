@@ -14,6 +14,7 @@ namespace MU.DataBase
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CharacterId { get; set; }
 
+        [MaxLength(11)]
         public string Name { get; set; }
 
         public int Class { get; set; }
@@ -104,5 +105,6 @@ namespace MU.DataBase
         // Gens
         public GensDto Gens { get; set; } = new GensDto { Class = 14, Contribution = 0, Influence = 0, Ranking = 9999 };
         public BloodCastleDto BloodCastle { get; set; } = new BloodCastleDto { Points = 0 };
+
     }
 }

@@ -654,9 +654,12 @@ namespace MU.Network
         CashOpen = 0x02D2,
         CashItemBuy = 0x03D2,
         CashItemGif = 0x04D2,
-        CashInventoryCount = 0x05D2,
-        CashItemList = 0x06D2,
+        CashItemList = 0x05D2,
+        CashItemList2 = 0x0DD2,
+        CashInventoryCount = 0x06D2,
+        CashItemUse = 0x0BD2,
         CashVersion = 0x0CD2,
+        CashItemPreUse = 0x0FD2,
         CashBanner = 0x15D2,
     }
 

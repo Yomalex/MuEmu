@@ -374,7 +374,7 @@ namespace MuEmu
                 GuildManager.Initialize();
                 PartyManager.Initialzie(xml.GamePlay.MaxPartyLevelDifference);
                 DuelSystem.Initialize();
-                CashShop.Initialize(xml.Client.CashShopVersion.Split(".").Select(x => ushort.Parse(x)).ToArray());
+                CashShop.Initialize(xml.Files.DataRoot, xml.Client.CashShopVersion.Split(".").Select(x => ushort.Parse(x)).ToArray());
                 Pentagrama.Initialize();
                 // Event Config
                 EventConfig(xml);
