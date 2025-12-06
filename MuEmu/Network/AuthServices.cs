@@ -230,9 +230,6 @@ namespace MuEmu.Network
                         GuildManager.Instance.FindCharacter(@char.Value.Name)?.Rank ?? GuildStatus.NoMember);
                 }
 
-                if(Program.Season == ServerSeason.Season9Eng)
-                    await session.SendAsync(resetList);
-
                 await session.SendAsync(charList);
 
                 await session.SendAsync(new SEnableCreation { 
@@ -335,20 +332,15 @@ namespace MuEmu.Network
             
             if (charDto.SkillKey != null)
             {
-                var skillKey = new SSkillKey
-                {
-                    SkillKey = charDto.SkillKey.SkillKey,
-                    ChatWindow = charDto.SkillKey.ChatWindow,
-                    E_Key = charDto.SkillKey.EkeyDefine,
-                    GameOption = charDto.SkillKey.GameOption,
-                    Q_Key = charDto.SkillKey.QkeyDefine,
-                    R_Key = charDto.SkillKey.RkeyDefine,
-                    W_Key = charDto.SkillKey.WkeyDefine,
-                };
-                if(skillKey.SkillKey == null)
-                {
-                    skillKey.SkillKey = Array.Empty<byte>();
-                }
+                var skillKey = VersionSelector.CreateMessage<SSkillKey>(
+                    charDto.SkillKey.SkillKey==null?Array.Empty<byte>(): charDto.SkillKey.SkillKey,
+                    charDto.SkillKey.GameOption,
+                    charDto.SkillKey.QkeyDefine,
+                    charDto.SkillKey.WkeyDefine,
+                    charDto.SkillKey.EkeyDefine,
+                    charDto.SkillKey.ChatWindow,
+                    charDto.SkillKey.RkeyDefine
+                    );
                 await session.SendAsync(skillKey);
             }
             if(charDto.Favorites != null)
@@ -518,6 +510,21 @@ namespace MuEmu.Network
                 }
             }
             await session.SendAsync(new SCharacterDelete { Result = result });
+        }
+
+        [MessageHandler(typeof(SSkillKeyS3))]
+        public void SSkillKeyS3(GSSession session, SSkillKeyS3 message)
+        {
+            CSkillKey(session, new SSkillKey
+            {
+                ChatWindow = message.ChatWindow,
+                E_Key = message.E_Key,
+                GameOption = message.GameOption,
+                Q_Key = message.Q_Key,
+                R_Key = message.R_Key,
+                SkillKey = message.SkillKey,
+                W_Key = message.W_Key,
+            });
         }
 
         [MessageHandler(typeof(SSkillKey))]

@@ -1,119 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Maps>
-  <Map Map="0" AttributteFile="./Data/Terrains/Lorencia.att" />
-  <Map Map="1" AttributteFile="./Data/Terrains/Dungeon.att" />
-  <Map Map="2" AttributteFile="./Data/Terrains/Devias.att" />
-  <Map Map="3" AttributteFile="./Data/Terrains/Noria.att" />
-  <Map Map="4" AttributteFile="./Data/Terrains/LostTower.att" />
-  <Map Map="5" AttributteFile="./Data/Terrains/Exile.att" />
-  <Map Map="6" AttributteFile="./Data/Terrains/Stadium.att" />
-  <Map Map="7" AttributteFile="./Data/Terrains/Atlans.att" />
-  <Map Map="8" AttributteFile="./Data/Terrains/Tarkan.att" />
-  <Map Map="9" AttributteFile="./Data/Terrains/DevilSquare.att" />
-  <Map Map="10" AttributteFile="./Data/Terrains/Icarus.att" />
-  <Map Map="11" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="12" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="13" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="14" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="15" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="16" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="17" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="18" AttributteFile="./Data/Terrains/ChaosCastle.att" />
-  <Map Map="19" AttributteFile="./Data/Terrains/ChaosCastle.att" />
-  <Map Map="20" AttributteFile="./Data/Terrains/ChaosCastle.att" />
-  <Map Map="21" AttributteFile="./Data/Terrains/ChaosCastle.att" />
-  <Map Map="22" AttributteFile="./Data/Terrains/ChaosCastle.att" />
-  <Map Map="23" AttributteFile="./Data/Terrains/ChaosCastle.att" />
-  <Map Map="24" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="25" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="26" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="27" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="28" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="29" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="30" AttributteFile="./Data/Terrains/ValleyofLoren.att" />
-  <Map Map="31" AttributteFile="./Data/Terrains/LandofTrial.att" />
-  <Map Map="32" AttributteFile="./Data/Terrains/DevilSquare.att" />
-  <Map Map="33" AttributteFile="./Data/Terrains/Aida.att" />
-  <Map Map="34" AttributteFile="./Data/Terrains/Crywolf.att" />
-  <!-- <Map Map="35" AttributteFile="./Data/Terrains/(null).att" /> -->
-  <Map Map="36" AttributteFile="./Data/Terrains/Kalima.att" />
-  <Map Map="37" AttributteFile="./Data/Terrains/Kantru1.att" />
-  <Map Map="38" AttributteFile="./Data/Terrains/Kantru2.att" />
-  <Map Map="39" AttributteFile="./Data/Terrains/Kantru3.att" />
-  <Map Map="40" AttributteFile="./Data/Terrains/Silent.att" />
-  <Map Map="41" AttributteFile="./Data/Terrains/T42.att" />
-  <Map Map="42" AttributteFile="./Data/Terrains/T43.att" />
+  <Map Map="0" AttributteFile="./Data/Terrains/Lorencia.att" MinSeason="Season0Kor" />
+  <Map Map="1" AttributteFile="./Data/Terrains/Dungeon.att" MinSeason="Season0Kor" />
+  <Map Map="2" AttributteFile="./Data/Terrains/Devias.att" MinSeason="Season0Kor" />
+  <Map Map="3" AttributteFile="./Data/Terrains/Noria.att" MinSeason="Season0Kor" />
+  <Map Map="4" AttributteFile="./Data/Terrains/LostTower.att" MinSeason="Season0Kor" />
+  <Map Map="5" AttributteFile="./Data/Terrains/Exile.att" MinSeason="Season0Kor" />
+  <Map Map="6" AttributteFile="./Data/Terrains/Stadium.att" MinSeason="Season0Kor" />
+  <Map Map="7" AttributteFile="./Data/Terrains/Atlans.att" MinSeason="Season0Kor" />
+  <Map Map="8" AttributteFile="./Data/Terrains/Tarkan.att" MinSeason="Season0Kor" />
+  <Map Map="9" AttributteFile="./Data/Terrains/DevilSquare.att" MinSeason="Season0Kor" />
+  <Map Map="10" AttributteFile="./Data/Terrains/Icarus.att" MinSeason="Season0Kor" />
+  <Map Map="11" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="12" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="13" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="14" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="15" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="16" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="17" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season0Kor" />
+  <Map Map="18" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season0Kor" />
+  <Map Map="19" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season0Kor" />
+  <Map Map="20" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season0Kor" />
+  <Map Map="21" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season0Kor" />
+  <Map Map="22" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season0Kor" />
+  <Map Map="23" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season0Kor" />
+  <Map Map="24" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season0Kor" />
+  <Map Map="25" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season0Kor" />
+  <Map Map="26" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season0Kor" />
+  <Map Map="27" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season0Kor" />
+  <Map Map="28" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season0Kor" />
+  <Map Map="29" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season0Kor" />
+  <Map Map="30" AttributteFile="./Data/Terrains/ValleyofLoren.att" MinSeason="Season0Kor" />
+  <Map Map="31" AttributteFile="./Data/Terrains/LandofTrial.att" MinSeason="Season0Kor" />
+  <Map Map="32" AttributteFile="./Data/Terrains/DevilSquare.att" MinSeason="Season0Kor" />
+  <Map Map="33" AttributteFile="./Data/Terrains/Aida.att" MinSeason="Season3Kor" />
+  <Map Map="34" AttributteFile="./Data/Terrains/Crywolf.att" MinSeason="Season3Kor" />
+  <!-- <Map Map="35" AttributteFile="./Data/Terrains/(null).att" MinSeason="Season3Kor" /> -->
+  <Map Map="36" AttributteFile="./Data/Terrains/Kalima.att" MinSeason="Season3Kor" />
+  <Map Map="37" AttributteFile="./Data/Terrains/Kantru1.att" MinSeason="Season3Kor" />
+  <Map Map="38" AttributteFile="./Data/Terrains/Kantru2.att" MinSeason="Season3Kor" />
+  <Map Map="39" AttributteFile="./Data/Terrains/Kantru3.att" MinSeason="Season3Kor" />
+  <Map Map="40" AttributteFile="./Data/Terrains/Silent.att" MinSeason="Season3Kor" />
+  <Map Map="41" AttributteFile="./Data/Terrains/T42.att" MinSeason="Season3Kor" />
+  <Map Map="42" AttributteFile="./Data/Terrains/T43.att" MinSeason="Season3Kor" />
   <!-- <Map Map="43" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="44" AttributteFile="./Data/Terrains/(null).att" /> -->
-  <Map Map="45" AttributteFile="./Data/Terrains/IllusionTemple.att" />
-  <Map Map="46" AttributteFile="./Data/Terrains/IllusionTemple.att" />
-  <Map Map="47" AttributteFile="./Data/Terrains/IllusionTemple.att" />
-  <Map Map="48" AttributteFile="./Data/Terrains/IllusionTemple.att" />
-  <Map Map="49" AttributteFile="./Data/Terrains/IllusionTemple.att" />
-  <Map Map="50" AttributteFile="./Data/Terrains/IllusionTemple.att" />
-  <Map Map="51" AttributteFile="./Data/Terrains/Elbeland.att" />
-  <Map Map="52" AttributteFile="./Data/Terrains/BloodCastle.att" />
-  <Map Map="53" AttributteFile="./Data/Terrains/ChaosCastle.att" />
+  <Map Map="45" AttributteFile="./Data/Terrains/IllusionTemple.att" MinSeason="Season3Kor" />
+  <Map Map="46" AttributteFile="./Data/Terrains/IllusionTemple.att" MinSeason="Season3Kor" />
+  <Map Map="47" AttributteFile="./Data/Terrains/IllusionTemple.att" MinSeason="Season3Kor" />
+  <Map Map="48" AttributteFile="./Data/Terrains/IllusionTemple.att" MinSeason="Season3Kor" />
+  <Map Map="49" AttributteFile="./Data/Terrains/IllusionTemple.att" MinSeason="Season3Kor" />
+  <Map Map="50" AttributteFile="./Data/Terrains/IllusionTemple.att" MinSeason="Season3Kor" />
+  <Map Map="51" AttributteFile="./Data/Terrains/Elbeland.att" MinSeason="Season3Kor" />
+  <Map Map="52" AttributteFile="./Data/Terrains/BloodCastle.att" MinSeason="Season3Kor" />
+  <Map Map="53" AttributteFile="./Data/Terrains/ChaosCastle.att" MinSeason="Season3Kor" />
   <!-- <Map Map="54" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="55" AttributteFile="./Data/Terrains/(null).att" /> -->
-  <Map Map="56" AttributteFile="./Data/Terrains/(null).att" />
-  <Map Map="57" AttributteFile="./Data/Terrains/Raklion.att" />
-  <Map Map="58" AttributteFile="./Data/Terrains/Buhwajang.att" />
+  <Map Map="56" AttributteFile="./Data/Terrains/(null).att" MinSeason="Season3Kor" />
+  <Map Map="57" AttributteFile="./Data/Terrains/Raklion.att" MinSeason="Season3Kor" />
+  <Map Map="58" AttributteFile="./Data/Terrains/Buhwajang.att" MinSeason="Season3Kor" />
   <!-- <Map Map="59" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="60" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="61" AttributteFile="./Data/Terrains/(null).att" /> -->
-  <Map Map="62" AttributteFile="./Data/Terrains/Santa.att" />
-  <Map Map="63" AttributteFile="./Data/Terrains/Vulcan.att" />
-  <Map Map="64" AttributteFile="./Data/Terrains/Terrain64.att" />
-  <Map Map="65" AttributteFile="./Data/Terrains/65_Doppelganger1.att" />
-  <Map Map="66" AttributteFile="./Data/Terrains/66_Doppelganger2.att" />
-  <Map Map="67" AttributteFile="./Data/Terrains/67_Doppelganger3.att" />
-  <Map Map="68" AttributteFile="./Data/Terrains/68_Doppelganger4.att" />
-  <Map Map="69" AttributteFile="./Data/Terrains/69_ImperialGuardian1.att" />
-  <Map Map="70" AttributteFile="./Data/Terrains/70_ImperialGuardian2.att" />
-  <Map Map="71" AttributteFile="./Data/Terrains/71_ImperialGuardian3.att" />
-  <Map Map="72" AttributteFile="./Data/Terrains/72_ImperialGuardian4.att" />
+  <Map Map="62" AttributteFile="./Data/Terrains/Santa.att" MinSeason="Season3Kor" />
+  <Map Map="63" AttributteFile="./Data/Terrains/Vulcan.att" MinSeason="Season3Kor" />
+  <Map Map="64" AttributteFile="./Data/Terrains/Terrain64.att" MinSeason="Season3Kor" />
+  <Map Map="65" AttributteFile="./Data/Terrains/65_Doppelganger1.att" MinSeason="Season3Kor" />
+  <Map Map="66" AttributteFile="./Data/Terrains/66_Doppelganger2.att" MinSeason="Season3Kor" />
+  <Map Map="67" AttributteFile="./Data/Terrains/67_Doppelganger3.att" MinSeason="Season3Kor" />
+  <Map Map="68" AttributteFile="./Data/Terrains/68_Doppelganger4.att" MinSeason="Season3Kor" />
+  <Map Map="69" AttributteFile="./Data/Terrains/69_ImperialGuardian1.att" MinSeason="Season3Kor" />
+  <Map Map="70" AttributteFile="./Data/Terrains/70_ImperialGuardian2.att" MinSeason="Season3Kor" />
+  <Map Map="71" AttributteFile="./Data/Terrains/71_ImperialGuardian3.att" MinSeason="Season3Kor" />
+  <Map Map="72" AttributteFile="./Data/Terrains/72_ImperialGuardian4.att" MinSeason="Season3Kor" />
   <!-- <Map Map="73" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="74" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="75" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="76" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="77" AttributteFile="./Data/Terrains/(null).att" /> -->
   <!-- <Map Map="78" AttributteFile="./Data/Terrains/(null).att" /> -->
-  <Map Map="79" AttributteFile="./Data/Terrains/79_LorenMarket.att" />
-  <Map Map="80" AttributteFile="./Data/Terrains/80_Karutan1.att" />
-  <Map Map="81" AttributteFile="./Data/Terrains/81_Karutan2.att" />
-  <Map Map="82" AttributteFile="./Data/Terrains/82_Doppelganger_Renewal.att" />
-  <Map Map="91" AttributteFile="./Data/Terrains/91_Acheron.att" />
-  <Map Map="92" AttributteFile="./Data/Terrains/91_Acheron.att" />
-  <Map Map="95" AttributteFile="./Data/Terrains/95_Debenter.att" />
-  <Map Map="96" AttributteFile="./Data/Terrains/96_Debenter_ArcaBattle.att" />
-  <Map Map="97" AttributteFile="./Data/Terrains/97_ChaosCastleSurvival.att" />
-  <Map Map="98" AttributteFile="./Data/Terrains/98_IllussionTempleLeague.att" />
+  <Map Map="79" AttributteFile="./Data/Terrains/79_LorenMarket.att" MinSeason="Season3Kor" />
+  <Map Map="80" AttributteFile="./Data/Terrains/80_Karutan1.att" MinSeason="Season6Kor" />
+  <Map Map="81" AttributteFile="./Data/Terrains/81_Karutan2.att" MinSeason="Season6Kor" />
+  <Map Map="82" AttributteFile="./Data/Terrains/82_Doppelganger_Renewal.att" MinSeason="Season6Kor" />
+  <Map Map="91" AttributteFile="./Data/Terrains/91_Acheron.att" MinSeason="Season10Kor" />
+  <Map Map="92" AttributteFile="./Data/Terrains/91_Acheron.att" MinSeason="Season10Kor" />
+  <Map Map="95" AttributteFile="./Data/Terrains/95_Debenter.att" MinSeason="Season10Kor" />
+  <Map Map="96" AttributteFile="./Data/Terrains/96_Debenter_ArcaBattle.att" MinSeason="Season10Kor" />
+  <Map Map="97" AttributteFile="./Data/Terrains/97_ChaosCastleSurvival.att" MinSeason="Season10Kor" />
+  <Map Map="98" AttributteFile="./Data/Terrains/98_IllussionTempleLeague.att" MinSeason="Season10Kor" />
   <!--<Map Map="98" AttributteFile="./Data/Terrains/98_IllussionTempleLeague1.att" />-->
-  <Map Map="99" AttributteFile="./Data/Terrains/99_IllussionTempleLeague2.att" />
-  <Map Map="100" AttributteFile="./Data/Terrains/100_UrkMontain.att" />
-  <Map Map="102" AttributteFile="./Data/Terrains/102_TormentedSquare.att" />
-  <Map Map="110" AttributteFile="./Data/Terrains/110_Nars.att" />
-  <Map Map="112" AttributteFile="./Data/Terrains/112_Ferea.att" />
-  <Map Map="113" AttributteFile="./Data/Terrains/113_NixieLake.att" />
-  <Map Map="114" AttributteFile="./Data/Terrains/114_Terrain115.att" />
-  <Map Map="115" AttributteFile="./Data/Terrains/115_Terrain116.att" />
-	<Map Map="116" AttributteFile="./Data/Terrains/DeepDugeon1.att" />
-	<Map Map="117" AttributteFile="./Data/Terrains/DeepDugeon2.att" />
-	<Map Map="118" AttributteFile="./Data/Terrains/DeepDugeon3.att" />
-	<Map Map="119" AttributteFile="./Data/Terrains/DeepDugeon4.att" />
-	<Map Map="120" AttributteFile="./Data/Terrains/DeepDugeon5.att" />
-	<Map Map="121" AttributteFile="./Data/Terrains/PlaceOfQualification.att" />
-	<Map Map="122" AttributteFile="./Data/Terrains/SwampOfDarkness.att" />
-	<Map Map="123" AttributteFile="./Data/Terrains/KuberaMine1.att" />
-	<Map Map="124" AttributteFile="./Data/Terrains/KuberaMine1.att" />
-	<Map Map="125" AttributteFile="./Data/Terrains/KuberaMine1.att" />
-	<Map Map="126" AttributteFile="./Data/Terrains/KuberaMine1.att" />
-	<Map Map="127" AttributteFile="./Data/Terrains/KuberaMine1.att" />
-	<Map Map="128" AttributteFile="./Data/Terrains/World129.att" />
-	<Map Map="129" AttributteFile="./Data/Terrains/World130.att" />
-	<Map Map="130" AttributteFile="./Data/Terrains/World131.att" />
-	<Map Map="131" AttributteFile="./Data/Terrains/World132.att" />
+  <Map Map="99" AttributteFile="./Data/Terrains/99_IllussionTempleLeague2.att" MinSeason="Season10Kor" />
+  <Map Map="100" AttributteFile="./Data/Terrains/100_UrkMontain.att" MinSeason="Season10Kor" />
+  <Map Map="102" AttributteFile="./Data/Terrains/102_TormentedSquare.att" MinSeason="Season10Kor" />
+  <Map Map="110" AttributteFile="./Data/Terrains/110_Nars.att" MinSeason="Season10Kor" />
+  <Map Map="112" AttributteFile="./Data/Terrains/112_Ferea.att" MinSeason="Season12Kor" />
+  <Map Map="113" AttributteFile="./Data/Terrains/113_NixieLake.att" MinSeason="Season12Kor" />
+  <Map Map="114" AttributteFile="./Data/Terrains/114_Terrain115.att" MinSeason="Season12Kor" />
+  <Map Map="115" AttributteFile="./Data/Terrains/115_Terrain116.att" MinSeason="Season12Kor" />
+	<Map Map="116" AttributteFile="./Data/Terrains/DeepDugeon1.att" MinSeason="Season12Kor" />
+	<Map Map="117" AttributteFile="./Data/Terrains/DeepDugeon2.att" MinSeason="Season16Kor" />
+	<Map Map="118" AttributteFile="./Data/Terrains/DeepDugeon3.att" MinSeason="Season16Kor" />
+	<Map Map="119" AttributteFile="./Data/Terrains/DeepDugeon4.att" MinSeason="Season16Kor" />
+	<Map Map="120" AttributteFile="./Data/Terrains/DeepDugeon5.att" MinSeason="Season16Kor" />
+	<Map Map="121" AttributteFile="./Data/Terrains/PlaceOfQualification.att" MinSeason="Season16Kor" />
+	<Map Map="122" AttributteFile="./Data/Terrains/SwampOfDarkness.att" MinSeason="Season16Kor" />
+	<Map Map="123" AttributteFile="./Data/Terrains/KuberaMine1.att" MinSeason="Season16Kor" />
+	<Map Map="124" AttributteFile="./Data/Terrains/KuberaMine1.att" MinSeason="Season16Kor" />
+	<Map Map="125" AttributteFile="./Data/Terrains/KuberaMine1.att" MinSeason="Season16Kor" />
+	<Map Map="126" AttributteFile="./Data/Terrains/KuberaMine1.att" MinSeason="Season16Kor" />
+	<Map Map="127" AttributteFile="./Data/Terrains/KuberaMine1.att" MinSeason="Season16Kor" />
+	<Map Map="128" AttributteFile="./Data/Terrains/World129.att" MinSeason="Season16Kor" />
+	<Map Map="129" AttributteFile="./Data/Terrains/World130.att" MinSeason="Season16Kor" />
+	<Map Map="130" AttributteFile="./Data/Terrains/World131.att" MinSeason="Season16Kor" />
+	<Map Map="131" AttributteFile="./Data/Terrains/World132.att" MinSeason="Season16Kor" />
 	<!--<Map Map="132" AttributteFile="./Data/Terrains/World133.att" />
 	<Map Map="133" AttributteFile="./Data/Terrains/World134.att" />-->
 </Maps>

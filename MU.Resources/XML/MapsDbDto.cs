@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
@@ -18,5 +19,6 @@ namespace MuEmu.Resources.XML
     {
         [XmlAttribute] public ushort Map { get; set; }
         [XmlAttribute] public string AttributteFile { get; set; }
+        [XmlAttribute] public ServerSeason MinSeason { get; set; } = ServerSeason.Season0Kor;
     }
 }

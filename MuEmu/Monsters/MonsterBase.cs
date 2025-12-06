@@ -44,6 +44,7 @@ namespace MuEmu.Monsters
         [XmlAttribute] public int Possion_Resistance { get; set; }
         [XmlAttribute] public int Lightning_Resistance { get; set; }
         [XmlAttribute] public int Fire_Resistance { get; set; }
+        [XmlAttribute] public ServerSeason MinSeason { get; set; } = ServerSeason.Season0Kor;
         public int MainAttribute { get; set; } = 0;
         public int AttributePattern { get; set; } = 0;
         public int PentagramDamageMin { get; set; } = 0;

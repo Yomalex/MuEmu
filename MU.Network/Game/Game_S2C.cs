@@ -1,4 +1,6 @@
 ﻿using BlubLib.Serialization.Serializers;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 //using MU.DataBase;
 using MU.Network.Auth;
 using MU.Resources;
@@ -661,6 +663,50 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class SSkillKeyS3 : IGameMessage
+    {
+
+        //4
+        [WZMember(0, 14)]//18
+        public byte[] SkillKey { get; set; }
+
+        [WZMember(1)]//19
+        public byte GameOption { get; set; }
+
+        [WZMember(2)]//20
+        public byte Q_Key { get; set; }
+
+        [WZMember(3)]//21
+        public byte W_Key { get; set; }
+
+        [WZMember(4)]//22
+        public byte E_Key { get; set; }
+
+        [WZMember(5)]//23
+        public byte ChatWindow { get; set; }
+
+        [WZMember(6)]//24
+        public byte R_Key { get; set; }
+
+        public SSkillKeyS3()
+        {
+            SkillKey = new byte[16];
+            for (var i = 0; i < 16; i++)
+                SkillKey[i] = 0xFF;
+        }
+        public SSkillKeyS3(byte[] _SkillKey, byte _GameOption, byte _Q_Key, byte _W_Key, byte _E_Key, byte _ChatWindow, byte _R_Key)
+        {
+            SkillKey = _SkillKey;
+            GameOption = _GameOption;
+            Q_Key = _Q_Key;
+            W_Key = _W_Key;
+            E_Key = _E_Key;
+            ChatWindow = _ChatWindow;
+            R_Key = _R_Key;
+        }
+    }
+
+    [WZContract]
     public class SSkillKey : IGameMessage
     {
         [WZMember(0, 20)]
@@ -689,6 +735,17 @@ namespace MU.Network.Game
             SkillKey = new byte[20];
             for (var i = 0; i < 20; i++)
                 SkillKey[i] = 0xFF;
+        }
+
+        public SSkillKey(byte[] _SkillKey, byte _GameOption, byte _Q_Key, byte _W_Key, byte _E_Key, byte _ChatWindow, byte _R_Key)
+        {
+            SkillKey = _SkillKey;
+            GameOption = _GameOption;
+            Q_Key = _Q_Key;
+            W_Key = _W_Key;
+            E_Key = _E_Key;
+            ChatWindow = _ChatWindow;
+            R_Key = _R_Key;
         }
     }
 
@@ -928,6 +985,27 @@ namespace MU.Network.Game
     {
         [WZMember(0)]
         public ClientCloseType Type { get; set; }
+    }
+
+    [WZContract(LongMessage = true)]
+    public class SShopItemListS3 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte ListType { get; set; }
+
+        [WZMember(1, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryS3Dto[] Inventory { get; set; }
+
+        public SShopItemListS3()
+        {
+            Inventory = Array.Empty<InventoryS3Dto>();
+        }
+
+        public SShopItemListS3(byte lt, IEnumerable<KeyValuePair<byte, byte[]>> inv)
+        {
+            ListType = lt;
+            Inventory = inv.Select(x => new InventoryS3Dto(x.Key, x.Value)).ToArray();
+        }
     }
 
     [WZContract(LongMessage = true)]

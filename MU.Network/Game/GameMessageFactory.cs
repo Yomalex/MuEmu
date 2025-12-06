@@ -268,8 +268,10 @@ namespace MU.Network.Game
             Register<SEventEnterCount>(GameOpCode.EventEnterCount);
             Register<SCloseMsg>(GameOpCode.ClientClose);
             Register<STalk>(GameOpCode.Talk);
+            Register<SShopItemListS3>(GameOpCode.CloseWindow); // Same OPCode
             Register<SShopItemList>(GameOpCode.CloseWindow); // Same OPCode
             Register<SShopItemListS17>(GameOpCode.CloseWindow); // Same OPCode
+            VersionSelector.Register<SShopItemListS3>(ServerSeason.Season3Kor, GameOpCode.CloseWindow);
             VersionSelector.Register<SShopItemList>(ServerSeason.Season6Kor, GameOpCode.CloseWindow);
             VersionSelector.Register<SShopItemListS17>(ServerSeason.Season17Kor, GameOpCode.CloseWindow);
             Register<SMonsterSoulShop>(GameOpCode.MonsterSoulShop);
@@ -485,6 +487,8 @@ namespace MU.Network.Game
 
             VersionSelector.Register<SGremoryCaseDelete>(ServerSeason.Season6Kor, GameOpCode.GremoryCaseDelete);
             VersionSelector.Register<SGremoryCaseDeleteS16>(ServerSeason.Season16Kor, GameOpCode.GremoryCaseDelete);
+            VersionSelector.Register<SSkillKey>(ServerSeason.Season6Kor, GameOpCode.SkillKey);
+            VersionSelector.Register<SSkillKeyS3>(ServerSeason.Season0Kor, GameOpCode.SkillKey);
             switch (Season)
             {
                 case ServerSeason.Season16Kor:
@@ -493,6 +497,7 @@ namespace MU.Network.Game
                 case ServerSeason.Season0Kor:
                 case ServerSeason.Season3Kor:
                     ChangeType<CMoveItemS3>(GameOpCode.MoveItem, typeof(CMoveItem));
+                    ChangeType<SSkillKeyS3>(GameOpCode.SkillKey, typeof(SSkillKey));
                     break;
             }
         }

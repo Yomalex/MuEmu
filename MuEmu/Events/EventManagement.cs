@@ -1,5 +1,7 @@
 ﻿using MuEmu.Events.Minigames;
 using MuEmu.Util;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,10 +38,12 @@ namespace MuEmu.Events
     public class EventManagement
     {
         Dictionary<Events, EventInfo> _events = new Dictionary<Events, EventInfo>();
+        private static ILogger _logger = Log.ForContext(Constants.SourceContextPropertyName, nameof(EventManagement));
 
         public EventManagement AddEvent(Events ev, Event obj)
         {
             _events.Add(ev, new EventInfo { IsEnabled = true, Obj = obj });
+            _logger.Information("Event {ev} Initialized", ev);
             obj.Initialize();
             return this;
         }
@@ -52,7 +56,7 @@ namespace MuEmu.Events
 
         public T GetEvent<T>(/*Events ev*/)
         {
-            return (T)(object)_events.Values.First(x => x.Obj.GetType() == typeof(T)).Obj;
+            return (T)(object)_events.Values.FirstOrDefault(x => x.Obj.GetType() == typeof(T))?.Obj??default(T);
             //_events[ev].Obj;
         }
 

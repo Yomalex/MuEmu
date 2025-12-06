@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MU.Resources;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
@@ -68,5 +69,6 @@ namespace MuEmu.Resources.XML
         [XmlAttribute] public string IsMount { get; set; } = "False";
         [XmlAttribute] public ushort Skin { get; set; } = 0xffff;
         [XmlAttribute] public string Inventory { get; set; } = "Inventory";
+        [XmlAttribute] public ServerSeason MinSeason { get; set; } = ServerSeason.Season0Kor;
     }
 }

@@ -169,7 +169,14 @@ namespace MuEmu
 
             foreach (var item in characterDto.Items.Where(x => x.VaultId != 10 && x.VaultId != (int)StorageID.Warehouse))
             {
-                var it = new Item(item, @char?.Account, @char);
+                Item it;
+                try
+                {
+                    it = new Item(item, @char?.Account, @char);
+                }catch(Exception)
+                {
+                    continue;
+                }
                 object st;
                 var pos = (byte)it.SlotId;
                 if(Storages.TryGetValue(it.Storage, out st))

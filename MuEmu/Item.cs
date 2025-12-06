@@ -1816,12 +1816,24 @@ namespace MuEmu
                 if (Program.RandomProvider(4) == 0)
                 {
                     NOption |= 1 << Program.RandomProvider(6);
+
+                    if (Program.RandomProvider(4) == 0)
+                    {
+                        NOption |= 1 << Program.RandomProvider(6);
+
+                        if (Program.RandomProvider(4) == 0)
+                        {
+                            NOption |= 1 << Program.RandomProvider(6);
+                        }
+                    }
                 }
 
                 OptionExe = (byte)NOption;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider(100) == 0) || Program.RandomProvider(6) == 0)
+            bool IsExe = (OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0;
+
+            if (Program.RandomProvider(IsExe?100:6) == 0)
             {
                 Luck = true;
             }
@@ -1830,7 +1842,7 @@ namespace MuEmu
                 Luck = false;
             }
 
-            if (((OptionExe & (byte)ExcellentOptionArmor.FullItem) != 0 && Program.RandomProvider(2) == 0) || Program.RandomProvider(4) == 0 && Spell != Spell.None)
+            if (Program.RandomProvider(IsExe ? 2 : 4) == 0 && Spell != Spell.None)
             {
                 Skill = BasicInfo.Skill != Spell.None;
             }

@@ -1444,7 +1444,8 @@ namespace MuEmu.Network.GameServices
                 }
 
                 var ev = Program.EventManager.GetEvent<ImperialGuardian>();
-                if (gate.Map == ev.Map)
+
+                if (ev != null && gate.Map == ev.Map)
                 {
                     await ev.UsePortal(@char, (ushort)target);
                 }
@@ -1904,7 +1905,8 @@ namespace MuEmu.Network.GameServices
         public void CShadowBuff(GSSession session)
         {
             var @char = session.Player.Character;
-            @char.Spells.SetBuff(SkillStates.ShadowPhantom, TimeSpan.FromSeconds(120));
+            if(Program.Experience.GoldChannel <= 0 && @char.Level <= 220)
+                @char.Spells.SetBuff(SkillStates.ShadowPhantom, TimeSpan.FromMinutes(60));
         }
 
         [MessageHandler(typeof(CGremoryCaseOpen))]

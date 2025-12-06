@@ -94,7 +94,10 @@ namespace MuEmu
             ServerSeason.Season3Kor => false,
             ServerSeason.Season6Kor => false,
             ServerSeason.Season9Eng => true,
+            ServerSeason.Season9Kor => true,
+            ServerSeason.Season10Kor => true,
             ServerSeason.Season12Eng => true,
+            ServerSeason.Season12Kor => true,
             ServerSeason.Season16Kor => true,
             ServerSeason.Season17Kor => true,
             ServerSeason.Season17Kor75 => true,
@@ -429,6 +432,8 @@ namespace MuEmu
                         .AddCommand(new Command<GSSession>("vit", Character.AddVit))
                         .AddCommand(new Command<GSSession>("ene", Character.AddEne))
                         .AddCommand(new Command<GSSession>("cmd", Character.AddCmd)))
+                    .AddCommand(new Command<GSSession>("move", Teleport))
+                    .AddCommand(new Command<GSSession>("warp", Teleport))
                     .AddCommand(new Command<GSSession>("set", autority:MustBeGameMaster)
                         .AddCommand(new Command<GSSession>("hp", (object a, CommandEventArgs b) => ((GSSession)a).Player.Character.Health = float.Parse(b.Argument)))
                         .AddCommand(new Command<GSSession>("zen", UpdateZen))
@@ -481,7 +486,17 @@ namespace MuEmu
         private static void UpdateZen(object sender, CommandEventArgs e)
         {
             var session = sender as GSSession;
-            session.Player.Character.Money = uint.Parse(e.Argument);
+            var args = e.Argument.Split(" ");
+            if (session == null)
+            {
+                if(args.Length < 2)
+                    return;
+                session = server.Clients.SingleOrDefault(x => x.Player?.Character?.Name == args[1]);
+                if (session == null)
+                    return;
+            }
+            if(uint.TryParse(args[0], out uint zen))
+                session.Player.Character.Money = zen;
         }
         private static void CreateItem(object sender, CommandEventArgs e)
         {
@@ -654,25 +669,44 @@ namespace MuEmu
         static void EventInitialize()
         {
             EventManager = new EventManagement();
-            EventManager
+            if(Season >= ServerSeason.Season0Kor)
+            {
+                EventManager
                 .AddEvent(Events.Events.BloodCastle, new BloodCastles())
                 .AddEvent(Events.Events.DevilSquared, new DevilSquares())
-                .AddEvent(Events.Events.Kanturu, new Kanturu())
-                .AddEvent(Events.Events.ChaosCastle, new ChaosCastles())
                 .AddEvent(Events.Events.Crywolf, new Crywolf())
-                .AddEvent(Events.Events.ImperialGuardian, new ImperialGuardian())
-                .AddEvent(Events.Events.MoonRabbit, new MoonRabbit())
+                .AddEvent(Events.Events.CastleSiege, new CastleSiege())
+                .AddEvent(Events.Events.ChaosCastle, new ChaosCastles());
+            };
+
+            if(Season >= ServerSeason.Season3Kor)
+            {
+                EventManager.AddEvent(Events.Events.Kanturu, new Kanturu());
+            }
+
+            if(Season >= ServerSeason.Season6Kor)
+            {
+                EventManager.AddEvent(Events.Events.ImperialGuardian, new ImperialGuardian())
                 .AddEvent(Events.Events.WhiteWizard, new WhiteWizard())
                 .AddEvent(Events.Events.EventEgg, new EventEgg())
-                .AddEvent(Events.Events.MuRummy, new MuRummy(Program.XMLConfiguration.Files.MGMuRummy))
-                .AddEvent(Events.Events.CastleSiege, new CastleSiege())
                 .AddEvent(Events.Events.Raklion, new BattleOfSelupan())
-                .AddEvent(Events.Events.AcheronGuardian, new AcheronGuardian())
-                //.AddEvent(Events.Events.DoubleGoer, new DoubleGoer())
+                .AddEvent(Events.Events.MoonRabbit, new MoonRabbit());
+            }
+
+            if(Season >= ServerSeason.Season9Kor)
+            {
+                EventManager
+                .AddEvent(Events.Events.MuRummy, new MuRummy(Program.XMLConfiguration.Files.MGMuRummy))
                 .AddEvent(Events.Events.MineSweeper, new MineSweeper(Program.XMLConfiguration.Files.MGFindBombs))
                 .AddEvent(Events.Events.JeweldryBingo, new JeweldryBingo(Program.XMLConfiguration.Files.MGJewelBingo))
-                .AddEvent(Events.Events.BallsAndCows, new BallsAndCows(Program.XMLConfiguration.Files.MGBallsAndCows))
-                ;
+                .AddEvent(Events.Events.BallsAndCows, new BallsAndCows(Program.XMLConfiguration.Files.MGBallsAndCows));
+            }
+
+            if(Season >= ServerSeason.Season12Kor)
+            {
+                EventManager.AddEvent(Events.Events.AcheronGuardian, new AcheronGuardian());
+            }
+
             LuckyCoins.Initialize();
             EventChips.Initialize();
         }
@@ -708,6 +742,22 @@ namespace MuEmu
         {
             var session = a as GSSession;
             await server.SendAll(new SChatNickName(session.Player.Character.Name, $"~# {b.Argument}"));
+        }
+
+        public static async void Teleport(object a, CommandEventArgs b)
+        {
+            var session = a as GSSession;
+            var args = b.Argument.Split(" ");
+            var gates = ResourceCache.Instance.GetGates();
+            
+            var gate = gates.FirstOrDefault(x => string.Compare(x.Value.Name, args[0], true) == 0 && x.Value.GateType == GateType.Warp);
+            if( gate.Value == null)
+            {
+                session.SendAsync(new SNotice(NoticeType.Blue, "Gate not found")).Wait();
+                return;
+            }
+
+            await session.Player.Character.WarpTo(gate.Key);
         }
 
         public static void Help(object a, CommandEventArgs b)

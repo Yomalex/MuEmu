@@ -51,10 +51,13 @@ namespace MuEmu.Resources
             var dir = Path.Combine(_root, "Items.xml");            
             var xml = XmlLoader<ItemDbDto>(dir);
 
-            foreach (var i in xml.items)
+            foreach (var i in xml.items.Where(x => x.MinSeason < Program.Season))
             {
                 var Size = i.Size.Split(",").Select(x => int.Parse(x)).ToArray();
                 var Dmg = i.Dmg.Split("-").Select(x => int.Parse(x)).ToArray();
+                if (result.Any(x => x.Number == i.Number))
+                    continue;
+
                 var tmp = new ItemInfo
                 {
                     Number = i.Number,
@@ -566,7 +569,7 @@ namespace MuEmu.Resources
         public IEnumerable<MapInfo> LoadMaps()
         {
             var xml = XmlLoader<MapsDbDto>(Path.Combine(_root, "Maps.xml"));
-            foreach(var m in xml.maps)
+            foreach(var m in xml.maps.Where(x => x.MinSeason <= Program.Season))
             {
                 yield return new MapInfo(m.Map, m.AttributteFile);
             }
@@ -581,7 +584,13 @@ namespace MuEmu.Resources
                 if(@char.Equipament != null)
                 foreach(var e in @char.Equipament)
                 {
-                    eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (ushort)e.Index), new { Plus = (byte)e.Level }));
+                        try
+                        {
+                            eq.Add((ushort)e.Slot, new Item(new ItemNumber((byte)e.Type, (ushort)e.Index), new { Plus = (byte)e.Level }));
+                        }catch(Exception)
+                        {
+
+                        }
                 }
 
                 yield return new CharacterInfo
@@ -617,6 +626,33 @@ namespace MuEmu.Resources
             }
         }
 
+        private IEnumerable<Item> ShopItemConv(IEnumerable<ShopRowDto> list)
+        {
+            Item item;
+            foreach(var x in list)
+            {
+                try
+                {
+                    item = new Item(new ItemNumber(x.Type, x.Index),
+                        Options:
+                    new
+                    {
+                        x.Plus,
+                        x.Durability,
+                        x.Skill,
+                        x.Luck,
+                        Option28 = x.Option,
+                        OptionExe = x.Excellent
+                    });
+                }
+                catch(Exception)
+                {
+                    continue;
+                }
+                yield return item;
+            }
+        }
+
         public IEnumerable<ShopInfo> LoadShops()
         {
             var xml = XmlLoader<ShopListDto>(Path.Combine(_root, "ShopList.xml"));
@@ -630,17 +666,7 @@ namespace MuEmu.Resources
 
                 var loader = new LoadWZTXT<ShopInfoDto>();
                 var file = loader.Load(Path.Combine(_root, shop.ItemList));
-                var itemList = file.Item.Select(
-                    x => new Item(
-                        new ItemNumber(x.Type, x.Index),
-                        Options:
-                        new {
-                            x.Plus,
-                            x.Durability,
-                            x.Skill,
-                            x.Luck,
-                            Option28 = x.Option,
-                            OptionExe = x.Excellent })).ToList();
+                var itemList = ShopItemConv(file.Item).ToList();
 
                 try
                 {

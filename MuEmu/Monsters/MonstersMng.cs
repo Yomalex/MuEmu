@@ -122,28 +122,38 @@ namespace MuEmu.Monsters
                 ResourceLoader.XmlSaver(file + ".xml", xml);
             }
 
-            foreach(var npc in xml.NPCs)
+            var maps = ResourceCache.Instance.GetMaps();
+            foreach(var npc in xml.NPCs.Where(x => maps.ContainsKey(x.Map)))
                 Monsters.Add(new Monster(npc.Type, ObjectType.NPC, npc.Map, new Point(npc.PosX, npc.PosY), (byte)npc.Dir) { Index = GetNewIndex() });
 
-            foreach (var npc in xml.Normal)
+            foreach (var npc in xml.Normal.Where(x => maps.ContainsKey(x.Map)))
                 Monsters.Add(new Monster(npc.Type, ObjectType.Monster, npc.Map, new Point(npc.PosX, npc.PosY), (byte)npc.Dir) { Index = GetNewIndex() });
 
-            foreach (var npc in xml.BloodCastles)
+            foreach (var npc in xml.BloodCastles.Where(x => maps.ContainsKey(x.Map)))
                 Monsters.Add(new Monster(npc.Type, ObjectType.Monster, npc.Map, new Point(npc.PosX, npc.PosY), (byte)npc.Dir) { Index = GetNewIndex() });
 
-            foreach (var npc in xml.Golden)
+            var notAllowed = Monsters.Where(x => x.Info.MinSeason > Program.Season).ToList();
+            foreach (var mob in notAllowed)
+            {
+                Monsters.Remove(mob);
+                Logger.Warning("Monster {0} removed due to season restriction", mob.Index);
+            }
+
+            foreach (var npc in xml.Golden.Where(x => maps.ContainsKey(x.Map)))
             {
                 for (var i = 0; i < npc.Quant; i++)
                 {
                     var dir = (byte)_rand.Next(7);
                     var mPos = GetSpawn(npc.Map, npc.PosX, npc.PosX2, npc.PosY, npc.PosY2);
                     var mob = new Monster(npc.Type, ObjectType.Monster, npc.Map, mPos, dir) { Index = GetNewIndex() };
+                    if (mob.Info.MinSeason > Program.Season)
+                        continue;
                     Monsters.Add(mob);
                     Program.GoldenInvasionManager.AddMonster(mob);
                 }
             }
 
-            foreach (var npc in xml.Spots)
+            foreach (var npc in xml.Spots.Where(x => maps.ContainsKey(x.Map)))
             {
                 for (var i = 0; i < npc.Quant; i++)
                 {
@@ -152,6 +162,8 @@ namespace MuEmu.Monsters
                         var dir = (byte)_rand.Next(7);
                         var mPos = GetSpawn(npc.Map, npc.PosX, npc.PosX2, npc.PosY, npc.PosY2);
                         var mob = new Monster(npc.Type, ObjectType.Monster, npc.Map, mPos, dir, npc.Element) { Index = GetNewIndex() };
+                        if (mob.Info.MinSeason > Program.Season)
+                            break;
                         Monsters.Add(mob);
                     }catch(InvalidOperationException)
                     { }

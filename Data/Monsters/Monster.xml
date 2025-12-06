@@ -1926,7 +1926,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="135" Rate="1" Name="White Wizard" Level="87" HP="26000" MP="0" DmgMin="370" DmgMax="410" Defense="400" MagicDefense="0" Attack="550" Success="200" MoveRange="4" Spell="Lighting" AttackRange="5" ViewRange="6" MoveSpeed="400" AttackSpeed="2200" RegenTime="10" Attribute="2" ItemRate="150" M_Rate="50" MaxItem="4" Skill="0" Ice_Resistance="15" Possion_Resistance="15" Lightning_Resistance="20" Fire_Resistance="15">
+  <Info Monster="135" Rate="1" Name="White Wizard" minSeason="Season6Kor" Level="87" HP="26000" MP="0" DmgMin="370" DmgMax="410" Defense="400" MagicDefense="0" Attack="550" Success="200" MoveRange="4" Spell="Lighting" AttackRange="5" ViewRange="6" MoveSpeed="400" AttackSpeed="2200" RegenTime="10" Attribute="2" ItemRate="150" M_Rate="50" MaxItem="4" Skill="0" Ice_Resistance="15" Possion_Resistance="15" Lightning_Resistance="20" Fire_Resistance="15">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1935,7 +1935,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="136" Rate="1" Name="Orc Soldier of Doom" Level="70" HP="9500" MP="0" DmgMin="210" DmgMax="240" Defense="180" MagicDefense="0" Attack="400" Success="125" MoveRange="3" Spell="None" AttackRange="1" ViewRange="3" MoveSpeed="400" AttackSpeed="1500" RegenTime="10" Attribute="2" ItemRate="300" M_Rate="200" MaxItem="3" Skill="0" Ice_Resistance="7" Possion_Resistance="7" Lightning_Resistance="7" Fire_Resistance="7">
+  <Info Monster="136" Rate="1" Name="Orc Soldier of Doom" minSeason="Season6Kor" Level="70" HP="9500" MP="0" DmgMin="210" DmgMax="240" Defense="180" MagicDefense="0" Attack="400" Success="125" MoveRange="3" Spell="None" AttackRange="1" ViewRange="3" MoveSpeed="400" AttackSpeed="1500" RegenTime="10" Attribute="2" ItemRate="300" M_Rate="200" MaxItem="3" Skill="0" Ice_Resistance="7" Possion_Resistance="7" Lightning_Resistance="7" Fire_Resistance="7">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1944,7 +1944,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="137" Rate="1" Name="Orc Archer of Doom" Level="74" HP="12000" MP="0" DmgMin="220" DmgMax="260" Defense="190" MagicDefense="0" Attack="440" Success="130" MoveRange="3" Spell="None" AttackRange="5" ViewRange="5" MoveSpeed="400" AttackSpeed="1800" RegenTime="10" Attribute="2" ItemRate="300" M_Rate="200" MaxItem="3" Skill="0" Ice_Resistance="8" Possion_Resistance="8" Lightning_Resistance="8" Fire_Resistance="8">
+  <Info Monster="137" Rate="1" Name="Orc Archer of Doom" minSeason="Season6Kor" Level="74" HP="12000" MP="0" DmgMin="220" DmgMax="260" Defense="190" MagicDefense="0" Attack="440" Success="130" MoveRange="3" Spell="None" AttackRange="5" ViewRange="5" MoveSpeed="400" AttackSpeed="1800" RegenTime="10" Attribute="2" ItemRate="300" M_Rate="200" MaxItem="3" Skill="0" Ice_Resistance="8" Possion_Resistance="8" Lightning_Resistance="8" Fire_Resistance="8">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1953,7 +1953,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="100" Rate="1" Name="Lance" Level="80" HP="1000" MP="0" DmgMin="100" DmgMax="110" Defense="0" MagicDefense="0" Attack="400" Success="500" MoveRange="0" Spell="None" AttackRange="4" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
+  <Info Monster="100" Rate="1" Name="Lance" minSeason="Season6Kor" Level="80" HP="1000" MP="0" DmgMin="100" DmgMax="110" Defense="0" MagicDefense="0" Attack="400" Success="500" MoveRange="0" Spell="None" AttackRange="4" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1962,7 +1962,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="101" Rate="1" Name="Iron Stick" Level="80" HP="1000" MP="0" DmgMin="110" DmgMax="130" Defense="0" MagicDefense="0" Attack="400" Success="500" MoveRange="0" Spell="None" AttackRange="0" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
+  <Info Monster="101" Rate="1" Name="Iron Stick" minSeason="Season6Kor" Level="80" HP="1000" MP="0" DmgMin="110" DmgMax="130" Defense="0" MagicDefense="0" Attack="400" Success="500" MoveRange="0" Spell="None" AttackRange="0" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1971,7 +1971,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="102" Rate="1" Name="Fire" Level="80" HP="1000" MP="0" DmgMin="130" DmgMax="150" Defense="0" MagicDefense="0" Attack="400" Success="500" MoveRange="0" Spell="None" AttackRange="2" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
+  <Info Monster="102" Rate="1" Name="Fire" minSeason="Season6Kor" Level="80" HP="1000" MP="0" DmgMin="130" DmgMax="150" Defense="0" MagicDefense="0" Attack="400" Success="500" MoveRange="0" Spell="None" AttackRange="2" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1980,7 +1980,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="103" Rate="1" Name="Meteorite" Level="90" HP="1000" MP="0" DmgMin="160" DmgMax="190" Defense="0" MagicDefense="0" Attack="450" Success="500" MoveRange="0" Spell="FlameofEvilMonster" AttackRange="0" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
+  <Info Monster="103" Rate="1" Name="Meteorite" minSeason="Season6Kor" Level="90" HP="1000" MP="0" DmgMin="160" DmgMax="190" Defense="0" MagicDefense="0" Attack="450" Success="500" MoveRange="0" Spell="FlameofEvilMonster" AttackRange="0" ViewRange="1" MoveSpeed="500" AttackSpeed="1000" RegenTime="3" Attribute="1" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>
@@ -1989,7 +1989,7 @@
     <PentagramDefenseRate>0</PentagramDefenseRate>
     <PentagramDefense>7</PentagramDefense>
   </Info>
-  <Info Monster="226" Rate="1" Name="Trainer" Level="2" HP="50" MP="0" DmgMin="15" DmgMax="30" Defense="70" MagicDefense="20" Attack="10" Success="30" MoveRange="0" Spell="None" AttackRange="0" ViewRange="5" MoveSpeed="400" AttackSpeed="1500" RegenTime="10" Attribute="0" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
+  <Info Monster="226" Rate="1" Name="Trainer" minSeason="Season6Kor" Level="2" HP="50" MP="0" DmgMin="15" DmgMax="30" Defense="70" MagicDefense="20" Attack="10" Success="30" MoveRange="0" Spell="None" AttackRange="0" ViewRange="5" MoveSpeed="400" AttackSpeed="1500" RegenTime="10" Attribute="0" ItemRate="200" M_Rate="10" MaxItem="0" Skill="0" Ice_Resistance="0" Possion_Resistance="0" Lightning_Resistance="0" Fire_Resistance="0">
     <MainAttribute>0</MainAttribute>
     <AttributePattern>0</AttributePattern>
     <PentagramDamageMin>0</PentagramDamageMin>

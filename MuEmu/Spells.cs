@@ -427,7 +427,7 @@ namespace MuEmu
                     if (@char == null)
                         break;
                     buff.AttackAdd = @char.Level / 3 + 45;
-                    buff.DefenseAdd = @char.Level / 3 + 50;
+                    buff.DefenseAdd = @char.Level / 5 + 50;
                     break;
                 case SkillStates.SoulBarrier:
                     buff.DefenseAddRate = 10 + source.AgilityTotal / 50 + source.EnergyTotal / 200;

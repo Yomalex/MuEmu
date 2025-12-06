@@ -370,6 +370,7 @@ namespace MuEmu.Monsters
                             }
                         }catch(Exception)
                         {
+                            _monsterState = MonsterState.Idle;
                             Target = null;
                         }
                     }
@@ -823,7 +824,7 @@ namespace MuEmu.Monsters
                                 goto start;
 
                             var it = items[itNum];
-                            if (it.Level < Level)
+                            if (it.Level < Level && it.Drop == true)
                                 ItemBag.Add(new Item(itNum));
                         }
                     }
@@ -833,6 +834,9 @@ namespace MuEmu.Monsters
                     if (!items.ContainsKey(itNum))
                         goto start;
 
+                    var itinf = items[itNum];
+                    if(itinf.Drop == false)
+                        goto start;
                     var it = new Item(itNum);
                     var result = it.GetLevel(Level);
 
