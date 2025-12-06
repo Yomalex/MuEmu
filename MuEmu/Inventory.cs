@@ -1275,10 +1275,14 @@ namespace MuEmu
                 CharSet[9] |= info[1];
                 CharSet[16] |= info[2];
             }
-
-            if(equip.TryGetValue(Equipament.Pet, out it))
+            else
             {
-                switch(it.Number.Number)
+                CharSet[5] |= 0x0C;
+            }
+
+            if (equip.TryGetValue(Equipament.Pet, out it))
+            {
+                switch (it.Number.Number)
                 {
                     case 6720:
                         CharSet[16] |= 0x20;
@@ -1300,9 +1304,12 @@ namespace MuEmu
                         CharSet[16] |= 0x60;
                         break;
                 }
+            }else
+            {
+                CharSet[5] |= 0x03;
             }
 
-            if(inv.Character != null && inv.Character.HaveMount)
+            if (inv.Character != null && inv.Character.HaveMount)
             {
                 CharSet[12] |= 0x01;
             }

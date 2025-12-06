@@ -44,6 +44,19 @@ namespace MuEmu.Network
             });
         }
 
+        [MessageHandler(typeof(CIDAndPassS3))]
+        public async Task CIDAndPassS3(GSSession session, CIDAndPassS3 message)
+        {
+            await CIDAndPass(session, new CIDAndPass
+            {
+                btAccount = message.btAccount,
+                ClientSerial = message.ClientSerial,
+                ClientVersion = message.ClientVersion,
+                btPassword = message.btPassword,
+                TickCount = message.TickCount
+            });
+        }
+
         [MessageHandler(typeof(CIDAndPass))]
         public async Task CIDAndPass(GSSession session, CIDAndPass message)
         {
@@ -181,19 +194,28 @@ namespace MuEmu.Network
 
                 var resetList = new SResetCharList();
 
-                byte mClass = 0;
+                //mClass
+                // 1: DK
+                // 2: Dk, DW
+                // 3: DK, DW, ELF
+                // 4: DK, DW, ELF, MG
+                // 5: DK, DW, ELF, MG, DL
+
+                byte mClass = 5;
                 var maxLevel = acc.Characters.Any()?acc.Characters.Max(x => x.Value.Level):1;
 
                 if (maxLevel > 250)
-                    mClass = 4;
+                    mClass = 5;
                 else if (maxLevel > 220)
-                    mClass = 3;
+                    mClass = 4;
                 else if (maxLevel > 210)
-                    mClass = 2;
-                else if(maxLevel > 200)
-                    mClass = 1;
+                    mClass = 3;
+                else if (maxLevel > 200)
+                    mClass = 3;
+                else
+                    mClass = 3;
 
-                var charList = VersionSelector.CreateMessage<SCharacterList>(mClass, (byte)0, (byte)5, (byte)3) as CharList;
+                    var charList = VersionSelector.CreateMessage<SCharacterList>((byte)mClass, (byte)0, (byte)5, (byte)3) as CharList;
 
                 foreach (var @char in acc.Characters)
                 {

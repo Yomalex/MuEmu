@@ -12,6 +12,25 @@ namespace MuEmu.Network.Data
     }
 
     [WZContract]
+    public class InventoryS3Dto : IInventoryDto
+    {
+        [WZMember(0)]
+        public byte Index { get; set; }
+
+        [WZMember(1, 7)]
+        public byte[] Item { get; set; }
+        public InventoryS3Dto()
+        {
+
+        }
+        public InventoryS3Dto(byte id, byte[] item)
+        {
+            Index = id;
+            Item = item;
+        }
+    }
+
+    [WZContract]
     public class InventoryDto : IInventoryDto
     {
         [WZMember(0)]

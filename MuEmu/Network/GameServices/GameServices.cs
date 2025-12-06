@@ -283,6 +283,18 @@ namespace MuEmu.Network.GameServices
                 _ => LoginStatus.NotLogged
             };
         }
+        [MessageHandler(typeof(CMoveItemS3))]
+        public async Task CMoveItemS3(GSSession session, CMoveItemS3 message)
+        {
+            await CMoveItem(session, new CMoveItem
+            {
+                Dest = message.Dest,
+                ItemInfo = message.ItemInfo,
+                sFlag = message.sFlag,
+                Source = message.Source,
+                tFlag = message.tFlag,
+            });
+        }
 
         [MessageHandler(typeof(CMoveItem))]
         public async Task CMoveItem(GSSession session, CMoveItem message)

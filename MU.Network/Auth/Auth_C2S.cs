@@ -9,6 +9,27 @@ using WebZen.Util;
 namespace MU.Network.Auth
 {
     [WZContract]
+    public class CIDAndPassS3 : IAuthMessage
+    {
+        [WZMember(0, 10)]
+        public byte[] btAccount { get; set; }
+
+        [WZMember(1, 10)]
+        public byte[] btPassword { get; set; }
+
+        [WZMember(2)]
+        public uint TickCount { get; set; }
+
+        [WZMember(4, typeof(BinaryStringSerializer), 5)]
+        public string ClientVersion { get; set; }
+
+        [WZMember(5, typeof(BinaryStringSerializer), 16)]
+        public string ClientSerial { get; set; }
+
+        public string Account => btAccount.MakeString();
+        public string Password => btPassword.MakeString();
+    }
+    [WZContract]
     public class CIDAndPass : IAuthMessage
     {
         [WZMember(0, 10)]

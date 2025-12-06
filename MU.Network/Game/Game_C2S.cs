@@ -204,6 +204,25 @@ namespace MU.Network.Game
     }
 
     [WZContract]
+    public class CMoveItemS3 : IGameMessage
+    {
+        [WZMember(0)]
+        public MoveItemFlags sFlag { get; set; }
+
+        [WZMember(1)]
+        public byte Source { get; set; }
+
+        [WZMember(2, 7)]
+        public byte[] ItemInfo { get; set; }
+
+        [WZMember(3)]
+        public MoveItemFlags tFlag { get; set; }
+
+        [WZMember(4)]
+        public byte Dest { get; set; }
+    }
+
+    [WZContract]
     public class CMoveItem : IGameMessage
     {
         [WZMember(0)]

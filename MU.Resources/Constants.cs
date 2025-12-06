@@ -223,6 +223,7 @@ namespace MU.Resources
     public enum ServerSeason
     {
         Season0Kor,
+        Season3Kor,
         Season6Kor,
         Season9Eng,
         Season12Eng,

@@ -198,8 +198,10 @@ namespace MU.Network.Game
 
             // S2C
             if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
+            Register<SInventoryS3>(GameOpCode.Inventory);
             Register<SInventory>(GameOpCode.Inventory);
             Register<SInventoryS17>(GameOpCode.Inventory);
+            VersionSelector.Register<SInventoryS3>(ServerSeason.Season3Kor, GameOpCode.Inventory);
             VersionSelector.Register<SInventory>(ServerSeason.Season6Kor, GameOpCode.Inventory);
             VersionSelector.Register<SInventoryS17>(ServerSeason.Season17Kor75, GameOpCode.Inventory);
             Register<SEquipament>(GameOpCode.Equipament);
@@ -309,6 +311,7 @@ namespace MU.Network.Game
             Register<SPShopRequestBuy>(GameOpCode.PShopRequestBuy);
             Register<SPShopRequestSold>(GameOpCode.PShopRequestSold);
             Register<SPShopAlterVault>(GameOpCode.PShopAlterVault);
+            Register<SMoveItemS3>(GameOpCode.MoveItem);
             VersionSelector.Register<SPositionSet>(ServerSeason.Season6Kor, GameOpCode.Position);
             VersionSelector.Register<SPositionSetS9Eng>(ServerSeason.Season9Eng, GameOpCode.Position);
             VersionSelector.Register<SPositionSetS16Kor>(ServerSeason.Season16Kor, GameOpCode.Position);
@@ -316,6 +319,7 @@ namespace MU.Network.Game
             VersionSelector.Register<SCharRegenS12Eng>(ServerSeason.Season12Eng, GameOpCode.CharRegen);
             VersionSelector.Register<SCharRegenS16Kor>(ServerSeason.Season16Kor, GameOpCode.CharRegen);
             VersionSelector.Register<SMoveItem>(ServerSeason.Season6Kor, GameOpCode.MoveItem);
+            VersionSelector.Register<SMoveItemS3>(ServerSeason.Season3Kor, GameOpCode.MoveItem);
             VersionSelector.Register<SMoveItemS16Kor>(ServerSeason.Season16Kor, GameOpCode.MoveItem);
             VersionSelector.Register<STeleport>(ServerSeason.Season6Kor, GameOpCode.Teleport);
             VersionSelector.Register<STeleportS12Eng>(ServerSeason.Season12Eng, GameOpCode.Teleport);
@@ -485,6 +489,10 @@ namespace MU.Network.Game
             {
                 case ServerSeason.Season16Kor:
                     ChangeOPCode<CFavoritesList>(GameOpCode.FavoritesListS16Kor);
+                    break;
+                case ServerSeason.Season0Kor:
+                case ServerSeason.Season3Kor:
+                    ChangeType<CMoveItemS3>(GameOpCode.MoveItem, typeof(CMoveItem));
                     break;
             }
         }

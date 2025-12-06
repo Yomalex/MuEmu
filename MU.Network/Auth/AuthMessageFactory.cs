@@ -99,6 +99,9 @@ namespace MU.Network.Auth
                     //Register<SResets>(CSOpCode.Resets);
                     //Register<SResetCharList>(CSOpCode.ResetList);
                     break;
+                case ServerSeason.Season3Kor:
+                    ChangeType<CIDAndPassS3>(CSOpCode.Login, typeof(CIDAndPassS12));
+                    break;
                 default:
                     ChangeType<CIDAndPass>(CSOpCode.Login, typeof(CIDAndPassS12));
                     break;

@@ -91,6 +91,7 @@ namespace MuEmu
         private static bool NewEncode(ServerSeason season) => season switch
         {
             ServerSeason.Season0Kor => false,
+            ServerSeason.Season3Kor => false,
             ServerSeason.Season6Kor => false,
             ServerSeason.Season9Eng => true,
             ServerSeason.Season12Eng => true,

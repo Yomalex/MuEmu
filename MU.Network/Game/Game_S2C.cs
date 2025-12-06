@@ -21,6 +21,28 @@ namespace MU.Network.Game
     }
 
     [WZContract(LongMessage = true, Serialized = true)]
+    public class SInventoryS3 : IInventory, IGameMessage
+    {
+        [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
+        public InventoryS3Dto[] Inventory { get; set; }
+
+        public SInventoryS3()
+        {
+            Inventory = Array.Empty<InventoryS3Dto>();
+        }
+
+        public SInventoryS3(object[] inv)
+        {
+            Inventory = inv as InventoryS3Dto[];
+        }
+
+        public void LoadItems(IEnumerable<KeyValuePair<byte, byte[]>> items)
+        {
+            Inventory = items.Select(x => new InventoryS3Dto(x.Key, x.Value)).ToArray();
+        }
+    }
+
+    [WZContract(LongMessage = true, Serialized = true)]
     public class SInventory : IInventory, IGameMessage
     {
         [WZMember(0, SerializerType = typeof(ArrayWithScalarSerializer<byte>))]
@@ -850,6 +872,19 @@ namespace MU.Network.Game
     {
         [WZMember(0)]
         public ClientCloseType Type { get; set; }
+    }
+
+    [WZContract(Serialized = true)]
+    public class SMoveItemS3 : IGameMessage
+    {
+        [WZMember(0)]
+        public byte Result { get; set; }
+
+        [WZMember(1)]
+        public byte Position { get; set; }
+
+        [WZMember(2, 7)]
+        public byte[] ItemInfo { get; set; }
     }
 
     [WZContract(Serialized = true)]
