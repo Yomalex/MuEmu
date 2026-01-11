@@ -41,6 +41,7 @@ namespace MU.Network.Auth
             Register<SCharacterMapJoin2S16Kor>(CSOpCode.JoinMap2);
             Register<SServerMove>(CSOpCode.ServerMove);
             Register<SCharacterList>(CSOpCode.CharacterList);
+            Register<SCharacterListS6Eng>(CSOpCode.CharacterList);
             Register<SCharacterListS9>(CSOpCode.CharacterList);
             Register<SCharacterListS12>(CSOpCode.CharacterList);
             Register<SCharacterListS16Kor>(CSOpCode.CharacterList);
@@ -53,6 +54,7 @@ namespace MU.Network.Auth
             VersionSelector.Register<SCharacterMapJoin2S12Eng>(ServerSeason.Season12Eng, CSOpCode.JoinMap2);
             VersionSelector.Register<SCharacterMapJoin2S16Kor>(ServerSeason.Season16Kor, CSOpCode.JoinMap2);
             VersionSelector.Register<SCharacterList>(ServerSeason.Season6Kor, CSOpCode.CharacterList);
+            VersionSelector.Register<SCharacterListS6Eng>(ServerSeason.Season6Eng, CSOpCode.CharacterList);
             VersionSelector.Register<SCharacterListS9>(ServerSeason.Season9Eng, CSOpCode.CharacterList);
             VersionSelector.Register<SCharacterListS12>(ServerSeason.Season12Eng, CSOpCode.CharacterList);
             VersionSelector.Register<SCharacterListS16Kor>(ServerSeason.Season16Kor, CSOpCode.CharacterList);
@@ -98,6 +100,8 @@ namespace MU.Network.Auth
                     //Register<CIDAndPassS12>(CSOpCode.Login);
                     //Register<SResets>(CSOpCode.Resets);
                     //Register<SResetCharList>(CSOpCode.ResetList);
+                    break;
+                case ServerSeason.Season6Eng:
                     break;
                 case ServerSeason.Season3Kor:
                     ChangeType<CIDAndPassS3>(CSOpCode.Login, typeof(CIDAndPassS12));

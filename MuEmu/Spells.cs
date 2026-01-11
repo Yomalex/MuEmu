@@ -430,7 +430,8 @@ namespace MuEmu
                     buff.DefenseAdd = @char.Level / 5 + 50;
                     break;
                 case SkillStates.SoulBarrier:
-                    buff.DefenseAddRate = 10 + source.AgilityTotal / 50 + source.EnergyTotal / 200;
+                    buff.DefenseAddRate = (10 + source.AgilityTotal / 50 + source.EnergyTotal / 200)/100.0f;
+                    source.CharacterDie += SourceDie;
                     break;
                 case SkillStates.Defense:
                     buff.DefenseAdd = source.EnergyTotal / 8;
@@ -441,6 +442,8 @@ namespace MuEmu
                 case SkillStates.SwellLife:
                     buff.LifeAdd = 12 + source.EnergyTotal / 10 + source.VitalityTotal / 100;
                     Character.MaxHealth += buff.LifeAdd;
+                    source.CharacterDie -= SourceDie;
+                    source.CharacterDie += SourceDie;
                     break;
                 case SkillStates.HAttackPower:
                     buff.AttackAdd = 25;
@@ -461,6 +464,8 @@ namespace MuEmu
                     break;
                 case SkillStates.SkillDamageDeflection:
                     buff.DamageDeflection = (30 + (source.EnergyTotal / 42))/100.0f;
+                    source.CharacterDie -= SourceDie;
+                    source.CharacterDie += SourceDie;
                     break;
             }
 
@@ -536,6 +541,21 @@ namespace MuEmu
             _buffs.Clear();
         }
 
+        public void SourceDie(object source, EventArgs eventArgs)
+        {
+            var @char = source as Character;
+            var rem = _buffs.Where(x => x.Source == source);
+            _buffs = _buffs.Except(rem).ToList();
+            try
+            {
+                foreach (var r in rem)
+                    DelBuff(r).Wait();
+            }
+            catch (Exception)
+            { }
+
+            @char.CharacterDie -= SourceDie;
+        }
         public async Task DelBuff(Buff effect)
         {
             if(Monster != null)
@@ -553,6 +573,14 @@ namespace MuEmu
                 case SkillStates.SwellLife:
                     Character.MaxHealth -= effect.LifeAdd;
                     break;
+            }
+
+            if (effect.Source != null)
+            {
+                effect.Source.CharacterDie -= async (s, e) =>
+                {
+                    await DelBuff(effect);
+                };
             }
 
             await Player.Session.SendAsync(new SPeriodicEffectS12Eng

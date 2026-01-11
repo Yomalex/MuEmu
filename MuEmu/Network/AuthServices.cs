@@ -277,9 +277,10 @@ namespace MuEmu.Network
                                  where it.CharacterId == charDto.CharacterId
                                  select it).ToList();
 
-                /*charDto.Spells = (from spell in db.Spells
-                                  where spell.CharacterId == charDto.CharacterId
-                                  select spell).ToList();*/
+                if(charDto.Spells == null)
+                    charDto.Spells = (from spell in db.Spells
+                                      where spell.CharacterId == charDto.CharacterId
+                                      select spell).ToList();
 
                 charDto.Quests = (from quest in db.Quests
                                    where quest.CharacterId == charDto.CharacterId
@@ -325,9 +326,7 @@ namespace MuEmu.Network
 
             session.Player.Character = new Character(session.Player, @charDto);
             var @char = session.Player.Character;
-
-            await session.SendAsync(new SPeriodItemCount());
-            
+                        
             await session.SendAsync(new SKillCount { KillCount = 1 });
             
             if (charDto.SkillKey != null)

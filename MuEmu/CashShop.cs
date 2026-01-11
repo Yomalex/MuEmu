@@ -258,6 +258,7 @@ namespace MuEmu
             session.SendAsync(new SCashInit()).Wait();
             session.SendAsync(new SCashVersion { Ver1 = version[0], Ver2 = version[1], Ver3 = version[2] }).Wait();
             session.SendAsync(new SCashBanner { Ver1 = 583, Ver2 = 2014, Ver3 = 001 }).Wait();
+            session.SendAsync(new SCashPeriodItemCount()).Wait();
             //session.SendAsync(VersionSelector.CreateMessage<SCashPoints>(_wCoinC, _wCoinP, _goblinPoints)).Wait();
 
             _player = session.Player;

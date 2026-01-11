@@ -1,4 +1,5 @@
-﻿using MU.Resources;
+﻿using MU.Network.CashShop;
+using MU.Resources;
 using MuEmu.Entity;
 using MuEmu.Network.Data;
 using System;
@@ -217,6 +218,18 @@ namespace MuEmu
         {
             return _items
                 .Select(x => new KeyValuePair<byte, byte[]>((byte)(x.Key + IndexTranslate), x.Value.GetBytes()));
+        }
+
+        public IEnumerable<SCashItemPeriodInfo> GetInventoryDuration()
+        {
+            var baseTime = new DateTime(1970, 01, 01);
+            return _items.Where(x => x.Value.DurationTime > 0)
+                .Select(x => new SCashItemPeriodInfo
+                {
+                    ItemID = (ushort)(x.Value.Character?.Player?.Session?.ID??0),
+                    Slot = (byte)(x.Key + IndexTranslate),
+                    RemainingSeconds = (uint)(x.Value.ExpireTime-baseTime).TotalSeconds,
+                });
         }
 
         public bool CanContain(byte address)

@@ -225,6 +225,7 @@ namespace MU.Resources
         Season0Kor,
         Season3Kor,
         Season6Kor,
+        Season6Eng,
         Season9Kor,
         Season9Eng,
         Season10Kor,

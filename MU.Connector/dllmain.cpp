@@ -9,8 +9,28 @@
 #include "MiniDump.h"
 #pragma comment(lib,"../../CryptoPP/Win32/Output/Release/cryptlib.lib")
 
+struct REFERENCE_INFO
+{
+    DWORD count;
+    DWORD start;
+    DWORD end;
+};
+
+struct REFERENCE_BASE
+{
+    DWORD address;
+};
+
+struct REFERENCE_DATA
+{
+    DWORD address;
+    DWORD value;
+};
+
 LPBYTE _GetStartupInfoA = (LPBYTE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "GetStartupInfoA");
 LPBYTE _OutputDebugStringA = (LPBYTE)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "OutputDebugStringA");
+
+void _stdcall new_OutputDebugStringA(LPCSTR lpOutputString);
 
 FILE* fp=NULL;
 template<typename T>
@@ -130,6 +150,30 @@ public:
         VirtualProtect((LPVOID)Addr, 4, OldProtect, &OldProtect);
         Print(fp, "ChangeAddress on %08X to %08X\n", Addr, AddrNew);
     }
+
+    static void VirtualizeOffset(DWORD offset, DWORD size) // OK
+    {
+        DWORD OldProtect;
+
+        Print(fp, "VirtualizeOffset on %08X size %08X\n", offset, size);
+        VirtualProtect((void*)offset, size, PAGE_EXECUTE_READWRITE, &OldProtect);
+
+        DWORD HookAddr = (DWORD)malloc(size + 5);
+
+        memcpy((void*)HookAddr, (void*)offset, size);
+
+        *(BYTE*)(HookAddr + size) = 0xE9;
+
+        *(DWORD*)(HookAddr + size + 1) = (offset + size) - ((HookAddr + size) + 5);
+
+        *(BYTE*)(offset) = 0xE9;
+
+        *(DWORD*)(offset + 1) = HookAddr - (offset + 5);
+
+        memset((void*)(offset + 5), 0x90, (size - 5));
+
+        VirtualProtect((void*)offset, size, OldProtect, &OldProtect);
+    }
 };
 template<typename T>
 DWORD Hook<T>::VPOld = 0;
@@ -170,24 +214,30 @@ auto WZParser2 = (T_WZParse)PARSE_PACKET_STREAM;
 auto WZSenderClass = (DWORD**)MU_SENDER_CLASS;
 char szIp[50];
 char szVersion[] = CLIENT_VERSION;
+char szWindowName[32] = CLIENT_WINDOW;
 char szSerial[18] = "fughy683dfu7teqg";
 int iPort = 44405;
 LPTOP_LEVEL_EXCEPTION_FILTER PreviousExceptionFilter = NULL;
 bool UEF = false;
 bool Initialized = false;
 bool ODSShow = false;
+BYTE DataStream01[240];
+BYTE DataStream02[240];
+BYTE DataStream03[6000];
 
 // Constants
 const char* cfgFile = ".\\config.ini";
 std::map<std::string, void*> cmd = {
     {"URL", szIp},
     {"Version", szVersion},
+    {"WindowName", szWindowName},
     {"Serial", szSerial},
     {"Port", &iPort}
 };
 std::map<std::string, int> cmdl = {
     {"URL", sizeof(szIp)},
     {"Version", sizeof(szVersion)},
+    {"WindowName", sizeof(szWindowName)},
     {"Serial", sizeof(szSerial)},
     {"Port", sizeof(iPort)}
 };
@@ -531,6 +581,72 @@ LRESULT MySendMessageW(
     return 0;
 }
 
+void LoadBinFile(const char* name, DWORD address, DWORD size) // OK
+{
+    HANDLE hFile = CreateFileA(
+            name,
+            GENERIC_READ,
+            FILE_SHARE_READ,
+            NULL,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            NULL
+	);
+
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        return;
+    }
+
+	DWORD FileSize = GetFileSize(hFile, NULL);
+	SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+	BYTE* FileContent = new BYTE[FileSize+1];
+
+	ReadFile(hFile, FileContent, FileSize, NULL, NULL);
+
+    CloseHandle(hFile);
+
+    REFERENCE_INFO* ReferenceInfo = (REFERENCE_INFO*)FileContent;
+
+    if (ReferenceInfo->start == ReferenceInfo->end)
+    {
+        if (FileSize < (sizeof(REFERENCE_INFO) + (ReferenceInfo->count * sizeof(REFERENCE_BASE))))
+        {
+			delete[] FileContent;
+            return;
+        }
+
+        REFERENCE_BASE* ReferenceBase = (REFERENCE_BASE*)((DWORD)ReferenceInfo + sizeof(REFERENCE_INFO));
+
+        for (DWORD n = 0; n < ReferenceInfo->count; n++)
+        {
+            Hook<void>::Write((void*)ReferenceBase[n].address, (BYTE*)&address, sizeof(address));
+            Print(fp, "Redirect Var to %p => %p\n", (void*)ReferenceBase[n].address, (BYTE*)address);
+            //SetDword(ReferenceBase[n].address, address);
+        }
+    }
+    else
+    {
+        if (FileSize < (sizeof(REFERENCE_INFO) + (ReferenceInfo->count * sizeof(REFERENCE_DATA))))
+        {
+            delete[] FileContent;
+            return;
+        }
+
+        REFERENCE_DATA* ReferenceData = (REFERENCE_DATA*)((DWORD)ReferenceInfo + sizeof(REFERENCE_INFO));
+
+        for (DWORD n = 0; n < ReferenceInfo->count; n++)
+        {
+			DWORD addressOffset = address + ReferenceData[n].value;
+            Hook<void>::Write((void*)ReferenceData[n].address, (BYTE*)&addressOffset, sizeof(address));
+            Print(fp, "Redirect Var to %p => %p\n", (void*)ReferenceData[n].address, (BYTE*)address);
+            //SetDword(ReferenceData[n].address, (address + ReferenceData[n].value));
+        }
+    }
+
+    delete[] FileContent;
+}
+
 void MainConfiguration()
 {
     if (Initialized)
@@ -546,6 +662,7 @@ void MainConfiguration()
     iPort = GetPrivateProfileIntA("MU", "Port", 44405, cfgFile);
     GetPrivateProfileStringA("MU", "Serial", "fughy683dfu7teqg", szSerial, 18, cfgFile);
     GetPrivateProfileStringA("MU", "Version", CLIENT_VERSION, szVersion, sizeof(szVersion), cfgFile);
+    GetPrivateProfileStringA("MU", "WindowName", CLIENT_WINDOW, szVersion, sizeof(szVersion), cfgFile);
     ODSShow = GetPrivateProfileIntA("MU", "OutputDebugString", 0, cfgFile) == 1;
     if (GetPrivateProfileIntA("MU", "Console", 0, cfgFile) == 1)
     {
@@ -573,10 +690,11 @@ void MainConfiguration()
     WZSenderClass = (DWORD**)GetPrivateProfileIntHexA("OFFSET", "SenderClass", MU_SENDER_CLASS, cfgFile);
     auto pCoreAHook = (T_ProcCoreA)GetPrivateProfileIntHexA("OFFSET", "ProcCoreAHook", 0, cfgFile);
     auto pCoreBHook = (T_ProcCoreB)GetPrivateProfileIntHexA("OFFSET", "ProcCoreBHook", 0, cfgFile);
+    auto pDMP = (VOID*)GetPrivateProfileIntHexA("OFFSET", "MiniDump", 0, cfgFile);
     auto pWZLog = (LPVOID*)GetPrivateProfileIntHexA("OFFSET", "WZMuLog", 0, cfgFile);
     auto SkipDestroy = GetPrivateProfileIntHexA("MU", "SkipDestroy", 0, cfgFile);
-
     auto sprintfFix = GetPrivateProfileIntA("MU", "sprintfFix", 0, cfgFile) == 1;
+    auto loadBin = GetPrivateProfileIntA("MU", "loadBin", 0, cfgFile) == 1;
 
     // Hooks
     old_Send = main_Send.Set(old_Send, SendPacket);
@@ -589,9 +707,15 @@ void MainConfiguration()
     if (pCoreBHook != 0) main_procCoreB.ChangeFunctionAddress(pCoreBHook, ProtocolCoreBEx);
     if(pWZLog!=nullptr) Hook<void>::Jump(pWZLog, WZMainLog);
     if(SkipDestroy) Hook<void>::Jump(SendMessageW, MySendMessageW);
+    if (pDMP) Hook<void>::Jump(pDMP, UnHandledExceptionFilter);
 
-    if(sprintfFix)
-        old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
+    if(sprintfFix) old_sprintf = main_sprintf.Set(old_sprintf, loc_sprintf);
+    if(loadBin)
+    {
+        LoadBinFile(".\\data1.bin", (DWORD)DataStream01, sizeof(DataStream01));
+        LoadBinFile(".\\data2.bin", (DWORD)DataStream02, sizeof(DataStream02));
+        LoadBinFile(".\\data3.bin", (DWORD)DataStream03, sizeof(DataStream03));
+	}
 
     char buff[100];
         
@@ -651,7 +775,16 @@ void MainConfiguration()
         //delete[] i.second.buf;
     }
 
+    for (auto &i : ParserINI("VirtualizeOffset"))
+    {
+        DWORD size = *(DWORD*)i.second.buf;
+        Hook<void>::VirtualizeOffset((DWORD)i.first, size);
+        delete[] i.second.buf;
+	}
+
     Initialized = true;
+
+	new_OutputDebugStringA("MU Connector Initialized\n");
 }
 
 void _stdcall new_GetStartupInfoA(LPSTARTUPINFOA lpStartupinfo)
@@ -680,6 +813,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
+        if (GetPrivateProfileIntA("MU", "GetStartupInfoA", 1, cfgFile) == 0)
+            break;
         old_GetStartupInfoA = kernel32_GetStartupInfoA.Set(_GetStartupInfoA, new_GetStartupInfoA);
         old_OutputDebugStringA = kernel32_OutputDebugStringA.Set(_OutputDebugStringA, new_OutputDebugStringA);
         break;
@@ -696,7 +831,6 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     return TRUE;
 }
 
-extern "C" _declspec(dllexport) void Init()
-{
-}
-extern "C" __declspec(dllexport) void Entry() {}
+extern "C" _declspec(dllexport) void Init(){ MainConfiguration(); }
+extern "C" __declspec(dllexport) void Entry() { MainConfiguration(); }
+extern "C" __declspec(dllexport) void EntryProc() { MainConfiguration(); }

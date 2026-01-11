@@ -93,6 +93,7 @@ namespace MuEmu
             ServerSeason.Season0Kor => false,
             ServerSeason.Season3Kor => false,
             ServerSeason.Season6Kor => false,
+            ServerSeason.Season6Eng => true,
             ServerSeason.Season9Eng => true,
             ServerSeason.Season9Kor => true,
             ServerSeason.Season10Kor => true,

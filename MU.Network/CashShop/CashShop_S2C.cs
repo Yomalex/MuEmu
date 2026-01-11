@@ -1,4 +1,5 @@
-﻿using MU.Resources;
+﻿using MU.Network.Game;
+using MU.Resources;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -77,6 +78,20 @@ namespace MU.Network.CashShop
     [WZContract]
     public class SCashInit : ICashMessage
     { }
+
+
+    [WZContract]
+    public class SCashPeriodItemCount : ICashMessage
+    {
+        [WZMember(0)] public byte Count { get; set; }
+    }
+    [WZContract]
+    public class SCashItemPeriodInfo : ICashMessage
+    {
+        [WZMember(0)] public ushort ItemID { get; set; }
+        [WZMember(1)] public ushort Slot { get; set; }
+        [WZMember(2)] public uint RemainingSeconds { get; set; }
+    }
 
     [WZContract]
     public class SCashVersion : ICashMessage

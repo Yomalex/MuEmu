@@ -512,20 +512,22 @@ namespace MuEmu.Monsters
                 return 0;
             }
 
+            int baseAttack = 0;
+
             if (Info.Spell != Spell.None)
             {
                 SpellInfo si = ResourceCache.Instance.GetSkills()[Info.Spell];
-                var baseAttack = _rand.Next(si.Damage.X + Info.DmgMin, si.Damage.Y + Info.DmgMax);
+                baseAttack = _rand.Next(si.Damage.X + Info.DmgMin, si.Damage.Y + Info.DmgMax);
                 type = DamageType.Regular;
-                attack = baseAttack - @char.Defense;
             }
             else
             {
                 var M = Math.Max(Info.DmgMin, Info.DmgMax);
                 var m = Math.Min(Info.DmgMin, Info.DmgMax);
-                var baseAttack = _rand.Next(m, M);
-                attack = baseAttack - @char.Defense;
+                baseAttack = _rand.Next(m, M);
             }
+            
+            attack = baseAttack - @char.GetDefense(attack);
 
             if (attack <= 0)
             {

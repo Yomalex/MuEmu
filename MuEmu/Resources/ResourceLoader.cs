@@ -170,6 +170,8 @@ namespace MuEmu.Resources
                                         Cmd = ushort.Parse(sm.Groups[22].Value),
                                         Classes = c
                                     });
+
+
                                 }
                                 break;
                             case ItemType.Shield:

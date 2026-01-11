@@ -53,7 +53,7 @@ namespace MU.Network.Auth
         public string Account => btAccount.MakeString();
         public string Password => btPassword.MakeString();
     }
-
+    
     [WZContract]
     public class CIDAndPassS12 : IAuthMessage
     {

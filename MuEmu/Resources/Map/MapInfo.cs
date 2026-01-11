@@ -44,7 +44,7 @@ namespace MuEmu.Resources.Map
         {
             if(!Items.ContainsKey(number) || Items[number].State != ItemMapState.Created)
             {
-                throw new Exception("This item don't exists.");
+                throw new Exception("Invalid item");
             }
 
             var item = Items[number];

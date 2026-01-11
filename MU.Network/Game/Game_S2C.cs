@@ -2891,12 +2891,6 @@ namespace MU.Network.Game
     }
 
     [WZContract]
-    public class SPeriodItemCount : IGameMessage
-    {
-        [WZMember(0)] public byte Count { get; set; }
-    }
-
-    [WZContract]
     public class SLifeInfo : IGameMessage
     {
         [WZMember(0)] public ushort wzNumber { get; set; }

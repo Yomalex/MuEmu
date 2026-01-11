@@ -711,9 +711,9 @@ namespace MuEmu
         public ushort AttackRatePvM => (ushort)(_attackRatePvM + Spells.PvMAttackSuccessRate);
         public ushort AttackRatePvP => (ushort)_attackRatePvP;
 
-        public ushort Defense => (ushort)(_defense + Spells.BuffList.Sum(x => x.DefenseAdd));
-        public ushort DefenseRatePvM => (ushort)(_defenseRatePvM + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
-        public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.PvPDefenceSuccessRate + Spells.BuffList.Sum(x => x.DefenseAddRate)*100.0f);
+        public ushort Defense => (ushort)((_defense + Spells.BuffList.Sum(x => x.DefenseAdd) + Spells.IncreaseDefense) * Spells.BuffList.Sum(x => x.DefenseAddRate));
+        public ushort DefenseRatePvM => (ushort)(_defenseRatePvM);
+        public ushort DefenseRatePvP => (ushort)(_defenseRatePvP + Spells.PvPDefenceSuccessRate);
 
         public ushort CriticalDamage => (ushort)(_rightAttackMax + _leftAttackMax);
         public ushort ExcellentDamage => (ushort)(CriticalDamage * 2);
@@ -993,7 +993,7 @@ namespace MuEmu
             }
             catch (Exception) { }
 
-            plr.Session.SendAsync(new SEventEnterCount { Type = EventEnterType.BloodCastle, Left = 4 });
+            plr.Session.SendAsync(new SEventEnterCount { Type = EventEnterType.BloodCastle, Left = 4 }).Wait();
         }
 
         public void SendV2Message(object message, Player exclude = null)
@@ -1543,10 +1543,10 @@ namespace MuEmu
         }
 
         #region Battle
-        public int GetDefense()
+        public int GetDefense(int attack)
         {
-            var _base = Inventory.Defense+Spells.IncreaseDefense;
-            var dmgAbsorb = 1.0f + Inventory.WingDmgAbsorb;
+            var _base = Defense;
+            var dmgAbsorb = 0.0f + Inventory.WingDmgAbsorb;
             var guardian = Inventory.Get(Equipament.Pet)?.Number ?? ItemNumber.Invalid;
 
             // Guardian Angel
@@ -1555,7 +1555,7 @@ namespace MuEmu
                 dmgAbsorb += 0.12f;
             }
 
-            return (int)(_base * dmgAbsorb);
+            return (int)(_base + (attack* dmgAbsorb));
         }
         public int Attack(Character target, out DamageType type)
         {
@@ -1563,7 +1563,6 @@ namespace MuEmu
             var rightHand = Inventory.Get(Equipament.RightHand);
             var pet = Inventory.Get(Equipament.Pet);
             var wing = Inventory.Get(Equipament.Wings);
-            var twing = target.Inventory.Get(Equipament.Wings);
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate*100;
             var tReflect = target.Inventory.Reflect;
@@ -1607,10 +1606,7 @@ namespace MuEmu
                 }
             }
 
-            if (twing != null) // Wings decrease Dmg 12%+(Level*2)%
-                attack *= 0.88f - twing.Plus * 0.02f;
-
-            attack -= target.GetDefense();
+            attack -= target.GetDefense((int)attack);
             WeaponDurDown(target.Inventory.Defense);
             return (int)attack;
         }
@@ -1726,27 +1722,15 @@ namespace MuEmu
                 }
             }
 
-            switch (_rand.Next(6))
+            Item selectedItem = Inventory.Get(Equipament.Helm + _rand.Next(6));
+            
+            if(selectedItem != null)
             {
-                case 0:
-                    Inventory.Get(Equipament.Helm)?.ArmorDurabilityDown(dmg);
-                    break;
-                case 1:
-                    Inventory.Get(Equipament.Armor)?.ArmorDurabilityDown(dmg);
-                    break;
-                case 2:
-                    Inventory.Get(Equipament.Pants)?.ArmorDurabilityDown(dmg);
-                    break;
-                case 3:
-                    Inventory.Get(Equipament.Gloves)?.ArmorDurabilityDown(dmg);
-                    break;
-                case 4:
-                    Inventory.Get(Equipament.Boots)?.ArmorDurabilityDown(dmg);
-                    break;
-                case 5:
-                    Inventory.Get(Equipament.Wings)?.ArmorDurabilityDown(dmg);
-                    break;
+                selectedItem.ArmorDurabilityDown(dmg);
+                if(selectedItem.Durability <= 0)
+                    await Inventory.Delete(selectedItem);
             }
+
             object message;
             var sdDamage = 0.0f;
             var healthDamage = 0.0f;
@@ -1814,7 +1798,7 @@ namespace MuEmu
             }
         }
 
-        public int SkillAttack(SpellInfo spell, int targetDefense, out DamageType type)
+        public int SkillAttack(SpellInfo spell, out DamageType type)
         {
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
@@ -1830,8 +1814,6 @@ namespace MuEmu
                 type = DamageType.Excellent;
             else if (criticalRate > _rand.Next(100))
                 type = DamageType.Critical;
-
-            WeaponDurDown(targetDefense);
 
             attack = BaseAttack(type != DamageType.Regular);
             attack *= (type == DamageType.Excellent) ? 2.2f : 1.0f;
@@ -1860,11 +1842,10 @@ namespace MuEmu
 
             attack *= (200.0f + EnergyTotal / 10.0f) / 100.0f;
 
-            attack -= targetDefense;
             return (int)attack;
         }
         
-        public int MagicAttack(SpellInfo spell, int targetDefense, out DamageType type)
+        public int MagicAttack(SpellInfo spell, out DamageType type)
         {
             var criticalRate = Inventory.CriticalRate;
             var excellentRate = Inventory.ExcellentRate;
@@ -1873,7 +1854,6 @@ namespace MuEmu
             var rightHand = Inventory.Get(Equipament.RightHand);
             var pet = Inventory.Get(Equipament.Pet);
 
-            WeaponDurDown(targetDefense);
             var magicAdd = 0;
 
             if (rightHand != null)
@@ -1916,7 +1896,6 @@ namespace MuEmu
             if (attack < 0)
                 attack = 0.0f;
 
-            attack -= targetDefense;
             return (int)attack;
         }
 
@@ -2087,10 +2066,14 @@ namespace MuEmu
                 {
                     var item = Program.RandomProvider(2) == 0 ? right : left;
                     item.NormalWeaponDurabilityDown(Defense);
+                    if (item.Durability <= 0)
+                        Inventory.Delete(item).Wait();
                 }
                 else if (right != null && right.Number.Type >= ItemType.Sword && right.Number.Type < ItemType.BowOrCrossbow)
                 {
                     right.NormalWeaponDurabilityDown(Defense);
+                    if (right.Durability <= 0)
+                        Inventory.Delete(right).Wait();
                 }
             }
         }

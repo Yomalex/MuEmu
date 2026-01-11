@@ -409,7 +409,6 @@ namespace MU.Network
         Position9Eng = 0xFF15,
 
         MiniMapNPC = 0x03E7,
-        PeriodItemCount = 0x11D2,
 
         PentagramaJInfo = 0x01EE,
         UBFInfo = 0x01CD,
@@ -660,6 +659,8 @@ namespace MU.Network
         CashItemUse = 0x0BD2,
         CashVersion = 0x0CD2,
         CashItemPreUse = 0x0FD2,
+        CashPeriodItemCount = 0x11D2,
+        CashItemDuration = 0x12D2,
         CashBanner = 0x15D2,
     }
 

@@ -38,6 +38,8 @@ namespace MU.Network.CashShop
             Register<SCashItemList2>(CashOpCode.CashItemList2);
             Register<SCashItemPreUse>(CashOpCode.CashItemPreUse);
             Register<SCashItemUse>(CashOpCode.CashItemUse);
+            Register<SCashItemPeriodInfo>(CashOpCode.CashItemDuration);
+            Register<SCashPeriodItemCount>(CashOpCode.CashPeriodItemCount);
 
             switch (Season)
             {

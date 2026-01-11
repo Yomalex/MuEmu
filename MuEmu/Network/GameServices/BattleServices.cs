@@ -101,7 +101,6 @@ namespace MuEmu.Network.GameServices
             Monster monster = null;
             Player player = null;
             Point pos;
-            int defense = 0;
 
             if (!@char.Spells.SpellDictionary.ContainsKey(message.MagicNumber))
             {
@@ -118,7 +117,6 @@ namespace MuEmu.Network.GameServices
                 {
                     monster = MonstersMng.Instance.GetMonster(target);
                     spells = monster.Spells;
-                    defense = monster.Defense;
                     pos = monster.Position;
                     eDmg = @char.PentagramAttack(monster).Result;
                 }
@@ -126,7 +124,6 @@ namespace MuEmu.Network.GameServices
                 {
                     player = Program.server.Clients.First(x => x.ID == target).Player;
                     spells = player.Character.Spells;
-                    defense = player.Character.Defense;
                     pos = player.Character.Position;
                     eDmg = @char.PentagramAttack(player.Character).Result;
                 }
@@ -138,7 +135,7 @@ namespace MuEmu.Network.GameServices
             }
 
             var mana = @char.Mana - spell.Mana;
-            var bp = @char.Stamina;
+            var bp = @char.Stamina - spell.BP;
 
             if (mana >= 0 && bp >= 0)
             {
@@ -244,6 +241,7 @@ namespace MuEmu.Network.GameServices
                 }
 
                 @char.Mana = mana;
+                @char.Stamina = bp;
                 DamageType type = DamageType.Regular;
                 var attack = 0.0f;
                 switch (spell.Number)
@@ -274,7 +272,7 @@ namespace MuEmu.Network.GameServices
                     case Spell.CrescentMoonSlash:
                     case Spell.Impale:
                     case Spell.FireBreath:
-                        attack = @char.SkillAttack(spell, defense, out type);
+                        attack = @char.SkillAttack(spell, out type);
                         //else
                         //    @char.SkillAttack(spell, player, out type);
                         break;
@@ -317,11 +315,11 @@ namespace MuEmu.Network.GameServices
 
                         if (@char.BaseClass == HeroClass.Summoner || @char.BaseClass == HeroClass.DarkWizard || @char.BaseClass == HeroClass.MagicGladiator)
                         {
-                            attack = @char.MagicAttack(spell, defense, out type);
+                            attack = @char.MagicAttack(spell, out type);
                         }
                         else
                         {
-                            attack = @char.SkillAttack(spell, defense, out type);
+                            attack = @char.SkillAttack(spell, out type);
                         }
 
                         if (attack <= 0)
@@ -338,8 +336,8 @@ namespace MuEmu.Network.GameServices
                     @char.Spells.AttackSend(Spell.Combo, target, true);
                 }
 
-                player?.Character.GetAttacked((ushort)@char.Player.Session.ID, @char.Direction, 0, (int)attack, type, spell.Number, eDmg);
-                monster?.GetAttackedDelayed(@char.Player, (int)attack, type, TimeSpan.FromMilliseconds(500));
+                player?.Character.GetAttacked((ushort)@char.Player.Session.ID, @char.Direction, 0, (int)attack- player.Character.GetDefense((int)attack), type, spell.Number, eDmg);
+                monster?.GetAttackedDelayed(@char.Player, (int)(attack- monster.Defense), type, TimeSpan.FromMilliseconds(500));
             }
         }
 
@@ -431,7 +429,9 @@ namespace MuEmu.Network.GameServices
                 if (message.Target < MonstersMng.MonsterStartIndex)
                 {
                     plr = Program.server.Clients.First(x => x.ID == message.Target).Player;
-                    attack = @char.SkillAttack(magic, plr.Character.Defense, out type);
+                    attack = @char.SkillAttack(magic, out type);
+                    attack -= plr.Character.GetDefense(attack);
+                    @char.WeaponDurDown(plr.Character.Defense);
                     pos = plr.Character.Position;
                     var eDmg = await @char.PentagramAttack(plr.Character);
                     await plr.Character.GetAttacked(@char.Player.ID, message.Dir, 0, attack, type, message.MagicNumber, eDmg);
@@ -441,7 +441,8 @@ namespace MuEmu.Network.GameServices
                     mom = MonstersMng.Instance.GetMonster(message.Target);
                     if (mom == null)
                         return;
-                    attack = @char.SkillAttack(magic, mom.Defense, out type);
+                    attack = @char.SkillAttack(magic, out type)-mom.Defense;
+                    @char.WeaponDurDown(mom.Defense);
                     pos = mom.Position;
                     var eDmg = await @char.PentagramAttack(mom);
                     await mom.GetAttacked(@char.Player, attack, type, eDmg);
@@ -539,7 +540,7 @@ namespace MuEmu.Network.GameServices
 
                         foreach (var mob in vp)
                         {
-                            attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            attack = @char.SkillAttack(magic, out type) - mob.Defense;
                             var eDmg = await @char.PentagramAttack(mob);
                             await mob.GetAttacked(@char.Player, attack, type, eDmg);
                         }
@@ -559,7 +560,7 @@ namespace MuEmu.Network.GameServices
 
                         foreach (var mob in vp)
                         {
-                            attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            attack = @char.SkillAttack(magic, out type)-mob.Defense;
                             var eDmg = await @char.PentagramAttack(mob);
                             await mob.GetAttacked(@char.Player, attack, type, eDmg);
                         }
@@ -574,7 +575,7 @@ namespace MuEmu.Network.GameServices
                             .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
-                            attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            attack = @char.SkillAttack(magic, out type) - mob.Defense;
                             var eDmg = await @char.PentagramAttack(mob);
                             await mob.GetAttacked(@char.Player, attack, type, eDmg);
                             mob.Spells.SetBuff(SkillStates.Poison, TimeSpan.FromSeconds(60), @char);
@@ -595,7 +596,7 @@ namespace MuEmu.Network.GameServices
                             .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
-                            attack = @char.SkillAttack(magic, mob.Defense, out type);
+                            attack = @char.SkillAttack(magic, out type) - mob.Defense;
                             var eDmg = await @char.PentagramAttack(mob);
                             await mob.GetAttacked(@char.Player, attack, type, eDmg);
                             mob.Spells.SetBuff(SkillStates.Ice, TimeSpan.FromSeconds(60), @char);
@@ -612,7 +613,7 @@ namespace MuEmu.Network.GameServices
                             .Where(x => x.Position.Substract(mp).Length() <= 2.0 && x.Type != ObjectType.NPC);
                         foreach (var mob in vp)
                         {
-                            attack = @char.MagicAttack(magic, mob.Defense, out type);
+                            attack = @char.MagicAttack(magic, out type) - mob.Defense;
                             mob.GetAttackedDelayed(@char.Player, attack, type, TimeSpan.FromMilliseconds(300));
                             //mob.Spells.SetBuff(SkillStates.f, TimeSpan.FromSeconds(60), @char);
                         }
@@ -636,7 +637,7 @@ namespace MuEmu.Network.GameServices
             foreach (var mob in mobInRange)
             {
                 DamageType dmgType;
-                var dmg = session.Player.Character.MagicAttack(spell, mob.Defense, out dmgType);
+                var dmg = session.Player.Character.MagicAttack(spell, out dmgType) - mob.Defense;
                 var eDmg = await session.Player.Character.PentagramAttack(mob);
                 await mob.GetAttacked(session.Player, dmg, dmgType, eDmg);
             }

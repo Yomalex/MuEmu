@@ -38,6 +38,9 @@ namespace MuEmu
         private SocketOption[] _slots;
         private JewelOfHarmony _jewelOfHarmony = new JewelOfHarmony();
         private byte _petLevel;
+
+        public DateTime CreationTime { get; }
+
         private ItemNumber _number;
         private Account _account;
         private Character _character;
@@ -181,7 +184,15 @@ namespace MuEmu
                 OnItemChange();
             }
         }
-        public DateTime ExpireTime { get; set; } = DateTime.MinValue;
+        public DateTime ExpireTime { get; set; } = DateTime.Now;
+        public uint DurationTime
+        {
+            get
+            {
+                var ts = ExpireTime - CreationTime;
+                return (uint)ts.TotalSeconds;
+            }
+        }
         public byte OptionExe { get; set; }
 
         public byte ExcellentCount => CountOfExcellent();
@@ -413,6 +424,8 @@ namespace MuEmu
         public Item(ItemNumber number, object Options = null)
         {
             var ItemDB = ResourceCache.Instance.GetItems();
+            CreationTime = DateTime.Now;
+            ExpireTime = CreationTime;            
 
             if (!ItemDB.ContainsKey(number))
                 throw new Exception("Item don't exists " + number);
@@ -459,6 +472,8 @@ namespace MuEmu
             PetEXP = dto.PetEXP;
             SetOption = dto.SetOption;
             _petLevel = dto.PetLevel;
+            CreationTime = dto.DateCreation;
+            ExpireTime = dto.DateCreation.AddSeconds(dto.DurationTime);
 
             if (string.IsNullOrEmpty(dto.SocketOptions))
             {
@@ -579,7 +594,7 @@ namespace MuEmu
                     ms.WriteByte(SetOption); // Acient Option
 
                     byte itemPeriod = 0;
-                    if (ExpireTime != DateTime.MinValue)
+                    if (DurationTime > 0)
                     {
                         itemPeriod |= 0x01;
                         itemPeriod |= (byte)((DateTime.Now > ExpireTime) ? 0x02 : 0x00);
@@ -1147,6 +1162,7 @@ namespace MuEmu
             _db.PetLevel = PetLevel;
             _db.PetEXP = PetEXP;
             _db.SetOption = SetOption;
+            _db.DurationTime = DurationTime;
 
             var str = $"[A{_db.AccountId}->{_vid}:{_slot}]Item Saved:{ToString()}";
             log.Information(str+" {0}", State);
@@ -1193,10 +1209,10 @@ namespace MuEmu
             if (BasicInfo.Cmd != 0)
                 ReqCommand = (BasicInfo.Cmd * (itemLevel + Plus * 3) * 3) / 100 + 20;
 
-            AttackMax = BasicInfo.Damage.Y + Plus * 3;
-            AttackMin = BasicInfo.Damage.X + Plus * 3;
+            AttackMax = BasicInfo.Damage.Y + Plus * 3 + ((OptionExe & 0xff) != 0 ? 30 : 0);
+            AttackMin = BasicInfo.Damage.X + Plus * 3 + ((OptionExe & 0xff) != 0 ? 30 : 0);
             Defense = BasicInfo.Def + Plus * 3;
-            DefenseRate = BasicInfo.DefRate + Plus * 3;
+            DefenseRate = BasicInfo.DefRate + Plus * 3 + ((OptionExe & 0xff) != 0 ? 30 : 0);
 
             //if(Number == ItemNumber.FromTypeIndex(13,5)) // Dark Spirit
             //{
@@ -1800,7 +1816,7 @@ namespace MuEmu
             var randOp = Program.RandomProvider(100);
             OptionExe = 0;
             Option28 = 0;
-            if (Program.RandomProvider(6) == 0)
+            if (Number.Type <= ItemType.Boots && Program.RandomProvider(6) == 0)
             {
                 int NOption;
                 NOption = 1 << Program.RandomProvider(6);
@@ -1816,16 +1832,6 @@ namespace MuEmu
                 if (Program.RandomProvider(4) == 0)
                 {
                     NOption |= 1 << Program.RandomProvider(6);
-
-                    if (Program.RandomProvider(4) == 0)
-                    {
-                        NOption |= 1 << Program.RandomProvider(6);
-
-                        if (Program.RandomProvider(4) == 0)
-                        {
-                            NOption |= 1 << Program.RandomProvider(6);
-                        }
-                    }
                 }
 
                 OptionExe = (byte)NOption;
@@ -1907,7 +1913,7 @@ namespace MuEmu
         public Item Overlap(Item item)
         {
             if (item.Number != Number || item.Plus != Plus || _durability >= BasicInfo.MaxStack)
-                throw new Exception($"Item {item} to {this} Can't be stacked {item.Number != Number} {item.Plus != Plus} {_durability >= BasicInfo.MaxStack}");
+                throw new Exception($"Item {item} to {this} Can't be stacked");
 
             item.Durability = Overlap(item.Durability);
             if (item.Durability == 0)

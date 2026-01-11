@@ -165,6 +165,48 @@ namespace MU.Network.Auth
             return this;
         }
     }
+    [WZContract(Serialized = true)]
+    public class SCharacterListS6Eng : CharList, IAuthMessage
+    {
+        [WZMember(0)]
+        public byte MaxClass { get; set; }
+
+        [WZMember(1)]
+        public byte MoveCount { get; set; }
+
+        [WZMember(2)]
+        public byte Count { get; set; }
+
+        [WZMember(3)]
+        public byte WhExpansion { get; set; }
+
+        [WZMember(5, SerializerType = typeof(ArraySerializer))]
+        public CharacterPreviewDto[] CharacterList { get; set; }
+
+        public SCharacterListS6Eng()
+        {
+            CharacterList = Array.Empty<CharacterPreviewDto>();
+        }
+
+        public SCharacterListS6Eng(byte maxClas, byte moveCnt, byte CharSlotCount, byte WhSlotCount) : base(maxClas, moveCnt, CharSlotCount, WhSlotCount)
+        {
+            MaxClass = maxClas;
+            MoveCount = moveCnt;
+            WhExpansion = WhSlotCount;
+            CharacterList = Array.Empty<CharacterPreviewDto>();
+        }
+
+        public override CharList AddChar(byte id, CharacterDto @char, byte[] charSet, GuildStatus gStatus)
+        {
+            var l = CharacterList.ToList();
+            l.Add(new CharacterPreviewDto(
+                id, @char.Name, @char.Level, (ControlCode)@char.CtlCode, charSet.Take(18).ToArray(), gStatus
+                ));
+            CharacterList = l.ToArray();
+            Count = (byte)CharacterList.Length;
+            return this;
+        }
+    }
 
     [WZContract]
     public class SCharacterListS9 : CharList, IAuthMessage
@@ -499,17 +541,17 @@ namespace MU.Network.Auth
         [WZMember(15)] public ushort Shield { get; set; }//26
         [WZMember(16)] public ushort MaxShield { get; set; }//28
         [WZMember(17)] public ushort Stamina { get; set; }//2a
-        [WZMember(18)] public ushort MaxStamina { get; set; }//2c
-        [WZMember(19)] public ushort unk { get; set; }
-        [WZMember(20)] public uint Zen { get; set; }//2e
-        [WZMember(21)] public byte PKLevel { get; set; }//36
-        [WZMember(22)] public byte ControlCode { get; set; }//37
-        [WZMember(23)] public short AddPoints { get; set; }//38
-        [WZMember(24)] public short MaxAddPoints { get; set; }//3a 
-        [WZMember(25)] public ushort Cmd { get; set; }//3c
-        [WZMember(26)] public short MinusPoints { get; set; }//3e
-        [WZMember(27)] public short MaxMinusPoints { get; set; }//40
-        [WZMember(28)] public byte ExpandedInv { get; set; }//41
+        [WZMember(18)] public ushort MaxStamina { get; set; }//2c +30
+        [WZMember(19)] public ushort unk { get; set; }//+32
+        [WZMember(20)] public uint Zen { get; set; }//2e +34
+        [WZMember(21)] public byte PKLevel { get; set; }//36 +38
+        [WZMember(22)] public byte ControlCode { get; set; }//37 +39
+        [WZMember(23)] public short AddPoints { get; set; }//38 +3A
+        [WZMember(24)] public short MaxAddPoints { get; set; }//3a +3C
+        [WZMember(25)] public ushort Cmd { get; set; }//3c +3E
+        [WZMember(26)] public short MinusPoints { get; set; }//3e +40
+        [WZMember(27)] public short MaxMinusPoints { get; set; }//40 +42
+        [WZMember(28)] public byte ExpandedInv { get; set; }//41 +44
         [WZMember(29)] public uint Ruud { get; set; }//42
         //[WZMember(30)]
         //public byte ExpandedVault { get; set; }//44

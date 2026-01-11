@@ -17,6 +17,7 @@ typedef void (*T_ConnToCS)(char* hostname, int port);
 
 #ifdef CLIENT_S9
 #define CLIENT_VERSION "10525"
+#define CLIENT_WINDOW "MU"
 
 #define CTRL_FREEZE_FIX (0x0053125F+1) // S9
 #define MAPSRV_DELACCID_FIX 0x004FAC1D // S9

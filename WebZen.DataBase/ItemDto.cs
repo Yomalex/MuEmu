@@ -61,5 +61,8 @@ namespace MU.DataBase
 
         [Column(TypeName = "TINYINT(1) UNSIGNED")]
         public byte SetOption { get; set; }
+
+        [Column(TypeName = "INT(10) UNSIGNED")]
+        public uint DurationTime { get; set; }
     }
 }

@@ -225,6 +225,7 @@ namespace MuEmu.Network.GameServices
                 return;
             }
 
+            message.btId = session.Player.Character.Name.GetBytes();
             await target.SendAsync(message);
         }
         #endregion
@@ -983,7 +984,7 @@ namespace MuEmu.Network.GameServices
                         await session.SendAsync(new SNPCDialog { Contribution = 0, NPC = npc.NPC });
                         break;
                     case NPCAttributeType.Buff:
-                        @char.Spells.SetBuff((SkillStates)npc.Data, TimeSpan.FromSeconds(120));
+                        @char.Spells.SetBuff((SkillStates)npc.Data, TimeSpan.FromMinutes(120));
                         break;
                     case NPCAttributeType.Quest:
                         var quest = @char.Quests.Find(obj.Info.Monster);

@@ -504,6 +504,7 @@ namespace MuEmu
                 _excellentRate += item.ExcellentDmgRate;
                 _increaseWizardryRate += item.IncreaseWizardryRate;
                 _increaseWizardry += item.IncreaseWizardry;
+                _increaseDamage += item.IncreaseWizardry;
                 _increaseLifeRate += item.IncreaseLifeRate;
                 _increaseManaRate += item.IncreaseManaRate;
 
@@ -1056,6 +1057,12 @@ namespace MuEmu
             message.LoadItems(list.ToArray());
 
             await Character.Player.Session.SendAsync(message);
+
+            var packetList = _inventory.GetInventoryDuration().ToList();
+            if (_exInventory1 != null) packetList.AddRange(_exInventory1.GetInventoryDuration());
+            if (_exInventory2 != null) packetList.AddRange(_exInventory2.GetInventoryDuration());
+            packetList.AddRange(_personalShop.GetInventoryDuration());
+            if (packetList.Any()) await Task.WhenAll(packetList.Select(x => Character.Player.Session.SendAsync(x)).ToArray());
         }
 
 

@@ -102,6 +102,7 @@ namespace MU.Network.Game
             VersionSelector.Register<SMagicAttackS9Eng>(ServerSeason.Season9Eng, GameOpCode.MagicAttack);
             VersionSelector.Register<SMagicAttackS12Eng>(ServerSeason.Season12Eng, GameOpCode.MagicAttack);
 
+
             switch (Season)
             {
                 case ServerSeason.Season17Kor75:
@@ -120,8 +121,8 @@ namespace MU.Network.Game
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
                     break;
                 case ServerSeason.Season12Eng:
-                    Register<SMove>(GameOpCode.Move12Eng);
                     Register<CAttack>(GameOpCode.Attack12Eng);
+                    Register<SMove>(GameOpCode.Move12Eng);
                     Register<CBeattackS9>(GameOpCode.Position);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<CMagicDurationS9>(GameOpCode.MagicDuration);
@@ -129,7 +130,9 @@ namespace MU.Network.Game
                     Register<SMagicDurationS9Eng>(GameOpCode.MagicDuration);
                     break;
                 case ServerSeason.Season9Eng:// ENG
+                case ServerSeason.Season6Eng:
                     Register<CAttack>(GameOpCode.AttackEng);
+                    Register<SAttackResult>(GameOpCode.AttackEng);
                     Register<CMagicAttackS9>(GameOpCode.MagicAttack);
                     Register<CTeleportS9>(GameOpCode.Teleport);
                     Register<CMagicDurationS9>(GameOpCode.MagicDuration);
@@ -142,6 +145,7 @@ namespace MU.Network.Game
                     break;
                 default:
                     Register<CAttack>(GameOpCode.Attack);
+                    Register<SAttackResult>(GameOpCode.Attack);
                     Register<CMagicAttack>(GameOpCode.MagicAttack);
                     Register<CMagicDuration>(GameOpCode.MagicDuration);
                     Register<CTeleport>(GameOpCode.Teleport);
@@ -153,12 +157,12 @@ namespace MU.Network.Game
                     Register<SMagicAttack>(GameOpCode.MagicAttack);
                     break;
             }
-
-            if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
             Register<SAttackResultS16Kor>(GameOpCode.Attack12Eng);
             Register<SAttackResultS12Eng>(GameOpCode.Attack12Eng);
             Register<SAttackResultS9Eng>(GameOpCode.AttackEng);
-            Register<SAttackResult>(GameOpCode.Attack);
+
+            if (Season == ServerSeason.Season17Kor75) Converter = (opCode) => Data.ProtocolXChangeS17K75(opCode, false);
+            
             VersionSelector.Register<SAttackResult>(ServerSeason.Season6Kor, GameOpCode.Attack);
             VersionSelector.Register<SAttackResultS9Eng>(ServerSeason.Season9Eng, GameOpCode.Attack);
             VersionSelector.Register<SAttackResultS12Eng>(ServerSeason.Season12Eng, GameOpCode.Attack);
@@ -482,7 +486,6 @@ namespace MU.Network.Game
             VersionSelector.Register<SMuunInventoryS17>(ServerSeason.Season17Kor, GameOpCode.MuunInventory);
             Register<SUBFPopUpType>(GameOpCode.PopUpType);
             Register<SMiniMapNPC>(GameOpCode.MiniMapNPC);
-            Register<SPeriodItemCount>(GameOpCode.PeriodItemCount);
             Register<SPentagramaJewelInfo>(GameOpCode.PentagramaJInfo);
 
             VersionSelector.Register<SGremoryCaseDelete>(ServerSeason.Season6Kor, GameOpCode.GremoryCaseDelete);
